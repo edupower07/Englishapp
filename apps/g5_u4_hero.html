@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マイヒーロー紹介ジェネレーター | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff4757; --primary-dark:#d63447; --blue:#546de5; --yellow:#fdcb6e; --green:#26de81;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
+
+.step-title{text-align:center;margin:18px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:16px}
+.step-sub b{color:var(--primary)}
+
+/* person / ability grids */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.pick{
+  background:#fff;border-radius:18px;padding:10px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;position:relative;min-height:140px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+}
+.pick:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.pick .pimg{width:84px;height:84px;display:flex;align-items:center;justify-content:center}
+.pick .pimg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}
+.pick .pemoji{font-size:3rem;line-height:1}
+.pick .plabel{font-weight:800;font-size:.92rem;line-height:1.2}
+.pick .plabel small{display:block;color:var(--sub);font-size:.72rem;font-weight:700}
+.pick.selected{border-color:var(--primary);background:#fff5f6}
+.pick .mark{
+  position:absolute;top:-12px;right:-6px;width:38px;height:38px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:#fff;box-shadow:var(--shadow);
+}
+.pick.can .mark{display:flex;background:var(--green)}
+.pick.cant .mark{display:flex;background:#8395a7}
+.pick.can{border-color:var(--green);background:#f0fff7}
+.pick.cant{border-color:#8395a7;background:#f3f5f7;opacity:.85}
+
+.hint-note{
+  max-width:560px;margin:14px auto 0;background:#fff;border-radius:14px;padding:10px 16px;box-shadow:var(--shadow);
+  font-size:.8rem;color:var(--sub);font-weight:700;text-align:center;line-height:1.7;
+}
+.hint-note .can-b{color:var(--green)} .hint-note .cant-b{color:#8395a7}
+
+/* pronoun choice */
+.pron-row{display:flex;gap:10px;justify-content:center;margin:14px 0}
+.pron-row button{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:10px 26px;font-family:inherit;
+  font-weight:800;font-size:1rem;cursor:pointer;min-height:48px;color:var(--sub);transition:.2s;
+}
+.pron-row button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* bottom action bar */
+.actions{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:14px 34px;font-family:inherit;font-weight:800;font-size:1.05rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:52px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn.blue{background:var(--blue)}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* result card */
+.hero-card{
+  max-width:620px;margin:10px auto;background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);
+  overflow:hidden;border:5px solid var(--primary);
+}
+.hero-card .hc-head{
+  background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;text-align:center;padding:14px;
+  font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.3rem;
+}
+.hc-body{display:flex;gap:16px;padding:20px;align-items:center;flex-wrap:wrap}
+.hc-photo{width:150px;height:150px;background:#fdf6e3;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;margin:0 auto}
+.hc-photo img{width:100%;height:100%;object-fit:contain}
+.hc-photo .pemoji{font-size:4.5rem}
+.hc-lines{flex:1;min-width:240px}
+.hc-line{
+  font-size:1.15rem;font-weight:800;padding:7px 12px;border-radius:12px;margin-bottom:6px;cursor:pointer;transition:.15s;
+  display:flex;align-items:center;gap:8px;
+}
+.hc-line:hover{background:#fff5f6}
+.hc-line .spk{font-size:.95rem}
+.hc-line.intro{color:var(--primary-dark)}
+.hc-line.cant{color:#8395a7}
+.hc-line.finale{color:var(--blue)}
+.hc-foot{text-align:center;padding:0 20px 18px;color:var(--sub);font-size:.78rem;font-weight:700}
+
+/* quiz presentation */
+.quiz-stage{max-width:620px;margin:10px auto;text-align:center}
+.quiz-q{
+  background:#fff;border-radius:26px;box-shadow:var(--shadow);padding:26px;border:5px solid var(--blue);
+}
+.quiz-q h2{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--blue);letter-spacing:1px}
+.hints{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.hint-line{
+  background:#eef1fd;border-radius:14px;padding:12px;font-size:1.2rem;font-weight:800;color:#3b4a9f;
+  animation:slidein .4s;cursor:pointer;
+}
+@keyframes slidein{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.reveal-photo{margin:14px auto 0;width:170px;height:170px;background:#fdf6e3;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden;animation:pop .5s}
+.reveal-photo img{width:100%;height:100%;object-fit:contain}
+.reveal-photo .pemoji{font-size:5rem}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.reveal-line{font-size:1.5rem;font-weight:800;color:var(--primary);margin-top:10px;animation:pop .5s}
+
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🦸 マイヒーロー紹介ジェネレーター <span class="u">5年 Unit4 He can bake bread well.</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-restart">さいしょから</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP1: 人物 -->
+  <section id="step-person">
+    <h2 class="step-title">① しょうかいする人をえらぼう</h2>
+    <p class="step-sub">きみのヒーローはだれ?</p>
+    <div class="grid" id="person-grid"></div>
+  </section>
+
+  <!-- STEP1.5: He/She -->
+  <section id="step-pron" class="hidden">
+    <h2 class="step-title">② He と She、どっちでしょうかいする?</h2>
+    <p class="step-sub">男の人は <b>He</b>、女の人は <b>She</b> を使うよ</p>
+    <div class="pron-row">
+      <button data-p="He">He(かれ)</button>
+      <button data-p="She">She(かのじょ)</button>
+    </div>
+  </section>
+
+  <!-- STEP2: できること -->
+  <section id="step-ability" class="hidden">
+    <h2 class="step-title" id="ability-title">② できることをえらぼう</h2>
+    <p class="step-sub">タップするたびに <b>できる○ → できない× → なし</b> がかわるよ(3つくらいえらぼう)</p>
+    <div class="grid" id="ability-grid"></div>
+    <div class="hint-note"><span class="can-b">○ can(〜できる)</span> / <span class="cant-b">× can't(〜できない)</span> をまぜると、しょうかいがもっとおもしろくなるよ</div>
+    <div class="actions">
+      <button class="big-btn" id="btn-make" disabled>しょうかいカードをつくる ▶</button>
+      <button class="big-btn blue" id="btn-quiz" disabled>だれでしょうクイズにする ❓</button>
+    </div>
+  </section>
+
+  <!-- 完成カード -->
+  <section id="step-card" class="hidden">
+    <div class="hero-card">
+      <div class="hc-head">MY HERO</div>
+      <div class="hc-body">
+        <div class="hc-photo" id="card-photo"></div>
+        <div class="hc-lines" id="card-lines"></div>
+      </div>
+      <div class="hc-foot">文をタップすると1文ずつ読み上げます</div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ(発表れんしゅう)</button>
+      <button class="big-btn blue" id="btn-to-quiz">このままクイズに出す ❓</button>
+      <button class="big-btn gray" id="btn-back1">えらびなおす</button>
+    </div>
+  </section>
+
+  <!-- だれでしょうクイズ -->
+  <section id="step-quizshow" class="hidden">
+    <div class="quiz-stage">
+      <div class="quiz-q">
+        <h2>Who is this?</h2>
+        <div class="hints" id="hint-area"></div>
+        <div id="reveal-area" class="hidden">
+          <div class="reveal-photo" id="reveal-photo"></div>
+          <div class="reveal-line" id="reveal-line"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="big-btn blue" id="btn-hint">ヒントを出す 💡</button>
+        <button class="big-btn" id="btn-reveal">せいかい発表 🎉</button>
+        <button class="big-btn gray" id="btn-back2">えらびなおす</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+
+// 紹介する人物。pronoun: "He" / "She" / "I"(自分) / null(選択させる)
+const PEOPLE = [
+  { id:"father",      ja:"お父さん",     en:"my father",      img:"father.jpg",      emoji:"👨", pronoun:"He"  },
+  { id:"mother",      ja:"お母さん",     en:"my mother",      img:"mother.jpg",      emoji:"👩", pronoun:"She" },
+  { id:"brother",     ja:"お兄さん・弟", en:"my brother",     img:"brother.jpg",     emoji:"👦", pronoun:"He"  },
+  { id:"sister",      ja:"お姉さん・妹", en:"my sister",      img:"sister.jpg",      emoji:"👧", pronoun:"She" },
+  { id:"grandfather", ja:"おじいさん",   en:"my grandfather", img:"grandfather.jpg", emoji:"👴", pronoun:"He"  },
+  { id:"grandmother", ja:"おばあさん",   en:"my grandmother", img:"grandmother.jpg", emoji:"👵", pronoun:"She" },
+  { id:"friend",      ja:"友だち",       en:"my friend",      img:"friend.jpg",      emoji:"🧑‍🤝‍🧑", pronoun:null  },
+  { id:"teacher",     ja:"先生",         en:"my teacher",     img:"teacher.jpg",     emoji:"🧑‍🏫", pronoun:null  },
+  { id:"me",          ja:"じぶん",       en:"me",             img:"me.jpg",          emoji:"🙋", pronoun:"I"   },
+];
+
+// できること(can + 動詞)
+const ABILITIES = [
+  { id:"swim",     en:"swim",              ja:"およぐ",           img:"swim.jpg",            emoji:"🏊" },
+  { id:"cook",     en:"cook well",         ja:"りょうりする",     img:"cook.jpg",            emoji:"🍳" },
+  { id:"dance",    en:"dance well",        ja:"ダンスする",       img:"dance.jpg",           emoji:"💃" },
+  { id:"sing",     en:"sing well",         ja:"歌う",             img:"sing well.jpg",       emoji:"🎤" },
+  { id:"runfast",  en:"run fast",          ja:"速く走る",         img:"run fast.jpg",        emoji:"🏃" },
+  { id:"piano",    en:"play the piano",    ja:"ピアノをひく",     img:"play the piano.jpg",  emoji:"🎹" },
+  { id:"guitar",   en:"play the guitar",   ja:"ギターをひく",     img:"play the guitar.jpg", emoji:"🎸" },
+  { id:"recorder", en:"play the recorder", ja:"リコーダーをふく", img:"play the recorder.jpg", emoji:"🎵" },
+  { id:"soccer",   en:"play soccer",       ja:"サッカーをする",   img:"play soccer.jpg",     emoji:"⚽" },
+  { id:"unicycle", en:"ride a unicycle",   ja:"一輪車にのる",     img:"ride a unicycle.jpg", emoji:"🚲" },
+  { id:"jumprope", en:"jump rope",         ja:"なわとびをする",   img:"jump rope.jpg",       emoji:"🤸" },
+  { id:"draw",     en:"draw well",         ja:"絵をかく",         img:"draw pictures.jpg",   emoji:"🎨" },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let sel = { person:null, pronoun:null, can:[], cant:[] };
+let quizHintIdx = 0;
+
+const $ = id => document.getElementById(id);
+function show(ids){
+  ["step-person","step-pron","step-ability","step-card","step-quizshow"].forEach(s =>
+    $(s).classList.toggle("hidden", !ids.includes(s)));
+}
+function imgOrEmoji(item, cls = "pimg"){
+  const url = IMG_BASE + encodeURIComponent(item.img);
+  return `<div class="${cls}"><img src="${url}" alt="${item.en}" onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${item.emoji}</span>'"></div>`;
+}
+
+// ============================================================
+// STEP1 人物選択
+// ============================================================
+function buildPersonGrid(){
+  $("person-grid").innerHTML = PEOPLE.map(p => `
+    <div class="pick" data-id="${p.id}">
+      ${imgOrEmoji(p)}
+      <div class="plabel">${p.ja}<small>${p.en}</small></div>
+    </div>`).join("");
+}
+$("person-grid").addEventListener("click", e => {
+  const el = e.target.closest(".pick"); if(!el) return;
+  sel.person = PEOPLE.find(p => p.id === el.dataset.id);
+  if(sel.person.pronoun === null){ show(["step-pron"]); }
+  else { sel.pronoun = sel.person.pronoun; enterAbility(); }
+});
+document.querySelectorAll("#step-pron .pron-row button").forEach(b => {
+  b.addEventListener("click", () => { sel.pronoun = b.dataset.p; enterAbility(); });
+});
+
+// ============================================================
+// STEP2 できること選択(なし → can → can't → なし)
+// ============================================================
+function enterAbility(){
+  sel.can = []; sel.cant = [];
+  $("ability-title").textContent = `${sel.person.pronoun === null ? "③" : "②"} 「${sel.person.ja}」のできることをえらぼう`;
+  $("ability-grid").innerHTML = ABILITIES.map(a => `
+    <div class="pick ab" data-id="${a.id}">
+      <span class="mark"></span>
+      ${imgOrEmoji(a)}
+      <div class="plabel">${a.ja}<small>${a.en}</small></div>
+    </div>`).join("");
+  show(["step-ability"]);
+  updateAbilityButtons();
+}
+$("ability-grid").addEventListener("click", e => {
+  const el = e.target.closest(".pick"); if(!el) return;
+  const id = el.dataset.id;
+  const a = ABILITIES.find(x => x.id === id);
+  if(sel.can.includes(id)){                       // can → can't
+    sel.can = sel.can.filter(x => x !== id);
+    sel.cant.push(id);
+    el.classList.remove("can"); el.classList.add("cant");
+    el.querySelector(".mark").textContent = "×";
+    speak(`${pron()} can't ${a.en}.`);
+  }else if(sel.cant.includes(id)){                // can't → なし
+    sel.cant = sel.cant.filter(x => x !== id);
+    el.classList.remove("cant");
+    el.querySelector(".mark").textContent = "";
+  }else{                                          // なし → can
+    sel.can.push(id);
+    el.classList.add("can");
+    el.querySelector(".mark").textContent = "○";
+    speak(`${pron()} can ${a.en}.`);
+  }
+  updateAbilityButtons();
+});
+function updateAbilityButtons(){
+  const any = sel.can.length + sel.cant.length > 0;
+  $("btn-make").disabled = !any;
+  $("btn-quiz").disabled = !any;
+}
+function pron(){ return sel.pronoun || "He"; }
+
+// ============================================================
+// 紹介文の生成
+// ============================================================
+function buildSentences(){
+  const p = pron();
+  const lines = [];
+  if(sel.person.id === "me"){ lines.push({ t:"This is me!", cls:"intro" }); }
+  else{ lines.push({ t:`This is ${sel.person.en}.`, cls:"intro" }); }
+  sel.can.forEach(id => {
+    const a = ABILITIES.find(x => x.id === id);
+    lines.push({ t:`${p} can ${a.en}.`, cls:"can" });
+  });
+  sel.cant.forEach(id => {
+    const a = ABILITIES.find(x => x.id === id);
+    lines.push({ t:`${p} can't ${a.en}.`, cls:"cant" });
+  });
+  if(sel.person.id !== "me"){
+    lines.push({ t: sel.person.id === "friend" || sel.person.id === "teacher"
+      ? `${p === "He" ? "He" : "She"} is my hero!`
+      : `My ${sel.person.id} is my hero!`, cls:"finale" });
+  }
+  return lines;
+}
+
+// ============================================================
+// 完成カード
+// ============================================================
+function showCard(){
+  const lines = buildSentences();
+  $("card-photo").innerHTML = imgOrEmoji(sel.person, "pimg-full").replace('class="pimg-full"','style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"');
+  $("card-lines").innerHTML = lines.map((l,i) =>
+    `<div class="hc-line ${l.cls}" data-i="${i}"><span class="spk">🔊</span>${l.t}</div>`).join("");
+  show(["step-card"]);
+  speakQueue(lines.map(l => l.t));
+}
+$("card-lines").addEventListener("click", e => {
+  const el = e.target.closest(".hc-line"); if(!el) return;
+  speak(buildSentences()[+el.dataset.i].t);
+});
+$("btn-speak-all").addEventListener("click", () => speakQueue(buildSentences().map(l => l.t)));
+$("btn-make").addEventListener("click", showCard);
+
+// ============================================================
+// だれでしょうクイズ
+// ============================================================
+function startQuizShow(){
+  quizHintIdx = 0;
+  $("hint-area").innerHTML = "";
+  $("reveal-area").classList.add("hidden");
+  $("btn-hint").disabled = false;
+  show(["step-quizshow"]);
+  speak("Who is this?");
+}
+function quizHints(){
+  const p = pron();
+  const hints = sel.can.map(id => `${p} can ${ABILITIES.find(x=>x.id===id).en}.`)
+    .concat(sel.cant.map(id => `${p} can't ${ABILITIES.find(x=>x.id===id).en}.`));
+  return hints;
+}
+$("btn-hint").addEventListener("click", () => {
+  const hints = quizHints();
+  if(quizHintIdx >= hints.length){ return; }
+  const t = hints[quizHintIdx++];
+  const div = document.createElement("div");
+  div.className = "hint-line"; div.textContent = `ヒント${quizHintIdx}: ${t}`;
+  div.addEventListener("click", () => speak(t));
+  $("hint-area").appendChild(div);
+  speak(t);
+  if(quizHintIdx >= hints.length) $("btn-hint").disabled = true;
+});
+$("btn-reveal").addEventListener("click", () => {
+  $("reveal-photo").innerHTML = imgOrEmoji(sel.person).replace('class="pimg"','style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"');
+  const t = sel.person.id === "me" ? "This is me!" : `This is ${sel.person.en}!`;
+  $("reveal-line").textContent = t;
+  $("reveal-area").classList.remove("hidden");
+  speak(t);
+});
+$("btn-quiz").addEventListener("click", startQuizShow);
+$("btn-to-quiz").addEventListener("click", startQuizShow);
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+function restart(){
+  sel = { person:null, pronoun:null, can:[], cant:[] };
+  speechSynthesis.cancel();
+  show(["step-person"]);
+}
+$("btn-restart").addEventListener("click", restart);
+$("btn-back1").addEventListener("click", () => enterAbility());
+$("btn-back2").addEventListener("click", () => enterAbility());
+
+buildPersonGrid();
+show(["step-person"]);
+</script>
+</body>
+</html>
