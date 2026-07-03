@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小学校外国語アプリポータル | English App Portal</title>
+<meta name="description" content="小学校3〜6年生の外国語活動・外国語科の授業でそのまま使える無料Webアプリ集。インストール不要、Chromebook対応。">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#00cec9; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe; --green:#55efc4;
+  --g3:#ffa502; --g4:#2ed573; --g5:#ff4757; --g6:#2e86de;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+}
+a{color:inherit;text-decoration:none}
+
+/* ===== Hero ===== */
+.hero{
+  background:linear-gradient(135deg,#00cec9,#74b9ff 55%,#a29bfe);color:#fff;
+  padding:36px 20px 30px;text-align:center;position:relative;overflow:hidden;
+}
+.hero h1{font-size:clamp(1.5rem,4.5vw,2.4rem);font-weight:800;letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.hero .en{font-family:'Fredoka One',cursive;font-size:clamp(.8rem,2vw,1rem);opacity:.9;letter-spacing:2px;margin-top:6px}
+.hero p.lead{max-width:640px;margin:14px auto 0;font-size:.95rem;font-weight:700;line-height:1.7;opacity:.95}
+.hero .deco{position:absolute;font-size:3rem;opacity:.25;pointer-events:none}
+
+/* ===== Nav ===== */
+nav.gradenav{
+  position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);
+  display:flex;justify-content:center;gap:8px;padding:10px;box-shadow:0 4px 15px rgba(0,0,0,.06);flex-wrap:wrap;
+}
+.gnav-btn{
+  border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:.9rem;
+  padding:8px 18px;border-radius:50px;background:#fff;color:var(--sub);
+  border:3px solid #e6ecf2;transition:.2s;min-height:44px;
+}
+.gnav-btn:hover{transform:translateY(-2px)}
+.gnav-btn.on{color:#fff;border-color:transparent}
+.gnav-btn.all.on{background:var(--ink)}
+.gnav-btn.g3.on{background:var(--g3)} .gnav-btn.g4.on{background:var(--g4)}
+.gnav-btn.g5.on{background:var(--g5)} .gnav-btn.g6.on{background:var(--g6)}
+
+main{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+
+/* ===== Featured ===== */
+.featured{margin-bottom:36px}
+.featured-card{
+  display:flex;gap:20px;align-items:center;background:linear-gradient(135deg,#fffbe7,#fff);
+  border:4px solid var(--yellow);border-radius:24px;padding:20px 24px;box-shadow:var(--shadow);
+  transition:.25s;flex-wrap:wrap;
+}
+.featured-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover)}
+.featured-icon{font-size:3.4rem;line-height:1}
+.featured-body{flex:1;min-width:240px}
+.featured-body h2{font-size:1.35rem;font-weight:800}
+.featured-body h2 span{font-family:'Fredoka One',cursive;color:#d35400;letter-spacing:1px}
+.featured-body p{font-size:.9rem;color:#6b7a89;margin-top:6px;line-height:1.7;font-weight:700}
+.featured-go{
+  background:var(--yellow);color:#7a4a00;font-weight:800;padding:12px 26px;border-radius:50px;
+  box-shadow:var(--shadow);white-space:nowrap;font-size:1rem;
+}
+
+/* ===== Sections ===== */
+.grade-sec{margin-bottom:40px}
+.grade-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.grade-head h2{font-size:1.4rem;font-weight:800;display:flex;align-items:center;gap:10px}
+.grade-badge{width:14px;height:34px;border-radius:7px;display:inline-block}
+.grade-head small{color:var(--sub);font-weight:700;font-size:.85rem}
+.g3 .grade-badge{background:var(--g3)} .g4 .grade-badge{background:var(--g4)}
+.g5 .grade-badge{background:var(--g5)} .g6 .grade-badge{background:var(--g6)}
+
+.app-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.app-card{
+  background:#fff;border-radius:18px;padding:16px;box-shadow:var(--shadow);
+  border-top:6px solid #e6ecf2;display:flex;flex-direction:column;gap:8px;position:relative;
+  transition:.2s;min-height:150px;
+}
+a.app-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover)}
+.app-card.g3{border-top-color:var(--g3)} .app-card.g4{border-top-color:var(--g4)}
+.app-card.g5{border-top-color:var(--g5)} .app-card.g6{border-top-color:var(--g6)}
+.app-card.soon{opacity:.62;background:#f7f9fb}
+.app-top{display:flex;align-items:flex-start;gap:10px}
+.app-icon{font-size:2rem;line-height:1.1}
+.app-name{font-weight:800;font-size:1.02rem;line-height:1.35}
+.app-unit{font-size:.72rem;color:#fff;font-weight:800;padding:2px 10px;border-radius:50px;display:inline-block;width:fit-content}
+.g3 .app-unit,.app-card.g3 .app-unit{background:var(--g3)}
+.g4 .app-unit,.app-card.g4 .app-unit{background:var(--g4)}
+.g5 .app-unit,.app-card.g5 .app-unit{background:var(--g5)}
+.g6 .app-unit,.app-card.g6 .app-unit{background:var(--g6)}
+.app-desc{font-size:.8rem;color:#6b7a89;line-height:1.6;font-weight:700;flex:1}
+.status{
+  position:absolute;top:-10px;right:12px;font-size:.72rem;font-weight:800;padding:3px 12px;border-radius:50px;box-shadow:var(--shadow);
+}
+.status.live{background:var(--green);color:#0a6b4f}
+.status.soon-b{background:#dfe6ec;color:#8395a7}
+
+/* ===== Cards & materials ===== */
+.material-sec{
+  background:#fff;border-radius:24px;padding:26px;box-shadow:var(--shadow);margin-bottom:40px;
+  border:4px dashed var(--purple);
+}
+.material-sec h2{font-size:1.2rem;font-weight:800;display:flex;gap:10px;align-items:center}
+.material-sec p{font-size:.88rem;color:#6b7a89;font-weight:700;line-height:1.8;margin-top:8px}
+
+/* ===== Footer ===== */
+footer{background:#2d3436;color:#cfd8e0;padding:28px 20px;text-align:center;font-size:.8rem;line-height:2}
+footer .en{font-family:'Fredoka One',cursive;letter-spacing:2px;color:#fff;font-size:1rem}
+footer a{text-decoration:underline}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="deco" style="top:8px;left:6%">🔤</span>
+  <span class="deco" style="bottom:8px;left:16%">🌏</span>
+  <span class="deco" style="top:18px;right:8%">🎧</span>
+  <span class="deco" style="bottom:12px;right:18%">✏️</span>
+  <h1>小学校外国語アプリポータル</h1>
+  <div class="en">ENGLISH APP PORTAL for Elementary School</div>
+  <p class="lead">3〜6年生の外国語活動・外国語科の授業でそのまま使える無料Webアプリ集。<br>インストール不要・Chromebook対応・個人情報は外部送信しません。</p>
+</header>
+
+<nav class="gradenav" id="gradenav">
+  <button class="gnav-btn all on" data-g="all">ぜんぶ</button>
+  <button class="gnav-btn g3" data-g="g3">3年生</button>
+  <button class="gnav-btn g4" data-g="g4">4年生</button>
+  <button class="gnav-btn g5" data-g="g5">5年生</button>
+  <button class="gnav-btn g6" data-g="g6">6年生</button>
+</nav>
+
+<main>
+
+  <!-- Picture Dictionary (代表アプリ) -->
+  <section class="featured">
+    <a class="featured-card" href="https://edupower07.github.io/PictureDictionary/" target="_blank" rel="noopener">
+      <span class="featured-icon">📖</span>
+      <span class="featured-body">
+        <h2><span>Picture Dictionary</span> 絵じてん</h2>
+        <p>3〜6年生の語彙を絵カードで学べる、このポータルの看板アプリ。学年別のカード学習・練習・ゲームモード搭載。他のアプリの絵カードもここから生まれています。</p>
+      </span>
+      <span class="featured-go">ひらく ▶</span>
+    </a>
+  </section>
+
+  <div id="sections"></div>
+
+  <!-- 絵カード素材配布 -->
+  <section class="material-sec">
+    <h2>🎴 絵カード画像データの配布(準備中)</h2>
+    <p>Picture Dictionary で使っている絵カード画像(860枚以上)を、授業のワークシートやスライドづくりに使える形でいずれ配布する予定です。お楽しみに!</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="en">ENGLISH APP PORTAL</div>
+  学校・自治体の教育目的での利用・共有は自由です(申請不要)。営利目的での再配布はご遠慮ください。<br>
+  不具合報告・リクエストは X <a href="https://x.com/Edupower07" target="_blank" rel="noopener">@Edupower07</a> へ
+</footer>
+
+<script>
+// ============================================================
+// アプリ一覧データ(ここを編集すればポータルの表示が変わります)
+// status: "live" = 公開中 / "soon" = 準備中
+// file  : apps/ フォルダ内のファイル名(準備中は null)
+// ============================================================
+const GRADES = {
+  g3: { label: "3年生", sub: "Let's Try! 1(外国語活動)" },
+  g4: { label: "4年生", sub: "Let's Try! 2(外国語活動)" },
+  g5: { label: "5年生", sub: "New Horizon Elementary 5(外国語科)" },
+  g6: { label: "6年生", sub: "New Horizon Elementary 6(外国語科)" },
+};
+
+const APPS = [
+  // ---------- 3年生 ----------
+  { grade:"g3", unit:"Unit 1", icon:"🌏", name:"せかいのあいさつ図鑑", desc:"世界の国旗をタップして、いろいろな言葉のあいさつを聞いてみよう。クイズモードつき。", status:"soon", file:null },
+  { grade:"g3", unit:"Unit 2", icon:"😊", name:"きもちジェスチャーカード", desc:"How are you? きもちカードをめくって、ジェスチャーであてっこしよう。", status:"soon", file:null },
+  { grade:"g3", unit:"Unit 3", icon:"🔢", name:"すうじかくれんぼゲーム", desc:"かくれた数字をあてる What's missing? と、How many? のいくつクイズ。", status:"soon", file:null },
+  { grade:"g3", unit:"Unit 4・5", icon:"📊", name:"すきなものアンケート&グラフ", desc:"I like 〜. でこたえて、クラスのにんきものをグラフでたしかめよう。", status:"soon", file:null },
+  { grade:"g3", unit:"Unit 6", icon:"🅰️", name:"アルファベット大文字かるた", desc:"音声を聞いて A〜Z のカードをすばやくタップ!電子黒板モードつき。", status:"soon", file:null },
+  { grade:"g3", unit:"Unit 7", icon:"🎁", name:"This is for you カードメーカー", desc:"色と形をえらんで、おくりもののカードをデザインしよう。", status:"soon", file:null },
+  { grade:"g3", unit:"Unit 8", icon:"❓", name:"What's this? なぞなぞビルダー", desc:"じぶんでヒントをえらんで、なぞなぞクイズをつくって出しあおう。", status:"soon", file:null },
+  { grade:"g3", unit:"Unit 9", icon:"🐘", name:"どうぶつ・からだ神経衰弱", desc:"カードをめくって、どうぶつやからだのことばのペアをそろえよう。", status:"soon", file:null },
+  // ---------- 4年生 ----------
+  { grade:"g4", unit:"Unit 2", icon:"☀️", name:"天気&服装コーディネート", desc:"How's the weather? 天気にあわせて服そうやあそびをえらぼう。", status:"soon", file:null },
+  { grade:"g4", unit:"Unit 3", icon:"📅", name:"曜日タイムテーブルビルダー", desc:"すきな活動をならべて、じぶんの1週間をつくろう。曜日クイズつき。", status:"soon", file:null },
+  { grade:"g4", unit:"Unit 4", icon:"🕐", name:"なんじなにをする?時計アプリ", desc:"What time is it? 時計の針をうごかして、時こくと生活をむすびつけよう。", status:"soon", file:null },
+  { grade:"g4", unit:"Unit 5", icon:"✏️", name:"文房具ショップごっこ", desc:"Do you have a pen? おすすめの文房具セットをつくってしょうかいしよう。", status:"soon", file:null },
+  { grade:"g4", unit:"Unit 6", icon:"🔡", name:"小文字タイピング&神経衰弱", desc:"大文字と小文字のペアあわせと、まぎらわしい文字チャレンジ。", status:"soon", file:null },
+  { grade:"g4", unit:"Unit 7", icon:"🍕", name:"オリジナルジュース・ピザ作り", desc:"What do you want? ざいりょうをえらんで、じぶんだけの一品をつくろう。", status:"soon", file:null },
+  { grade:"g4", unit:"Unit 8", icon:"🏫", name:"学校道案内メーカー", desc:"Go straight! Turn right! 学校の中をキャラクターに道案内しよう。", status:"soon", file:null },
+  { grade:"g4", unit:"Unit 9", icon:"🌅", name:"まいにちのタイムライン日課", desc:"1日の生活カードをならべて、絵本みたいな My Day をつくろう。", status:"soon", file:null },
+  // ---------- 5年生 ----------
+  { grade:"g5", unit:"Unit 1", icon:"🪪", name:"名前スペリング&自己紹介カード", desc:"How do you spell your name? 名前を1文字ずつ読み上げて名刺をつくろう。", status:"soon", file:null },
+  { grade:"g5", unit:"Unit 2", icon:"🎂", name:"バースデーカレンダー", desc:"When is your birthday? クラスの誕生日をカレンダーでシェア。", status:"soon", file:null },
+  { grade:"g5", unit:"Unit 3", icon:"💭", name:"将来の夢マッチング", desc:"I want to be 〜. なりたい職業と学びたい教科をむすびつけよう。", status:"soon", file:null },
+  { grade:"g5", unit:"Unit 4", icon:"🦸", name:"マイヒーロー紹介ジェネレーター", desc:"He can 〜! できることをえらんで、身近なヒーローを紹介しよう。", status:"soon", file:null },
+  { grade:"g5", unit:"Unit 5", icon:"🗺️", name:"道案内マップアプリ", desc:"Where is the post office? 街のマップでキャラクターを目的地へ。", status:"soon", file:null },
+  { grade:"g5", unit:"Unit 6", icon:"🍔", name:"バーチャルレストラン注文", desc:"What would you like? 注文して合計金額をこたえよう。予算チャレンジも。", status:"soon", file:null },
+  { grade:"g5", unit:"Unit 7", icon:"🎲", name:"季節と行事すごろく", desc:"日本の四季と行事のマスをすすんで、クイズにこたえてゴールをめざせ。", status:"soon", file:null },
+  { grade:"g5", unit:"Unit 8", icon:"🎤", name:"マイヒーロー投票&スピーチカード", desc:"Who is your hero? スピーチ原稿を自動生成して発表しよう。", status:"soon", file:null },
+  { grade:"g5", unit:"5・6年", icon:"💬", name:"Small Talk トレーナー", desc:"話題ガチャ+モデル対話+音声読み上げ+トークタイマーで帯活動を支援。", status:"live", file:"apps/smalltalk.html" },
+  // ---------- 6年生 ----------
+  { grade:"g6", unit:"Unit 1", icon:"🙋", name:"自己紹介プロフィールカード", desc:"This is me! 出身・誕生日・好きなものをまとめた自己紹介カードを作成。", status:"soon", file:null },
+  { grade:"g6", unit:"Unit 2", icon:"🚌", name:"スクールライフ比較アプリ", desc:"I usually 〜. 自分の学校生活を紹介して、海外の子とくらべてみよう。", status:"soon", file:null },
+  { grade:"g6", unit:"Unit 3", icon:"🌍", name:"世界の国紹介ポスタービルダー", desc:"You can see 〜. 調べ学習とつなげて国紹介ポスターを作ろう。", status:"soon", file:null },
+  { grade:"g6", unit:"Unit 4", icon:"🏖️", name:"サマーバケーション思い出マップ", desc:"I went to 〜. 夏の思い出を過去形の日記文にして地図にピンを立てよう。", status:"soon", file:null },
+  { grade:"g6", unit:"Unit 5", icon:"🦈", name:"食物連鎖クイズビルダー", desc:"Sharks eat fish. 生き物カードをつないで食物連鎖をつくろう。", status:"soon", file:null },
+  { grade:"g6", unit:"Unit 6", icon:"🍚", name:"フードマップ食材の国調べ", desc:"Rice is from 〜. 食材のふるさとを世界地図でたしかめよう。", status:"soon", file:null },
+  { grade:"g6", unit:"Unit 7", icon:"📔", name:"ベストメモリーアルバムメーカー", desc:"My best memory is 〜. 6年間の思い出をアルバムページにまとめよう。", status:"soon", file:null },
+  { grade:"g6", unit:"Unit 8", icon:"🌟", name:"将来の夢プレゼンカード", desc:"I want to be 〜. 卒業スピーチの原稿づくりと発表練習をサポート。", status:"soon", file:null },
+];
+
+// ============================================================
+// 描画
+// ============================================================
+function render(filter){
+  const root = document.getElementById("sections");
+  root.innerHTML = "";
+  for(const g of Object.keys(GRADES)){
+    if(filter !== "all" && filter !== g) continue;
+    const apps = APPS.filter(a => a.grade === g);
+    const live = apps.filter(a => a.status === "live").length;
+    const sec = document.createElement("section");
+    sec.className = `grade-sec ${g}`;
+    sec.innerHTML = `
+      <div class="grade-head ${g}">
+        <h2><span class="grade-badge"></span>${GRADES[g].label}</h2>
+        <small>${GRADES[g].sub} ・ 公開中 ${live}/${apps.length}</small>
+      </div>
+      <div class="app-grid"></div>`;
+    const grid = sec.querySelector(".app-grid");
+    for(const a of apps){
+      const isLive = a.status === "live" && a.file;
+      const el = document.createElement(isLive ? "a" : "div");
+      el.className = `app-card ${g}` + (isLive ? "" : " soon");
+      if(isLive){ el.href = a.file; }
+      el.innerHTML = `
+        <span class="status ${isLive ? "live" : "soon-b"}">${isLive ? "公開中" : "準備中"}</span>
+        <div class="app-top">
+          <span class="app-icon">${a.icon}</span>
+          <span class="app-name">${a.name}</span>
+        </div>
+        <span class="app-unit">${a.unit}</span>
+        <p class="app-desc">${a.desc}</p>`;
+      grid.appendChild(el);
+    }
+    root.appendChild(sec);
+  }
+}
+
+document.getElementById("gradenav").addEventListener("click", e => {
+  const btn = e.target.closest(".gnav-btn");
+  if(!btn) return;
+  document.querySelectorAll(".gnav-btn").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  render(btn.dataset.g);
+});
+
+render("all");
+</script>
+</body>
+</html>
