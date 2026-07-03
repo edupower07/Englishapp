@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バーチャルレストラン注文アプリ | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff4757; --orange:#ff9f43; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.mode-card{
+  width:250px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)} .mode-card.m3{border-color:var(--green)}
+.mode-card .mi{font-size:3rem}
+.mode-card h2{font-size:1.12rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+
+/* 店員の吹き出し */
+.clerk-bar{
+  max-width:640px;margin:0 auto 12px;background:#fff;border-radius:20px;box-shadow:var(--shadow);
+  padding:12px 16px;display:flex;gap:12px;align-items:center;border:4px solid var(--yellow);
+}
+.clerk-face{font-size:2.6rem;flex-shrink:0}
+.clerk-text{font-weight:800;line-height:1.5;flex:1}
+.clerk-text .en{color:#b8860b;font-size:1.05rem}
+.clerk-text small{display:block;color:var(--sub);font-size:.75rem}
+.budget-tag{
+  background:var(--green);color:#fff;font-weight:800;border-radius:50px;padding:6px 14px;font-size:.9rem;white-space:nowrap;
+}
+
+/* メニュー */
+.menu-cat{margin-bottom:14px}
+.menu-cat h3{font-size:.95rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.menu-cat h3 .tag{font-size:.7rem;color:#fff;padding:3px 12px;border-radius:50px;background:var(--orange)}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.menu-item{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:128px;justify-content:center;
+}
+.menu-item:hover{transform:translateY(-3px)}
+.menu-item.on{border-color:var(--primary);background:#fff5f6}
+.menu-item .mimg{width:60px;height:60px;display:flex;align-items:center;justify-content:center}
+.menu-item .mimg img{max-width:100%;max-height:100%;object-fit:contain}
+.menu-item .memoji{font-size:2.3rem;line-height:1}
+.menu-item .mlabel{font-weight:800;font-size:.74rem;line-height:1.2}
+.menu-item .mprice{font-weight:800;font-size:.8rem;color:var(--primary)}
+.menu-item .mprice.hide{visibility:hidden}
+
+/* 注文票 */
+.order-bar{
+  position:sticky;bottom:0;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -6px 20px rgba(0,0,0,.1);
+  padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;
+}
+.order-items{flex:1;font-weight:800;font-size:.9rem;min-width:180px}
+.order-total{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--primary)}
+.big-btn{
+  border:none;border-radius:50px;padding:12px 26px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* 会計画面 */
+.bill-card{
+  max-width:480px;margin:14px auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--primary);overflow:hidden;
+}
+.bill-head{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.15rem}
+.bill-body{padding:18px 22px}
+.bill-line{display:flex;justify-content:space-between;font-weight:800;padding:7px 4px;border-bottom:2px dashed #f0d8dc;cursor:pointer}
+.bill-line:hover{background:#fff5f6}
+.bill-total{display:flex;justify-content:space-between;font-weight:800;font-size:1.25rem;padding:12px 4px 4px;color:var(--primary)}
+.bill-total .amt{font-family:'Fredoka One',cursive}
+.bill-msg{text-align:center;font-weight:800;margin-top:8px;min-height:30px;font-size:1.05rem}
+.bill-msg.ok{color:var(--green)} .bill-msg.ng{color:var(--primary)}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+
+/* 店員あてクイズ(ペア) */
+.sum-quiz{max-width:480px;margin:10px auto;text-align:center}
+.sum-input{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:10px;flex-wrap:wrap}
+.sum-input input{
+  width:140px;padding:12px;border-radius:14px;border:3px solid #e6ecf2;font-family:inherit;font-size:1.2rem;
+  font-weight:800;text-align:center;
+}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍔 バーチャルレストラン注文 <span class="u">5年 Unit6 What would you like?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">あそびかたを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="order">
+        <div class="mi">🍽️</div>
+        <h2>ふつうに注文する</h2>
+        <p>食べもの・飲みもの・デザートを<br>えらんで注文。合計金額も学べるよ</p>
+      </div>
+      <div class="mode-card m2" data-mode="pair">
+        <div class="mi">🧑‍🍳</div>
+        <h2>お店屋さんごっこ</h2>
+        <p>2人1組。店員さん役は<br>合計金額を暗算でこたえよう</p>
+      </div>
+      <div class="mode-card m3" data-mode="budget">
+        <div class="mi">💰</div>
+        <h2>予算チャレンジ</h2>
+        <p>500円以内でおさまるように<br>じょうずに注文できるかな?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 注文画面 -->
+  <section id="scr-order" class="hidden">
+    <div class="clerk-bar">
+      <span class="clerk-face">🧑‍🍳</span>
+      <span class="clerk-text">
+        <span class="en" id="clerk-en">Hello! What would you like?</span>
+        <small id="clerk-ja">いらっしゃいませ!なにに なさいますか?</small>
+      </span>
+      <span class="budget-tag hidden" id="budget-tag">よさん 500円</span>
+    </div>
+    <div id="menu-area"></div>
+    <div class="order-bar">
+      <span class="order-items" id="order-items">まだ注文がありません</span>
+      <span class="order-total" id="order-total"></span>
+      <button class="big-btn" id="btn-checkout" disabled>ちゅうもんする!</button>
+    </div>
+  </section>
+
+  <!-- 会計画面 -->
+  <section id="scr-bill" class="hidden">
+    <div class="bill-card">
+      <div class="bill-head">YOUR ORDER</div>
+      <div class="bill-body">
+        <div id="bill-lines"></div>
+        <div class="sum-quiz hidden" id="sum-quiz">
+          <p style="font-weight:800;margin-top:10px">🧑‍🍳 店員さん役:合計はいくら?</p>
+          <div class="sum-input">
+            <input type="number" id="sum-guess" placeholder="???" inputmode="numeric">
+            <span style="font-weight:800">yen</span>
+            <button class="big-btn" id="btn-sum-check" style="min-height:44px;padding:8px 18px">こたえあわせ</button>
+          </div>
+        </div>
+        <div class="bill-total hidden" id="bill-total-row">
+          <span>How much is it?</span><span class="amt" id="bill-total"></span>
+        </div>
+        <div class="bill-msg" id="bill-msg"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak-order">🔊 注文を読み上げ</button>
+      <button class="big-btn gray" id="btn-again">もういちど注文する</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const BUDGET = 500; // 予算チャレンジの金額(円)
+
+const MENU = [
+  { cat:"food", catJa:"たべもの", catEn:"Food", items:[
+    { en:"a hamburger",   ja:"ハンバーガー", price:300, img:"hamburger.jpg",     emoji:"🍔" },
+    { en:"pizza",         ja:"ピザ",         price:400, img:"pizza.jpg",         emoji:"🍕" },
+    { en:"spaghetti",     ja:"スパゲッティ", price:350, img:"spaghetti.jpg",     emoji:"🍝" },
+    { en:"curry and rice",ja:"カレーライス", price:380, img:"curry and rice.jpg",emoji:"🍛" },
+    { en:"a sandwich",    ja:"サンドイッチ", price:250, img:"sandwich.jpg",      emoji:"🥪" },
+    { en:"a salad",       ja:"サラダ",       price:200, img:"salad.jpg",         emoji:"🥗" },
+    { en:"steak",         ja:"ステーキ",     price:500, img:"steak.jpg",         emoji:"🥩" },
+    { en:"soup",          ja:"スープ",       price:150, img:"soup.jpg",          emoji:"🍲" },
+  ]},
+  { cat:"drink", catJa:"のみもの", catEn:"Drink", items:[
+    { en:"orange juice",  ja:"オレンジジュース", price:150, img:"orange juice.jpg", emoji:"🧃" },
+    { en:"tea",           ja:"こうちゃ",         price:120, img:"tea.jpg",          emoji:"🫖" },
+    { en:"milk",          ja:"ぎゅうにゅう",     price:100, img:"milk.jpg",         emoji:"🥛" },
+    { en:"soda",          ja:"ソーダ",           price:130, img:"soda.jpg",         emoji:"🥤" },
+    { en:"water",         ja:"みず",             price:0,   img:"water.jpg",        emoji:"💧" },
+  ]},
+  { cat:"dessert", catJa:"デザート", catEn:"Dessert", items:[
+    { en:"ice cream",     ja:"アイスクリーム", price:180, img:"ice cream.jpg", emoji:"🍦" },
+    { en:"cake",          ja:"ケーキ",         price:250, img:"cake.jpg",      emoji:"🍰" },
+    { en:"pudding",       ja:"プリン",         price:150, img:"pudding.jpg",   emoji:"🍮" },
+    { en:"a donut",       ja:"ドーナツ",       price:120, img:"donut.jpg",     emoji:"🍩" },
+    { en:"yogurt",        ja:"ヨーグルト",     price:100, img:"yogurt.jpg",    emoji:"🥣" },
+  ]},
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let mode = "order";              // order | pair | budget
+let picks = {};                  // cat -> item
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-mode","scr-order","scr-bill"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+function total(){
+  return Object.values(picks).reduce((s,it) => s + it.price, 0);
+}
+
+// ============================================================
+// メニュー
+// ============================================================
+function buildMenu(){
+  const hidePrice = (mode === "pair");
+  $("menu-area").innerHTML = MENU.map(c => `
+    <div class="menu-cat">
+      <h3><span class="tag">${c.catEn}</span>${c.catJa}(1つえらぼう)</h3>
+      <div class="menu-grid" data-cat="${c.cat}">
+        ${c.items.map((it,i) => `
+          <div class="menu-item" data-cat="${c.cat}" data-i="${i}">
+            <div class="mimg"><img src="${IMG_BASE + encodeURIComponent(it.img)}" alt="${it.en}"
+              onerror="this.outerHTML='<span class=&quot;memoji&quot;>${it.emoji}</span>'"></div>
+            <div class="mlabel">${it.ja}<br><small style="color:var(--sub)">${it.en}</small></div>
+            <div class="mprice ${hidePrice ? "hide" : ""}">${it.price}円</div>
+          </div>`).join("")}
+      </div>
+    </div>`).join("");
+}
+$("menu-area").addEventListener("click", e => {
+  const el = e.target.closest(".menu-item"); if(!el) return;
+  const cat = MENU.find(c => c.cat === el.dataset.cat);
+  const it = cat.items[+el.dataset.i];
+  picks[cat.cat] = it;
+  document.querySelectorAll(`.menu-item[data-cat="${cat.cat}"]`).forEach(x =>
+    x.classList.toggle("on", x === el));
+  speak(`I'd like ${it.en}, please.`);
+  renderOrderBar();
+});
+function renderOrderBar(){
+  const items = Object.values(picks);
+  $("order-items").textContent = items.length === 0
+    ? "まだ注文がありません"
+    : items.map(it => `${it.emoji} ${it.ja}`).join(" / ");
+  const showTotal = (mode !== "pair");
+  $("order-total").textContent = showTotal && items.length ? `${total()}円` : "";
+  $("btn-checkout").disabled = items.length === 0;
+  if(mode === "budget" && items.length){
+    const over = total() > BUDGET;
+    $("order-total").textContent = `${total()}円 / ${BUDGET}円`;
+    $("order-total").style.color = over ? "#d63031" : "var(--green)";
+  }else{
+    $("order-total").style.color = "";
+  }
+}
+
+// ============================================================
+// 会計
+// ============================================================
+$("btn-checkout").addEventListener("click", () => {
+  const items = Object.values(picks);
+  $("bill-lines").innerHTML = items.map((it,i) =>
+    `<div class="bill-line" data-i="${i}"><span>${it.emoji} ${it.en}</span><span>${mode === "pair" ? "?" : it.price + " yen"}</span></div>`).join("");
+  $("bill-msg").textContent = ""; $("bill-msg").className = "bill-msg";
+  const isPair = (mode === "pair");
+  $("sum-quiz").classList.toggle("hidden", !isPair);
+  $("bill-total-row").classList.toggle("hidden", isPair);
+  if(!isPair){
+    $("bill-total").textContent = `${total()} yen`;
+    if(mode === "budget"){
+      const ok = total() <= BUDGET;
+      $("bill-msg").textContent = ok
+        ? `🎉 よさん内におさまったよ!(のこり ${BUDGET - total()}円)`
+        : `💦 ${total() - BUDGET}円 オーバー…もういちどチャレンジ!`;
+      $("bill-msg").className = "bill-msg " + (ok ? "ok" : "ng");
+      speak(ok ? `It's ${total()} yen. Great!` : `It's ${total()} yen. Oh no!`);
+    }else{
+      speak(`How much is it? It's ${total()} yen.`);
+    }
+  }else{
+    $("sum-guess").value = "";
+    speak("How much is it?");
+  }
+  show("scr-bill");
+});
+$("bill-lines").addEventListener("click", e => {
+  const el = e.target.closest(".bill-line"); if(!el) return;
+  speak(Object.values(picks)[+el.dataset.i].en);
+});
+$("btn-sum-check").addEventListener("click", () => {
+  const g = +$("sum-guess").value;
+  const t = total();
+  $("bill-total-row").classList.remove("hidden");
+  $("bill-total").textContent = `${t} yen`;
+  $("bill-lines").innerHTML = Object.values(picks).map((it,i) =>
+    `<div class="bill-line" data-i="${i}"><span>${it.emoji} ${it.en}</span><span>${it.price} yen</span></div>`).join("");
+  const ok = (g === t);
+  $("bill-msg").textContent = ok ? "⭕ せいかい!暗算バッチリ!" : `❌ ざんねん!正解は ${t}円でした`;
+  $("bill-msg").className = "bill-msg " + (ok ? "ok" : "ng");
+  speak(`It's ${t} yen. ${ok ? "That's right!" : ""}`);
+});
+$("btn-speak-order").addEventListener("click", () => {
+  const items = Object.values(picks);
+  speakQueue(["I'd like " + items.map(it => it.en).join(", and ") + ", please.",
+    ...(mode === "pair" ? [] : [`It's ${total()} yen.`])]);
+});
+$("btn-again").addEventListener("click", () => startMode(mode));
+
+// ============================================================
+// モード
+// ============================================================
+function startMode(m){
+  mode = m;
+  picks = {};
+  buildMenu(); renderOrderBar();
+  $("budget-tag").classList.toggle("hidden", m !== "budget");
+  $("budget-tag").textContent = `よさん ${BUDGET}円`;
+  $("clerk-en").textContent = "Hello! What would you like?";
+  $("clerk-ja").textContent = m === "pair"
+    ? "お客さん役がえらんでね(ねだんはかくれているよ)"
+    : m === "budget" ? `よさん${BUDGET}円以内で注文しよう` : "いらっしゃいませ!なにに なさいますか?";
+  show("scr-order");
+  speak("Hello! What would you like?");
+}
+document.querySelectorAll(".mode-card").forEach(c =>
+  c.addEventListener("click", () => startMode(c.dataset.mode)));
+$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
+
+show("scr-mode");
+</script>
+</body>
+</html>
