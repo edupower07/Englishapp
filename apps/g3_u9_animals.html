@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>どうぶつ・からだ神経衰弱 | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ffa502; --teal:#00cec9; --pink:#ff7675; --blue:#74b9ff; --green:#2ed573;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:900px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+
+.opt-row{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;align-items:center}
+.opt-row .lbl{font-weight:800;color:var(--sub);font-size:.9rem}
+.opt-btn{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 20px;font-family:inherit;
+  font-weight:800;font-size:.95rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
+}
+.opt-btn.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:14px 34px;font-family:inherit;font-weight:800;font-size:1.05rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:52px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.teal{background:var(--teal)}
+
+/* 盤面 */
+.hud{
+  display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:50px;
+  box-shadow:var(--shadow);padding:8px 20px;margin-bottom:14px;font-weight:800;gap:10px;flex-wrap:wrap;
+}
+.hud .pl{padding:4px 14px;border-radius:50px;transition:.2s}
+.hud .pl.now{background:var(--primary);color:#fff}
+.mem-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));max-width:760px;margin:0 auto}
+.mcard{
+  aspect-ratio:3/4;border-radius:16px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .38s;
+}
+.mcard.open{transform:rotateY(180deg)}
+.mcard .face{
+  position:absolute;inset:0;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  backface-visibility:hidden;box-shadow:var(--shadow);gap:3px;
+}
+.mcard .back{background:linear-gradient(135deg,#ffa502,#ffc048);color:#fff;font-size:2rem}
+.mcard .front{background:#fff;transform:rotateY(180deg);border:4px solid #ffeacc;padding:4px}
+.mcard .mimg{width:64px;height:56px;display:flex;align-items:center;justify-content:center}
+.mcard .mimg img{max-width:100%;max-height:100%;object-fit:contain}
+.mcard .memoji{font-size:2.3rem;line-height:1}
+.mcard .mword{font-weight:800;font-size:.76rem;line-height:1.1}
+.mcard.got{opacity:.15;pointer-events:none}
+
+/* 結果 */
+.result-box{max-width:440px;margin:20px auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);padding:24px;text-align:center;border:5px solid var(--primary)}
+.result-box .big{font-size:4rem;animation:pop .5s}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.result-box h2{font-size:1.25rem;font-weight:800;margin-top:6px}
+.result-box p{color:var(--sub);font-weight:700;margin-top:6px}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐘 どうぶつ・からだ神経衰弱 <span class="u">3年 Unit9 Who are you?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">せっていにもどる</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 設定 -->
+  <section id="scr-setup">
+    <h2 class="step-title">🃏 神経衰弱であそぼう</h2>
+    <p class="step-sub">おなじカードのペアをそろえると、ことばが聞けるよ</p>
+    <div class="opt-row">
+      <span class="lbl">カード:</span>
+      <button class="opt-btn cat-btn on" data-cat="animal">どうぶつ</button>
+      <button class="opt-btn cat-btn" data-cat="body">からだ</button>
+      <button class="opt-btn cat-btn" data-cat="mix">ミックス</button>
+    </div>
+    <div class="opt-row">
+      <span class="lbl">まいすう:</span>
+      <button class="opt-btn size-btn" data-n="3">6まい</button>
+      <button class="opt-btn size-btn on" data-n="6">12まい</button>
+      <button class="opt-btn size-btn" data-n="10">20まい</button>
+    </div>
+    <div class="opt-row">
+      <span class="lbl">あそびかた:</span>
+      <button class="opt-btn mode-btn on" data-m="solo">ひとりでタイムアタック</button>
+      <button class="opt-btn mode-btn" data-m="vs">ふたりでたいせん</button>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-start">スタート!</button>
+    </div>
+  </section>
+
+  <!-- 盤面 -->
+  <section id="scr-game" class="hidden">
+    <div class="hud" id="hud-solo">
+      <span id="h-pairs">のこり 6ペア</span>
+      <span id="h-tries">めくった回数 0</span>
+      <span id="h-time">0びょう</span>
+    </div>
+    <div class="hud hidden" id="hud-vs">
+      <span class="pl now" id="pl1">🔴 プレイヤー1: 0</span>
+      <span id="h-pairs2">のこり 6ペア</span>
+      <span class="pl" id="pl2">🔵 プレイヤー2: 0</span>
+    </div>
+    <div class="mem-grid" id="grid"></div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="scr-result" class="hidden">
+    <div class="result-box">
+      <div class="big" id="r-emoji">🏆</div>
+      <h2 id="r-title"></h2>
+      <p id="r-detail"></p>
+      <div class="actions">
+        <button class="big-btn" id="btn-again">もういちど!</button>
+        <button class="big-btn teal" id="btn-setup">せっていをかえる</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると単語を変更できます)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+
+const CARDS = {
+  animal: [
+    { word:"cat",      ja:"ねこ",     img:"cat.jpg",      emoji:"🐱" },
+    { word:"dog",      ja:"いぬ",     img:"dog.jpg",      emoji:"🐶" },
+    { word:"rabbit",   ja:"うさぎ",   img:"rabbit.jpg",   emoji:"🐰" },
+    { word:"bird",     ja:"とり",     img:"bird.jpg",     emoji:"🐦" },
+    { word:"elephant", ja:"ぞう",     img:"elephant.jpg", emoji:"🐘" },
+    { word:"lion",     ja:"ライオン", img:"lion.jpg",     emoji:"🦁" },
+    { word:"monkey",   ja:"さる",     img:"monkey.jpg",   emoji:"🐵" },
+    { word:"panda",    ja:"パンダ",   img:"panda.jpg",    emoji:"🐼" },
+    { word:"tiger",    ja:"とら",     img:"tiger.jpg",    emoji:"🐯" },
+    { word:"bear",     ja:"くま",     img:"bear.jpg",     emoji:"🐻" },
+  ],
+  body: [
+    { word:"head",     ja:"あたま",   img:"head.jpg",     emoji:"🙂" },
+    { word:"eye",      ja:"め",       img:"eye.jpg",      emoji:"👀" },
+    { word:"ear",      ja:"みみ",     img:"ear.jpg",      emoji:"👂" },
+    { word:"nose",     ja:"はな",     img:"nose.jpg",     emoji:"👃" },
+    { word:"mouth",    ja:"くち",     img:"mouth.jpg",    emoji:"👄" },
+    { word:"hand",     ja:"て",       img:"hand.jpg",     emoji:"✋" },
+    { word:"leg",      ja:"あし",     img:"leg.jpg",      emoji:"🦵" },
+    { word:"shoulder", ja:"かた",     img:"shoulder.jpg", emoji:"💪" },
+  ],
+};
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let cat = "animal", pairCount = 6, mode = "solo";
+let open = [], lock = false, left = 0, tries = 0, sec = 0, timer = null;
+let vsTurn = 0, vsScore = [0,0];
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-setup","scr-game","scr-result"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
+
+document.querySelectorAll(".cat-btn").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".cat-btn").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); cat = b.dataset.cat;
+}));
+document.querySelectorAll(".size-btn").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".size-btn").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); pairCount = +b.dataset.n;
+}));
+document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".mode-btn").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); mode = b.dataset.m;
+}));
+
+// ============================================================
+// ゲーム
+// ============================================================
+function cardPool(){
+  if(cat === "mix") return shuffle([...CARDS.animal, ...CARDS.body]);
+  return shuffle([...CARDS[cat]]);
+}
+function startGame(){
+  const words = cardPool().slice(0, pairCount);
+  const deck = shuffle(words.flatMap(w => [{...w}, {...w}]));
+  open = []; lock = false; left = words.length; tries = 0; sec = 0;
+  vsTurn = 0; vsScore = [0,0];
+  clearInterval(timer);
+  $("hud-solo").classList.toggle("hidden", mode !== "solo");
+  $("hud-vs").classList.toggle("hidden", mode !== "vs");
+  if(mode === "solo"){
+    timer = setInterval(() => { sec++; $("h-time").textContent = `${sec}びょう`; }, 1000);
+    $("h-time").textContent = "0びょう";
+    $("h-tries").textContent = "めくった回数 0";
+    $("h-pairs").textContent = `のこり ${left}ペア`;
+  }else{
+    updateVsHud();
+  }
+  $("grid").innerHTML = deck.map((c,i) => `
+    <div class="mcard" data-w="${c.word}">
+      <div class="face back">?</div>
+      <div class="face front">
+        <div class="mimg"><img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.word}"
+          onerror="this.outerHTML='<span class=&quot;memoji&quot;>${c.emoji}</span>'"></div>
+        <div class="mword">${c.word}</div>
+      </div>
+    </div>`).join("");
+  show("scr-game");
+}
+function updateVsHud(){
+  $("pl1").textContent = `🔴 プレイヤー1: ${vsScore[0]}`;
+  $("pl2").textContent = `🔵 プレイヤー2: ${vsScore[1]}`;
+  $("pl1").classList.toggle("now", vsTurn === 0);
+  $("pl2").classList.toggle("now", vsTurn === 1);
+  $("h-pairs2").textContent = `のこり ${left}ペア`;
+}
+$("grid").addEventListener("click", e => {
+  const el = e.target.closest(".mcard");
+  if(!el || lock || el.classList.contains("open") || el.classList.contains("got")) return;
+  el.classList.add("open");
+  open.push(el);
+  if(open.length === 2){
+    lock = true; tries++;
+    if(mode === "solo") $("h-tries").textContent = `めくった回数 ${tries}`;
+    const [a,b] = open;
+    if(a.dataset.w === b.dataset.w){
+      speak(`${a.dataset.w}! ${a.dataset.w}!`);
+      if(mode === "vs") vsScore[vsTurn]++;
+      setTimeout(() => {
+        a.classList.add("got"); b.classList.add("got");
+        open = []; lock = false; left--;
+        if(mode === "solo") $("h-pairs").textContent = `のこり ${left}ペア`;
+        else updateVsHud();
+        if(left === 0) finish();
+      }, 800);
+    }else{
+      setTimeout(() => {
+        a.classList.remove("open"); b.classList.remove("open");
+        open = []; lock = false;
+        if(mode === "vs"){ vsTurn = 1 - vsTurn; updateVsHud(); }
+      }, 950);
+    }
+  }
+});
+function finish(){
+  clearInterval(timer);
+  if(mode === "solo"){
+    $("r-emoji").textContent = "🏆";
+    $("r-title").textContent = "ぜんぶそろったね!";
+    $("r-detail").textContent = `${sec}びょう / めくった回数 ${tries}回`;
+  }else{
+    const w = vsScore[0] === vsScore[1] ? -1 : (vsScore[0] > vsScore[1] ? 0 : 1);
+    $("r-emoji").textContent = w === -1 ? "🤝" : "🏆";
+    $("r-title").textContent = w === -1 ? "ひきわけ!" : `プレイヤー${w+1}のかち!`;
+    $("r-detail").textContent = `🔴 ${vsScore[0]}ペア vs 🔵 ${vsScore[1]}ペア`;
+  }
+  show("scr-result");
+  speak("Great job!");
+}
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+$("btn-start").addEventListener("click", startGame);
+$("btn-again").addEventListener("click", startGame);
+$("btn-setup").addEventListener("click", () => { clearInterval(timer); show("scr-setup"); });
+$("btn-home").addEventListener("click", () => { clearInterval(timer); speechSynthesis.cancel(); show("scr-setup"); });
+
+show("scr-setup");
+</script>
+</body>
+</html>
