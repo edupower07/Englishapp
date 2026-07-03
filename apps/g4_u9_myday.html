@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>まいにちのタイムライン日課 | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+/* タイムライン */
+.timeline{
+  background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:12px;border:4px dashed var(--primary);
+  display:flex;gap:8px;flex-wrap:wrap;min-height:96px;align-items:center;
+}
+.tl-empty{color:var(--sub);font-weight:700;font-size:.85rem;margin:0 auto}
+.tl-chip{
+  background:#effdf5;border:3px solid var(--primary);border-radius:14px;padding:6px 8px;font-weight:800;
+  display:flex;flex-direction:column;align-items:center;cursor:pointer;font-size:.66rem;min-width:74px;gap:2px;
+  animation:pop .3s;
+}
+@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+.tl-chip:hover{background:#ffecec;border-color:var(--pink)}
+.tl-chip .n{background:var(--primary);color:#fff;border-radius:50px;padding:1px 8px;font-size:.62rem}
+.tl-chip .e{font-size:1.5rem;line-height:1.1}
+.tl-arrow{color:var(--sub);font-weight:800}
+
+/* カードプール */
+.pool-title{font-weight:800;text-align:center;margin:14px 0 8px;color:var(--sub);font-size:.9rem}
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.pcard{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:118px;display:flex;flex-direction:column;justify-content:center;gap:3px;
+}
+.pcard:hover{transform:translateY(-3px)}
+.pcard.used{opacity:.4}
+.pcard .pimg{width:54px;height:48px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.pcard .pimg img{max-width:100%;max-height:100%;object-fit:contain}
+.pcard .pemoji{font-size:2rem;line-height:1}
+.pcard .plabel{font-weight:800;font-size:.7rem;line-height:1.2}
+.pcard .plabel small{display:block;color:var(--sub);font-size:.6rem}
+.pcard .tod{position:absolute;font-size:.55rem}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn.purple{background:var(--purple)}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* 絵本 */
+.book-stage{max-width:560px;margin:0 auto;text-align:center}
+.book{
+  background:#fffdf5;border-radius:26px;box-shadow:var(--shadow-hover);border:5px solid var(--purple);
+  padding:24px;min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  position:relative;overflow:hidden;
+}
+.page{animation:pagein .5s}
+@keyframes pagein{from{transform:translateX(60px) rotate(2deg);opacity:0}to{transform:none;opacity:1}}
+.book .bimg{width:180px;height:150px;display:flex;align-items:center;justify-content:center}
+.book .bimg img{max-width:100%;max-height:100%;object-fit:contain}
+.book .bemoji{font-size:5.5rem}
+.book .btext{font-family:'Fredoka One',cursive;font-size:1.7rem;color:#5f4b8b;cursor:pointer}
+.book .bja{color:var(--sub);font-weight:800;font-size:.9rem}
+.book .pageno{position:absolute;bottom:10px;right:18px;color:var(--sub);font-weight:800;font-size:.8rem}
+.book-nav{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+/* 印刷用ストーリー一覧 */
+#print-list{display:none}
+@media print{
+  header,main>*:not(#print-list),footer{display:none!important}
+  #print-list{display:block!important}
+  #print-list h2{margin-bottom:10px}
+  #print-list .pl-row{font-size:14pt;margin-bottom:6px;font-weight:700}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌅 まいにちのタイムライン日課 <span class="u">4年 Unit9 This is my day.</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">つくりなおす</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ならべる -->
+  <section id="scr-build">
+    <h2 class="step-title">🌅 「わたしの一日」をつくろう</h2>
+    <p class="step-sub">朝から夜のじゅんばんに、生活カードをタップしてならべよう(タイムラインのカードをタップするとけせるよ)</p>
+    <div class="timeline" id="timeline"></div>
+    <div class="pool-title">▼ 生活カード(🌅あさ 🏫ひる 🌙よる)</div>
+    <div class="pool" id="pool"></div>
+    <div class="actions">
+      <button class="big-btn purple" id="btn-book" disabled>絵本にする 📖</button>
+    </div>
+  </section>
+
+  <!-- 絵本 -->
+  <section id="scr-book" class="hidden">
+    <h2 class="step-title">📖 MY DAY(わたしの一日)</h2>
+    <p class="step-sub">ページをめくって、声に出して読んでみよう</p>
+    <div class="book-stage">
+      <div class="book" id="book"></div>
+      <div class="book-nav">
+        <button class="big-btn gray" id="btn-prev">◀ まえ</button>
+        <button class="big-btn" id="btn-auto">▶ じどうさいせい</button>
+        <button class="big-btn gray" id="btn-next">つぎ ▶</button>
+      </div>
+      <div class="actions">
+        <button class="big-btn" id="btn-print" style="background:var(--blue)">🖨️ はっぴょう原稿をいんさつ</button>
+        <button class="big-btn gray" id="btn-back">ならべなおす</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 印刷用 -->
+  <div id="print-list"></div>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると生活カードを変更できます)
+// tod: 🌅あさ / 🏫ひる / 🌙よる(ならべるときの目安)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+
+const ACTIONS = [
+  { en:"I get up.",             ja:"おきる",           img:"get up.jpg",           emoji:"⏰", tod:"🌅" },
+  { en:"I wash my face.",       ja:"かおをあらう",     img:"wash my face.jpg",     emoji:"🧼", tod:"🌅" },
+  { en:"I eat breakfast.",      ja:"あさごはん",       img:"eat breakfast.jpg",    emoji:"🍞", tod:"🌅" },
+  { en:"I go to school.",       ja:"学校へいく",       img:"go to school.jpg",     emoji:"🎒", tod:"🌅" },
+  { en:"I study.",              ja:"べんきょうする",   img:"study.jpg",            emoji:"✏️", tod:"🏫" },
+  { en:"I eat lunch.",          ja:"ひるごはん",       img:"eat lunch.jpg",        emoji:"🍱", tod:"🏫" },
+  { en:"I play with my friends.", ja:"友だちとあそぶ", img:"play with my friends.jpg", emoji:"⚽", tod:"🏫" },
+  { en:"I go home.",            ja:"家にかえる",       img:"go home.jpg",          emoji:"🏠", tod:"🏫" },
+  { en:"I do my homework.",     ja:"しゅくだいをする", img:"do my homework.jpg",   emoji:"📖", tod:"🌙" },
+  { en:"I eat dinner.",         ja:"ばんごはん",       img:"eat dinner.jpg",       emoji:"🍛", tod:"🌙" },
+  { en:"I watch TV.",           ja:"テレビを見る",     img:"watch TV.jpg",         emoji:"📺", tod:"🌙" },
+  { en:"I take a bath.",        ja:"おふろに入る",     img:"take a bath.jpg",      emoji:"🛁", tod:"🌙" },
+  { en:"I go to bed.",          ja:"ねる",             img:"go to bed.jpg",        emoji:"🌙", tod:"🌙" },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let seq = [];        // ACTIONS の index の列
+let page = 0;
+let autoTimer = null;
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-build","scr-book"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+function actVisual(a, imgCls, emojiCls){
+  return `<div class="${imgCls}"><img src="${IMG_BASE + encodeURIComponent(a.img)}" alt="${a.en}"
+    onerror="this.outerHTML='<span class=&quot;${emojiCls}&quot;>${a.emoji}</span>'"></div>`;
+}
+
+// ============================================================
+// ならべる
+// ============================================================
+function renderTimeline(){
+  $("timeline").innerHTML = seq.length === 0
+    ? `<span class="tl-empty">したのカードをタップして、じゅんばんにならべよう</span>`
+    : seq.map((ai,i) => {
+        const a = ACTIONS[ai];
+        return `${i>0 ? '<span class="tl-arrow">▶</span>' : ""}
+          <span class="tl-chip" data-i="${i}">
+            <span class="n">${i+1}</span><span class="e">${a.emoji}</span>${a.ja}
+          </span>`;
+      }).join("");
+  $("btn-book").disabled = seq.length < 2;
+}
+function renderPool(){
+  $("pool").innerHTML = ACTIONS.map((a,i) => `
+    <div class="pcard ${seq.includes(i) ? "used" : ""}" data-i="${i}">
+      ${actVisual(a, "pimg", "pemoji")}
+      <div class="plabel">${a.tod} ${a.ja}<small>${a.en}</small></div>
+    </div>`).join("");
+}
+$("pool").addEventListener("click", e => {
+  const el = e.target.closest(".pcard"); if(!el) return;
+  const i = +el.dataset.i;
+  if(seq.includes(i)) return;
+  seq.push(i);
+  renderTimeline(); renderPool();
+  speak(ACTIONS[i].en);
+});
+$("timeline").addEventListener("click", e => {
+  const chip = e.target.closest(".tl-chip"); if(!chip) return;
+  seq.splice(+chip.dataset.i, 1);
+  renderTimeline(); renderPool();
+});
+
+// ============================================================
+// 絵本
+// ============================================================
+function renderPage(){
+  if(seq.length === 0) return;
+  page = Math.max(0, Math.min(page, seq.length - 1));
+  const a = ACTIONS[seq[page]];
+  $("book").innerHTML = `
+    <div class="page">
+      ${actVisual(a, "bimg", "bemoji")}
+      <div class="btext" data-t="${a.en}">🔊 ${a.en}</div>
+      <div class="bja">${a.ja}</div>
+    </div>
+    <span class="pageno">${page+1} / ${seq.length}</span>`;
+  speak(a.en);
+}
+$("book").addEventListener("click", e => {
+  const el = e.target.closest(".btext"); if(el) speak(el.dataset.t);
+});
+$("btn-book").addEventListener("click", () => {
+  page = 0;
+  buildPrintList();
+  show("scr-book");
+  renderPage();
+});
+$("btn-prev").addEventListener("click", () => { stopAuto(); page--; renderPage(); });
+$("btn-next").addEventListener("click", () => { stopAuto(); page++; renderPage(); });
+$("btn-auto").addEventListener("click", () => {
+  if(autoTimer){ stopAuto(); return; }
+  $("btn-auto").textContent = "⏸ とめる";
+  page = 0; renderPage();
+  autoTimer = setInterval(() => {
+    if(page >= seq.length - 1){ stopAuto(); return; }
+    page++; renderPage();
+  }, 2600);
+});
+function stopAuto(){
+  clearInterval(autoTimer); autoTimer = null;
+  $("btn-auto").textContent = "▶ じどうさいせい";
+}
+$("btn-back").addEventListener("click", () => { stopAuto(); show("scr-build"); });
+
+// ============================================================
+// 印刷
+// ============================================================
+function buildPrintList(){
+  $("print-list").innerHTML = `<h2>MY DAY(わたしの一日)</h2>` +
+    seq.map((ai,i) => `<div class="pl-row">${i+1}. ${ACTIONS[ai].emoji} ${ACTIONS[ai].en}(${ACTIONS[ai].ja})</div>`).join("");
+}
+$("btn-print").addEventListener("click", () => { buildPrintList(); window.print(); });
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+$("btn-home").addEventListener("click", () => {
+  stopAuto(); speechSynthesis.cancel();
+  seq = []; renderTimeline(); renderPool();
+  show("scr-build");
+});
+
+renderTimeline(); renderPool();
+show("scr-build");
+</script>
+</body>
+</html>
