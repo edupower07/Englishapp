@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>サマーバケーション思い出マップ | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2e86de; --primary-dark:#1e6fc0; --orange:#ff9f43; --green:#26de81; --pink:#ff6b81;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
+
+.step-title{text-align:center;margin:16px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+
+/* category rows */
+.cat{margin-bottom:18px}
+.cat h3{
+  font-size:1rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;
+}
+.cat h3 .tag{font-size:.72rem;color:#fff;padding:3px 12px;border-radius:50px}
+.cat.place .tag{background:var(--primary)} .cat.act .tag{background:var(--green)}
+.cat.food .tag{background:var(--orange)} .cat.feel .tag{background:var(--pink)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.chip{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:120px;justify-content:center;
+}
+.chip:hover{transform:translateY(-3px)}
+.chip .cimg{width:66px;height:66px;display:flex;align-items:center;justify-content:center}
+.chip .cimg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+.chip .cemoji{font-size:2.6rem;line-height:1}
+.chip .clabel{font-weight:800;font-size:.78rem;line-height:1.25}
+.chip .clabel small{display:block;color:var(--sub);font-size:.68rem}
+.cat.place .chip.on{border-color:var(--primary);background:#eef6ff}
+.cat.act .chip.on{border-color:var(--green);background:#effdf5}
+.cat.food .chip.on{border-color:var(--orange);background:#fff7ec}
+.cat.feel .chip.on{border-color:var(--pink);background:#fff0f2}
+
+.actions{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:14px 32px;font-family:inherit;font-weight:800;font-size:1.05rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:52px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn.orange{background:var(--orange)}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* diary */
+.diary{
+  max-width:600px;margin:10px auto;background:#fffdf5;border-radius:24px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--orange);overflow:hidden;
+}
+.diary-head{background:linear-gradient(135deg,#ff9f43,#feca57);color:#fff;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.2rem}
+.diary-body{padding:20px 24px}
+.d-line{
+  font-size:1.25rem;font-weight:800;padding:9px 12px;border-radius:12px;cursor:pointer;transition:.15s;
+  border-bottom:2px dashed #f0e0c0;display:flex;gap:8px;align-items:center;
+}
+.d-line:hover{background:#fff3dd}
+.d-line .spk{font-size:.95rem}
+.diary-foot{text-align:center;padding:0 20px 16px;color:var(--sub);font-size:.78rem;font-weight:700}
+
+/* map */
+.map-wrap{max-width:640px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:14px;text-align:center}
+svg#jmap{width:100%;height:auto;touch-action:manipulation;border-radius:16px}
+.pin-list{max-width:640px;margin:14px auto 0;display:flex;flex-direction:column;gap:6px}
+.pin-item{
+  background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:8px 14px;font-weight:800;font-size:.9rem;
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+}
+.pin-item:hover{background:#eef6ff}
+.pin-item .pe{font-size:1.3rem}
+.pin-item small{color:var(--sub);font-weight:700}
+@keyframes drop{0%{transform:translateY(-24px);opacity:0}60%{transform:translateY(3px)}100%{transform:none;opacity:1}}
+.pin-g{animation:drop .4s}
+
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏖️ サマーバケーション思い出マップ <span class="u">6年 Unit4 Summer Vacations</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-new">あたらしい思い出</button>
+    <button class="nav-btn" id="btn-map">みんなのマップ</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP1: えらぶ -->
+  <section id="scr-select">
+    <h2 class="step-title">夏の思い出をえらぼう</h2>
+    <p class="step-sub">それぞれ1つずつタップしてえらぶと、英語の日記ができるよ</p>
+
+    <div class="cat place">
+      <h3><span class="tag">I went to 〜.</span>行ったところ</h3>
+      <div class="chips" id="chips-place"></div>
+    </div>
+    <div class="cat act">
+      <h3><span class="tag">I enjoyed 〜.</span>楽しんだこと</h3>
+      <div class="chips" id="chips-act"></div>
+    </div>
+    <div class="cat food">
+      <h3><span class="tag">I ate 〜.</span>食べたもの</h3>
+      <div class="chips" id="chips-food"></div>
+    </div>
+    <div class="cat feel">
+      <h3><span class="tag">It was 〜.</span>どうだった?</h3>
+      <div class="chips" id="chips-feel"></div>
+    </div>
+
+    <div class="actions">
+      <button class="big-btn" id="btn-diary" disabled>日記をかんせいさせる ✏️</button>
+    </div>
+  </section>
+
+  <!-- STEP2: 日記 -->
+  <section id="scr-diary" class="hidden">
+    <div class="diary">
+      <div class="diary-head">MY SUMMER VACATION</div>
+      <div class="diary-body" id="diary-lines"></div>
+      <div class="diary-foot">文をタップすると1文ずつ読み上げます</div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
+      <button class="big-btn orange" id="btn-to-map">地図にピンを立てる 📍</button>
+      <button class="big-btn gray" id="btn-back">えらびなおす</button>
+    </div>
+  </section>
+
+  <!-- STEP3: マップ -->
+  <section id="scr-map" class="hidden">
+    <h2 class="step-title">📍 みんなの夏の思い出マップ</h2>
+    <p class="step-sub" id="map-sub">地図の行ったあたりをタップしてピンを立てよう</p>
+    <div class="map-wrap">
+      <svg id="jmap" viewBox="0 0 400 500"></svg>
+    </div>
+    <div class="pin-list" id="pin-list"></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-new2">あたらしい思い出をつくる ✏️</button>
+      <button class="big-btn gray" id="btn-clear">マップをリセット</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)。ピンはこの端末の中だけに保存されます。</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// img が null のものは絵文字で表示されます
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+
+const PLACES = [
+  { id:"beach",     en:"the beach",               ja:"うみ・ビーチ", img:"beach.jpg",               emoji:"🏖️" },
+  { id:"mountains", en:"the mountains",           ja:"山",           img:"mountain.jpg",            emoji:"⛰️" },
+  { id:"river",     en:"the river",               ja:"川",           img:"river.jpg",               emoji:"🏞️" },
+  { id:"pool",      en:"the pool",                ja:"プール",       img:"swimming pool.jpg",       emoji:"🏊" },
+  { id:"zoo",       en:"the zoo",                 ja:"動物園",       img:"zoo.jpg",                 emoji:"🦁" },
+  { id:"aquarium",  en:"the aquarium",            ja:"水族館",       img:"aquarium.jpg",            emoji:"🐠" },
+  { id:"museum",    en:"the museum",              ja:"博物館",       img:"museum.jpg",              emoji:"🏛️" },
+  { id:"fireworks", en:"a fireworks festival",    ja:"花火大会",     img:"a fireworks festival.jpg",emoji:"🎆" },
+  { id:"hotspring", en:"a hot spring",            ja:"温泉",         img:"hot spring.jpg",          emoji:"♨️" },
+  { id:"grandp",    en:"my grandparents' house",  ja:"祖父母の家",   img:"grandmother.jpg",         emoji:"👵" },
+];
+const ACTIVITIES = [
+  { id:"swimming", en:"swimming",  ja:"水泳",         img:"swimming.jpg",     emoji:"🏊" },
+  { id:"fishing",  en:"fishing",   ja:"魚つり",       img:"fishing.jpg",      emoji:"🎣" },
+  { id:"camping",  en:"camping",   ja:"キャンプ",     img:"camping trip.jpg", emoji:"⛺" },
+  { id:"hiking",   en:"hiking",    ja:"ハイキング",   img:null,               emoji:"🥾" },
+  { id:"shopping", en:"shopping",  ja:"買い物",       img:null,               emoji:"🛍️" },
+  { id:"reading",  en:"reading",   ja:"読書",         img:null,               emoji:"📚" },
+];
+const FOODS = [
+  { id:"watermelon", en:"watermelon",     ja:"すいか",       img:"watermelon.jpg",     emoji:"🍉" },
+  { id:"icecream",   en:"ice cream",      ja:"アイス",       img:"ice cream.jpg",      emoji:"🍦" },
+  { id:"shavedice",  en:"shaved ice",     ja:"かき氷",       img:null,                 emoji:"🍧" },
+  { id:"curry",      en:"curry and rice", ja:"カレーライス", img:"curry and rice.jpg", emoji:"🍛" },
+  { id:"noodles",    en:"noodles",        ja:"めん類",       img:"noodles.jpg",        emoji:"🍜" },
+];
+const FEELINGS = [
+  { id:"fun",       en:"fun",       ja:"楽しかった",       img:"fun.jpg",       emoji:"😄" },
+  { id:"great",     en:"great",     ja:"最高だった",       img:"great.jpg",     emoji:"👍" },
+  { id:"exciting",  en:"exciting",  ja:"わくわくした",     img:"exciting.jpg",  emoji:"🤩" },
+  { id:"delicious", en:"delicious", ja:"おいしかった",     img:"delicious.jpg", emoji:"😋" },
+  { id:"beautiful", en:"beautiful", ja:"きれいだった",     img:"beautiful.jpg", emoji:"✨" },
+  { id:"nice",      en:"nice",      ja:"すてきだった",     img:"nice.jpg",      emoji:"🙂" },
+];
+const STORAGE_KEY = "summer_map_pins_v1"; // ピンの保存先(この端末のみ)
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let sel = { place:null, act:null, food:null, feel:null };
+let pins = [];
+try{ pins = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ pins = []; }
+
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-select","scr-diary","scr-map"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+function chipHTML(item){
+  const inner = item.img
+    ? `<div class="cimg"><img src="${IMG_BASE + encodeURIComponent(item.img)}" alt="${item.en}" onerror="this.outerHTML='<span class=&quot;cemoji&quot;>${item.emoji}</span>'"></div>`
+    : `<span class="cemoji">${item.emoji}</span>`;
+  return `<div class="chip" data-id="${item.id}">${inner}<div class="clabel">${item.ja}<small>${item.en}</small></div></div>`;
+}
+
+// ============================================================
+// 選択画面
+// ============================================================
+const CATS = [
+  { key:"place", elId:"chips-place", list:PLACES,    phrase: en => `I went to ${en}.` },
+  { key:"act",   elId:"chips-act",   list:ACTIVITIES, phrase: en => `I enjoyed ${en}.` },
+  { key:"food",  elId:"chips-food",  list:FOODS,     phrase: en => `I ate ${en}.` },
+  { key:"feel",  elId:"chips-feel",  list:FEELINGS,  phrase: en => `It was ${en}.` },
+];
+function buildChips(){
+  CATS.forEach(c => {
+    $(c.elId).innerHTML = c.list.map(chipHTML).join("");
+    $(c.elId).addEventListener("click", e => {
+      const el = e.target.closest(".chip"); if(!el) return;
+      sel[c.key] = c.list.find(x => x.id === el.dataset.id);
+      $(c.elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === el));
+      speak(c.phrase(sel[c.key].en));
+      $("btn-diary").disabled = !(sel.place && sel.act && sel.food && sel.feel);
+    });
+  });
+}
+
+// ============================================================
+// 日記
+// ============================================================
+function diaryLines(){
+  return [
+    `I went to ${sel.place.en}.`,
+    `I enjoyed ${sel.act.en}.`,
+    `I ate ${sel.food.en}.`,
+    `It was ${sel.feel.en}.`,
+  ];
+}
+function showDiary(){
+  const lines = diaryLines();
+  const emo = [sel.place.emoji, sel.act.emoji, sel.food.emoji, sel.feel.emoji];
+  $("diary-lines").innerHTML = lines.map((t,i) =>
+    `<div class="d-line" data-i="${i}"><span class="spk">🔊</span>${t}<span style="margin-left:auto">${emo[i]}</span></div>`).join("");
+  show("scr-diary");
+  speakQueue(lines);
+}
+$("diary-lines").addEventListener("click", e => {
+  const el = e.target.closest(".d-line"); if(!el) return;
+  speak(diaryLines()[+el.dataset.i]);
+});
+$("btn-diary").addEventListener("click", showDiary);
+$("btn-speak-all").addEventListener("click", () => speakQueue(diaryLines()));
+
+// ============================================================
+// 日本地図(デフォルメ)とピン
+// ============================================================
+const MAP_BASE = `
+  <rect x="0" y="0" width="400" height="500" rx="18" fill="#d6ecff"/>
+  <text x="14" y="30" font-size="16" font-weight="800" font-family="'M PLUS Rounded 1c',sans-serif" fill="#7aa8cc">JAPAN</text>
+  <g fill="#9fe6a0" stroke="#5cbf66" stroke-width="3" stroke-linejoin="round">
+    <path d="M270 40 L330 55 L345 95 L310 120 L275 105 L255 70 Z"/>
+    <path d="M300 140 L330 160 L320 210 L290 260 L250 300 L215 325 L180 330 L150 320 L160 290 L200 270 L240 230 L265 190 L275 155 Z"/>
+    <path d="M170 345 L215 340 L225 360 L195 375 L165 365 Z"/>
+    <path d="M120 350 L150 360 L145 400 L120 425 L95 405 L100 370 Z"/>
+    <circle cx="60" cy="465" r="14"/>
+  </g>
+  <text x="285" y="88" font-size="11" font-weight="700" font-family="'M PLUS Rounded 1c',sans-serif" fill="#2d6b35">北海道</text>
+  <text x="228" y="245" font-size="11" font-weight="700" font-family="'M PLUS Rounded 1c',sans-serif" fill="#2d6b35">本州</text>
+  <text x="178" y="362" font-size="10" font-weight="700" font-family="'M PLUS Rounded 1c',sans-serif" fill="#2d6b35">四国</text>
+  <text x="103" y="392" font-size="10" font-weight="700" font-family="'M PLUS Rounded 1c',sans-serif" fill="#2d6b35">九州</text>
+  <text x="42" y="492" font-size="10" font-weight="700" font-family="'M PLUS Rounded 1c',sans-serif" fill="#2d6b35">沖縄</text>
+`;
+function drawMap(){
+  let pinSvg = pins.map(p => `
+    <g class="pin-g">
+      <line x1="${p.x}" y1="${p.y}" x2="${p.x}" y2="${p.y-16}" stroke="#e74c3c" stroke-width="3"/>
+      <circle cx="${p.x}" cy="${p.y-24}" r="13" fill="#fff" stroke="#e74c3c" stroke-width="3"/>
+      <text x="${p.x}" y="${p.y-18}" text-anchor="middle" font-size="14">${p.emoji}</text>
+    </g>`).join("");
+  $("jmap").innerHTML = MAP_BASE + pinSvg;
+}
+function drawPinList(){
+  $("pin-list").innerHTML = pins.map((p,i) =>
+    `<div class="pin-item" data-i="${i}"><span class="pe">${p.emoji}</span>${p.line}<small>(タップで読み上げ)</small></div>`).join("");
+}
+$("jmap").addEventListener("pointerdown", e => {
+  if(!sel.place){ return; } // 思い出未作成のときは閲覧のみ
+  const rect = $("jmap").getBoundingClientRect();
+  const x = Math.round((e.clientX - rect.left) / rect.width * 400);
+  const y = Math.round((e.clientY - rect.top) / rect.height * 500);
+  pins.push({ x, y, emoji: sel.place.emoji, line: `I went to ${sel.place.en}.` });
+  savePins(); drawMap(); drawPinList();
+  speak(`I went to ${sel.place.en}.`);
+  $("map-sub").textContent = "ピンを立てました!つづけてタップすると、もう1本立てられるよ";
+});
+$("pin-list").addEventListener("click", e => {
+  const el = e.target.closest(".pin-item"); if(!el) return;
+  speak(pins[+el.dataset.i].line);
+});
+function savePins(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(pins)); }catch(e){}
+}
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+function newMemory(){
+  sel = { place:null, act:null, food:null, feel:null };
+  document.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+  $("btn-diary").disabled = true;
+  speechSynthesis.cancel();
+  show("scr-select");
+}
+function openMap(){
+  $("map-sub").textContent = sel.place
+    ? "地図の行ったあたりをタップしてピンを立てよう"
+    : "みんなのピンをながめられます(思い出をつくるとピンを立てられるよ)";
+  drawMap(); drawPinList(); show("scr-map");
+}
+$("btn-new").addEventListener("click", newMemory);
+$("btn-new2").addEventListener("click", newMemory);
+$("btn-back").addEventListener("click", () => show("scr-select"));
+$("btn-to-map").addEventListener("click", openMap);
+$("btn-map").addEventListener("click", openMap);
+$("btn-clear").addEventListener("click", () => {
+  if(confirm("みんなのピンをぜんぶ消します。いいですか?")){
+    pins = []; savePins(); drawMap(); drawPinList();
+  }
+});
+
+buildChips();
+show("scr-select");
+</script>
+</body>
+</html>
