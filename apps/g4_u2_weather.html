@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天気&服装コーディネート | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+
+/* 天気選択 */
+.weather-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.w-card{
+  width:150px;background:#fff;border-radius:22px;padding:18px 10px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.2s;
+}
+.w-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:var(--blue)}
+.w-card .wimg{width:80px;height:70px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.w-card .wimg img{max-width:100%;max-height:100%;object-fit:contain}
+.w-card .wemoji{font-size:3rem}
+.w-card .wlabel{font-weight:800;margin-top:6px}
+.w-card .wlabel small{display:block;color:var(--sub);font-size:.72rem}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.blue{background:var(--blue)} .big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* 今日の天気バー */
+.today-bar{
+  max-width:560px;margin:0 auto 14px;background:#fff;border-radius:20px;box-shadow:var(--shadow);
+  padding:12px 18px;display:flex;align-items:center;gap:12px;border:4px solid var(--blue);cursor:pointer;
+}
+.today-bar .tw{font-size:2.4rem}
+.today-bar .tt{font-weight:800;flex:1}
+.today-bar .tt .en{color:#0984e3;font-size:1.1rem}
+.today-bar .tt small{display:block;color:var(--sub);font-size:.75rem}
+
+/* 服装選択 */
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px}
+.item-card{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:118px;display:flex;flex-direction:column;justify-content:center;gap:3px;position:relative;
+}
+.item-card:hover{transform:translateY(-3px)}
+.item-card.on{border-color:var(--primary);background:#effdf5}
+.item-card .iimg{width:56px;height:50px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.item-card .iimg img{max-width:100%;max-height:100%;object-fit:contain}
+.item-card .iemoji{font-size:2.1rem;line-height:1}
+.item-card .ilabel{font-weight:800;font-size:.74rem;line-height:1.2}
+.item-card .ilabel small{display:block;color:var(--sub);font-size:.62rem}
+.item-card .judge{position:absolute;top:-12px;right:-4px;font-size:1.6rem;animation:pop .4s}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.msg{text-align:center;font-size:1.15rem;font-weight:800;min-height:36px;margin-top:12px}
+.msg.ok{color:var(--primary-dark)} .msg.ng{color:var(--pink)}
+
+/* 遊び提案 */
+.play-stage{max-width:520px;margin:0 auto;text-align:center}
+.play-card{
+  background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);border:5px solid var(--yellow);
+  padding:26px;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+}
+.play-card .pe{font-size:4.5rem;animation:pop .5s}
+.play-card .pl-en{font-family:'Fredoka One',cursive;font-size:1.6rem;color:#d4980a;cursor:pointer}
+.play-card .pl-ja{color:var(--sub);font-weight:800}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>☀️ 天気&服装コーディネート <span class="u">4年 Unit2 Let's play cards.</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">天気をえらびなおす</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 天気選択 -->
+  <section id="scr-weather">
+    <h2 class="step-title">☁️ How's the weather?</h2>
+    <p class="step-sub">きょうの天気をえらぼう(先生が「今日の天気」をえらんで朝の会でも使えるよ)</p>
+    <div class="weather-row" id="weather-row"></div>
+    <div class="actions">
+      <button class="big-btn blue" id="btn-random">🎲 ランダムにきめる</button>
+    </div>
+  </section>
+
+  <!-- コーディネート -->
+  <section id="scr-coord" class="hidden">
+    <div class="today-bar" id="today-bar"></div>
+    <h2 class="step-title">👕 この天気にあうものを 3つえらぼう</h2>
+    <p class="step-sub">えらんだら「チェック!」をおしてね</p>
+    <div class="item-grid" id="item-grid"></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-check" disabled>チェック!</button>
+      <button class="big-btn blue" id="btn-to-play">あそびをきめる ▶</button>
+    </div>
+    <div class="msg" id="coord-msg"></div>
+  </section>
+
+  <!-- 遊び提案 -->
+  <section id="scr-play" class="hidden">
+    <div class="today-bar" id="today-bar2"></div>
+    <div class="play-stage">
+      <h2 class="step-title">🎯 なにしてあそぶ?</h2>
+      <p class="step-sub">カードを引くと、この天気にぴったりのあそびが出るよ</p>
+      <div class="play-card" id="play-card">
+        <span class="pe">🎴</span>
+        <span class="pl-ja">ボタンをおしてカードを引こう</span>
+      </div>
+      <div class="actions">
+        <button class="big-btn" id="btn-draw">🎴 あそびカードを引く</button>
+        <button class="big-btn gray" id="btn-back-coord">服そうにもどる</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ok: あう天気 / ng: とくにあわない天気(×判定)。どちらにもなければ△
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const PICK_COUNT = 3;
+
+const WEATHER = [
+  { en:"sunny",  ja:"はれ",   img:"sunny.jpg",  emoji:"☀️" },
+  { en:"rainy",  ja:"あめ",   img:"rainy.jpg",  emoji:"🌧️" },
+  { en:"cloudy", ja:"くもり", img:"cloudy.jpg", emoji:"☁️" },
+  { en:"snowy",  ja:"ゆき",   img:"snowy.jpg",  emoji:"⛄" },
+  { en:"windy",  ja:"かぜ",   img:"windy.jpg",  emoji:"🌬️" },
+];
+const ITEMS = [
+  { en:"a cap",        ja:"ぼうし",       img:"cap.jpg",      emoji:"🧢", ok:["sunny"],           ng:[] },
+  { en:"a T-shirt",    ja:"Tシャツ",      img:"T-shirt.jpg",  emoji:"👕", ok:["sunny","cloudy"],  ng:["snowy"] },
+  { en:"an umbrella",  ja:"かさ",         img:"umbrella.jpg", emoji:"☔", ok:["rainy"],           ng:["sunny"] },
+  { en:"boots",        ja:"ながぐつ",     img:null,           emoji:"👢", ok:["rainy","snowy"],   ng:[] },
+  { en:"a raincoat",   ja:"レインコート", img:null,           emoji:"🧥", ok:["rainy"],           ng:["sunny"] },
+  { en:"a coat",       ja:"コート",       img:null,           emoji:"🧥", ok:["snowy","windy"],   ng:[] },
+  { en:"gloves",       ja:"てぶくろ",     img:null,           emoji:"🧤", ok:["snowy"],           ng:["sunny"] },
+  { en:"a scarf",      ja:"マフラー",     img:null,           emoji:"🧣", ok:["snowy","windy"],   ng:["sunny"] },
+  { en:"sunglasses",   ja:"サングラス",   img:null,           emoji:"🕶️", ok:["sunny"],           ng:["rainy","snowy"] },
+  { en:"a swimsuit",   ja:"みずぎ",       img:null,           emoji:"🩳", ok:["sunny"],           ng:["rainy","snowy","windy"] },
+];
+const PLAYS = [
+  { en:"Let's play tag!",        ja:"おにごっこをしよう",   emoji:"🏃", weather:["sunny","cloudy"] },
+  { en:"Let's play dodgeball!",  ja:"ドッジボールをしよう", emoji:"🤾", weather:["sunny","cloudy"] },
+  { en:"Let's jump rope!",       ja:"なわとびをしよう",     emoji:"🤸", weather:["sunny","cloudy","windy"] },
+  { en:"Let's fly a kite!",      ja:"たこあげをしよう",     emoji:"🪁", weather:["windy"] },
+  { en:"Let's play cards!",      ja:"トランプをしよう",     emoji:"🃏", weather:["rainy","snowy","cloudy","windy"] },
+  { en:"Let's read books!",      ja:"本をよもう",           emoji:"📚", weather:["rainy","snowy"] },
+  { en:"Let's draw pictures!",   ja:"絵をかこう",           emoji:"🎨", weather:["rainy","snowy","cloudy"] },
+  { en:"Let's make a snowman!",  ja:"ゆきだるまをつくろう", emoji:"⛄", weather:["snowy"] },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let weather = null;
+let picks = [];
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-weather","scr-coord","scr-play"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+function itemVisual(it){
+  return it.img
+    ? `<div class="iimg"><img src="${IMG_BASE + encodeURIComponent(it.img)}" alt="${it.en}"
+        onerror="this.outerHTML='<span class=&quot;iemoji&quot;>${it.emoji}</span>'"></div>`
+    : `<span class="iemoji">${it.emoji}</span>`;
+}
+
+// ============================================================
+// 天気選択
+// ============================================================
+$("weather-row").innerHTML = WEATHER.map((w,i) => `
+  <div class="w-card" data-i="${i}">
+    <div class="wimg"><img src="${IMG_BASE + encodeURIComponent(w.img)}" alt="${w.en}"
+      onerror="this.outerHTML='<span class=&quot;wemoji&quot;>${w.emoji}</span>'"></div>
+    <div class="wlabel">${w.ja}<small>${w.en}</small></div>
+  </div>`).join("");
+$("weather-row").addEventListener("click", e => {
+  const el = e.target.closest(".w-card"); if(!el) return;
+  pickWeather(WEATHER[+el.dataset.i]);
+});
+$("btn-random").addEventListener("click", () => {
+  pickWeather(WEATHER[Math.floor(Math.random() * WEATHER.length)]);
+});
+function todayBarHTML(){
+  return `<span class="tw">${weather.emoji}</span>
+    <span class="tt"><span class="en">🔊 How's the weather? — It's ${weather.en}.</span>
+    <small>きょうは「${weather.ja}」(タップで もういちど聞けるよ)</small></span>`;
+}
+function pickWeather(w){
+  weather = w;
+  picks = [];
+  $("today-bar").innerHTML = todayBarHTML();
+  buildItems();
+  $("coord-msg").textContent = "";
+  show("scr-coord");
+  speakQueue(["How's the weather?", `It's ${w.en}.`]);
+}
+$("today-bar").addEventListener("click", () => speakQueue(["How's the weather?", `It's ${weather.en}.`]));
+$("today-bar2").addEventListener("click", () => speakQueue(["How's the weather?", `It's ${weather.en}.`]));
+
+// ============================================================
+// コーディネート
+// ============================================================
+function buildItems(){
+  $("item-grid").innerHTML = ITEMS.map((it,i) => `
+    <div class="item-card" data-i="${i}">
+      ${itemVisual(it)}
+      <div class="ilabel">${it.ja}<small>${it.en}</small></div>
+    </div>`).join("");
+  updateCheckBtn();
+}
+$("item-grid").addEventListener("click", e => {
+  const el = e.target.closest(".item-card"); if(!el) return;
+  const i = +el.dataset.i;
+  document.querySelectorAll(".item-card .judge").forEach(x => x.remove());
+  $("coord-msg").textContent = "";
+  if(picks.includes(i)){
+    picks = picks.filter(x => x !== i);
+    el.classList.remove("on");
+  }else if(picks.length < PICK_COUNT){
+    picks.push(i);
+    el.classList.add("on");
+    speak(ITEMS[i].en);
+  }
+  updateCheckBtn();
+});
+function updateCheckBtn(){ $("btn-check").disabled = picks.length === 0; }
+$("btn-check").addEventListener("click", () => {
+  let good = 0, bad = 0;
+  picks.forEach(i => {
+    const it = ITEMS[i];
+    const el = document.querySelector(`.item-card[data-i="${i}"]`);
+    el.querySelector(".judge")?.remove();
+    const mark = document.createElement("span");
+    mark.className = "judge";
+    if(it.ok.includes(weather.en)){ mark.textContent = "⭕"; good++; }
+    else if(it.ng.includes(weather.en)){ mark.textContent = "❌"; bad++; }
+    else{ mark.textContent = "🤔"; }
+    el.appendChild(mark);
+  });
+  if(bad === 0 && good === picks.length){
+    $("coord-msg").textContent = "🎉 かんぺきなコーディネート!";
+    $("coord-msg").className = "msg ok";
+    speak("Perfect! Nice coordinate!");
+  }else if(bad > 0){
+    $("coord-msg").textContent = `❌のものは「${weather.ja}」の日にはあわないかも…かえてみよう`;
+    $("coord-msg").className = "msg ng";
+    speak("Hmm, try again!");
+  }else{
+    $("coord-msg").textContent = "🤔は あってもなくてもOK。⭕をふやしてみよう!";
+    $("coord-msg").className = "msg";
+    speak("Good!");
+  }
+});
+
+// ============================================================
+// 遊び提案
+// ============================================================
+$("btn-to-play").addEventListener("click", () => {
+  $("today-bar2").innerHTML = todayBarHTML();
+  $("play-card").innerHTML = `<span class="pe">🎴</span><span class="pl-ja">ボタンをおしてカードを引こう</span>`;
+  show("scr-play");
+});
+$("btn-draw").addEventListener("click", () => {
+  const cand = PLAYS.filter(p => p.weather.includes(weather.en));
+  const p = cand[Math.floor(Math.random() * cand.length)];
+  $("play-card").innerHTML = `
+    <span class="pe">${p.emoji}</span>
+    <span class="pl-en" data-t="${p.en}">🔊 ${p.en}</span>
+    <span class="pl-ja">${p.ja}</span>`;
+  speak(p.en);
+});
+$("play-card").addEventListener("click", e => {
+  const el = e.target.closest(".pl-en"); if(el) speak(el.dataset.t);
+});
+$("btn-back-coord").addEventListener("click", () => show("scr-coord"));
+$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-weather"); });
+
+show("scr-weather");
+</script>
+</body>
+</html>
