@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スクールライフ比較アプリ | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2e86de; --primary-dark:#1e6fc0; --green:#26de81; --pink:#ff6b81; --yellow:#fdcb6e; --teal:#00cec9;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.form-box{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.f-row{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 18px}
+.f-row h3{font-size:.92rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.f-row h3 .tag{font-size:.68rem;color:#fff;padding:3px 12px;border-radius:50px;background:var(--primary)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;
+  font-weight:800;font-size:.85rem;cursor:pointer;min-height:44px;transition:.15s;color:var(--ink);
+}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.freq.on{background:var(--yellow);border-color:var(--yellow);color:#7a5b1e}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* 比較 */
+.compare-wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:stretch}
+.life-card{
+  width:330px;background:#fff;border-radius:22px;box-shadow:var(--shadow-hover);overflow:hidden;
+  border:5px solid var(--primary);display:flex;flex-direction:column;
+}
+.life-card.overseas{border-color:var(--pink)}
+.lc-head{color:#fff;text-align:center;padding:10px;font-weight:800;font-size:1rem}
+.life-card .lc-head{background:linear-gradient(135deg,#2e86de,#54a0ff)}
+.life-card.overseas .lc-head{background:linear-gradient(135deg,#ff6b81,#ff8fa3)}
+.lc-body{padding:16px 18px;flex:1}
+.lc-line{font-size:.98rem;font-weight:800;padding:6px 8px;border-radius:10px;cursor:pointer;line-height:1.5}
+.lc-line:hover{background:#eef6ff}
+.friend-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.friend-tab{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 16px;font-family:inherit;
+  font-weight:800;font-size:.85rem;cursor:pointer;min-height:44px;transition:.15s;
+}
+.friend-tab.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.same-note{
+  max-width:560px;margin:14px auto 0;background:#fffbe7;border:3px dashed var(--yellow);border-radius:16px;
+  padding:12px 16px;font-size:.85rem;font-weight:800;color:#7a5b1e;text-align:center;line-height:1.7;
+}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🚌 スクールライフ比較アプリ <span class="u">6年 Unit2 How is your school life?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-restart">入力しなおす</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 入力 -->
+  <section id="scr-form">
+    <h2 class="step-title">🚌 自分の学校生活を入力しよう</h2>
+    <p class="step-sub">あとで海外の子の生活とくらべてみるよ</p>
+    <div class="form-box">
+      <div class="f-row">
+        <h3><span class="tag">通学</span>学校への行き方</h3>
+        <div class="chips" id="f-transport"></div>
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">ひんど</span>放課後の活動は どのくらいする?</h3>
+        <div class="chips" id="f-freq"></div>
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">活動</span>放課後によくすること</h3>
+        <div class="chips" id="f-activity"></div>
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">曜日</span>とくにする曜日</h3>
+        <div class="chips" id="f-day"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-make" disabled>紹介文をつくって くらべる ▶</button>
+    </div>
+  </section>
+
+  <!-- 比較 -->
+  <section id="scr-compare" class="hidden">
+    <h2 class="step-title">🌏 海外の子と くらべてみよう</h2>
+    <div class="friend-tabs" id="friend-tabs"></div>
+    <div class="compare-wrap">
+      <div class="life-card">
+        <div class="lc-head">🙋 わたし(MY SCHOOL LIFE)</div>
+        <div class="lc-body" id="my-lines"></div>
+      </div>
+      <div class="life-card overseas">
+        <div class="lc-head" id="fr-head">🇧🇷 Lucas(ブラジル)</div>
+        <div class="lc-body" id="fr-lines"></div>
+      </div>
+    </div>
+    <div class="same-note" id="same-note"></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak-mine">🔊 自分の紹介文を読み上げ</button>
+      <button class="big-btn gray" id="btn-back">入力にもどる</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>海外の子どもの生活は教科書を参考にした例です(コード冒頭の OVERSEAS を書きかえると先生が編集できます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// OVERSEAS は教科書の登場人物などに合わせて自由に編集してください
+// ============================================================
+const TRANSPORTS = [
+  { en:"by bus",   ja:"バス",       emoji:"🚌" },
+  { en:"by train", ja:"電車",       emoji:"🚃" },
+  { en:"by bike",  ja:"自転車",     emoji:"🚲" },
+  { en:"on foot",  ja:"歩いて",     emoji:"🚶" },
+  { en:"by car",   ja:"車",         emoji:"🚗" },
+];
+const FREQS = [
+  { en:"always",    ja:"いつも",     emoji:"🌟" },
+  { en:"usually",   ja:"たいてい",   emoji:"🙂" },
+  { en:"sometimes", ja:"ときどき",   emoji:"🌤️" },
+];
+const ACTIVITIES = [
+  { en:"play soccer",       ja:"サッカー",   emoji:"⚽" },
+  { en:"practice the piano", ja:"ピアノ",    emoji:"🎹" },
+  { en:"study at home",     ja:"家で勉強",   emoji:"✏️" },
+  { en:"play video games",  ja:"ゲーム",     emoji:"🎮" },
+  { en:"read books",        ja:"読書",       emoji:"📚" },
+  { en:"go to swimming school", ja:"スイミング", emoji:"🏊" },
+  { en:"walk my dog",       ja:"犬の散歩",   emoji:"🐶" },
+];
+const DAYS = [
+  { en:"Mondays", ja:"月曜" }, { en:"Tuesdays", ja:"火曜" }, { en:"Wednesdays", ja:"水曜" },
+  { en:"Thursdays", ja:"木曜" }, { en:"Fridays", ja:"金曜" }, { en:"Saturdays", ja:"土曜" }, { en:"Sundays", ja:"日曜" },
+];
+const OVERSEAS = [
+  { name:"Lucas", country:"ブラジル", flag:"🇧🇷",
+    lines:["I go to school by bus.","I usually play soccer after school.","I sometimes eat feijoada for dinner.","School starts at 7:00 in Brazil."] },
+  { name:"Emily", country:"アメリカ", flag:"🇺🇸",
+    lines:["I go to school by school bus.","I always have club activities on Fridays.","I usually do my homework after dinner.","We have a big lunch room at school."] },
+  { name:"Mei",   country:"中国",     flag:"🇨🇳",
+    lines:["I go to school by bike.","I usually study at home after school.","I sometimes play table tennis with my friends.","We have a nap time after lunch."] },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let sel = { transport:null, freq:null, activity:null, day:null };
+let friendIdx = 0;
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-form","scr-compare"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+
+// ============================================================
+// フォーム
+// ============================================================
+function buildChips(elId, list, key, cls=""){
+  $(elId).innerHTML = list.map(item =>
+    `<button class="chip ${cls}" data-en="${item.en}">${item.emoji ? item.emoji + " " : ""}${item.ja}</button>`).join("");
+  $(elId).addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if(!b) return;
+    sel[key] = list.find(x => x.en === b.dataset.en);
+    $(elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b));
+    update();
+    if(key === "transport") speak(`I usually go to school ${sel.transport.en}.`);
+    else if(key === "activity" && sel.freq) speak(`I ${sel.freq.en} ${sel.activity.en}.`);
+  });
+}
+buildChips("f-transport", TRANSPORTS, "transport");
+buildChips("f-freq", FREQS, "freq", "freq");
+buildChips("f-activity", ACTIVITIES, "activity");
+buildChips("f-day", DAYS, "day");
+function update(){
+  $("btn-make").disabled = !(sel.transport && sel.freq && sel.activity && sel.day);
+}
+
+// ============================================================
+// 紹介文・比較
+// ============================================================
+function myLines(){
+  return [
+    `I usually go to school ${sel.transport.en}.`,
+    `I ${sel.freq.en} ${sel.activity.en} on ${sel.day.en}.`,
+    `How is your school life?`,
+  ];
+}
+function renderCompare(){
+  $("friend-tabs").innerHTML = OVERSEAS.map((f,i) =>
+    `<button class="friend-tab ${i === friendIdx ? "on" : ""}" data-i="${i}">${f.flag} ${f.name}</button>`).join("");
+  $("my-lines").innerHTML = myLines().map((t,i) =>
+    `<div class="lc-line" data-t="${t}">🔊 ${t}</div>`).join("");
+  const f = OVERSEAS[friendIdx];
+  $("fr-head").textContent = `${f.flag} ${f.name}(${f.country})`;
+  $("fr-lines").innerHTML = f.lines.map(t =>
+    `<div class="lc-line" data-t="${t}">🔊 ${t}</div>`).join("");
+  // 似ているところを見つけるヒント
+  const sameTransport = f.lines[0].includes(sel.transport.en);
+  $("same-note").textContent = sameTransport
+    ? `✨ ${f.name} も「${sel.transport.ja}」で通学しているみたい!同じところ・ちがうところをさがして話し合ってみよう`
+    : `🔍 ${f.name} との「同じところ」「ちがうところ」をさがして、となりの人と話し合ってみよう`;
+}
+$("btn-make").addEventListener("click", () => {
+  friendIdx = 0;
+  renderCompare();
+  show("scr-compare");
+  speakQueue(myLines());
+});
+$("friend-tabs").addEventListener("click", e => {
+  const b = e.target.closest(".friend-tab"); if(!b) return;
+  friendIdx = +b.dataset.i;
+  renderCompare();
+});
+document.addEventListener("click", e => {
+  const line = e.target.closest(".lc-line"); if(line) speak(line.dataset.t);
+});
+$("btn-speak-mine").addEventListener("click", () => speakQueue(myLines()));
+$("btn-back").addEventListener("click", () => show("scr-form"));
+$("btn-restart").addEventListener("click", () => {
+  sel = { transport:null, freq:null, activity:null, day:null };
+  document.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+  update();
+  try{ speechSynthesis.cancel(); }catch(e){}
+  show("scr-form");
+});
+
+show("scr-form");
+</script>
+</body>
+</html>
