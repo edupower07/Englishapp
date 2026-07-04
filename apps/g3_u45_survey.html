@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>すきなものアンケート&グラフ | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ffa502; --teal:#00cec9; --pink:#ff7675; --blue:#74b9ff; --green:#2ed573;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:900px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:16px}
+
+/* 名前えらび */
+.num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:10px;max-width:640px;margin:0 auto}
+.num-btn{
+  aspect-ratio:1;border-radius:18px;background:#fff;border:4px solid transparent;box-shadow:var(--shadow);
+  font-family:inherit;font-size:1.3rem;font-weight:800;cursor:pointer;transition:.15s;min-height:56px;
+}
+.num-btn:hover{transform:translateY(-3px);border-color:var(--primary)}
+
+/* カテゴリえらび */
+.cat-grid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.cat-card{
+  width:210px;background:#fff;border-radius:24px;padding:22px 16px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;position:relative;
+}
+.cat-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.cat-card .ci{font-size:3rem}
+.cat-card h3{font-size:1.15rem;font-weight:800;margin-top:6px}
+.cat-card p{font-size:.78rem;color:var(--sub);font-weight:700;margin-top:4px}
+.cat-card.c-color{border-color:var(--pink)} .cat-card.c-sport{border-color:var(--blue)} .cat-card.c-food{border-color:var(--green)}
+.cat-card .done-mark{position:absolute;top:-14px;right:-6px;font-size:2rem;display:none}
+.cat-card.done .done-mark{display:block}
+.menu-row{display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+
+/* しつもん画面 */
+.q-stage{max-width:560px;margin:0 auto;text-align:center}
+.q-progress{font-weight:800;color:var(--sub);margin-bottom:8px}
+.q-visual{
+  width:240px;height:240px;margin:0 auto;background:#fff;border-radius:28px;box-shadow:var(--shadow-hover);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;border:6px solid #fff;
+}
+.q-visual img{width:100%;height:100%;object-fit:contain}
+.q-visual .swatch{width:100%;height:100%}
+.q-visual .qemoji{font-size:6rem}
+.q-word{font-family:'Fredoka One',cursive;font-size:2rem;margin-top:12px;letter-spacing:1px}
+.q-ask{font-size:1.05rem;font-weight:800;color:var(--sub);margin-top:2px}
+.like-row{display:flex;gap:18px;justify-content:center;margin-top:18px}
+.like-btn{
+  width:170px;padding:16px 10px;border:none;border-radius:24px;font-family:inherit;font-weight:800;
+  font-size:1.15rem;cursor:pointer;box-shadow:var(--shadow);transition:.15s;min-height:88px;color:#fff;
+}
+.like-btn:hover{transform:translateY(-3px) scale(1.03)}
+.like-btn .big{display:block;font-size:2rem}
+.like-btn.yes{background:var(--green)} .like-btn.no{background:#8395a7}
+.q-feedback{font-size:1.3rem;font-weight:800;min-height:40px;margin-top:14px}
+
+/* かんせい */
+.done-stage{text-align:center;margin-top:40px}
+.done-stage .big{font-size:5rem;animation:pop .5s}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+/* よそうクイズ */
+.guess-card{
+  max-width:480px;margin:10px auto;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:24px;text-align:center;
+  border:5px solid var(--blue);
+}
+.guess-q{font-size:1.25rem;font-weight:800;line-height:1.8}
+.guess-q .w{font-family:'Fredoka One',cursive;color:var(--primary);font-size:1.4rem}
+.guess-row{display:flex;gap:14px;justify-content:center;margin-top:16px}
+
+/* グラフ(先生用) */
+.dash{max-width:720px;margin:0 auto}
+.dash-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.dash-head h3{font-size:1.1rem;font-weight:800}
+.dash-head .total{font-size:.85rem;color:var(--sub);font-weight:700}
+.chart-box{background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:18px}
+.chart-box h4{font-size:1rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;min-height:34px}
+.bar-label{width:120px;font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.bar-label .sw{width:18px;height:18px;border-radius:6px;border:2px solid #d8e0e8;flex-shrink:0}
+.bar-track{flex:1;display:flex;align-items:center;gap:8px}
+.bar-fill{height:22px;border-radius:0 6px 6px 0;border-left:none;min-width:2px;transition:width .5s}
+.bar-count{font-weight:800;font-size:.9rem;color:var(--ink)}
+.gas-box{background:#fffbe7;border:3px dashed var(--primary);border-radius:16px;padding:14px 16px;margin-top:8px;font-size:.8rem;font-weight:700;color:#7a5b1e;line-height:1.8}
+.gas-box input{
+  width:100%;padding:10px;border-radius:10px;border:2px solid #e6d9a8;font-family:inherit;font-size:.8rem;margin-top:6px;
+}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 すきなものアンケート <span class="u">3年 Unit4・5 I like / Do you like 〜?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-menu">はじめから</button>
+    <button class="nav-btn" id="btn-dash">せんせい用グラフ</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 名前えらび -->
+  <section id="scr-name">
+    <h2 class="step-title">きみの しゅっせきばんごうを えらんでね</h2>
+    <p class="step-sub">じぶんの ばんごうを タップ!</p>
+    <div class="num-grid" id="num-grid"></div>
+  </section>
+
+  <!-- カテゴリえらび -->
+  <section id="scr-cat" class="hidden">
+    <h2 class="step-title"><span id="cat-student"></span>ばんさん、こんにちは!</h2>
+    <p class="step-sub">こたえたい カテゴリを えらんでね(ぜんぶ こたえてもいいよ)</p>
+    <div class="cat-grid" id="cat-grid"></div>
+    <div class="menu-row">
+      <button class="nav-btn" id="btn-guess" style="background:var(--blue)">よそうクイズであそぶ 🔮</button>
+    </div>
+  </section>
+
+  <!-- しつもん -->
+  <section id="scr-q" class="hidden">
+    <div class="q-stage">
+      <div class="q-progress" id="q-progress"></div>
+      <div class="q-visual" id="q-visual"></div>
+      <div class="q-word" id="q-word"></div>
+      <div class="q-ask" id="q-ask"></div>
+      <div class="like-row">
+        <button class="like-btn yes" id="btn-like"><span class="big">👍</span>すき!</button>
+        <button class="like-btn no" id="btn-dislike"><span class="big">🤔</span>そうでもない</button>
+      </div>
+      <div class="q-feedback" id="q-feedback"></div>
+    </div>
+  </section>
+
+  <!-- カテゴリかんせい -->
+  <section id="scr-done" class="hidden">
+    <div class="done-stage">
+      <div class="big">🎉</div>
+      <h2 class="step-title" id="done-msg">ぜんぶ こたえられたね!</h2>
+      <div class="menu-row">
+        <button class="nav-btn" id="btn-more" style="background:var(--green)">ほかのカテゴリも こたえる</button>
+        <button class="nav-btn" id="btn-guess2" style="background:var(--blue)">よそうクイズであそぶ 🔮</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- よそうクイズ -->
+  <section id="scr-guess" class="hidden">
+    <h2 class="step-title">🔮 よそうクイズ</h2>
+    <p class="step-sub">ともだちの こたえを よそうしてみよう</p>
+    <div class="guess-card">
+      <div class="guess-q" id="guess-q"></div>
+      <div class="guess-row" id="guess-btns">
+        <button class="like-btn yes" id="btn-gyes"><span class="big">👍</span>すきだと思う</button>
+        <button class="like-btn no" id="btn-gno"><span class="big">🤔</span>そうでもないと思う</button>
+      </div>
+      <div class="q-feedback" id="guess-feedback"></div>
+    </div>
+    <div class="menu-row">
+      <button class="nav-btn" id="btn-gnext" style="background:var(--blue)">つぎのクイズ ▶</button>
+      <button class="nav-btn" id="btn-gback">カテゴリにもどる</button>
+    </div>
+  </section>
+
+  <!-- せんせい用グラフ -->
+  <section id="scr-dash" class="hidden">
+    <div class="dash">
+      <div class="dash-head">
+        <h3>📊 クラスのけっか(せんせい用)</h3>
+        <span class="total" id="dash-total"></span>
+      </div>
+      <div id="dash-charts"></div>
+      <div class="gas-box">
+        <b>⚙️ クラス全体の集計(GAS連携・任意)</b><br>
+        1人1台で使うときは、Google Apps Script のWebアプリURLを貼ると、回答がスプレッドシートにも記録されます
+        (くわしくはリポジトリの <b>gas/survey.gs</b> を見てください。組織内限定公開で運用してください)。
+        この画面のグラフは、<b>この端末でこたえた分</b>だけを集計しています。
+        <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/..../exec">
+      </div>
+      <div class="menu-row">
+        <button class="nav-btn" id="btn-dash-back">もどる</button>
+        <button class="nav-btn" id="btn-reset" style="background:var(--pink)">回答をぜんぶリセット</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>回答はこの端末の中だけに保存されます(GAS連携を設定した場合のみ送信されます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const STUDENT_COUNT = 35;   // 出席番号の数(クラスの人数に合わせて変更)
+
+// color: 色見本で表示 / img: Picture Dictionary の絵カードで表示
+const CATEGORIES = [
+  { id:"color", ja:"いろ", icon:"🎨", cls:"c-color", items:[
+    { en:"red",    ja:"あか",     color:"#e74c3c" },
+    { en:"blue",   ja:"あお",     color:"#3498db" },
+    { en:"yellow", ja:"きいろ",   color:"#f1c40f" },
+    { en:"green",  ja:"みどり",   color:"#2ecc71" },
+    { en:"pink",   ja:"ピンク",   color:"#ff9ff3" },
+    { en:"purple", ja:"むらさき", color:"#9b59b6" },
+    { en:"black",  ja:"くろ",     color:"#2d3436" },
+    { en:"white",  ja:"しろ",     color:"#ffffff" },
+  ]},
+  { id:"sport", ja:"スポーツ", icon:"⚽", cls:"c-sport", items:[
+    { en:"baseball",   ja:"やきゅう",       img:"baseball.jpg",   emoji:"⚾" },
+    { en:"soccer",     ja:"サッカー",       img:"soccer.jpg",     emoji:"⚽" },
+    { en:"tennis",     ja:"テニス",         img:"tennis.jpg",     emoji:"🎾" },
+    { en:"swimming",   ja:"すいえい",       img:"swimming.jpg",   emoji:"🏊" },
+    { en:"basketball", ja:"バスケ",         img:"basketball.jpg", emoji:"🏀" },
+    { en:"dodgeball",  ja:"ドッジボール",   img:"dodgeball.jpg",  emoji:"🤾" },
+  ]},
+  { id:"food", ja:"たべもの", icon:"🍎", cls:"c-food", items:[
+    { en:"apples",         ja:"りんご",         img:"apple.jpg",          emoji:"🍎" },
+    { en:"bananas",        ja:"バナナ",         img:"banana.jpg",         emoji:"🍌" },
+    { en:"pizza",          ja:"ピザ",           img:"pizza.jpg",          emoji:"🍕" },
+    { en:"curry and rice", ja:"カレーライス",   img:"curry and rice.jpg", emoji:"🍛" },
+    { en:"ice cream",      ja:"アイス",         img:"ice cream.jpg",      emoji:"🍦" },
+    { en:"melons",         ja:"メロン",         img:"melon.jpg",          emoji:"🍈" },
+  ]},
+];
+const STORAGE_KEY = "g3_survey_responses_v1";
+const GAS_KEY = "g3_survey_gas_url";
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// ============================================================
+// 状態・保存
+// ============================================================
+let student = null;
+let curCat = null, curIdx = 0, answering = false;
+let guess = null;
+let responses = [];
+try{ responses = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ responses = []; }
+
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-name","scr-cat","scr-q","scr-done","scr-guess","scr-dash"].forEach(s =>
+    $(s).classList.toggle("hidden", s !== id));
+}
+function saveResponses(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(responses)); }catch(e){}
+}
+function record(cat, item, liked){
+  // 同じ子の同じ項目は上書き
+  responses = responses.filter(r => !(r.student === student && r.category === cat.id && r.item === item.en));
+  responses.push({ student, category: cat.id, item: item.en, liked });
+  saveResponses();
+  sendToGas({ student, category: cat.id, item: item.en, liked });
+}
+// GAS連携(URLが設定されているときだけ送信。失敗しても授業を止めない)
+function sendToGas(row){
+  const url = localStorage.getItem(GAS_KEY);
+  if(!url) return;
+  try{
+    fetch(url, { method:"POST", mode:"no-cors",
+      headers:{ "Content-Type":"text/plain" }, body: JSON.stringify(row) });
+  }catch(e){}
+}
+
+// ============================================================
+// 名前えらび
+// ============================================================
+$("num-grid").innerHTML = Array.from({length: STUDENT_COUNT}, (_,i) =>
+  `<button class="num-btn" data-n="${i+1}">${i+1}</button>`).join("");
+$("num-grid").addEventListener("click", e => {
+  const b = e.target.closest(".num-btn"); if(!b) return;
+  student = +b.dataset.n;
+  $("cat-student").textContent = student;
+  buildCatGrid(); show("scr-cat");
+  speak("Hello!");
+});
+
+// ============================================================
+// カテゴリえらび
+// ============================================================
+function answeredAll(cat){
+  return cat.items.every(it =>
+    responses.some(r => r.student === student && r.category === cat.id && r.item === it.en));
+}
+function buildCatGrid(){
+  $("cat-grid").innerHTML = CATEGORIES.map(c => `
+    <div class="cat-card ${c.cls} ${answeredAll(c) ? "done" : ""}" data-id="${c.id}">
+      <span class="done-mark">✅</span>
+      <div class="ci">${c.icon}</div>
+      <h3>${c.ja}</h3>
+      <p>${c.items.length}この しつもん</p>
+    </div>`).join("");
+}
+$("cat-grid").addEventListener("click", e => {
+  const el = e.target.closest(".cat-card"); if(!el) return;
+  curCat = CATEGORIES.find(c => c.id === el.dataset.id);
+  curIdx = 0;
+  show("scr-q"); showQuestion();
+});
+
+// ============================================================
+// しつもん
+// ============================================================
+function visualHTML(item){
+  if(item.color){
+    const border = item.color.toLowerCase() === "#ffffff" ? "background:#fff" : `background:${item.color}`;
+    return `<div class="swatch" style="${border}"></div>`;
+  }
+  return `<img src="${IMG_BASE + encodeURIComponent(item.img)}" alt="${item.en}"
+    onerror="this.outerHTML='<span class=&quot;qemoji&quot;>${item.emoji}</span>'">`;
+}
+function showQuestion(){
+  const item = curCat.items[curIdx];
+  answering = true;
+  $("q-progress").textContent = `${curIdx+1} / ${curCat.items.length}`;
+  $("q-visual").innerHTML = visualHTML(item);
+  $("q-word").textContent = item.en;
+  $("q-ask").textContent = `Do you like ${item.en}?(${item.ja}は すき?)`;
+  $("q-feedback").textContent = "";
+  speak(`Do you like ${item.en}?`);
+}
+function answer(liked){
+  if(!answering) return;
+  answering = false;
+  const item = curCat.items[curIdx];
+  record(curCat, item, liked);
+  $("q-feedback").textContent = liked ? "👍 I like it!" : "🤔 I don't like it.";
+  speak(liked ? `I like ${item.en}!` : `I don't like ${item.en}.`);
+  setTimeout(() => {
+    curIdx++;
+    if(curIdx < curCat.items.length){ showQuestion(); }
+    else{
+      buildCatGrid();
+      $("done-msg").textContent = `「${curCat.ja}」ぜんぶ こたえられたね!`;
+      show("scr-done");
+      speak("Good job!");
+    }
+  }, 1400);
+}
+$("btn-like").addEventListener("click", () => answer(true));
+$("btn-dislike").addEventListener("click", () => answer(false));
+
+// ============================================================
+// よそうクイズ
+// ============================================================
+function pickGuess(){
+  const pool = responses.filter(r => r.student !== student);
+  if(pool.length === 0){
+    $("guess-q").innerHTML = "まだ ほかのともだちの こたえが ないみたい。<br>みんなが こたえたら あそべるよ!";
+    $("guess-btns").style.visibility = "hidden";
+    $("guess-feedback").textContent = "";
+    guess = null;
+    return;
+  }
+  guess = pool[Math.floor(Math.random() * pool.length)];
+  $("guess-btns").style.visibility = "visible";
+  $("guess-q").innerHTML = `${guess.student}ばんさんは <span class="w">${guess.item}</span> が すきかな?`;
+  $("guess-feedback").textContent = "";
+  speak(`Do you like ${guess.item}?`);
+}
+function answerGuess(yes){
+  if(!guess) return;
+  const correct = (guess.liked === yes);
+  $("guess-feedback").textContent = correct
+    ? `⭕ せいかい!${guess.liked ? "すきだって!" : "そうでもないって!"}`
+    : `❌ ざんねん!${guess.liked ? "ほんとは すきだって!" : "そうでもないんだって!"}`;
+  speak(guess.liked ? `I like ${guess.item}!` : `I don't like ${guess.item}.`);
+}
+$("btn-gyes").addEventListener("click", () => answerGuess(true));
+$("btn-gno").addEventListener("click", () => answerGuess(false));
+$("btn-gnext").addEventListener("click", pickGuess);
+$("btn-gback").addEventListener("click", () => { buildCatGrid(); show("scr-cat"); });
+$("btn-guess").addEventListener("click", () => { show("scr-guess"); pickGuess(); });
+$("btn-guess2").addEventListener("click", () => { show("scr-guess"); pickGuess(); });
+$("btn-more").addEventListener("click", () => { buildCatGrid(); show("scr-cat"); });
+
+// ============================================================
+// せんせい用グラフ
+// ============================================================
+function renderDash(){
+  const students = [...new Set(responses.map(r => r.student))];
+  $("dash-total").textContent = `こたえた人数: ${students.length}人 / 回答数: ${responses.length}件(この端末の分)`;
+  $("dash-charts").innerHTML = CATEGORIES.map(cat => {
+    const counts = cat.items.map(it => ({
+      it, n: responses.filter(r => r.category === cat.id && r.item === it.en && r.liked).length
+    })).sort((a,b) => b.n - a.n);
+    const max = Math.max(1, ...counts.map(c => c.n));
+    const rows = counts.map(({it,n}) => {
+      const sw = it.color
+        ? `<span class="sw" style="background:${it.color}"></span>`
+        : `<span>${it.emoji}</span>`;
+      const fill = it.color || "var(--teal)";
+      const outline = (it.color && it.color.toLowerCase() === "#ffffff") ? "border:2px solid #d8e0e8;" : "";
+      return `<div class="bar-row">
+        <span class="bar-label">${sw}${it.en}</span>
+        <span class="bar-track">
+          <span class="bar-fill" style="width:${(n/max)*100}%;background:${fill};${outline}"></span>
+          <span class="bar-count">${n}</span>
+        </span>
+      </div>`;
+    }).join("");
+    return `<div class="chart-box"><h4>${cat.icon} ${cat.ja} — 「すき!」の数</h4>${rows}</div>`;
+  }).join("");
+  $("gas-url").value = localStorage.getItem(GAS_KEY) || "";
+}
+$("btn-dash").addEventListener("click", () => { renderDash(); show("scr-dash"); });
+$("btn-dash-back").addEventListener("click", () => { show(student ? "scr-cat" : "scr-name"); });
+$("btn-reset").addEventListener("click", () => {
+  if(confirm("この端末の回答をぜんぶ消します。いいですか?")){
+    responses = []; saveResponses(); renderDash();
+  }
+});
+$("gas-url").addEventListener("change", e => {
+  localStorage.setItem(GAS_KEY, e.target.value.trim());
+});
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+$("btn-menu").addEventListener("click", () => { student = null; speechSynthesis.cancel(); show("scr-name"); });
+
+show("scr-name");
+</script>
+</body>
+</html>

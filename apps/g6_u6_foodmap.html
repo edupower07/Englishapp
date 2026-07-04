@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フードマップ食材の国調べ | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2e86de; --primary-dark:#1e6fc0; --green:#26de81; --pink:#ff6b81; --orange:#ff9f43; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.mode-select{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.mode-card{
+  width:225px;background:#fff;border-radius:24px;padding:22px 16px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--green)}
+.mode-card.m3{border-color:var(--pink)} .mode-card.m4{border-color:var(--orange)}
+.mode-card .mi{font-size:2.8rem}
+.mode-card h2{font-size:1.05rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.78rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+
+/* 食材グリッド */
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px}
+.food{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:3px;
+}
+.food:hover{transform:translateY(-3px)}
+.food.on{border-color:var(--green);background:#f0fff7}
+.food .fimg{width:58px;height:52px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.food .fimg img{max-width:100%;max-height:100%;object-fit:contain}
+.food .femoji{font-size:2.2rem;line-height:1}
+.food .flabel{font-weight:800;font-size:.74rem;line-height:1.2}
+.food .flabel small{display:block;color:var(--sub);font-size:.64rem}
+
+/* 詳細カード+地図 */
+.detail-wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:flex-start;margin-top:6px}
+.detail-card{
+  width:280px;background:#fff;border-radius:22px;box-shadow:var(--shadow-hover);border:5px solid var(--primary);
+  padding:18px;text-align:center;
+}
+.detail-card .dimg{width:110px;height:100px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.detail-card .dimg img{max-width:100%;max-height:100%;object-fit:contain}
+.detail-card .demoji{font-size:4rem}
+.detail-card .sentence{font-size:1.15rem;font-weight:800;color:var(--primary-dark);margin-top:8px;cursor:pointer}
+.detail-card .flagline{font-size:2.2rem;margin-top:4px}
+.detail-card small{color:var(--sub);font-weight:700;display:block;margin-top:6px;line-height:1.6}
+.map-box{flex:1;min-width:300px;max-width:560px;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:12px}
+svg#wmap{width:100%;height:auto;border-radius:14px}
+.pin-b{animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* わたしの食事 */
+.meal-line{
+  max-width:620px;margin:12px auto 0;background:#fff;border-radius:18px;box-shadow:var(--shadow);
+  padding:14px 18px;font-size:1.1rem;font-weight:800;text-align:center;cursor:pointer;border:4px solid var(--green);
+}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+
+/* クイズ */
+.quiz-hud{display:flex;justify-content:space-between;max-width:560px;margin:0 auto 10px;font-weight:800;color:var(--sub)}
+.quiz-q{
+  max-width:560px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:18px;text-align:center;
+  border:5px solid var(--pink);
+}
+.quiz-q .qtext{font-size:1.25rem;font-weight:800;color:var(--pink)}
+.quiz-q .qbig{font-size:3.4rem;margin:8px 0}
+.flag-opts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.flag-btn{
+  width:118px;background:#fff;border:4px solid #e6ecf2;border-radius:16px;padding:10px 6px;cursor:pointer;
+  font-family:inherit;text-align:center;transition:.15s;box-shadow:var(--shadow);
+}
+.flag-btn:hover{transform:translateY(-3px);border-color:var(--pink)}
+.flag-btn .fl{font-size:2.4rem;display:block}
+.flag-btn small{font-weight:800;font-size:.7rem;color:var(--sub)}
+.flag-btn.ok{border-color:var(--green);background:#f0fff7}
+.flag-btn.ng{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.msg{text-align:center;font-size:1.15rem;font-weight:800;min-height:34px;margin-top:10px}
+.msg.ok{color:var(--green)} .msg.ng{color:var(--pink)}
+
+/* 気づきメモ */
+.memo-box{max-width:620px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:18px;border:4px dashed var(--orange)}
+.memo-box textarea{
+  width:100%;min-height:170px;border:2px solid #eee;border-radius:12px;padding:12px;font-family:inherit;
+  font-size:.95rem;font-weight:700;resize:vertical;
+}
+.memo-note{font-size:.78rem;color:var(--sub);font-weight:700;margin-top:8px;line-height:1.7}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍚 フードマップ食材の国調べ <span class="u">6年 Unit6 Let's think about our food.</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">やってみることを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="atlas">
+        <div class="mi">🗺️</div>
+        <h2>食材のふるさと図鑑</h2>
+        <p>食材をえらんで、主な産地を<br>世界地図でたしかめよう</p>
+      </div>
+      <div class="mode-card m2" data-mode="meal">
+        <div class="mi">🍽️</div>
+        <h2>わたしの食事</h2>
+        <p>ふだん食べているものをえらんで<br>I usually eat 〜. の文をつくろう</p>
+      </div>
+      <div class="mode-card m3" data-mode="quiz">
+        <div class="mi">🚩</div>
+        <h2>国旗仕分けクイズ</h2>
+        <p>この食材はどこの国から?<br>国旗をえらんでこたえよう(8問)</p>
+      </div>
+      <div class="mode-card m4" data-mode="memo">
+        <div class="mi">📝</div>
+        <h2>気づきメモ</h2>
+        <p>日本の食と世界のつながりで<br>気づいたことを書きのこそう</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 図鑑 -->
+  <section id="scr-atlas" class="hidden">
+    <h2 class="step-title">🗺️ 食材のふるさと図鑑</h2>
+    <p class="step-sub">食材をタップすると、主な産地(代表的な例)が地図にでるよ</p>
+    <div class="detail-wrap">
+      <div class="detail-card" id="detail-card">
+        <div class="dimg"><span class="demoji">👇</span></div>
+        <div class="sentence">したから食材をえらんでね</div>
+      </div>
+      <div class="map-box"><svg id="wmap" viewBox="0 0 500 280"></svg></div>
+    </div>
+    <div style="height:12px"></div>
+    <div class="pool" id="atlas-pool"></div>
+  </section>
+
+  <!-- わたしの食事 -->
+  <section id="scr-meal" class="hidden">
+    <h2 class="step-title">🍽️ わたしの食事</h2>
+    <p class="step-sub">さいきん食べたもの・よく食べるものをタップしてえらぼう(いくつでも)</p>
+    <div class="pool" id="meal-pool"></div>
+    <div class="meal-line" id="meal-line">🔊 えらぶと ここに英文がでるよ</div>
+    <div class="actions">
+      <button class="big-btn gray" id="btn-meal-clear">えらびなおす</button>
+    </div>
+  </section>
+
+  <!-- クイズ -->
+  <section id="scr-quiz" class="hidden">
+    <div class="quiz-hud">
+      <span id="q-progress">だい1問 / 8問</span>
+      <span id="q-score">せいかい 0</span>
+    </div>
+    <div class="quiz-q">
+      <div class="qtext" id="q-text">Where is rice from?</div>
+      <div class="qbig" id="q-big">🍚</div>
+      <div class="flag-opts" id="q-opts"></div>
+    </div>
+    <div class="msg" id="q-msg"></div>
+  </section>
+
+  <!-- 気づきメモ -->
+  <section id="scr-memo" class="hidden">
+    <h2 class="step-title">📝 気づきメモ</h2>
+    <p class="step-sub">和食と世界の食文化、食料の輸入について気づいたことを書こう</p>
+    <div class="memo-box">
+      <textarea id="memo" placeholder="れい:日本で食べているものは、いろいろな国から来ていることがわかった。&#10;れい:サーモンがチリから来ているのはいがいだった。"></textarea>
+      <div class="memo-note">メモはこの端末の中だけに保存されます。だいじなメモは先生のワークシートにもうつしておこう。</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  食材の主な産地は「代表的な例」です。輸入先や生産量は年によって変わるため、最新の統計とはかぎりません。<br>
+  Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
+</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// 産地は教科書・統計でよく取り上げられる代表例です(毎年変動します)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const QUIZ_COUNT = 8;
+
+// 国: 地図上の位置(x,y)と国旗
+const COUNTRIES = {
+  japan:       { en:"Japan",           ja:"日本",           flag:"🇯🇵", x:412, y:96  },
+  usa:         { en:"the U.S.",        ja:"アメリカ",       flag:"🇺🇸", x:95,  y:95  },
+  canada:      { en:"Canada",          ja:"カナダ",         flag:"🇨🇦", x:105, y:52  },
+  australia:   { en:"Australia",       ja:"オーストラリア", flag:"🇦🇺", x:405, y:212 },
+  brazil:      { en:"Brazil",          ja:"ブラジル",       flag:"🇧🇷", x:158, y:185 },
+  chile:       { en:"Chile",           ja:"チリ",           flag:"🇨🇱", x:130, y:222 },
+  vietnam:     { en:"Vietnam",         ja:"ベトナム",       flag:"🇻🇳", x:362, y:140 },
+  philippines: { en:"the Philippines", ja:"フィリピン",     flag:"🇵🇭", x:392, y:145 },
+  newzealand:  { en:"New Zealand",     ja:"ニュージーランド", flag:"🇳🇿", x:462, y:242 },
+};
+
+const FOODS = [
+  { en:"Rice",       ja:"米",         country:"japan",       img:"rice.jpg",       emoji:"🍚" },
+  { en:"Wheat",      ja:"小麦",       country:"usa",         img:null,             emoji:"🌾" },
+  { en:"Soybeans",   ja:"大豆",       country:"usa",         img:null,             emoji:"🫘" },
+  { en:"Corn",       ja:"とうもろこし", country:"usa",       img:"corn.jpg",       emoji:"🌽" },
+  { en:"Beef",       ja:"牛肉",       country:"australia",   img:"beef.jpg",       emoji:"🥩" },
+  { en:"Pork",       ja:"ぶた肉",     country:"canada",      img:"pork.jpg",       emoji:"🥓" },
+  { en:"Chicken",    ja:"とり肉",     country:"brazil",      img:"chicken.jpg",    emoji:"🍗" },
+  { en:"Salmon",     ja:"サーモン",   country:"chile",       img:"salmon.jpg",     emoji:"🐟" },
+  { en:"Shrimp",     ja:"エビ",       country:"vietnam",     img:"shrimp.jpg",     emoji:"🦐" },
+  { en:"Bananas",    ja:"バナナ",     country:"philippines", img:"banana.jpg",     emoji:"🍌" },
+  { en:"Kiwi fruit", ja:"キウイ",     country:"newzealand",  img:null,             emoji:"🥝" },
+];
+const MEMO_KEY = "g6_foodmap_memo_v1";
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// ============================================================
+// 共通
+// ============================================================
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-mode","scr-atlas","scr-meal","scr-quiz","scr-memo"].forEach(s =>
+    $(s).classList.toggle("hidden", s !== id));
+}
+function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
+function foodCardHTML(f, cls = ""){
+  return `<div class="food ${cls}" data-en="${f.en}">
+    <div class="fimg">${f.img
+      ? `<img src="${IMG_BASE + encodeURIComponent(f.img)}" alt="${f.en}" onerror="this.outerHTML='<span class=&quot;femoji&quot;>${f.emoji}</span>'">`
+      : `<span class="femoji">${f.emoji}</span>`}</div>
+    <div class="flabel">${f.ja}<small>${f.en}</small></div>
+  </div>`;
+}
+const fOf = en => FOODS.find(f => f.en === en);
+
+// ============================================================
+// 世界地図(デフォルメ)
+// ============================================================
+const WMAP_BASE = `
+  <rect x="0" y="0" width="500" height="280" rx="14" fill="#cfe9ff"/>
+  <g fill="#a8dfa9" stroke="#6bbf6e" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M55 40 L150 35 L165 75 L140 110 L100 130 L70 100 L45 70 Z"/>
+    <path d="M120 150 L165 155 L170 195 L145 245 L120 235 L115 185 Z"/>
+    <path d="M225 45 L285 40 L295 75 L260 95 L225 80 Z"/>
+    <path d="M225 105 L290 100 L300 150 L275 200 L240 190 L220 140 Z"/>
+    <path d="M300 55 L420 45 L445 85 L420 120 L380 160 L340 165 L310 120 Z"/>
+    <path d="M375 190 L430 185 L440 225 L400 240 L370 220 Z"/>
+    <circle cx="462" cy="245" r="9"/>
+    <circle cx="416" cy="98" r="10"/>
+    <circle cx="395" cy="147" r="7"/>
+  </g>
+  <text x="12" y="24" font-size="14" font-weight="800" font-family="'M PLUS Rounded 1c',sans-serif" fill="#7aa8cc">WORLD</text>
+`;
+function drawMap(food){
+  let pin = "";
+  if(food){
+    const c = COUNTRIES[food.country];
+    pin = `<g class="pin-b">
+      <circle cx="${c.x}" cy="${c.y-20}" r="15" fill="#fff" stroke="#e74c3c" stroke-width="3"/>
+      <line x1="${c.x}" y1="${c.y-6}" x2="${c.x}" y2="${c.y}" stroke="#e74c3c" stroke-width="3"/>
+      <text x="${c.x}" y="${c.y-13}" text-anchor="middle" font-size="16">${c.flag}</text>
+      <text x="${c.x}" y="${c.y+14}" text-anchor="middle" font-size="11" font-weight="800"
+        font-family="'M PLUS Rounded 1c',sans-serif" fill="#c0392b">${c.ja}</text>
+    </g>`;
+  }
+  $("wmap").innerHTML = WMAP_BASE + pin;
+}
+
+// ============================================================
+// 図鑑
+// ============================================================
+function buildAtlas(){
+  $("atlas-pool").innerHTML = FOODS.map(f => foodCardHTML(f)).join("");
+  drawMap(null);
+}
+$("atlas-pool").addEventListener("click", e => {
+  const el = e.target.closest(".food"); if(!el) return;
+  const f = fOf(el.dataset.en);
+  const c = COUNTRIES[f.country];
+  document.querySelectorAll("#atlas-pool .food").forEach(x => x.classList.toggle("on", x === el));
+  const sentence = `${f.en} is from ${c.en}.`;
+  $("detail-card").innerHTML = `
+    <div class="dimg">${f.img
+      ? `<img src="${IMG_BASE + encodeURIComponent(f.img)}" alt="${f.en}" onerror="this.outerHTML='<span class=&quot;demoji&quot;>${f.emoji}</span>'">`
+      : `<span class="demoji">${f.emoji}</span>`}</div>
+    <div class="sentence" data-t="${sentence}">🔊 ${sentence}</div>
+    <div class="flagline">${c.flag}</div>
+    <small>${f.ja}の主な産地(例):${c.ja}<br>※産地は年によってかわります</small>`;
+  drawMap(f);
+  speak(sentence);
+});
+$("detail-card").addEventListener("click", e => {
+  const s = e.target.closest(".sentence"); if(s && s.dataset.t) speak(s.dataset.t);
+});
+
+// ============================================================
+// わたしの食事
+// ============================================================
+let meal = [];
+function buildMeal(){
+  meal = [];
+  $("meal-pool").innerHTML = FOODS.map(f => foodCardHTML(f)).join("");
+  renderMeal();
+}
+function mealSentence(){
+  if(meal.length === 0) return null;
+  const names = meal.map(en => fOf(en).en.toLowerCase());
+  const list = names.length === 1 ? names[0]
+    : names.slice(0,-1).join(", ") + " and " + names[names.length-1];
+  return `I usually eat ${list}.`;
+}
+function renderMeal(){
+  document.querySelectorAll("#meal-pool .food").forEach(x =>
+    x.classList.toggle("on", meal.includes(x.dataset.en)));
+  const s = mealSentence();
+  $("meal-line").textContent = s ? `🔊 ${s}` : "🔊 えらぶと ここに英文がでるよ";
+}
+$("meal-pool").addEventListener("click", e => {
+  const el = e.target.closest(".food"); if(!el) return;
+  const en = el.dataset.en;
+  meal = meal.includes(en) ? meal.filter(x => x !== en) : [...meal, en];
+  renderMeal();
+  const s = mealSentence();
+  if(s) speak(s);
+});
+$("meal-line").addEventListener("click", () => { const s = mealSentence(); if(s) speak(s); });
+$("btn-meal-clear").addEventListener("click", buildMeal);
+
+// ============================================================
+// 国旗仕分けクイズ
+// ============================================================
+let quiz = { qs:[], idx:0, score:0, lock:false };
+function startQuiz(){
+  quiz = { qs: shuffle(FOODS).slice(0, QUIZ_COUNT), idx:0, score:0, lock:false };
+  show("scr-quiz");
+  drawQuizQ();
+}
+function drawQuizQ(){
+  const f = quiz.qs[quiz.idx];
+  quiz.lock = false;
+  $("q-progress").textContent = `だい${quiz.idx+1}問 / ${quiz.qs.length}問`;
+  $("q-score").textContent = `せいかい ${quiz.score}`;
+  $("q-text").textContent = `Where is ${f.en.toLowerCase()} from?`;
+  $("q-big").innerHTML = f.img
+    ? `<img src="${IMG_BASE + encodeURIComponent(f.img)}" alt="${f.en}" style="height:84px;object-fit:contain"
+        onerror="this.outerHTML='${f.emoji}'">`
+    : f.emoji;
+  const wrongKeys = shuffle(Object.keys(COUNTRIES).filter(k => k !== f.country)).slice(0,3);
+  const opts = shuffle([f.country, ...wrongKeys]);
+  $("q-opts").innerHTML = opts.map(k => `
+    <button class="flag-btn" data-k="${k}">
+      <span class="fl">${COUNTRIES[k].flag}</span><small>${COUNTRIES[k].ja}</small>
+    </button>`).join("");
+  $("q-msg").textContent = ""; $("q-msg").className = "msg";
+  speak(`Where is ${f.en.toLowerCase()} from?`);
+}
+$("q-opts").addEventListener("click", e => {
+  const el = e.target.closest(".flag-btn"); if(!el || quiz.lock) return;
+  const f = quiz.qs[quiz.idx];
+  if(el.dataset.k === f.country){
+    quiz.lock = true; quiz.score++;
+    el.classList.add("ok");
+    const c = COUNTRIES[f.country];
+    $("q-msg").textContent = `⭕ ${f.en} is from ${c.en}!`;
+    $("q-msg").className = "msg ok";
+    speak(`Yes! ${f.en} is from ${c.en}.`);
+    $("q-score").textContent = `せいかい ${quiz.score}`;
+    setTimeout(() => {
+      quiz.idx++;
+      if(quiz.idx >= quiz.qs.length){
+        $("q-text").textContent = `${quiz.qs.length}問中 ${quiz.score}問 せいかい!`;
+        $("q-big").textContent = quiz.score === quiz.qs.length ? "🏆" : "🎉";
+        $("q-opts").innerHTML = ""; $("q-msg").textContent = "";
+        speak(quiz.score === quiz.qs.length ? "Perfect!" : "Good job!");
+      }else drawQuizQ();
+    }, 1600);
+  }else{
+    el.classList.add("ng");
+    setTimeout(() => el.classList.remove("ng"), 380);
+    $("q-msg").textContent = "❌ ちがう国みたい…";
+    $("q-msg").className = "msg ng";
+  }
+});
+
+// ============================================================
+// 気づきメモ
+// ============================================================
+try{ $("memo").value = localStorage.getItem(MEMO_KEY) || ""; }catch(e){}
+$("memo").addEventListener("input", () => {
+  try{ localStorage.setItem(MEMO_KEY, $("memo").value); }catch(e){}
+});
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  const m = c.dataset.mode;
+  if(m === "atlas"){ buildAtlas(); show("scr-atlas"); }
+  else if(m === "meal"){ buildMeal(); show("scr-meal"); }
+  else if(m === "quiz"){ startQuiz(); }
+  else show("scr-memo");
+}));
+$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
+
+show("scr-mode");
+</script>
+</body>
+</html>

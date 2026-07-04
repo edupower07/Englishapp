@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食物連鎖クイズビルダー | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2e86de; --primary-dark:#1e6fc0; --green:#26de81; --pink:#ff6b81; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.mode-card{
+  width:260px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--pink)}
+.mode-card .mi{font-size:3rem}
+.mode-card h2{font-size:1.12rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+
+/* チェーン表示 */
+.chain-zone{
+  background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:14px;border:4px dashed var(--primary);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:110px;justify-content:center;
+}
+.chain-empty{color:var(--sub);font-weight:700;font-size:.85rem}
+.chain-card{
+  width:88px;background:#eef6ff;border-radius:14px;padding:6px;text-align:center;border:3px solid var(--primary);
+  animation:pop .35s;cursor:pointer;
+}
+@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+.chain-card .ce{font-size:2rem;line-height:1.2}
+.chain-card .cimg{width:60px;height:48px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.chain-card .cimg img{max-width:100%;max-height:100%;object-fit:contain}
+.chain-card small{font-weight:800;font-size:.62rem;display:block;line-height:1.1;margin-top:2px}
+.chain-arrow{font-size:1.6rem;color:var(--pink);font-weight:800}
+.chain-card.hidden-card{background:#f1f3f5;border-color:#b2bec3}
+.chain-card.hidden-card .ce{filter:blur(0);font-size:2rem}
+
+/* 生き物図鑑グリッド */
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:14px}
+.creature{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:118px;display:flex;flex-direction:column;justify-content:center;gap:3px;
+}
+.creature:hover{transform:translateY(-3px)}
+.creature .pimg{width:58px;height:52px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.creature .pimg img{max-width:100%;max-height:100%;object-fit:contain}
+.creature .pemoji{font-size:2.2rem;line-height:1}
+.creature .plabel{font-weight:800;font-size:.72rem;line-height:1.2}
+.creature .plabel small{display:block;color:var(--sub);font-size:.62rem}
+.creature.ok{border-color:var(--green);background:#f0fff7}
+.creature.dim{opacity:.32;pointer-events:none}
+
+.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn.green{background:var(--green)}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* 文章 */
+.sent-box{max-width:560px;margin:12px auto 0;background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:12px 18px}
+.sent-line{font-size:1.1rem;font-weight:800;padding:7px 10px;border-radius:10px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.sent-line:hover{background:#eef6ff}
+.sent-line.eco{color:var(--primary-dark)}
+
+/* クイズ */
+.quiz-q{
+  max-width:560px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:18px;text-align:center;
+  border:5px solid var(--pink);
+}
+.quiz-q .qtext{font-size:1.3rem;font-weight:800;color:var(--pink)}
+.quiz-q .qsub{color:var(--sub);font-weight:700;font-size:.8rem;margin-top:4px}
+.quiz-chain{display:flex;align-items:center;gap:8px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+.quiz-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;max-width:560px;margin:10px auto 0}
+.msg{text-align:center;font-size:1.2rem;font-weight:800;min-height:36px;margin-top:10px}
+.msg.ok{color:var(--green)} .msg.ng{color:var(--pink)}
+.quiz-hud{display:flex;justify-content:space-between;max-width:560px;margin:0 auto 10px;font-weight:800;color:var(--sub)}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🦈 食物連鎖クイズビルダー <span class="u">6年 Unit5 We all live on the Earth.</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">あそびかたを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="build">
+        <div class="mi">🔗</div>
+        <h2>フードチェーンをつくる</h2>
+        <p>「食べられる→食べる」の順に<br>生き物カードをつないでみよう</p>
+      </div>
+      <div class="mode-card m2" data-mode="quiz">
+        <div class="mi">❓</div>
+        <h2>食物連鎖クイズ</h2>
+        <p>What do sharks eat?<br>かくれた生き物をあてよう(8問)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ビルダー -->
+  <section id="scr-build" class="hidden">
+    <h2 class="step-title">🔗 フードチェーンをつくろう</h2>
+    <p class="step-sub">みどりのわくの生き物が「つぎにつなげられる」生き物だよ(食べられる→食べるの順)</p>
+    <div class="chain-zone" id="chain-zone"></div>
+    <div class="pool" id="pool"></div>
+    <div class="actions">
+      <button class="big-btn green" id="btn-say" disabled>🔊 英語で言ってみる</button>
+      <button class="big-btn gray" id="btn-clear">さいしょから</button>
+    </div>
+    <div class="sent-box hidden" id="sent-box"></div>
+  </section>
+
+  <!-- クイズ -->
+  <section id="scr-quiz" class="hidden">
+    <div class="quiz-hud">
+      <span id="q-progress">だい1問 / 8問</span>
+      <span id="q-score">せいかい 0</span>
+    </div>
+    <div class="quiz-q">
+      <div class="qtext" id="q-text">What do sharks eat?</div>
+      <div class="qsub" id="q-sub">サメはなにを食べる?したから えらぼう</div>
+      <div class="quiz-chain" id="q-chain"></div>
+    </div>
+    <div class="quiz-opts" id="q-opts"></div>
+    <div class="msg" id="q-msg"></div>
+  </section>
+
+</main>
+
+<footer>
+  食物連鎖の組み合わせは代表的な例です(生き物の食性は地域や種類によって異なります)。理科の学習と関連づけて、先生が内容を確認してから使ってください。<br>
+  Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
+</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// eats: その生き物が「食べるもの」の id リスト(食物連鎖として妥当な代表例)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const QUIZ_COUNT = 8;
+
+const CREATURES = [
+  // 海
+  { id:"seaweed",  en:"seaweed",     ja:"かいそう",     img:"seaweed.jpg",     emoji:"🌿", eats:[] },
+  { id:"plankton", en:"plankton",    ja:"プランクトン", img:null,              emoji:"🦠", eats:[] },
+  { id:"shrimp",   en:"shrimp",      ja:"エビ",         img:"shrimp.jpg",      emoji:"🦐", eats:["plankton","seaweed"] },
+  { id:"crab",     en:"crabs",       ja:"カニ",         img:"crab.jpg",        emoji:"🦀", eats:["seaweed","shrimp"] },
+  { id:"fish",     en:"small fish",  ja:"小さな魚",     img:"fish.jpg",        emoji:"🐟", eats:["plankton","shrimp"] },
+  { id:"squid",    en:"squid",       ja:"イカ",         img:"squid.jpg",       emoji:"🦑", eats:["fish","shrimp"] },
+  { id:"octopus",  en:"octopuses",   ja:"タコ",         img:"octopus.jpg",     emoji:"🐙", eats:["crab","shrimp"] },
+  { id:"shark",    en:"sharks",      ja:"サメ",         img:"shark.jpg",       emoji:"🦈", eats:["fish","squid","octopus"] },
+  { id:"whale",    en:"whales",      ja:"クジラ",       img:"whale.jpg",       emoji:"🐋", eats:["plankton","fish","squid"] },
+  // 陸
+  { id:"grass",    en:"grass",       ja:"草",           img:null,              emoji:"🌱", eats:[] },
+  { id:"grasshopper", en:"grasshoppers", ja:"バッタ",   img:"grasshopper.jpg", emoji:"🦗", eats:["grass"] },
+  { id:"mouse",    en:"mice",        ja:"ネズミ",       img:"mouse.jpg",       emoji:"🐭", eats:["grass"] },
+  { id:"frog",     en:"frogs",       ja:"カエル",       img:"frog.jpg",        emoji:"🐸", eats:["grasshopper"] },
+  { id:"snake",    en:"snakes",      ja:"ヘビ",         img:"snake.jpg",       emoji:"🐍", eats:["frog","mouse"] },
+  { id:"owl",      en:"owls",        ja:"フクロウ",     img:"owl.jpg",         emoji:"🦉", eats:["mouse","snake"] },
+  { id:"eagle",    en:"eagles",      ja:"ワシ",         img:"eagle.jpg",       emoji:"🦅", eats:["snake","mouse","frog"] },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 共通
+// ============================================================
+let chain = [];   // ビルダーのチェーン(id列、左=食べられる側)
+let quiz = { qs:[], idx:0, score:0, lock:false };
+const $ = id => document.getElementById(id);
+const cOf = id => CREATURES.find(c => c.id === id);
+function show(id){
+  ["scr-mode","scr-build","scr-quiz"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
+function creatureVisual(c){
+  return c.img
+    ? `<div class="cimg"><img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}"
+        onerror="this.outerHTML='<span class=&quot;ce&quot;>${c.emoji}</span>'"></div>`
+    : `<span class="ce">${c.emoji}</span>`;
+}
+// 「食べられる→食べる」で next が chainの最後 を食べられるか
+function canAppend(nextId){
+  if(chain.length === 0) return true;
+  return cOf(nextId).eats.includes(chain[chain.length - 1]);
+}
+
+// ============================================================
+// ビルダー
+// ============================================================
+function drawChain(){
+  $("chain-zone").innerHTML = chain.length === 0
+    ? `<span class="chain-empty">さいしょの生き物(食べられる側)をしたからえらぼう</span>`
+    : chain.map((id,i) => {
+        const c = cOf(id);
+        return `${i>0 ? '<span class="chain-arrow">→</span>' : ""}
+          <div class="chain-card" data-i="${i}" title="タップでここから後ろをけす">
+            ${creatureVisual(c)}<small>${c.ja}<br>${c.en}</small>
+          </div>`;
+      }).join("");
+  $("btn-say").disabled = chain.length < 2;
+}
+function drawPool(){
+  $("pool").innerHTML = CREATURES.map(c => {
+    const used = chain.includes(c.id);
+    const ok = !used && canAppend(c.id);
+    return `<div class="creature ${ok ? "ok" : ""} ${used || !ok ? "dim" : ""}" data-id="${c.id}">
+      <div class="pimg">${c.img
+        ? `<img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}" onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${c.emoji}</span>'">`
+        : `<span class="pemoji">${c.emoji}</span>`}</div>
+      <div class="plabel">${c.ja}<small>${c.en}</small></div>
+    </div>`;
+  }).join("");
+}
+$("pool").addEventListener("click", e => {
+  const el = e.target.closest(".creature"); if(!el || el.classList.contains("dim")) return;
+  const c = cOf(el.dataset.id);
+  chain.push(c.id);
+  if(chain.length >= 2){
+    const prev = cOf(chain[chain.length - 2]);
+    speak(`${cap(c.en)} eat ${prev.en}.`);
+  }else{
+    speak(c.en);
+  }
+  $("sent-box").classList.add("hidden");
+  drawChain(); drawPool();
+});
+$("chain-zone").addEventListener("click", e => {
+  const el = e.target.closest(".chain-card"); if(!el) return;
+  chain = chain.slice(0, +el.dataset.i);
+  $("sent-box").classList.add("hidden");
+  drawChain(); drawPool();
+});
+function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+function chainSentences(){
+  const lines = [];
+  for(let i = chain.length - 1; i >= 1; i--){
+    lines.push(`${cap(cOf(chain[i]).en)} eat ${cOf(chain[i-1]).en}.`);
+  }
+  lines.push("This is a food chain!");
+  return lines;
+}
+$("btn-say").addEventListener("click", () => {
+  const lines = chainSentences();
+  $("sent-box").innerHTML = lines.map((t,i) =>
+    `<div class="sent-line ${i === lines.length-1 ? "eco" : ""}" data-t="${t}">🔊 ${t}</div>`).join("");
+  $("sent-box").classList.remove("hidden");
+  speakQueue(lines);
+});
+$("sent-box").addEventListener("click", e => {
+  const el = e.target.closest(".sent-line"); if(!el) return;
+  speak(el.dataset.t);
+});
+$("btn-clear").addEventListener("click", () => {
+  chain = []; $("sent-box").classList.add("hidden"); drawChain(); drawPool();
+});
+
+// ============================================================
+// クイズ
+// ============================================================
+function makeQuestions(){
+  // 「c は b を食べる」ペアからランダムに出題(bを隠す)
+  const pairs = [];
+  CREATURES.forEach(c => c.eats.forEach(prey => pairs.push({ eater:c.id, prey })));
+  return shuffle(pairs).slice(0, QUIZ_COUNT);
+}
+function startQuiz(){
+  quiz = { qs: makeQuestions(), idx:0, score:0, lock:false };
+  show("scr-quiz");
+  drawQuizQ();
+}
+function drawQuizQ(){
+  const q = quiz.qs[quiz.idx];
+  const eater = cOf(q.eater);
+  quiz.lock = false;
+  $("q-progress").textContent = `だい${quiz.idx+1}問 / ${quiz.qs.length}問`;
+  $("q-score").textContent = `せいかい ${quiz.score}`;
+  $("q-text").textContent = `What do ${eater.en} eat?`;
+  $("q-sub").textContent = `${eater.ja}は なにを食べる?したから えらぼう`;
+  $("q-chain").innerHTML = `
+    <div class="chain-card hidden-card"><span class="ce">❓</span><small>???</small></div>
+    <span class="chain-arrow">→</span>
+    <div class="chain-card">${creatureVisual(eater)}<small>${eater.ja}<br>${eater.en}</small></div>`;
+  // 選択肢: 正解 + まちがい3つ
+  const wrongs = shuffle(CREATURES.filter(c => c.id !== q.prey && !eater.eats.includes(c.id))).slice(0,3);
+  const opts = shuffle([cOf(q.prey), ...wrongs]);
+  $("q-opts").innerHTML = opts.map(c => `
+    <div class="creature ok" data-id="${c.id}">
+      <div class="pimg">${c.img
+        ? `<img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}" onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${c.emoji}</span>'">`
+        : `<span class="pemoji">${c.emoji}</span>`}</div>
+      <div class="plabel">${c.ja}<small>${c.en}</small></div>
+    </div>`).join("");
+  $("q-msg").textContent = ""; $("q-msg").className = "msg";
+  speak(`What do ${eater.en} eat?`);
+}
+$("q-opts").addEventListener("click", e => {
+  const el = e.target.closest(".creature"); if(!el || quiz.lock) return;
+  const q = quiz.qs[quiz.idx];
+  const eater = cOf(q.eater);
+  if(el.dataset.id === q.prey){
+    quiz.lock = true; quiz.score++;
+    $("q-msg").textContent = `⭕ ${cap(eater.en)} eat ${cOf(q.prey).en}!`;
+    $("q-msg").className = "msg ok";
+    speak(`Yes! ${cap(eater.en)} eat ${cOf(q.prey).en}.`);
+    $("q-score").textContent = `せいかい ${quiz.score}`;
+    setTimeout(() => {
+      quiz.idx++;
+      if(quiz.idx >= quiz.qs.length){
+        $("q-text").textContent = `${quiz.qs.length}問中 ${quiz.score}問 せいかい!`;
+        $("q-sub").textContent = "おつかれさま!「モードせんたく」からもういちどあそべるよ";
+        $("q-chain").innerHTML = `<span style="font-size:3.4rem">${quiz.score === quiz.qs.length ? "🏆" : "🎉"}</span>`;
+        $("q-opts").innerHTML = ""; $("q-msg").textContent = "";
+        speak(quiz.score === quiz.qs.length ? "Perfect! We all live on the Earth!" : "Good job!");
+      }else drawQuizQ();
+    }, 1600);
+  }else{
+    $("q-msg").textContent = "❌ もういちど考えてみよう";
+    $("q-msg").className = "msg ng";
+  }
+});
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  if(c.dataset.mode === "build"){ chain = []; drawChain(); drawPool(); $("sent-box").classList.add("hidden"); show("scr-build"); }
+  else startQuiz();
+}));
+$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
+
+show("scr-mode");
+</script>
+</body>
+</html>

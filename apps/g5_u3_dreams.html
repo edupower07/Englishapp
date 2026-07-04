@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>将来の夢マッチング | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff4757; --primary-dark:#d63447; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:940px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.mode-card{
+  width:260px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)}
+.mode-card .mi{font-size:3rem}
+.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.pick{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:122px;display:flex;flex-direction:column;justify-content:center;gap:3px;position:relative;
+}
+.pick:hover{transform:translateY(-3px)}
+.pick.on{border-color:var(--primary);background:#fff5f6}
+.pick.hint{border-color:var(--yellow);background:#fffbea}
+.pick .rec{position:absolute;top:-11px;right:-4px;font-size:1.2rem;display:none}
+.pick.hint .rec{display:block}
+.pick .pimg{width:58px;height:52px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.pick .pimg img{max-width:100%;max-height:100%;object-fit:contain}
+.pick .pemoji{font-size:2.1rem;line-height:1}
+.pick .plabel{font-weight:800;font-size:.72rem;line-height:1.2}
+.pick .plabel small{display:block;color:var(--sub);font-size:.62rem}
+.hint-note{
+  max-width:560px;margin:10px auto 0;text-align:center;font-size:.8rem;color:#b8860b;font-weight:800;
+}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* 完成 */
+.dream-card{
+  max-width:520px;margin:0 auto;background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--primary);overflow:hidden;text-align:center;
+}
+.dc-head{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.15rem}
+.dc-body{padding:20px}
+.dc-icons{font-size:3rem}
+.dc-line{font-size:1.2rem;font-weight:800;padding:8px 12px;border-radius:12px;cursor:pointer;margin-top:4px}
+.dc-line:hover{background:#fff5f6}
+.dc-line.study{color:var(--blue)} .dc-line.be{color:var(--primary-dark)}
+
+/* クイズ */
+.quiz-hud{display:flex;justify-content:space-between;max-width:560px;margin:0 auto 10px;font-weight:800;color:var(--sub)}
+.quiz-card{
+  max-width:560px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:20px;text-align:center;
+  border:5px solid var(--blue);
+}
+.quiz-line{font-size:1.2rem;font-weight:800;color:var(--blue);cursor:pointer}
+.quiz-hint{font-size:.92rem;font-weight:800;color:var(--sub);margin-top:8px}
+.quiz-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;max-width:560px;margin:14px auto 0}
+.msg{text-align:center;font-size:1.15rem;font-weight:800;min-height:34px;margin-top:10px}
+.msg.ok{color:var(--green)} .msg.ng{color:var(--primary)}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💭 将来の夢マッチング <span class="u">5年 Unit3 What do you want to study?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">あそびかたを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="match">
+        <div class="mi">💭</div>
+        <h2>夢マッチング</h2>
+        <p>なりたい職業と学びたい教科を<br>組み合わせて夢の文をつくろう</p>
+      </div>
+      <div class="mode-card m2" data-mode="quiz">
+        <div class="mi">❓</div>
+        <h2>職業あてクイズ</h2>
+        <p>教科のヒントから<br>どんな職業か予想しよう(5問)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP1 職業 -->
+  <section id="scr-job" class="hidden">
+    <h2 class="step-title">① なりたい職業をえらぼう</h2>
+    <p class="step-sub">What do you want to be?</p>
+    <div class="grid" id="job-grid"></div>
+  </section>
+
+  <!-- STEP2 教科 -->
+  <section id="scr-subject" class="hidden">
+    <h2 class="step-title">② 学びたい教科をえらぼう</h2>
+    <p class="step-sub">What do you want to study?</p>
+    <div class="hint-note" id="subject-hint"></div>
+    <div style="height:8px"></div>
+    <div class="grid" id="subject-grid"></div>
+    <div class="actions">
+      <button class="big-btn gray" id="btn-back-job">職業をえらびなおす</button>
+    </div>
+  </section>
+
+  <!-- STEP3 完成 -->
+  <section id="scr-done" class="hidden">
+    <div class="dream-card">
+      <div class="dc-head">MY DREAM</div>
+      <div class="dc-body">
+        <div class="dc-icons" id="dc-icons"></div>
+        <div class="dc-line study" id="dc-study"></div>
+        <div class="dc-line be" id="dc-be"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak">🔊 読み上げ(発表練習)</button>
+      <button class="big-btn gray" id="btn-redo">えらびなおす</button>
+    </div>
+  </section>
+
+  <!-- クイズ -->
+  <section id="scr-quiz" class="hidden">
+    <div class="quiz-hud">
+      <span id="q-progress">だい1問 / 5問</span>
+      <span id="q-score">せいかい 0</span>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-line" id="q-line">🔊 I want to study science.</div>
+      <div class="quiz-hint" id="q-hint"></div>
+    </div>
+    <div class="quiz-opts" id="q-opts"></div>
+    <div class="msg" id="q-msg"></div>
+  </section>
+
+</main>
+
+<footer>職業と教科の組み合わせは自由!ヒント(⭐)はあくまで「おすすめ」だよ。Picture Dictionary の絵カードを使用しています。</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// related はおすすめ教科のヒント(正解を1つに固定しません)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const QUIZ_COUNT = 5;
+
+const SUBJECTS = [
+  { en:"Japanese",        ja:"国語",     img:"Japanese.jpg",        emoji:"📖" },
+  { en:"math",            ja:"算数",     img:"math.jpg",            emoji:"➗" },
+  { en:"science",         ja:"理科",     img:"science.jpg",         emoji:"🧪" },
+  { en:"social studies",  ja:"社会",     img:"social studies.jpg",  emoji:"🗾" },
+  { en:"music",           ja:"音楽",     img:"music.jpg",           emoji:"🎵" },
+  { en:"arts and crafts", ja:"図工",     img:"arts and crafts.jpg", emoji:"🎨" },
+  { en:"P.E.",            ja:"体育",     img:null,                  emoji:"🤸" },
+  { en:"English",         ja:"英語",     img:"English.jpg",         emoji:"🔤" },
+  { en:"home economics",  ja:"家庭科",   img:"home economics.jpg",  emoji:"🍳" },
+  { en:"calligraphy",     ja:"書写",     img:"calligraphy.jpg",     emoji:"🖌️" },
+];
+const JOBS = [
+  { en:"teacher",         ja:"先生",           img:"teacher.jpg",        emoji:"🧑‍🏫", article:"a",  related:["Japanese","math"],          hint:"学校でみんなに教えるよ" },
+  { en:"doctor",          ja:"医者",           img:"doctor.jpg",         emoji:"🧑‍⚕️", article:"a",  related:["science"],                   hint:"病気の人を助けるよ" },
+  { en:"vet",             ja:"じゅう医",       img:"vet.jpg",            emoji:"🐾",   article:"a",  related:["science"],                   hint:"動物のお医者さんだよ" },
+  { en:"cook",            ja:"コック",         img:"cook.jpg",           emoji:"👨‍🍳", article:"a",  related:["home economics"],            hint:"おいしい料理をつくるよ" },
+  { en:"soccer player",   ja:"サッカー選手",   img:"soccer player.jpg",  emoji:"⚽",   article:"a",  related:["P.E."],                      hint:"ボールをけってゴールをねらうよ" },
+  { en:"baseball player", ja:"野球選手",       img:"baseball player.jpg",emoji:"⚾",   article:"a",  related:["P.E."],                      hint:"バットでボールを打つよ" },
+  { en:"singer",          ja:"歌手",           img:"singer.jpg",         emoji:"🎤",   article:"a",  related:["music"],                     hint:"すてきな歌をとどけるよ" },
+  { en:"florist",         ja:"花屋さん",       img:"florist.jpg",        emoji:"💐",   article:"a",  related:["science","arts and crafts"], hint:"きれいな花をならべるよ" },
+  { en:"game creator",    ja:"ゲームクリエイター", img:"game creator.jpg", emoji:"🎮", article:"a", related:["math","arts and crafts"],    hint:"楽しいゲームをつくるよ" },
+  { en:"astronaut",       ja:"宇宙飛行士",     img:"astronaut.jpg",      emoji:"🚀",   article:"an", related:["science","math"],            hint:"ロケットで宇宙へ行くよ" },
+  { en:"firefighter",     ja:"消防士",         img:"firefighter.jpg",    emoji:"🚒",   article:"a",  related:["P.E."],                      hint:"火事からまちをまもるよ" },
+  { en:"baker",           ja:"パン屋さん",     img:"baker.jpg",          emoji:"🍞",   article:"a",  related:["home economics"],            hint:"朝はやくからパンをやくよ" },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let selJob = null, selSubject = null;
+let quiz = { qs:[], idx:0, score:0, lock:false };
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-mode","scr-job","scr-subject","scr-done","scr-quiz"].forEach(s =>
+    $(s).classList.toggle("hidden", s !== id));
+}
+function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
+function visual(item){
+  return item.img
+    ? `<div class="pimg"><img src="${IMG_BASE + encodeURIComponent(item.img)}" alt="${item.en}"
+        onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${item.emoji}</span>'"></div>`
+    : `<span class="pemoji">${item.emoji}</span>`;
+}
+function pickHTML(item, extra=""){
+  return `<div class="pick ${extra}" data-en="${item.en}">
+    <span class="rec">⭐</span>
+    ${visual(item)}
+    <div class="plabel">${item.ja}<small>${item.en}</small></div>
+  </div>`;
+}
+
+// ============================================================
+// マッチング
+// ============================================================
+function buildJobs(){
+  $("job-grid").innerHTML = JOBS.map(j => pickHTML(j)).join("");
+}
+$("job-grid").addEventListener("click", e => {
+  const el = e.target.closest(".pick"); if(!el) return;
+  selJob = JOBS.find(j => j.en === el.dataset.en);
+  speak(`I want to be ${selJob.article} ${selJob.en}.`);
+  buildSubjects();
+  show("scr-subject");
+});
+function buildSubjects(){
+  $("subject-hint").textContent = `⭐は「${selJob.ja}」におすすめの教科。でも、すきな教科をえらんでOK!`;
+  $("subject-grid").innerHTML = SUBJECTS.map(s =>
+    pickHTML(s, selJob.related.includes(s.en) ? "hint" : "")).join("");
+}
+$("subject-grid").addEventListener("click", e => {
+  const el = e.target.closest(".pick"); if(!el) return;
+  selSubject = SUBJECTS.find(s => s.en === el.dataset.en);
+  showDone();
+});
+function dreamLines(){
+  return [
+    `I want to study ${selSubject.en}.`,
+    `I want to be ${selJob.article} ${selJob.en}.`,
+  ];
+}
+function showDone(){
+  $("dc-icons").textContent = `${selSubject.emoji} ✕ ${selJob.emoji}`;
+  $("dc-study").textContent = `🔊 I want to study ${selSubject.en}.`;
+  $("dc-be").textContent = `🔊 I want to be ${selJob.article} ${selJob.en}.`;
+  show("scr-done");
+  speakQueue(dreamLines());
+}
+$("dc-study").addEventListener("click", () => speak(dreamLines()[0]));
+$("dc-be").addEventListener("click", () => speak(dreamLines()[1]));
+$("btn-speak").addEventListener("click", () => speakQueue(dreamLines()));
+$("btn-redo").addEventListener("click", () => { buildJobs(); show("scr-job"); });
+$("btn-back-job").addEventListener("click", () => show("scr-job"));
+
+// ============================================================
+// 職業あてクイズ
+// ============================================================
+function startQuiz(){
+  quiz = { qs: shuffle(JOBS).slice(0, QUIZ_COUNT), idx:0, score:0, lock:false };
+  show("scr-quiz");
+  drawQuizQ();
+}
+function drawQuizQ(){
+  const j = quiz.qs[quiz.idx];
+  quiz.lock = false;
+  $("q-progress").textContent = `だい${quiz.idx+1}問 / ${quiz.qs.length}問`;
+  $("q-score").textContent = `せいかい ${quiz.score}`;
+  const subj = j.related[0];
+  $("q-line").textContent = `🔊 I want to study ${subj}.`;
+  $("q-line").dataset.t = `I want to study ${subj}.`;
+  $("q-hint").textContent = `ヒント:${j.hint}。この人がなりたいのは…?`;
+  // 選択肢: 同じ教科をおすすめにしない職業から3つ
+  const wrongs = shuffle(JOBS.filter(x => x.en !== j.en && !x.related.includes(subj))).slice(0,3);
+  $("q-opts").innerHTML = shuffle([j, ...wrongs]).map(o => pickHTML(o)).join("");
+  $("q-msg").textContent = ""; $("q-msg").className = "msg";
+  speak(`I want to study ${subj}.`);
+}
+$("q-line").addEventListener("click", e => speak(e.target.dataset.t || ""));
+$("q-opts").addEventListener("click", e => {
+  const el = e.target.closest(".pick"); if(!el || quiz.lock) return;
+  const j = quiz.qs[quiz.idx];
+  if(el.dataset.en === j.en){
+    quiz.lock = true; quiz.score++;
+    el.classList.add("on");
+    $("q-msg").textContent = `⭕ I want to be ${j.article} ${j.en}!(${j.ja})`;
+    $("q-msg").className = "msg ok";
+    speak(`Yes! I want to be ${j.article} ${j.en}!`);
+    $("q-score").textContent = `せいかい ${quiz.score}`;
+    setTimeout(() => {
+      quiz.idx++;
+      if(quiz.idx >= quiz.qs.length){
+        $("q-line").textContent = quiz.score === quiz.qs.length ? "🏆 パーフェクト!" : "🎉 おつかれさま!";
+        $("q-hint").textContent = `${quiz.qs.length}問中 ${quiz.score}問 せいかい`;
+        $("q-opts").innerHTML = ""; $("q-msg").textContent = "";
+        speak(quiz.score === quiz.qs.length ? "Perfect!" : "Good job!");
+      }else drawQuizQ();
+    }, 1600);
+  }else{
+    $("q-msg").textContent = "❌ ちがうみたい…ヒントをよく読んでみよう";
+    $("q-msg").className = "msg ng";
+  }
+});
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  if(c.dataset.mode === "match"){ buildJobs(); show("scr-job"); }
+  else startQuiz();
+}));
+$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
+
+show("scr-mode");
+</script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>名前スペリング&自己紹介カードメーカー | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff4757; --primary-dark:#d63447; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+/* 名前入力 */
+.name-box{max-width:520px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:20px;text-align:center}
+.name-box input{
+  width:100%;border:3px solid #e6ecf2;border-radius:16px;padding:14px;font-family:'Fredoka One',cursive;
+  font-size:1.6rem;text-align:center;letter-spacing:2px;color:var(--primary-dark);
+}
+.name-box .note{font-size:.78rem;color:var(--sub);font-weight:700;margin-top:8px;line-height:1.7}
+.spell-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:14px;min-height:56px}
+.spell-letter{
+  width:46px;height:52px;background:#fff;border:3px solid var(--yellow);border-radius:12px;
+  font-family:'Fredoka One',cursive;font-size:1.5rem;display:flex;align-items:center;justify-content:center;
+  color:var(--ink);cursor:pointer;transition:.15s;
+}
+.spell-letter:hover{transform:translateY(-2px)}
+.spell-letter.lit{background:var(--yellow);transform:scale(1.15)}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.blue{background:var(--blue)} .big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* すきなもの選択 */
+.cat{max-width:720px;margin:0 auto 16px}
+.cat h3{font-size:.95rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.cat h3 .tag{font-size:.7rem;color:#fff;padding:3px 12px;border-radius:50px;background:var(--blue)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.chip{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:104px;display:flex;flex-direction:column;justify-content:center;gap:3px;
+}
+.chip:hover{transform:translateY(-3px)}
+.chip.on{border-color:var(--green);background:#effdf7}
+.chip .sw{width:40px;height:40px;border-radius:50%;margin:0 auto;border:3px solid #eee}
+.chip .cimg{width:50px;height:44px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.chip .cimg img{max-width:100%;max-height:100%;object-fit:contain}
+.chip .cemoji{font-size:1.9rem;line-height:1}
+.chip .clabel{font-weight:800;font-size:.7rem;line-height:1.2}
+.chip .clabel small{display:block;color:var(--sub);font-size:.6rem}
+
+/* 名刺カード */
+.meishi{
+  max-width:520px;margin:0 auto;background:linear-gradient(135deg,#fff,#fff8f8);border-radius:22px;
+  box-shadow:var(--shadow-hover);border:5px solid var(--primary);overflow:hidden;
+}
+.meishi-head{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;text-align:center;padding:10px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1rem}
+.meishi-body{padding:20px;text-align:center}
+.meishi-name{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--primary-dark);cursor:pointer}
+.meishi-spell{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--sub);letter-spacing:4px;margin-top:4px;cursor:pointer}
+.meishi-likes{display:flex;gap:14px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.ml-item{text-align:center;font-weight:800;font-size:.78rem;color:var(--sub)}
+.ml-item .big{font-size:2.4rem;display:block;line-height:1.2}
+.meishi-lines{margin-top:14px;text-align:left}
+.m-line{font-size:1.05rem;font-weight:800;padding:6px 10px;border-radius:10px;cursor:pointer}
+.m-line:hover{background:#fff0f1}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+@media print{
+  header,.actions,footer,.step-title,.step-sub{display:none!important}
+  body{background:#fff}
+  .meishi{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🪪 名前スペリング&自己紹介カード <span class="u">5年 Unit1 Hello, friends.</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-restart">さいしょから</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP1 名前 -->
+  <section id="scr-name">
+    <h2 class="step-title">① 名前をローマ字で入れよう</h2>
+    <p class="step-sub">How do you spell your name? — 1文字ずつ読み上げてくれるよ</p>
+    <div class="name-box">
+      <input type="text" id="name-input" placeholder="SATOSHI" maxlength="15" autocomplete="off">
+      <div class="note">アルファベットで入力してね(れい:SATOSHI / YUI)。文字をタップすると1文字だけ聞けるよ</div>
+      <div class="spell-row" id="spell-row"></div>
+      <div class="actions">
+        <button class="big-btn blue" id="btn-spell" disabled>🔊 スペルアウトを聞く</button>
+        <button class="big-btn" id="btn-to-likes" disabled>つぎへ ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP2 すきなもの -->
+  <section id="scr-likes" class="hidden">
+    <h2 class="step-title">② すきなものをえらぼう</h2>
+    <p class="step-sub">色・スポーツ・食べものから1つずつ</p>
+    <div class="cat"><h3><span class="tag">Color</span>すきな色</h3><div class="chips" id="chips-color"></div></div>
+    <div class="cat"><h3><span class="tag">Sport</span>すきなスポーツ</h3><div class="chips" id="chips-sport"></div></div>
+    <div class="cat"><h3><span class="tag">Food</span>すきな食べもの</h3><div class="chips" id="chips-food"></div></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-make" disabled>名刺カードをつくる ✨</button>
+      <button class="big-btn gray" id="btn-back-name">名前にもどる</button>
+    </div>
+  </section>
+
+  <!-- STEP3 名刺 -->
+  <section id="scr-card" class="hidden">
+    <h2 class="step-title">③ かんせい!</h2>
+    <p class="step-sub">タップすると読み上げます。発表練習に使ってね</p>
+    <div class="meishi">
+      <div class="meishi-head">NICE TO MEET YOU!</div>
+      <div class="meishi-body">
+        <div class="meishi-name" id="card-name"></div>
+        <div class="meishi-spell" id="card-spell"></div>
+        <div class="meishi-likes" id="card-likes"></div>
+        <div class="meishi-lines" id="card-lines"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak-card">🔊 ぜんぶ読み上げ(発表練習)</button>
+      <button class="big-btn blue" id="btn-print">🖨️ 印刷</button>
+      <button class="big-btn gray" id="btn-back-likes">えらびなおす</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると選択肢を変更できます)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+
+const COLORS = [
+  { en:"red",    ja:"赤",       hex:"#e74c3c" },
+  { en:"blue",   ja:"青",       hex:"#3498db" },
+  { en:"yellow", ja:"黄",       hex:"#f1c40f" },
+  { en:"green",  ja:"緑",       hex:"#2ecc71" },
+  { en:"pink",   ja:"ピンク",   hex:"#ff9ff3" },
+  { en:"purple", ja:"むらさき", hex:"#9b59b6" },
+  { en:"black",  ja:"黒",       hex:"#2d3436" },
+  { en:"orange", ja:"オレンジ", hex:"#e67e22" },
+];
+const SPORTS = [
+  { en:"soccer",     ja:"サッカー", img:"soccer.jpg",     emoji:"⚽" },
+  { en:"baseball",   ja:"野球",     img:"baseball.jpg",   emoji:"⚾" },
+  { en:"basketball", ja:"バスケ",   img:"basketball.jpg", emoji:"🏀" },
+  { en:"tennis",     ja:"テニス",   img:"tennis.jpg",     emoji:"🎾" },
+  { en:"swimming",   ja:"水泳",     img:"swimming.jpg",   emoji:"🏊" },
+  { en:"dodgeball",  ja:"ドッジ",   img:"dodgeball.jpg",  emoji:"🤾" },
+];
+const FOODS = [
+  { en:"pizza",          ja:"ピザ",       img:"pizza.jpg",          emoji:"🍕" },
+  { en:"sushi",          ja:"すし",       img:null,                 emoji:"🍣" },
+  { en:"curry and rice", ja:"カレー",     img:"curry and rice.jpg", emoji:"🍛" },
+  { en:"ramen",          ja:"ラーメン",   img:"ramen.jpg",          emoji:"🍜" },
+  { en:"ice cream",      ja:"アイス",     img:"ice cream.jpg",      emoji:"🍦" },
+  { en:"hamburgers",     ja:"ハンバーガー", img:"hamburger.jpg",    emoji:"🍔" },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let name = "";
+let sel = { color:null, sport:null, food:null };
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-name","scr-likes","scr-card"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+function cleanName(){ return name.replace(/[^a-zA-Z]/g, "").toUpperCase(); }
+
+// ============================================================
+// STEP1 名前・スペルアウト
+// ============================================================
+$("name-input").addEventListener("input", e => {
+  name = e.target.value;
+  const n = cleanName();
+  $("spell-row").innerHTML = n.split("").map((L,i) =>
+    `<div class="spell-letter" data-i="${i}" data-l="${L}">${L}</div>`).join("");
+  $("btn-spell").disabled = n.length === 0;
+  $("btn-to-likes").disabled = n.length === 0;
+});
+$("spell-row").addEventListener("click", e => {
+  const el = e.target.closest(".spell-letter"); if(!el) return;
+  el.classList.add("lit");
+  setTimeout(() => el.classList.remove("lit"), 500);
+  speak(el.dataset.l);
+});
+$("btn-spell").addEventListener("click", () => {
+  const n = cleanName();
+  try{ speechSynthesis.cancel(); }catch(e){}
+  n.split("").forEach((L,i) => {
+    setTimeout(() => {
+      document.querySelectorAll(".spell-letter").forEach((el,j) => el.classList.toggle("lit", j === i));
+      try{
+        const u = new SpeechSynthesisUtterance(L);
+        u.lang = "en-US"; u.rate = 0.8;
+        speechSynthesis.speak(u);
+      }catch(e){}
+    }, i * 750);
+  });
+  setTimeout(() => document.querySelectorAll(".spell-letter").forEach(el => el.classList.remove("lit")), n.length * 750 + 700);
+});
+$("btn-to-likes").addEventListener("click", () => { buildChips(); show("scr-likes"); });
+
+// ============================================================
+// STEP2 すきなもの
+// ============================================================
+const CATS = [
+  { key:"color", elId:"chips-color", list:COLORS },
+  { key:"sport", elId:"chips-sport", list:SPORTS },
+  { key:"food",  elId:"chips-food",  list:FOODS },
+];
+function chipHTML(item){
+  let visual;
+  if(item.hex){
+    visual = `<div class="sw" style="background:${item.hex};${item.en==="black"?"":item.hex==="#ffffff"?"border-color:#ccc":""}"></div>`;
+  }else if(item.img){
+    visual = `<div class="cimg"><img src="${IMG_BASE + encodeURIComponent(item.img)}" alt="${item.en}"
+      onerror="this.outerHTML='<span class=&quot;cemoji&quot;>${item.emoji}</span>'"></div>`;
+  }else{
+    visual = `<span class="cemoji">${item.emoji}</span>`;
+  }
+  return `<div class="chip" data-en="${item.en}">${visual}<div class="clabel">${item.ja}<small>${item.en}</small></div></div>`;
+}
+function buildChips(){
+  CATS.forEach(c => { $(c.elId).innerHTML = c.list.map(chipHTML).join(""); });
+}
+CATS.forEach(c => {
+  $(c.elId).addEventListener("click", e => {
+    const el = e.target.closest(".chip"); if(!el) return;
+    sel[c.key] = c.list.find(x => x.en === el.dataset.en);
+    $(c.elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === el));
+    speak(`I like ${sel[c.key].en}.`);
+    $("btn-make").disabled = !(sel.color && sel.sport && sel.food);
+  });
+});
+$("btn-back-name").addEventListener("click", () => show("scr-name"));
+
+// ============================================================
+// STEP3 名刺
+// ============================================================
+function displayName(){
+  const n = cleanName();
+  return n.charAt(0) + n.slice(1).toLowerCase();
+}
+function cardLines(){
+  return [
+    `Hello! I'm ${displayName()}.`,
+    `${cleanName().split("").join(", ")}. ${displayName()}!`,
+    `I like ${sel.color.en}.`,
+    `I like ${sel.sport.en}.`,
+    `I like ${sel.food.en}.`,
+    "Nice to meet you!",
+  ];
+}
+$("btn-make").addEventListener("click", () => {
+  $("card-name").textContent = displayName();
+  $("card-spell").textContent = cleanName().split("").join(" - ");
+  $("card-likes").innerHTML = `
+    <div class="ml-item"><span class="big"><span style="display:inline-block;width:36px;height:36px;border-radius:50%;background:${sel.color.hex};border:3px solid #eee"></span></span>${sel.color.en}</div>
+    <div class="ml-item"><span class="big">${sel.sport.emoji}</span>${sel.sport.en}</div>
+    <div class="ml-item"><span class="big">${sel.food.emoji}</span>${sel.food.en}</div>`;
+  $("card-lines").innerHTML = cardLines().map((t,i) =>
+    `<div class="m-line" data-i="${i}">🔊 ${t}</div>`).join("");
+  show("scr-card");
+  speakQueue(cardLines());
+});
+$("card-lines").addEventListener("click", e => {
+  const el = e.target.closest(".m-line"); if(!el) return;
+  speak(cardLines()[+el.dataset.i]);
+});
+$("card-name").addEventListener("click", () => speak(`I'm ${displayName()}.`));
+$("card-spell").addEventListener("click", () => speak(cleanName().split("").join(", ")));
+$("btn-speak-card").addEventListener("click", () => speakQueue(cardLines()));
+$("btn-print").addEventListener("click", () => window.print());
+$("btn-back-likes").addEventListener("click", () => show("scr-likes"));
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+$("btn-restart").addEventListener("click", () => {
+  name = ""; sel = { color:null, sport:null, food:null };
+  $("name-input").value = ""; $("spell-row").innerHTML = "";
+  $("btn-spell").disabled = true; $("btn-to-likes").disabled = true; $("btn-make").disabled = true;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  show("scr-name");
+});
+
+show("scr-name");
+</script>
+</body>
+</html>

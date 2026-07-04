@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>道案内マップアプリ | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff4757; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e; --teal:#00cec9;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:1020px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.mode-card{
+  width:250px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)} .mode-card.m3{border-color:var(--teal)}
+.mode-card .mi{font-size:3rem}
+.mode-card h2{font-size:1.12rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+
+/* レイアウト */
+.play-wrap{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.map-col{flex:1;min-width:320px;max-width:520px}
+.side-col{width:330px;display:flex;flex-direction:column;gap:12px}
+@media(max-width:720px){ .side-col{width:100%} }
+
+/* お題カード */
+.quest-card{
+  background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;display:flex;gap:12px;align-items:center;
+  border:4px solid var(--yellow);
+}
+.quest-img{width:74px;height:74px;background:#fdf6e3;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.quest-img img{width:100%;height:100%;object-fit:contain}
+.quest-img .qe{font-size:2.6rem}
+.quest-text{font-weight:800;line-height:1.5}
+.quest-text .en{font-size:1.05rem;color:var(--primary)}
+.quest-text small{color:var(--sub);font-size:.75rem;display:block}
+
+/* マップ */
+.town{
+  position:relative;background:#8bc98f;border-radius:20px;padding:10px;box-shadow:var(--shadow);
+}
+.town-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;position:relative}
+.cell{
+  aspect-ratio:1;background:#cfd8dc;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(1.2rem,4.5vw,2rem);cursor:pointer;position:relative;transition:.15s;
+}
+.cell.road{background:#eceff1}
+.cell:hover{filter:brightness(1.06)}
+.cell.start{background:#ffe6a7}
+.cell .bname{
+  position:absolute;bottom:2px;left:0;right:0;font-size:.5rem;font-weight:800;color:#455;text-align:center;line-height:1;
+}
+.cell.goal-flash{animation:goalflash 1s infinite}
+@keyframes goalflash{0%,100%{box-shadow:0 0 0 3px var(--primary)}50%{box-shadow:0 0 0 6px rgba(255,71,87,.35)}}
+#walker{
+  position:absolute;width:calc(100%/6 - 6px);aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(1.2rem,4vw,1.9rem);transition:top .45s, left .45s, transform .45s;pointer-events:none;z-index:10;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.3));
+}
+
+/* 指示ブロック */
+.block-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.block-btn{
+  border:none;border-radius:14px;padding:12px 14px;font-family:inherit;font-weight:800;font-size:.9rem;color:#fff;
+  cursor:pointer;box-shadow:var(--shadow);min-height:48px;transition:.15s;
+}
+.block-btn:hover{transform:translateY(-2px)}
+.block-btn.straight{background:var(--green)} .block-btn.right{background:var(--blue)} .block-btn.left{background:var(--primary)}
+.program{
+  background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:10px;min-height:110px;
+  display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;border:4px dashed #d8e0e8;
+}
+.p-chip{
+  border-radius:10px;padding:6px 10px;font-weight:800;font-size:.78rem;color:#fff;cursor:pointer;min-height:40px;
+  display:flex;align-items:center;gap:4px;
+}
+.p-chip.straight{background:var(--green)} .p-chip.right{background:var(--blue)} .p-chip.left{background:var(--primary)}
+.p-chip.now{outline:4px solid var(--yellow)}
+.p-empty{color:var(--sub);font-weight:700;font-size:.8rem;display:flex;align-items:center}
+.run-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:12px 26px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn.green{background:var(--green)}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+.msg{
+  text-align:center;font-size:1.15rem;font-weight:800;min-height:36px;margin-top:6px;
+}
+.msg.ok{color:var(--green)} .msg.ng{color:var(--primary)}
+
+/* 建物パレット(編集モード) */
+.palette{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.pal-btn{
+  width:64px;border:3px solid #e6ecf2;background:#fff;border-radius:12px;padding:5px 2px;font-family:inherit;
+  cursor:pointer;text-align:center;transition:.15s;min-height:60px;
+}
+.pal-btn .pe{font-size:1.5rem;display:block}
+.pal-btn small{font-size:.55rem;font-weight:800;color:var(--sub);line-height:1}
+.pal-btn.on{border-color:var(--primary);background:#fff5f6}
+.pal-btn.erase.on{border-color:#8395a7;background:#f3f5f7}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🗺️ 道案内マップアプリ <span class="u">5年 Unit5 Where is the post office?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">あそびかたを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="challenge">
+        <div class="mi">🧭</div>
+        <h2>道案内チャレンジ</h2>
+        <p>Where is 〜? のお題の場所まで<br>指示ブロックでキャラクターを案内</p>
+      </div>
+      <div class="mode-card m2" data-mode="guess">
+        <div class="mi">❓</div>
+        <h2>どこにつくかな?</h2>
+        <p>道案内を聞いて、たどりつく建物を<br>先に予想してからたしかめよう</p>
+      </div>
+      <div class="mode-card m3" data-mode="edit">
+        <div class="mi">🏗️</div>
+        <h2>マップをつくる</h2>
+        <p>自分の町マップを編集。<br>つくったマップで友だちに出題!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- プレイ画面 -->
+  <section id="scr-play" class="hidden">
+    <div class="play-wrap">
+      <div class="map-col">
+        <div class="quest-card" id="quest-card">
+          <div class="quest-img" id="quest-img">🧭</div>
+          <div class="quest-text">
+            <div class="en" id="quest-en">Where is the post office?</div>
+            <small id="quest-ja">ゆうびんきょくまで あんないしよう</small>
+          </div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="town">
+          <div class="town-grid" id="grid"></div>
+          <div id="walker">🚶</div>
+        </div>
+      </div>
+
+      <div class="side-col">
+        <div class="palette hidden" id="palette"></div>
+        <div class="block-btns" id="block-btns">
+          <button class="block-btn straight" data-b="straight">⬆️ Go straight.</button>
+          <button class="block-btn right" data-b="right">➡️ Turn right.</button>
+          <button class="block-btn left" data-b="left">⬅️ Turn left.</button>
+        </div>
+        <div class="program" id="program"></div>
+        <div class="run-row" id="run-row">
+          <button class="big-btn green" id="btn-run">▶ スタート!</button>
+          <button class="big-btn gray" id="btn-clear">ぜんぶけす</button>
+          <button class="big-btn" id="btn-next" style="background:var(--blue)">つぎのお題 🎲</button>
+        </div>
+        <div class="msg" id="msg"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)。マップは端末内に保存されます。</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const W = 6, H = 6; // マップのマス数
+
+const BUILDINGS = [
+  { id:"post",    en:"post office",       ja:"ゆうびんきょく", img:"post office.jpg",       emoji:"🏣" },
+  { id:"hospital",en:"hospital",          ja:"びょういん",     img:"hospital.jpg",          emoji:"🏥" },
+  { id:"station", en:"station",           ja:"えき",           img:"station.jpg",           emoji:"🚉" },
+  { id:"park",    en:"park",              ja:"こうえん",       img:"park.jpg",              emoji:"🌳" },
+  { id:"super",   en:"supermarket",       ja:"スーパー",       img:"supermarket.jpg",       emoji:"🛒" },
+  { id:"library", en:"library",           ja:"としょかん",     img:"library.jpg",           emoji:"📚" },
+  { id:"school",  en:"school",            ja:"がっこう",       img:"school.jpg",            emoji:"🏫" },
+  { id:"police",  en:"police station",    ja:"けいさつしょ",   img:"police station.jpg",    emoji:"🚓" },
+  { id:"conv",    en:"convenience store", ja:"コンビニ",       img:"convenience store.jpg", emoji:"🏪" },
+  { id:"flower",  en:"flower shop",       ja:"はなや",         img:"flower shop.jpg",       emoji:"💐" },
+  { id:"rest",    en:"restaurant",        ja:"レストラン",     img:"restaurant.jpg",        emoji:"🍽️" },
+  { id:"fire",    en:"fire station",      ja:"しょうぼうしょ", img:"fire station.jpg",      emoji:"🚒" },
+];
+
+// はじめから入っているマップ(x,y は 0はじまり、y=0 が上)
+const DEFAULT_MAP = [
+  { id:"post",    x:1, y:0 }, { id:"hospital", x:4, y:0 },
+  { id:"library", x:0, y:2 }, { id:"park",     x:3, y:2 },
+  { id:"super",   x:5, y:2 }, { id:"station",  x:1, y:4 },
+  { id:"school",  x:4, y:4 }, { id:"conv",     x:5, y:5 },
+];
+const START = { x:2, y:5 };  // スタート位置(★)
+const STORAGE_KEY = "g5_map_town_v1";
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let town = [];      // [{id,x,y}]
+let mode = null;    // challenge | guess | edit
+let program = [];   // ["straight","right","left",...]
+let running = false;
+let goal = null;    // 建物(challenge/guessの答え)
+let guessPick = null;
+let editSel = null; // 編集で選択中の建物id("erase"=けす)
+let walker = { x: START.x, y: START.y, dir: 0 }; // dir: 0=上 1=右 2=下 3=左
+
+try{ town = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_MAP.map(b => ({...b})); }
+catch(e){ town = DEFAULT_MAP.map(b => ({...b})); }
+
+const $ = id => document.getElementById(id);
+const bOf = id => BUILDINGS.find(b => b.id === id);
+function buildingAt(x,y){ return town.find(t => t.x === x && t.y === y); }
+function saveTown(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(town)); }catch(e){} }
+
+// ============================================================
+// マップ描画
+// ============================================================
+function drawGrid(){
+  let html = "";
+  for(let y=0; y<H; y++){
+    for(let x=0; x<W; x++){
+      const b = buildingAt(x,y);
+      const isStart = (x === START.x && y === START.y);
+      html += `<div class="cell ${b ? "" : "road"} ${isStart ? "start" : ""}" data-x="${x}" data-y="${y}">
+        ${b ? bOf(b.id).emoji : (isStart ? "★" : "")}
+        ${b ? `<span class="bname">${bOf(b.id).ja}</span>` : ""}
+      </div>`;
+    }
+  }
+  $("grid").innerHTML = html;
+  placeWalker(false);
+}
+function cellRect(x,y){
+  const grid = $("grid");
+  const cell = grid.children[y * W + x];
+  return { left: cell.offsetLeft, top: cell.offsetTop };
+}
+function placeWalker(animate = true){
+  const w = $("walker");
+  if(!animate) w.style.transition = "none";
+  const r = cellRect(walker.x, walker.y);
+  w.style.left = (r.left + 10) + "px";
+  w.style.top = (r.top + 10) + "px";
+  w.style.transform = `rotate(${walker.dir * 90}deg)`;
+  if(!animate){ void w.offsetWidth; w.style.transition = ""; }
+}
+function resetWalker(){
+  walker = { x: START.x, y: START.y, dir: 0 };
+  placeWalker(false);
+}
+
+// ============================================================
+// プログラム(指示ブロック)
+// ============================================================
+const BLOCK_INFO = {
+  straight: { label:"⬆️ Go straight.", en:"Go straight." },
+  right:    { label:"➡️ Turn right.",  en:"Turn right." },
+  left:     { label:"⬅️ Turn left.",   en:"Turn left." },
+};
+function drawProgram(current = -1){
+  $("program").innerHTML = program.length === 0
+    ? `<span class="p-empty">ブロックをタップして 道案内をつくろう</span>`
+    : program.map((b,i) =>
+        `<span class="p-chip ${b} ${i === current ? "now" : ""}" data-i="${i}">${BLOCK_INFO[b].label}</span>`).join("");
+}
+$("block-btns").addEventListener("click", e => {
+  const btn = e.target.closest(".block-btn"); if(!btn || running || mode === "guess") return;
+  program.push(btn.dataset.b);
+  drawProgram();
+  speak(BLOCK_INFO[btn.dataset.b].en);
+});
+$("program").addEventListener("click", e => {
+  const chip = e.target.closest(".p-chip"); if(!chip || running || mode === "guess") return;
+  program.splice(+chip.dataset.i, 1);
+  drawProgram();
+});
+$("btn-clear").addEventListener("click", () => {
+  if(running) return;
+  program = []; drawProgram(); resetWalker(); $("msg").textContent = "";
+});
+
+// ============================================================
+// 実行
+// ============================================================
+const DX = [0,1,0,-1], DY = [-1,0,1,0];
+async function run(){
+  if(running || program.length === 0) return;
+  running = true;
+  resetWalker();
+  $("msg").textContent = ""; $("msg").className = "msg";
+  await sleep(400);
+  for(let i=0; i<program.length; i++){
+    drawProgram(i);
+    const b = program[i];
+    speak(BLOCK_INFO[b].en);
+    if(b === "right"){ walker.dir = (walker.dir + 1) % 4; }
+    else if(b === "left"){ walker.dir = (walker.dir + 3) % 4; }
+    else{
+      const nx = walker.x + DX[walker.dir], ny = walker.y + DY[walker.dir];
+      if(nx < 0 || nx >= W || ny < 0 || ny >= H){
+        $("msg").textContent = "🚧 かべに ぶつかっちゃった!";
+        $("msg").className = "msg ng";
+        running = false; drawProgram();
+        return;
+      }
+      walker.x = nx; walker.y = ny;
+    }
+    placeWalker(true);
+    await sleep(600);
+  }
+  drawProgram();
+  finishRun();
+  running = false;
+}
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+function finishRun(){
+  const here = buildingAt(walker.x, walker.y);
+  if(mode === "challenge"){
+    if(here && goal && here.id === goal.id){
+      $("msg").textContent = `🎉 You made it! ${goal.en} にとうちゃく!`;
+      $("msg").className = "msg ok";
+      speak(`You made it! This is the ${goal.en}.`);
+    }else{
+      $("msg").textContent = here ? `ここは ${bOf(here.id).ja} だった…もういちど!` : "なにもない場所についたよ…もういちど!";
+      $("msg").className = "msg ng";
+      speak("Sorry! Try again!");
+    }
+  }else if(mode === "guess"){
+    const okPick = guessPick && here && guessPick === here.id;
+    if(here){
+      $("msg").textContent = okPick
+        ? `⭕ せいかい!${bOf(here.id).ja} にとうちゃく!`
+        : `こたえは ${bOf(here.id).ja} でした!${guessPick ? "" : "(よそうしてからスタートしてみよう)"}`;
+      $("msg").className = okPick ? "msg ok" : "msg ng";
+      speak(`This is the ${bOf(here.id).en}.`);
+    }else{
+      $("msg").textContent = "どこにもつかなかった…";
+      $("msg").className = "msg ng";
+    }
+  }
+}
+$("btn-run").addEventListener("click", run);
+
+// ============================================================
+// チャレンジ/あてっこ のお題
+// ============================================================
+function questVisual(b){
+  $("quest-img").innerHTML = `<img src="${IMG_BASE + encodeURIComponent(b.img)}" alt="${b.en}"
+    onerror="this.outerHTML='<span class=&quot;qe&quot;>${b.emoji}</span>'">`;
+}
+function newChallenge(){
+  program = []; drawProgram(); resetWalker();
+  $("msg").textContent = "";
+  goal = bOf(town[Math.floor(Math.random() * town.length)].id);
+  questVisual(goal);
+  $("quest-en").textContent = `Where is the ${goal.en}?`;
+  $("quest-ja").textContent = `${goal.ja}まで あんないしよう(★からスタート)`;
+  document.querySelectorAll(".cell").forEach(c => c.classList.remove("goal-flash"));
+  const t = town.find(t => t.id === goal.id);
+  $("grid").children[t.y * W + t.x].classList.add("goal-flash");
+  speak(`Where is the ${goal.en}?`);
+}
+function randomProgram(){
+  // かならずどこかの建物につく道順を、ランダムに生成する
+  for(let tries=0; tries<200; tries++){
+    let x = START.x, y = START.y, dir = 0;
+    const prog = [];
+    const len = 3 + Math.floor(Math.random() * 5);
+    let okPath = true;
+    for(let i=0; i<len; i++){
+      const r = Math.random();
+      if(r < 0.55){
+        const nx = x + DX[dir], ny = y + DY[dir];
+        if(nx < 0 || nx >= W || ny < 0 || ny >= H){ okPath = false; break; }
+        x = nx; y = ny; prog.push("straight");
+      }else if(r < 0.78){ dir = (dir+1)%4; prog.push("right"); }
+      else{ dir = (dir+3)%4; prog.push("left"); }
+    }
+    if(okPath && buildingAt(x,y) && prog.includes("straight")) return prog;
+  }
+  return ["straight","straight"];
+}
+function newGuess(){
+  resetWalker(); $("msg").textContent = ""; guessPick = null;
+  program = randomProgram();
+  drawProgram();
+  $("quest-img").innerHTML = `<span class="qe">👂</span>`;
+  $("quest-en").textContent = "Go straight... どこにつくかな?";
+  $("quest-ja").textContent = "道案内を聞いて、つくとおもう建物をタップ→スタートでたしかめよう";
+  document.querySelectorAll(".cell").forEach(c => c.classList.remove("goal-flash"));
+  speakQueue(program.map(b => BLOCK_INFO[b].en));
+}
+$("btn-next").addEventListener("click", () => {
+  if(mode === "challenge") newChallenge();
+  else if(mode === "guess") newGuess();
+});
+
+// ============================================================
+// マップ編集
+// ============================================================
+function buildPalette(){
+  $("palette").innerHTML = BUILDINGS.map(b =>
+    `<button class="pal-btn" data-id="${b.id}"><span class="pe">${b.emoji}</span><small>${b.ja}</small></button>`).join("") +
+    `<button class="pal-btn erase" data-id="erase"><span class="pe">🧹</span><small>けす</small></button>`;
+}
+$("palette").addEventListener("click", e => {
+  const btn = e.target.closest(".pal-btn"); if(!btn) return;
+  editSel = btn.dataset.id;
+  document.querySelectorAll(".pal-btn").forEach(x => x.classList.toggle("on", x === btn));
+});
+$("grid").addEventListener("click", e => {
+  const cell = e.target.closest(".cell"); if(!cell) return;
+  const x = +cell.dataset.x, y = +cell.dataset.y;
+  if(mode === "edit"){
+    if(!editSel) return;
+    if(x === START.x && y === START.y) return; // スタートはうごかせない
+    town = town.filter(t => !(t.x === x && t.y === y));
+    if(editSel !== "erase"){
+      town = town.filter(t => t.id !== editSel); // 同じ建物は1つだけ
+      town.push({ id: editSel, x, y });
+      speak(bOf(editSel).en);
+    }
+    saveTown(); drawGrid();
+  }else if(mode === "guess" && !running){
+    const b = buildingAt(x,y);
+    if(!b) return;
+    guessPick = b.id;
+    $("msg").textContent = `よそう: ${bOf(b.id).ja} ➡ スタートでたしかめよう!`;
+    $("msg").className = "msg";
+    speak(`Is it the ${bOf(b.id).en}?`);
+  }
+});
+
+// ============================================================
+// モード切替
+// ============================================================
+function enterMode(m){
+  mode = m;
+  program = []; drawProgram(); drawGrid(); resetWalker();
+  $("msg").textContent = "";
+  $("palette").classList.toggle("hidden", m !== "edit");
+  $("block-btns").style.display = (m === "edit") ? "none" : "flex";
+  $("run-row").style.display = (m === "edit") ? "none" : "flex";
+  $("program").style.display = (m === "edit") ? "none" : "flex";
+  $("scr-mode").classList.add("hidden");
+  $("scr-play").classList.remove("hidden");
+  if(m === "challenge") newChallenge();
+  else if(m === "guess") newGuess();
+  else{
+    $("quest-img").innerHTML = `<span class="qe">🏗️</span>`;
+    $("quest-en").textContent = "マップをつくろう";
+    $("quest-ja").textContent = "建物をえらんで、おきたいマスをタップ(もういちどタップでけせるよ)";
+  }
+}
+document.querySelectorAll(".mode-card").forEach(c =>
+  c.addEventListener("click", () => enterMode(c.dataset.mode)));
+$("btn-home").addEventListener("click", () => {
+  speechSynthesis.cancel(); running = false;
+  $("scr-play").classList.add("hidden");
+  $("scr-mode").classList.remove("hidden");
+});
+
+buildPalette();
+drawGrid();
+</script>
+</body>
+</html>

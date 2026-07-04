@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>なんじなにをする?時計アプリ | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-group{display:flex;gap:8px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:900px;margin:0 auto;padding:16px}
+
+/* mode select */
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+.mode-card{
+  width:260px;background:#fff;border-radius:24px;padding:26px 20px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.free{border-color:var(--blue)} .mode-card.quiz{border-color:var(--pink)}
+.mode-card .mi{font-size:3.4rem}
+.mode-card h2{font-size:1.2rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.82rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+
+/* layout */
+.play-area{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;align-items:flex-start;margin-top:10px}
+.clock-box{background:#fff;border-radius:28px;padding:18px;box-shadow:var(--shadow);text-align:center}
+svg#clock{touch-action:none;display:block}
+.side-box{width:300px;display:flex;flex-direction:column;gap:14px}
+
+/* am/pm */
+.ampm{display:flex;justify-content:center;gap:10px;margin-top:10px}
+.ampm button{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 22px;font-family:inherit;
+  font-weight:800;font-size:1rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
+}
+.ampm button.on.am{background:var(--yellow);border-color:var(--yellow);color:#7a4a00}
+.ampm button.on.pm{background:var(--purple);border-color:var(--purple);color:#fff}
+
+/* time display */
+.time-line{font-family:'Fredoka One',cursive;font-size:1.7rem;color:var(--primary-dark);margin-top:10px;letter-spacing:1px}
+.speak-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:50px;padding:12px 24px;font-family:inherit;
+  font-weight:800;font-size:1rem;cursor:pointer;box-shadow:var(--shadow);transition:.2s;min-height:48px;margin-top:10px;
+}
+.speak-btn:hover{transform:translateY(-2px);background:#0984e3}
+
+/* activity card */
+.act-card{
+  background:#fff;border-radius:24px;box-shadow:var(--shadow);overflow:hidden;text-align:center;
+  border:5px solid var(--yellow);min-height:250px;display:flex;flex-direction:column;
+}
+.act-img-wrap{height:190px;background:#fdf6e3;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.act-img-wrap img{width:100%;height:100%;object-fit:contain}
+.act-emoji{font-size:5rem}
+.act-label{padding:12px;font-weight:800;font-size:1.15rem}
+.act-label small{display:block;color:var(--sub);font-size:.78rem;margin-top:2px}
+
+/* quiz */
+.quiz-bar{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:50px;box-shadow:var(--shadow);padding:8px 20px;margin-bottom:14px;font-weight:800}
+.quiz-bar .score{color:var(--primary-dark)}
+.check-btn{
+  background:var(--pink);color:#fff;border:none;border-radius:50px;padding:14px 30px;font-family:inherit;
+  font-weight:800;font-size:1.1rem;cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;width:100%;
+}
+.check-btn:hover{transform:translateY(-2px)}
+.check-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+.feedback{
+  text-align:center;font-size:1.5rem;font-weight:800;min-height:44px;margin-top:6px;
+  animation:pop .4s;
+}
+.feedback.ok{color:var(--primary-dark)} .feedback.ng{color:var(--pink)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+@media(max-width:680px){ .side-box{width:100%} }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🕐 なんじなにをする?時計アプリ <span class="u">4年 Unit4 What time is it?</span></h1>
+  <div class="nav-group">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <button class="nav-btn" id="btn-reset">リセット</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode" class="mode-select">
+    <div class="mode-card free" data-mode="free">
+      <div class="mi">🕰️</div>
+      <h2>とけいをうごかす</h2>
+      <p>はりをうごかして、その時こくに<br>なにをするか見てみよう</p>
+    </div>
+    <div class="mode-card quiz" data-mode="quiz">
+      <div class="mi">❓</div>
+      <h2>クイズモード</h2>
+      <p>えを見て、なんじかかんがえて<br>とけいをあわせよう(5もん)</p>
+    </div>
+  </section>
+
+  <!-- プレイ画面 -->
+  <section id="scr-play" class="hidden">
+    <div class="quiz-bar hidden" id="quiz-bar">
+      <span id="quiz-progress">だい1もん</span>
+      <span class="score">せいかい <span id="quiz-score">0</span></span>
+    </div>
+
+    <div class="play-area">
+      <div class="clock-box">
+        <svg id="clock" width="320" height="320" viewBox="0 0 320 320"></svg>
+        <div class="ampm">
+          <button class="am" id="btn-am">☀️ ごぜん AM</button>
+          <button class="pm" id="btn-pm">🌙 ごご PM</button>
+        </div>
+        <div class="time-line" id="time-line">It's 8 o'clock.</div>
+        <button class="speak-btn" id="btn-speak">🔊 What time is it?</button>
+      </div>
+
+      <div class="side-box">
+        <div class="act-card" id="act-card">
+          <div class="act-img-wrap" id="act-img"></div>
+          <div class="act-label" id="act-label"></div>
+        </div>
+        <button class="check-btn hidden" id="btn-check">こたえあわせ!</button>
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+// 絵カード画像の場所(Picture Dictionary の公開URL)
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+
+// 数字の英語よみ
+const NUM_EN = ["","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve"];
+
+// 時こく → 生活の場面(hour は 1〜12、ampm は "AM" / "PM")
+// img は Picture Dictionary の画像ファイル名、emoji は画像が出ないときの代わり
+const SCHEDULE = [
+  { hour:6,  ampm:"AM", label:"Wake-up Time",   ja:"おきるじかん",     phrase:"It's wake-up time.",   img:"wake up time.jpg",     emoji:"⏰" },
+  { hour:7,  ampm:"AM", label:"Breakfast Time", ja:"あさごはん",       phrase:"It's breakfast time.", img:"breakfast time.jpg",   emoji:"🍞" },
+  { hour:8,  ampm:"AM", label:"School Time",    ja:"がっこうへいく",   phrase:"It's school time.",    img:"go to school.jpg",     emoji:"🎒" },
+  { hour:10, ampm:"AM", label:"Study Time",     ja:"べんきょう",       phrase:"It's study time.",     img:"study.jpg",            emoji:"✏️" },
+  { hour:12, ampm:"PM", label:"Lunch Time",     ja:"ひるごはん",       phrase:"It's lunch time.",     img:"lunch time.jpg",       emoji:"🍱" },
+  { hour:3,  ampm:"PM", label:"Snack Time",     ja:"おやつ",           phrase:"It's snack time.",     img:"snack time.jpg",       emoji:"🍩" },
+  { hour:4,  ampm:"PM", label:"Play Time",      ja:"あそぶじかん",     phrase:"It's play time.",      img:"play with my friends.jpg", emoji:"⚽" },
+  { hour:5,  ampm:"PM", label:"Homework Time",  ja:"しゅくだい",       phrase:"It's homework time.",  img:"do my homework.jpg",   emoji:"📖" },
+  { hour:6,  ampm:"PM", label:"Dinner Time",    ja:"ばんごはん",       phrase:"It's dinner time.",    img:"dinner time.jpg",      emoji:"🍛" },
+  { hour:7,  ampm:"PM", label:"TV Time",        ja:"テレビのじかん",   phrase:"It's TV time.",        img:"watch TV.jpg",         emoji:"📺" },
+  { hour:8,  ampm:"PM", label:"Bath Time",      ja:"おふろ",           phrase:"It's bath time.",      img:"bath time.jpg",        emoji:"🛁" },
+  { hour:9,  ampm:"PM", label:"Bed Time",       ja:"ねるじかん",       phrase:"It's bed time.",       img:"bed time.jpg",         emoji:"🌙" },
+];
+const QUIZ_COUNT = 5; // クイズの問題数
+
+// ============================================================
+// 音声(Web Speech API)
+// ============================================================
+function speak(text, opt = {}){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = opt.rate || 0.85;
+    speechSynthesis.speak(u);
+  }catch(e){ /* 非対応環境では無音のまま動作を続ける */ }
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let state = {
+  mode: null,          // "free" | "quiz"
+  hour: 8, ampm: "AM",
+  quiz: { list: [], idx: 0, score: 0, answered: false },
+};
+
+// ============================================================
+// SVG時計
+// ============================================================
+const svg = document.getElementById("clock");
+const C = 160, R = 140;
+function buildClock(){
+  let s = `<circle cx="${C}" cy="${C}" r="${R+12}" fill="#fff" stroke="#2ed573" stroke-width="10"/>`;
+  s += `<circle cx="${C}" cy="${C}" r="${R}" fill="#f8fffb"/>`;
+  for(let h=1; h<=12; h++){
+    const a = (h/12)*Math.PI*2 - Math.PI/2;
+    const x = C + Math.cos(a)*(R-24), y = C + Math.sin(a)*(R-24);
+    s += `<g class="num" data-h="${h}" style="cursor:pointer">
+      <circle cx="${x}" cy="${y}" r="22" fill="transparent"/>
+      <text x="${x}" y="${y+9}" text-anchor="middle" font-size="26" font-weight="800"
+        font-family="'M PLUS Rounded 1c',sans-serif" fill="#2d3436">${h}</text></g>`;
+    // 目もり
+    const tx1 = C + Math.cos(a)*(R-6), ty1 = C + Math.sin(a)*(R-6);
+    const tx2 = C + Math.cos(a)*(R-1), ty2 = C + Math.sin(a)*(R-1);
+    s += `<line x1="${tx1}" y1="${ty1}" x2="${tx2}" y2="${ty2}" stroke="#b2bec3" stroke-width="3"/>`;
+  }
+  // 分針(12固定)・時針・中心
+  s += `<line id="min-hand" x1="${C}" y1="${C}" x2="${C}" y2="${C-R+34}" stroke="#b2bec3" stroke-width="7" stroke-linecap="round"/>`;
+  s += `<line id="hour-hand" x1="${C}" y1="${C}" x2="${C}" y2="${C-72}" stroke="#ff7675" stroke-width="11" stroke-linecap="round" style="cursor:grab"/>`;
+  s += `<circle cx="${C}" cy="${C}" r="10" fill="#2d3436"/>`;
+  svg.innerHTML = s;
+}
+function drawHour(){
+  const a = (state.hour/12)*Math.PI*2 - Math.PI/2;
+  const hand = document.getElementById("hour-hand");
+  hand.setAttribute("x2", C + Math.cos(a)*72);
+  hand.setAttribute("y2", C + Math.sin(a)*72);
+}
+
+// ドラッグ&数字タップで時刻設定
+let dragging = false;
+function angleToHour(x, y){
+  const rect = svg.getBoundingClientRect();
+  const scale = 320 / rect.width;
+  const dx = (x - rect.left)*scale - C, dy = (y - rect.top)*scale - C;
+  let deg = Math.atan2(dy, dx) * 180/Math.PI + 90; // 12時=0度
+  if(deg < 0) deg += 360;
+  let h = Math.round(deg / 30); if(h === 0) h = 12;
+  return h;
+}
+svg.addEventListener("pointerdown", e => {
+  const num = e.target.closest(".num");
+  if(num){ setHour(+num.dataset.h); return; }
+  dragging = true; svg.setPointerCapture(e.pointerId);
+  setHour(angleToHour(e.clientX, e.clientY), true);
+});
+svg.addEventListener("pointermove", e => { if(dragging) setHour(angleToHour(e.clientX, e.clientY), true); });
+svg.addEventListener("pointerup", () => {
+  if(dragging && state.mode === "free") speakTime();
+  dragging = false;
+});
+
+function setHour(h, silent){
+  if(h === state.hour){ drawHour(); updateView(); return; }
+  state.hour = h; drawHour(); updateView();
+  if(!silent && state.mode === "free") speakTime();
+}
+function setAmpm(v){
+  state.ampm = v;
+  document.getElementById("btn-am").classList.toggle("on", v==="AM");
+  document.getElementById("btn-pm").classList.toggle("on", v==="PM");
+  updateView();
+}
+
+// ============================================================
+// 表示更新
+// ============================================================
+function findActivity(hour, ampm){
+  return SCHEDULE.find(s => s.hour === hour && s.ampm === ampm) || null;
+}
+function cardHTML(act){
+  if(!act) return { img:`<span class="act-emoji">🕐</span>`, label:`It's ${NUM_EN[state.hour]} o'clock.<small>なにをするじかんかな?</small>` };
+  const url = IMG_BASE + encodeURIComponent(act.img);
+  return {
+    img:`<img src="${url}" alt="${act.label}" onerror="this.outerHTML='<span class=&quot;act-emoji&quot;>${act.emoji}</span>'">`,
+    label:`${act.phrase}<small>${act.ja}</small>`
+  };
+}
+function updateView(){
+  document.getElementById("time-line").textContent = `It's ${state.hour} o'clock.`;
+  if(state.mode === "free"){
+    const act = findActivity(state.hour, state.ampm);
+    const c = cardHTML(act);
+    document.getElementById("act-img").innerHTML = c.img;
+    document.getElementById("act-label").innerHTML = c.label;
+  }
+}
+function speakTime(){
+  const act = findActivity(state.hour, state.ampm);
+  let t = `It's ${NUM_EN[state.hour]} o'clock.`;
+  if(act) t += " " + act.phrase;
+  speak(t);
+}
+
+// ============================================================
+// クイズモード
+// ============================================================
+function startQuiz(){
+  const shuffled = [...SCHEDULE].sort(() => Math.random() - .5);
+  state.quiz = { list: shuffled.slice(0, QUIZ_COUNT), idx: 0, score: 0, answered: false, done: false };
+  showQuizQuestion();
+}
+function showQuizQuestion(){
+  const q = state.quiz.list[state.quiz.idx];
+  state.quiz.answered = false;
+  document.getElementById("quiz-progress").textContent = `だい${state.quiz.idx+1}もん / ${state.quiz.list.length}もん`;
+  document.getElementById("quiz-score").textContent = state.quiz.score;
+  const c = cardHTML(q);
+  document.getElementById("act-img").innerHTML = c.img;
+  document.getElementById("act-label").innerHTML = `${q.label}<small>${q.ja} は なんじ?とけいをあわせよう</small>`;
+  document.getElementById("feedback").textContent = "";
+  const btn = document.getElementById("btn-check");
+  btn.disabled = false; btn.textContent = "こたえあわせ!";
+  setHour(12, true); setAmpm("AM"); drawHour();
+  speak("What time is it?");
+}
+function checkQuiz(){
+  const fb = document.getElementById("feedback");
+  const btn = document.getElementById("btn-check");
+  if(state.quiz.done){ startQuiz(); return; }
+  const q = state.quiz.list[state.quiz.idx];
+  if(!state.quiz.answered){
+    const ok = (state.hour === q.hour && state.ampm === q.ampm);
+    state.quiz.answered = true;
+    if(ok){
+      state.quiz.score++;
+      fb.textContent = "⭕ Great!"; fb.className = "feedback ok";
+      speak(`Yes! It's ${NUM_EN[q.hour]} o'clock. ${q.phrase}`);
+    }else{
+      fb.textContent = `❌ ${q.ampm === "AM" ? "ごぜん" : "ごご"} ${q.hour}じ だったよ`; fb.className = "feedback ng";
+      setHour(q.hour, true); setAmpm(q.ampm);
+      speak(`It's ${NUM_EN[q.hour]} o'clock. ${q.phrase}`);
+    }
+    document.getElementById("quiz-score").textContent = state.quiz.score;
+    btn.textContent = (state.quiz.idx < state.quiz.list.length-1) ? "つぎのもんだいへ ▶" : "けっかを見る 🎉";
+  }else{
+    state.quiz.idx++;
+    if(state.quiz.idx < state.quiz.list.length){ showQuizQuestion(); }
+    else{
+      const s = state.quiz.score, n = state.quiz.list.length;
+      document.getElementById("act-img").innerHTML = `<span class="act-emoji">${s===n?"🏆":s>=n*0.6?"🎉":"💪"}</span>`;
+      document.getElementById("act-label").innerHTML = `${n}もん中 ${s}もん せいかい!<small>もういちどあそぶには「こたえあわせ」をおしてね</small>`;
+      fb.textContent = ""; btn.textContent = "もういちど!";
+      state.quiz.done = true;
+      if(s===n) speak("Perfect! Great job!"); else speak("Good job!");
+    }
+  }
+}
+
+// ============================================================
+// 画面切り替え
+// ============================================================
+function showMode(mode){
+  state.mode = mode;
+  document.getElementById("scr-mode").classList.add("hidden");
+  document.getElementById("scr-play").classList.remove("hidden");
+  document.getElementById("quiz-bar").classList.toggle("hidden", mode !== "quiz");
+  document.getElementById("btn-check").classList.toggle("hidden", mode !== "quiz");
+  if(mode === "free"){ setHour(8, true); setAmpm("AM"); updateView(); }
+  else startQuiz();
+}
+function goHome(){
+  state.mode = null;
+  speechSynthesis.cancel();
+  document.getElementById("scr-play").classList.add("hidden");
+  document.getElementById("scr-mode").classList.remove("hidden");
+}
+
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => showMode(c.dataset.mode)));
+document.getElementById("btn-home").addEventListener("click", goHome);
+document.getElementById("btn-reset").addEventListener("click", () => { goHome(); });
+document.getElementById("btn-am").addEventListener("click", () => setAmpm("AM"));
+document.getElementById("btn-pm").addEventListener("click", () => setAmpm("PM"));
+document.getElementById("btn-speak").addEventListener("click", () => { speak("What time is it?"); setTimeout(speakTime, 1400); });
+document.getElementById("btn-check").addEventListener("click", checkQuiz);
+
+buildClock(); drawHour(); setAmpm("AM");
+</script>
+</body>
+</html>

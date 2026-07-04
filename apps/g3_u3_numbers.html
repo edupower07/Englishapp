@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>すうじかくれんぼゲーム | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ffa502; --primary-dark:#e08e00; --teal:#00cec9; --pink:#ff7675; --blue:#74b9ff; --green:#2ed573;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.mode-card{
+  width:260px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--teal)} .mode-card.m2{border-color:var(--pink)}
+.mode-card .mi{font-size:3rem}
+.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+.range-row{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;align-items:center}
+.range-row .lbl{font-weight:800;color:var(--sub);font-size:.9rem}
+.range-btn{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 22px;font-family:inherit;
+  font-weight:800;font-size:.95rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
+}
+.range-btn.on{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* ミッシングナンバー */
+.num-board{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:560px;margin:0 auto}
+.num-cell{
+  aspect-ratio:1;background:#fff;border-radius:16px;box-shadow:var(--shadow);border:4px solid #ffeacc;
+  font-family:'Fredoka One',cursive;font-size:2rem;display:flex;align-items:center;justify-content:center;
+  color:var(--ink);cursor:pointer;transition:.15s;
+}
+.num-cell.hidden-num{background:linear-gradient(135deg,#ffa502,#ffc048);color:#fff;font-size:2.2rem}
+.num-cell.revealed{background:var(--green);border-color:var(--green);color:#fff;animation:pop .45s}
+@keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.teal{background:var(--teal)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+
+/* いくつクイズ */
+.count-hud{display:flex;justify-content:space-between;max-width:620px;margin:0 auto 10px;font-weight:800;color:var(--sub);gap:8px;flex-wrap:wrap}
+.count-q{
+  max-width:620px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:14px;text-align:center;
+  border:5px solid var(--pink);
+}
+.count-ask{font-size:1.3rem;font-weight:800;color:var(--pink);cursor:pointer}
+.count-field{
+  min-height:170px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;
+  font-size:2rem;padding:10px;
+}
+.count-field span{animation:pop .4s}
+.count-timer{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--primary)}
+.num-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;max-width:620px;margin:12px auto 0}
+.num-opt{
+  aspect-ratio:1;border-radius:14px;background:#fff;border:4px solid #e6ecf2;box-shadow:var(--shadow);
+  font-family:'Fredoka One',cursive;font-size:1.5rem;cursor:pointer;transition:.15s;color:var(--ink);min-height:52px;
+}
+.num-opt:hover{border-color:var(--pink);transform:translateY(-2px)}
+.num-opt.ok{background:var(--green);color:#fff;border-color:var(--green);animation:pop .4s}
+.num-opt.ng{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.msg{text-align:center;font-size:1.2rem;font-weight:800;min-height:36px;margin-top:10px}
+.msg.ok{color:var(--green)} .msg.ng{color:var(--pink)}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔢 すうじかくれんぼゲーム <span class="u">3年 Unit3 How many?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">あそびかたを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="missing">
+        <div class="mi">🙈</div>
+        <h2>ミッシングナンバー</h2>
+        <p>かくれた数字はなにかな?<br>英語で言ってから こたえあわせ!</p>
+      </div>
+      <div class="mode-card m2" data-mode="count">
+        <div class="mi">🐱</div>
+        <h2>いくつクイズ</h2>
+        <p>How many cats?<br>時間内にかぞえてこたえよう(5もん)</p>
+      </div>
+    </div>
+    <div class="range-row">
+      <span class="lbl">つかう数字:</span>
+      <button class="range-btn" data-r="10">1〜10</button>
+      <button class="range-btn on" data-r="20">1〜20</button>
+    </div>
+  </section>
+
+  <!-- ミッシングナンバー -->
+  <section id="scr-missing" class="hidden">
+    <h2 class="step-title">🙈 What's missing?</h2>
+    <p class="step-sub">かくれている数字を、みんなで英語で言ってみよう</p>
+    <div class="num-board" id="num-board"></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-reveal">こたえあわせ!</button>
+      <button class="big-btn teal" id="btn-missing-next">つぎのもんだい 🎲</button>
+    </div>
+  </section>
+
+  <!-- いくつクイズ -->
+  <section id="scr-count" class="hidden">
+    <div class="count-hud">
+      <span id="c-progress">だい1もん / 5もん</span>
+      <span class="count-timer" id="c-timer">⏱ 20</span>
+      <span id="c-score">せいかい 0</span>
+    </div>
+    <div class="count-q">
+      <div class="count-ask" id="c-ask">🔊 How many cats?</div>
+      <div class="count-field" id="c-field"></div>
+    </div>
+    <div class="num-opts" id="c-opts"></div>
+    <div class="msg" id="c-msg"></div>
+  </section>
+
+</main>
+
+<footer>ミッシングナンバーは「口で言ってから、こたえあわせ」— 自動採点はしないよ。声に出すのがだいじ!</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const NUM_EN = ["","one","two","three","four","five","six","seven","eight","nine","ten",
+  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
+const COUNT_ITEMS = [
+  { en:"cats",     ja:"ねこ",     emoji:"🐱" },
+  { en:"dogs",     ja:"いぬ",     emoji:"🐶" },
+  { en:"rabbits",  ja:"うさぎ",   emoji:"🐰" },
+  { en:"birds",    ja:"とり",     emoji:"🐦" },
+  { en:"apples",   ja:"りんご",   emoji:"🍎" },
+  { en:"bananas",  ja:"バナナ",   emoji:"🍌" },
+  { en:"stars",    ja:"ほし",     emoji:"⭐" },
+  { en:"balls",    ja:"ボール",   emoji:"⚽" },
+  { en:"pencils",  ja:"えんぴつ", emoji:"✏️" },
+  { en:"fish",     ja:"さかな",   emoji:"🐟" },
+];
+const COUNT_QUESTIONS = 5;
+const COUNT_SECONDS = 20;   // かぞえる時間(秒)
+const MISSING_MIN = 1, MISSING_MAX = 3; // かくす数
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.8){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.8){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let rangeMax = 20;
+let missing = [];        // かくれている数字
+let revealed = false;
+let cq = { idx:0, score:0, answer:0, item:null, lock:false, timer:null, left:0 };
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-mode","scr-missing","scr-count"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
+document.querySelectorAll(".range-btn").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".range-btn").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); rangeMax = +b.dataset.r;
+}));
+
+// ============================================================
+// ミッシングナンバー
+// ============================================================
+function newMissing(){
+  revealed = false;
+  const count = MISSING_MIN + Math.floor(Math.random() * (MISSING_MAX - MISSING_MIN + 1));
+  const all = Array.from({length: rangeMax}, (_,i) => i+1);
+  missing = shuffle(all).slice(0, count).sort((a,b) => a-b);
+  $("num-board").style.gridTemplateColumns = rangeMax === 10 ? "repeat(5,1fr)" : "repeat(5,1fr)";
+  $("num-board").innerHTML = all.map(n =>
+    `<div class="num-cell ${missing.includes(n) ? "hidden-num" : ""}" data-n="${n}">${missing.includes(n) ? "?" : n}</div>`).join("");
+  $("btn-reveal").disabled = false;
+  speak("What's missing?");
+}
+$("num-board").addEventListener("click", e => {
+  const cell = e.target.closest(".num-cell"); if(!cell) return;
+  const n = +cell.dataset.n;
+  if(!cell.classList.contains("hidden-num") || revealed) speak(NUM_EN[n]);
+});
+$("btn-reveal").addEventListener("click", () => {
+  if(revealed) return;
+  revealed = true;
+  missing.forEach(n => {
+    const cell = document.querySelector(`.num-cell[data-n="${n}"]`);
+    cell.textContent = n;
+    cell.classList.remove("hidden-num");
+    cell.classList.add("revealed");
+  });
+  speakQueue(missing.map(n => NUM_EN[n]));
+});
+$("btn-missing-next").addEventListener("click", newMissing);
+
+// ============================================================
+// いくつクイズ
+// ============================================================
+function startCount(){
+  cq = { idx:0, score:0, answer:0, item:null, lock:false, timer:null, left:0 };
+  show("scr-count");
+  drawCountQ();
+}
+function drawCountQ(){
+  clearInterval(cq.timer);
+  cq.lock = false;
+  cq.item = COUNT_ITEMS[Math.floor(Math.random() * COUNT_ITEMS.length)];
+  cq.answer = 1 + Math.floor(Math.random() * rangeMax);
+  $("c-progress").textContent = `だい${cq.idx+1}もん / ${COUNT_QUESTIONS}もん`;
+  $("c-score").textContent = `せいかい ${cq.score}`;
+  $("c-ask").textContent = `🔊 How many ${cq.item.en}?`;
+  $("c-field").innerHTML = Array.from({length: cq.answer}, () =>
+    `<span>${cq.item.emoji}</span>`).join("");
+  // 選択肢: 正解ふくむ 6つ
+  const opts = new Set([cq.answer]);
+  while(opts.size < 6){
+    const v = Math.max(1, Math.min(rangeMax, cq.answer + Math.floor(Math.random()*7) - 3));
+    opts.add(v);
+  }
+  $("c-opts").innerHTML = shuffle([...opts]).map(n =>
+    `<button class="num-opt" data-n="${n}">${n}</button>`).join("");
+  $("c-msg").textContent = ""; $("c-msg").className = "msg";
+  cq.left = COUNT_SECONDS;
+  $("c-timer").textContent = `⏱ ${cq.left}`;
+  cq.timer = setInterval(() => {
+    cq.left--;
+    $("c-timer").textContent = `⏱ ${cq.left}`;
+    if(cq.left <= 0){
+      clearInterval(cq.timer);
+      if(!cq.lock){ cq.lock = true; showCountAnswer(false, true); }
+    }
+  }, 1000);
+  speak(`How many ${cq.item.en}?`);
+}
+$("c-ask").addEventListener("click", () => { if(cq.item) speak(`How many ${cq.item.en}?`); });
+$("c-opts").addEventListener("click", e => {
+  const el = e.target.closest(".num-opt"); if(!el || cq.lock) return;
+  if(+el.dataset.n === cq.answer){
+    cq.lock = true; cq.score++;
+    clearInterval(cq.timer);
+    el.classList.add("ok");
+    showCountAnswer(true, false);
+  }else{
+    el.classList.add("ng");
+    setTimeout(() => el.classList.remove("ng"), 380);
+  }
+});
+function showCountAnswer(ok, timeup){
+  $("c-msg").textContent = ok
+    ? `⭕ ${NUM_EN[cq.answer]}(${cq.answer})!`
+    : `⏰ タイムアップ!こたえは ${NUM_EN[cq.answer]}(${cq.answer})`;
+  $("c-msg").className = "msg " + (ok ? "ok" : "ng");
+  $("c-score").textContent = `せいかい ${cq.score}`;
+  speak(ok ? `Yes! ${NUM_EN[cq.answer]} ${cq.item.en}!` : `Time's up! ${NUM_EN[cq.answer]} ${cq.item.en}.`);
+  setTimeout(() => {
+    cq.idx++;
+    if(cq.idx >= COUNT_QUESTIONS){
+      $("c-ask").textContent = cq.score === COUNT_QUESTIONS ? "🏆 パーフェクト!" : "🎉 おつかれさま!";
+      $("c-field").innerHTML = `<span style="font-size:3rem">${cq.score === COUNT_QUESTIONS ? "🏆" : "🎉"}</span>`;
+      $("c-opts").innerHTML = ""; $("c-msg").textContent = `${COUNT_QUESTIONS}もん中 ${cq.score}もん せいかい!`;
+      $("c-msg").className = "msg ok";
+      $("c-timer").textContent = "";
+      speak(cq.score === COUNT_QUESTIONS ? "Perfect!" : "Good job!");
+    }else drawCountQ();
+  }, 1800);
+}
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  if(c.dataset.mode === "missing"){ show("scr-missing"); newMissing(); }
+  else startCount();
+}));
+$("btn-home").addEventListener("click", () => {
+  clearInterval(cq.timer); speechSynthesis.cancel(); show("scr-mode");
+});
+
+show("scr-mode");
+</script>
+</body>
+</html>

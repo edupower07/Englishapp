@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's this? なぞなぞビルダー | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ffa502; --teal:#00cec9; --pink:#ff7675; --blue:#74b9ff; --green:#2ed573; --purple:#a29bfe;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.mode-card{
+  width:250px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--purple)}
+.mode-card .mi{font-size:3rem}
+.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+
+/* 単語グリッド */
+.word-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px}
+.word-card{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:116px;display:flex;flex-direction:column;justify-content:center;gap:3px;
+}
+.word-card:hover{transform:translateY(-3px)}
+.word-card.on{border-color:var(--primary);background:#fff8ec}
+.word-card .wimg{width:56px;height:50px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.word-card .wimg img{max-width:100%;max-height:100%;object-fit:contain}
+.word-card .wemoji{font-size:2.1rem;line-height:1}
+.word-card .wlabel{font-weight:800;font-size:.74rem;line-height:1.2}
+.word-card .wlabel small{display:block;color:var(--sub);font-size:.62rem}
+
+/* ヒント選択 */
+.hint-list{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.hint-opt{
+  background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:12px 16px;font-weight:800;cursor:pointer;
+  border:4px solid transparent;display:flex;align-items:center;gap:10px;font-size:.95rem;
+}
+.hint-opt .num{
+  width:30px;height:30px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;color:var(--sub);flex-shrink:0;
+}
+.hint-opt.on{border-color:var(--green);background:#f0fff7}
+.hint-opt.on .num{background:var(--green);color:#fff}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn.purple{background:var(--purple)}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* クイズ一覧 */
+.quiz-list{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.quiz-item{
+  background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:12px 16px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;gap:10px;border:4px solid transparent;transition:.15s;
+}
+.quiz-item:hover{border-color:var(--purple);transform:translateY(-2px)}
+.quiz-item .qi{font-size:1.5rem}
+.quiz-item small{color:var(--sub);font-weight:700;margin-left:auto}
+.quiz-item .del{color:#ccc;font-size:1.1rem;padding:6px}
+.quiz-item .del:hover{color:var(--pink)}
+
+/* プレイ */
+.play-card{
+  max-width:560px;margin:0 auto;background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--purple);padding:22px;text-align:center;
+}
+.play-title{font-family:'Fredoka One',cursive;font-size:1.9rem;color:var(--purple);cursor:pointer}
+.play-hints{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.play-hint{
+  background:#f4f0ff;border-radius:12px;padding:11px;font-size:1.05rem;font-weight:800;color:#5f4b8b;
+  animation:slidein .4s;cursor:pointer;
+}
+@keyframes slidein{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.reveal-big{font-size:4.5rem;animation:pop .5s;margin-top:8px}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.reveal-line{font-size:1.5rem;font-weight:800;color:var(--pink);margin-top:6px}
+.play-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px;max-width:560px;margin:14px auto 0}
+.msg{text-align:center;font-size:1.2rem;font-weight:800;min-height:36px;margin-top:8px}
+.msg.ok{color:var(--green)} .msg.ng{color:var(--pink)}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>❓ What's this? なぞなぞビルダー <span class="u">3年 Unit8 What's this?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">あそびかたを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="make">
+        <div class="mi">🛠️</div>
+        <h2>なぞなぞをつくる</h2>
+        <p>こたえとヒントをえらんで<br>じぶんのなぞなぞをつくろう</p>
+      </div>
+      <div class="mode-card m2" data-mode="play">
+        <div class="mi">🎲</div>
+        <h2>なぞなぞであそぶ</h2>
+        <p>みんながつくったなぞなぞに<br>ちょうせんしよう</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- つくる: こたえ選択 -->
+  <section id="scr-pick" class="hidden">
+    <h2 class="step-title">🛠️ ①こたえになる ことばをえらぼう</h2>
+    <p class="step-sub">これが なぞなぞの こたえになるよ(ともだちには ひみつ!)</p>
+    <div class="word-grid" id="word-grid"></div>
+  </section>
+
+  <!-- つくる: ヒント選択 -->
+  <section id="scr-hints" class="hidden">
+    <h2 class="step-title">②ヒントを 3つまで えらぼう</h2>
+    <p class="step-sub" id="hints-sub"></p>
+    <div class="hint-list" id="hint-list"></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-save" disabled>なぞなぞかんせい!ほぞんする</button>
+      <button class="big-btn gray" id="btn-back-pick">こたえをえらびなおす</button>
+    </div>
+  </section>
+
+  <!-- あそぶ: 一覧 -->
+  <section id="scr-list" class="hidden">
+    <h2 class="step-title">🎲 どのなぞなぞであそぶ?</h2>
+    <p class="step-sub">🗑をタップすると なぞなぞをけせるよ(はじめからあるサンプルはけせないよ)</p>
+    <div class="quiz-list" id="quiz-list"></div>
+  </section>
+
+  <!-- あそぶ: プレイ -->
+  <section id="scr-play" class="hidden">
+    <div class="play-card">
+      <div class="play-title" id="play-title">🔊 What's this?</div>
+      <div class="play-hints" id="play-hints"></div>
+      <div id="play-reveal"></div>
+    </div>
+    <div class="actions">
+      <button class="big-btn purple" id="btn-hint">ヒントを出す 💡</button>
+    </div>
+    <div class="play-opts" id="play-opts"></div>
+    <div class="msg" id="play-msg"></div>
+    <div class="actions">
+      <button class="big-btn gray" id="btn-back-list">なぞなぞ一覧にもどる</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>つくったなぞなぞは この端末の中にほぞんされます</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここに単語とヒントを追加できます)
+// hints: この単語をつくるときに えらべるヒントの候補
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+
+const WORD_BANK = [
+  { word:"cat",      ja:"ねこ",       img:"cat.jpg",      emoji:"🐱", hints:["It's an animal.(どうぶつだよ)","It's small.(ちいさいよ)","It says 'meow.'(ニャーとなくよ)","It starts with C.(Cではじまるよ)"] },
+  { word:"dog",      ja:"いぬ",       img:"dog.jpg",      emoji:"🐶", hints:["It's an animal.(どうぶつだよ)","It says 'woof.'(ワンとなくよ)","It's your friend.(ともだちだよ)","It starts with D.(Dではじまるよ)"] },
+  { word:"rabbit",   ja:"うさぎ",     img:"rabbit.jpg",   emoji:"🐰", hints:["It's an animal.(どうぶつだよ)","It's white.(しろいよ)","It has long ears.(みみがながいよ)","It starts with R.(Rではじまるよ)"] },
+  { word:"elephant", ja:"ぞう",       img:"elephant.jpg", emoji:"🐘", hints:["It's an animal.(どうぶつだよ)","It's big.(おおきいよ)","It has a long nose.(はなが ながいよ)","It starts with E.(Eではじまるよ)"] },
+  { word:"lion",     ja:"ライオン",   img:"lion.jpg",     emoji:"🦁", hints:["It's an animal.(どうぶつだよ)","It's strong.(つよいよ)","It's the king.(おうさまだよ)","It starts with L.(Lではじまるよ)"] },
+  { word:"apple",    ja:"りんご",     img:"apple.jpg",    emoji:"🍎", hints:["It's a fruit.(くだものだよ)","It's red.(あかいよ)","It's round.(まるいよ)","It starts with A.(Aではじまるよ)"] },
+  { word:"banana",   ja:"バナナ",     img:"banana.jpg",   emoji:"🍌", hints:["It's a fruit.(くだものだよ)","It's yellow.(きいろだよ)","It's long.(ながいよ)","Monkeys like it.(さるがすきだよ)"] },
+  { word:"melon",    ja:"メロン",     img:"melon.jpg",    emoji:"🍈", hints:["It's a fruit.(くだものだよ)","It's green.(みどりだよ)","It's round.(まるいよ)","It's sweet.(あまいよ)"] },
+  { word:"pizza",    ja:"ピザ",       img:"pizza.jpg",    emoji:"🍕", hints:["It's food.(たべものだよ)","It's round.(まるいよ)","It's hot.(あついよ)","It starts with P.(Pではじまるよ)"] },
+  { word:"star",     ja:"ほし",       img:"star.jpg",     emoji:"⭐", hints:["Look at the sky.(そらを見てね)","It's yellow.(きいろだよ)","You see it at night.(よるに見えるよ)","It starts with S.(Sではじまるよ)"] },
+  { word:"umbrella", ja:"かさ",       img:"umbrella.jpg", emoji:"☔", hints:["Use it on rainy days.(あめの日につかうよ)","It starts with U.(Uではじまるよ)","You hold it.(手にもつよ)"] },
+  { word:"soccer ball", ja:"サッカーボール", img:"soccer.jpg", emoji:"⚽", hints:["It's round.(まるいよ)","You kick it.(けるよ)","It's black and white.(しろとくろだよ)"] },
+];
+// はじめから入っているサンプルなぞなぞ
+const SAMPLE_QUIZZES = [
+  { word:"elephant", hints:[0,1,2], sample:true },
+  { word:"banana",   hints:[0,1,3], sample:true },
+];
+const STORAGE_KEY = "g3_whatsthis_quizzes_v1";
+const MAX_HINTS = 3;
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let making = { word:null, hints:[] };
+let quizzes = [];
+let play = { quiz:null, hintIdx:0, done:false };
+try{ quizzes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ quizzes = []; }
+
+const $ = id => document.getElementById(id);
+const wOf = w => WORD_BANK.find(x => x.word === w);
+function show(id){
+  ["scr-mode","scr-pick","scr-hints","scr-list","scr-play"].forEach(s =>
+    $(s).classList.toggle("hidden", s !== id));
+}
+function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
+function saveQuizzes(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(quizzes)); }catch(e){} }
+function wordVisual(w){
+  return `<div class="wimg"><img src="${IMG_BASE + encodeURIComponent(w.img)}" alt="${w.word}"
+    onerror="this.outerHTML='<span class=&quot;wemoji&quot;>${w.emoji}</span>'"></div>`;
+}
+function hintEn(h){ return h.split("(")[0]; }
+
+// ============================================================
+// つくる
+// ============================================================
+function buildWordGrid(){
+  $("word-grid").innerHTML = WORD_BANK.map(w => `
+    <div class="word-card" data-w="${w.word}">
+      ${wordVisual(w)}
+      <div class="wlabel">${w.ja}<small>${w.word}</small></div>
+    </div>`).join("");
+}
+$("word-grid").addEventListener("click", e => {
+  const el = e.target.closest(".word-card"); if(!el) return;
+  making = { word: el.dataset.w, hints: [] };
+  const w = wOf(making.word);
+  $("hints-sub").textContent = `こたえ:「${w.ja}(${w.word})」のヒントをえらぼう`;
+  $("hint-list").innerHTML = w.hints.map((h,i) => `
+    <div class="hint-opt" data-i="${i}"><span class="num">${i+1}</span>${h}</div>`).join("");
+  $("btn-save").disabled = true;
+  show("scr-hints");
+  speak(w.word);
+});
+$("hint-list").addEventListener("click", e => {
+  const el = e.target.closest(".hint-opt"); if(!el) return;
+  const i = +el.dataset.i;
+  if(making.hints.includes(i)){
+    making.hints = making.hints.filter(x => x !== i);
+    el.classList.remove("on");
+  }else if(making.hints.length < MAX_HINTS){
+    making.hints.push(i);
+    el.classList.add("on");
+    speak(hintEn(wOf(making.word).hints[i]));
+  }
+  $("btn-save").disabled = making.hints.length === 0;
+});
+$("btn-save").addEventListener("click", () => {
+  quizzes.push({ word: making.word, hints: [...making.hints] });
+  saveQuizzes();
+  speak("Great! Your quiz is ready!");
+  buildQuizList();
+  show("scr-list");
+});
+$("btn-back-pick").addEventListener("click", () => show("scr-pick"));
+
+// ============================================================
+// あそぶ: 一覧
+// ============================================================
+function allQuizzes(){ return [...SAMPLE_QUIZZES, ...quizzes]; }
+function buildQuizList(){
+  const list = allQuizzes();
+  $("quiz-list").innerHTML = list.length === 0
+    ? `<div style="text-align:center;font-weight:700;color:var(--sub)">まだなぞなぞがないよ。「つくる」からつくってみよう!</div>`
+    : list.map((q,i) => `
+      <div class="quiz-item" data-i="${i}">
+        <span class="qi">❓</span>なぞなぞ その${i+1}
+        <small>${q.sample ? "サンプル" : "ヒント" + q.hints.length + "つ"}</small>
+        ${q.sample ? "" : `<span class="del" data-del="${i}">🗑</span>`}
+      </div>`).join("");
+}
+$("quiz-list").addEventListener("click", e => {
+  const del = e.target.closest(".del");
+  if(del){
+    const idx = +del.dataset.del - SAMPLE_QUIZZES.length;
+    if(idx >= 0){ quizzes.splice(idx, 1); saveQuizzes(); buildQuizList(); }
+    e.stopPropagation();
+    return;
+  }
+  const item = e.target.closest(".quiz-item"); if(!item) return;
+  startPlay(allQuizzes()[+item.dataset.i]);
+});
+
+// ============================================================
+// あそぶ: プレイ
+// ============================================================
+function startPlay(quiz){
+  play = { quiz, hintIdx:0, done:false };
+  $("play-title").textContent = "🔊 What's this?";
+  $("play-hints").innerHTML = "";
+  $("play-reveal").innerHTML = "";
+  $("play-msg").textContent = ""; $("play-msg").className = "msg";
+  $("btn-hint").disabled = false;
+  const w = wOf(quiz.word);
+  const wrongs = shuffle(WORD_BANK.filter(x => x.word !== quiz.word)).slice(0,3);
+  const opts = shuffle([w, ...wrongs]);
+  $("play-opts").innerHTML = opts.map(o => `
+    <div class="word-card" data-w="${o.word}">
+      ${wordVisual(o)}
+      <div class="wlabel">${o.ja}<small>${o.word}</small></div>
+    </div>`).join("");
+  show("scr-play");
+  speak("What's this?");
+}
+$("play-title").addEventListener("click", () => speak("What's this?"));
+$("btn-hint").addEventListener("click", () => {
+  const w = wOf(play.quiz.word);
+  if(play.hintIdx >= play.quiz.hints.length) return;
+  const h = w.hints[play.quiz.hints[play.hintIdx]];
+  play.hintIdx++;
+  const div = document.createElement("div");
+  div.className = "play-hint";
+  div.textContent = `ヒント${play.hintIdx}: ${h}`;
+  div.addEventListener("click", () => speak(hintEn(h)));
+  $("play-hints").appendChild(div);
+  speak(hintEn(h));
+  if(play.hintIdx >= play.quiz.hints.length) $("btn-hint").disabled = true;
+});
+$("play-opts").addEventListener("click", e => {
+  const el = e.target.closest(".word-card"); if(!el || play.done) return;
+  const w = wOf(play.quiz.word);
+  if(el.dataset.w === play.quiz.word){
+    play.done = true;
+    $("play-reveal").innerHTML = `<div class="reveal-big">${w.emoji}</div><div class="reveal-line">It's ${aOrAn(w.word)}!</div>`;
+    $("play-msg").textContent = "⭕ せいかい!";
+    $("play-msg").className = "msg ok";
+    speak(`It's ${aOrAn(w.word)}! That's right!`);
+  }else{
+    $("play-msg").textContent = "❌ ちがうみたい…ヒントをよく聞いてみよう";
+    $("play-msg").className = "msg ng";
+    speak("Sorry! Try again!");
+  }
+});
+function aOrAn(word){
+  return (/^[aeiou]/i.test(word) ? "an " : "a ") + word;
+}
+$("btn-back-list").addEventListener("click", () => { buildQuizList(); show("scr-list"); });
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  if(c.dataset.mode === "make"){ buildWordGrid(); show("scr-pick"); }
+  else{ buildQuizList(); show("scr-list"); }
+}));
+$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
+
+show("scr-mode");
+</script>
+</body>
+</html>

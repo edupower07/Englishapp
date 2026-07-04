@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>季節と行事すごろく | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff4757; --primary-dark:#d63447; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e; --purple:#a29bfe;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.mode-card{
+  width:260px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--green)}
+.mode-card .mi{font-size:3rem}
+.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+.pl-row{display:flex;gap:10px;justify-content:center;margin-top:16px;align-items:center;flex-wrap:wrap}
+.pl-row .lbl{font-weight:800;color:var(--sub);font-size:.9rem}
+.pl-btn{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 20px;font-family:inherit;
+  font-weight:800;font-size:.95rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
+}
+.pl-btn.on{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* 盤面 */
+.game-wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.board{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:1;min-width:300px;max-width:560px;
+}
+.cell{
+  aspect-ratio:1;border-radius:14px;background:#fff;box-shadow:var(--shadow);position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:3px;
+  font-size:.6rem;font-weight:800;text-align:center;line-height:1.15;border:3px solid transparent;
+}
+.cell .ce{font-size:1.5rem;line-height:1.1}
+.cell.spring{background:#ffeef2;border-color:#ffb8c9} .cell.summer{background:#e8f7ff;border-color:#8fd4ff}
+.cell.fall{background:#fff3e0;border-color:#ffcf86} .cell.winter{background:#eef3ff;border-color:#b3c7f9}
+.cell.lucky{background:#fffbe7;border-color:var(--yellow)}
+.cell.startgoal{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff}
+.cell .pieces{position:absolute;top:-10px;left:2px;right:2px;display:flex;gap:1px;justify-content:center;font-size:1.05rem}
+.cell .pieces span{filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));animation:hop .5s}
+@keyframes hop{0%{transform:translateY(-14px)}60%{transform:translateY(2px)}100%{transform:none}}
+
+/* サイド */
+.side{width:300px;display:flex;flex-direction:column;gap:12px}
+@media(max-width:700px){ .side{width:100%} }
+.turn-box{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;text-align:center}
+.turn-box .who{font-size:1.05rem;font-weight:800}
+.scores{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.score-chip{background:#f4f6f8;border-radius:50px;padding:4px 12px;font-weight:800;font-size:.8rem}
+.score-chip.now{background:var(--yellow)}
+.dice-btn{
+  width:110px;height:110px;margin:0 auto;border:none;border-radius:24px;background:#fff;box-shadow:var(--shadow-hover);
+  font-size:3rem;cursor:pointer;transition:.15s;display:block;border:5px solid var(--primary);font-family:inherit;
+}
+.dice-btn:hover{transform:translateY(-3px)}
+.dice-btn:disabled{opacity:.5;cursor:default;transform:none}
+@keyframes roll{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.rolling{animation:roll .5s}
+/* お題カード */
+.task-box{
+  background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;border:4px solid var(--purple);
+  text-align:center;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:6px;
+}
+.task-box .te{font-size:2rem}
+.task-box .tt{font-weight:800;font-size:.95rem;line-height:1.5}
+.task-box .en{color:var(--blue);font-size:1.05rem;cursor:pointer}
+.task-btns{display:flex;gap:8px;justify-content:center;margin-top:6px;flex-wrap:wrap}
+.task-btns button{
+  border:none;border-radius:50px;padding:9px 18px;font-family:inherit;font-weight:800;font-size:.85rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:44px;color:#fff;
+}
+.t-ok{background:var(--green)} .t-pass{background:#b2bec3;color:#2d3436}
+.msg{text-align:center;font-weight:800;min-height:30px;font-size:1rem;margin-top:4px}
+
+/* 紹介カード */
+.intro-wrap{max-width:620px;margin:0 auto}
+.sel-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.sel-chip{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 16px;font-family:inherit;
+  font-weight:800;font-size:.85rem;cursor:pointer;min-height:44px;transition:.2s;color:var(--ink);
+}
+.sel-chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.intro-card{
+  background:#fff;border-radius:22px;box-shadow:var(--shadow-hover);border:5px solid var(--green);padding:20px;text-align:center;
+}
+.intro-card .ie{font-size:3rem}
+.intro-line{font-size:1.1rem;font-weight:800;padding:6px 10px;border-radius:10px;cursor:pointer;margin-top:4px}
+.intro-line:hover{background:#effdf7}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎲 季節と行事すごろく <span class="u">5年 Unit7 Welcome to Japan.</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">あそびかたを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="game">
+        <div class="mi">🎲</div>
+        <h2>すごろくであそぶ</h2>
+        <p>とまったマスのお題に英語でこたえて<br>ポイントをあつめながらゴールへ!</p>
+      </div>
+      <div class="mode-card m2" data-mode="intro">
+        <div class="mi">🎎</div>
+        <h2>行事紹介カードをつくる</h2>
+        <p>We have 〜 in 〜. で日本の行事を<br>外国の人に紹介しよう</p>
+      </div>
+    </div>
+    <div class="pl-row">
+      <span class="lbl">あそぶ人数:</span>
+      <button class="pl-btn" data-n="1">1人</button>
+      <button class="pl-btn on" data-n="2">2人</button>
+      <button class="pl-btn" data-n="3">3人</button>
+      <button class="pl-btn" data-n="4">4人</button>
+    </div>
+  </section>
+
+  <!-- すごろく -->
+  <section id="scr-game" class="hidden">
+    <div class="game-wrap">
+      <div class="board" id="board"></div>
+      <div class="side">
+        <div class="turn-box">
+          <div class="who" id="turn-who">🔴 プレイヤー1のばん</div>
+          <div class="scores" id="scores"></div>
+        </div>
+        <button class="dice-btn" id="btn-dice">🎲</button>
+        <div class="task-box" id="task-box">
+          <span class="te">🎲</span>
+          <span class="tt">サイコロをふってスタート!</span>
+        </div>
+        <div class="msg" id="game-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 行事紹介 -->
+  <section id="scr-intro" class="hidden">
+    <h2 class="step-title">🎎 行事紹介カードをつくろう</h2>
+    <p class="step-sub">①行事 → ②することをえらぶと、紹介文ができるよ</p>
+    <div class="intro-wrap">
+      <div class="sel-row" id="event-row"></div>
+      <div class="sel-row" id="act-row"></div>
+      <div class="intro-card" id="intro-card">
+        <div class="ie">🗾</div>
+        <div style="font-weight:800;color:var(--sub)">行事をえらんでね</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>グループで1台でも、ひとりでも遊べます。お題の英語はタップすると読み上げます。</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const SEASONS = { spring:{en:"spring",ja:"春",emoji:"🌸"}, summer:{en:"summer",ja:"夏",emoji:"🌻"},
+                  fall:{en:"fall",ja:"秋",emoji:"🍁"}, winter:{en:"winter",ja:"冬",emoji:"⛄"} };
+const EVENTS = [
+  { en:"the Doll Festival",     ja:"ひな祭り",   season:"spring", emoji:"🎎", act:{ en:"eat hina-arare",        ja:"ひなあられを食べる" } },
+  { en:"the Star Festival",     ja:"七夕",       season:"summer", emoji:"🎋", act:{ en:"make wishes",           ja:"ねがいごとをする" } },
+  { en:"a fireworks festival",  ja:"花火大会",   season:"summer", emoji:"🎆", act:{ en:"enjoy fireworks",       ja:"花火を楽しむ" } },
+  { en:"a summer festival",     ja:"夏祭り",     season:"summer", emoji:"🏮", act:{ en:"wear yukata",           ja:"ゆかたを着る" } },
+  { en:"Halloween",             ja:"ハロウィーン", season:"fall", emoji:"🎃", act:{ en:"enjoy costumes",        ja:"仮装を楽しむ" } },
+  { en:"New Year's Day",        ja:"お正月",     season:"winter", emoji:"🎍", act:{ en:"eat ozoni",             ja:"おぞうにを食べる" } },
+  { en:"Setsubun",              ja:"節分",       season:"winter", emoji:"👹", act:{ en:"throw beans",           ja:"豆まきをする" } },
+  { en:"a snow festival",       ja:"雪まつり",   season:"winter", emoji:"🏔️", act:{ en:"see snow statues",      ja:"雪像を見る" } },
+  { en:"Christmas",             ja:"クリスマス", season:"winter", emoji:"🎄", act:{ en:"eat cake",              ja:"ケーキを食べる" } },
+];
+const ACTIVITIES = [
+  { en:"eat special food", ja:"とくべつな料理を食べる" },
+  { en:"wear kimono",      ja:"着物を着る" },
+  { en:"enjoy games",      ja:"あそびを楽しむ" },
+  { en:"make wishes",      ja:"ねがいごとをする" },
+  { en:"see fireworks",    ja:"花火を見る" },
+  { en:"visit shrines",    ja:"神社に行く" },
+];
+const PIECES = ["🔴","🔵","🟡","🟢"];
+const PNAMES = ["プレイヤー1","プレイヤー2","プレイヤー3","プレイヤー4"];
+
+// すごろくのマス(20マス)
+function makeBoard(){
+  const cells = [{ type:"start", label:"スタート", emoji:"🚩" }];
+  const seasonsOrder = ["spring","summer","fall","winter"];
+  let ev = 0;
+  for(let i=1; i<=18; i++){
+    if(i % 5 === 0){ cells.push({ type:"lucky", label:"ラッキー!", emoji:"🍀" }); }
+    else if(i % 3 === 0){
+      const e = EVENTS[ev % EVENTS.length]; ev++;
+      cells.push({ type:"event", label:e.ja, emoji:e.emoji, event:e });
+    }else{
+      const s = seasonsOrder[i % 4];
+      cells.push({ type:"season", label:SEASONS[s].ja, emoji:SEASONS[s].emoji, season:s });
+    }
+  }
+  cells.push({ type:"goal", label:"ゴール", emoji:"🏆" });
+  return cells;
+}
+const BOARD = makeBoard();
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let playerCount = 2;
+let pos = [], pts = [], turn = 0, rolling = false, finished = false;
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-mode","scr-game","scr-intro"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+document.querySelectorAll(".pl-btn").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".pl-btn").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); playerCount = +b.dataset.n;
+}));
+
+// ============================================================
+// 盤面描画(5列のヘビ状に並べる)
+// ============================================================
+function boardOrderIndex(i){
+  // 5列グリッドでジグザグに進む見た目にする
+  const row = Math.floor(i / 5), col = i % 5;
+  const c = row % 2 === 0 ? col : 4 - col;
+  return row * 5 + c;
+}
+function drawBoard(){
+  const gridCells = Array(BOARD.length).fill(null);
+  BOARD.forEach((cell,i) => { gridCells[boardOrderIndex(i)] = { cell, i }; });
+  $("board").innerHTML = gridCells.map(g => {
+    if(!g) return `<div></div>`;
+    const { cell, i } = g;
+    const cls = cell.type === "season" ? cell.season : (cell.type === "lucky" ? "lucky" : (cell.type === "start" || cell.type === "goal" ? "startgoal" : (cell.event ? SEASONS[cell.event.season] ? cell.event.season : "" : "")));
+    const here = pos.map((p,pi) => p === i ? PIECES[pi] : null).filter(Boolean);
+    return `<div class="cell ${cls}">
+      <span class="pieces">${here.map(p => `<span>${p}</span>`).join("")}</span>
+      <span class="ce">${cell.emoji}</span>${cell.label}
+    </div>`;
+  }).join("");
+}
+function drawHud(){
+  $("turn-who").textContent = finished ? "🏆 ゲームしゅうりょう!" : `${PIECES[turn]} ${PNAMES[turn]}のばん`;
+  $("scores").innerHTML = Array.from({length: playerCount}, (_,i) =>
+    `<span class="score-chip ${i === turn && !finished ? "now" : ""}">${PIECES[i]} ${pts[i]}pt</span>`).join("");
+}
+
+// ============================================================
+// ゲーム進行
+// ============================================================
+function startGame(){
+  pos = Array(playerCount).fill(0);
+  pts = Array(playerCount).fill(0);
+  turn = 0; finished = false;
+  $("task-box").innerHTML = `<span class="te">🎲</span><span class="tt">サイコロをふってスタート!</span>`;
+  $("game-msg").textContent = "";
+  $("btn-dice").disabled = false;
+  drawBoard(); drawHud();
+  show("scr-game");
+}
+$("btn-dice").addEventListener("click", () => {
+  if(rolling || finished) return;
+  rolling = true;
+  const btn = $("btn-dice");
+  btn.classList.add("rolling");
+  const n = 1 + Math.floor(Math.random() * 6);
+  setTimeout(() => {
+    btn.classList.remove("rolling");
+    btn.textContent = ["","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣"][n];
+    movePiece(n);
+  }, 550);
+});
+function movePiece(n){
+  pos[turn] = Math.min(BOARD.length - 1, pos[turn] + n);
+  drawBoard();
+  const cell = BOARD[pos[turn]];
+  if(cell.type === "goal"){
+    pts[turn] += 3;
+    finished = true;
+    $("task-box").innerHTML = `<span class="te">🏆</span><span class="tt">${PIECES[turn]} ${PNAMES[turn]} がゴール!(+3pt)<br>けっか: ${pts.map((p,i)=>`${PIECES[i]}${p}pt`).join(" / ")}</span>
+      <div class="task-btns"><button class="t-ok" id="btn-restart-game">もういちど</button></div>`;
+    $("btn-dice").disabled = true;
+    drawHud();
+    speak("You made it! Congratulations!");
+    $("btn-restart-game").addEventListener("click", startGame);
+    rolling = false;
+    return;
+  }
+  showTask(cell);
+}
+function showTask(cell){
+  let html = "";
+  if(cell.type === "lucky"){
+    pts[turn]++;
+    html = `<span class="te">🍀</span><span class="tt">ラッキー!+1pt<br>みんなで "Lucky!" と言おう</span>
+      <div class="task-btns"><button class="t-ok" id="t-next">つぎの人へ ▶</button></div>`;
+    speak("Lucky!");
+  }else if(cell.type === "season"){
+    const s = SEASONS[cell.season];
+    html = `<span class="te">${s.emoji}</span>
+      <span class="tt">「すきな季節」を英語で言おう<br><span class="en" data-t="What season do you like? I like ${s.en}.">🔊 What season do you like?<br>— I like ${s.en}.</span></span>
+      <div class="task-btns">
+        <button class="t-ok" id="t-ok">言えた!+1pt</button>
+        <button class="t-pass" id="t-next">パス</button>
+      </div>`;
+    speak(`What season do you like?`);
+  }else if(cell.type === "event"){
+    const e = cell.event;
+    const s = SEASONS[e.season];
+    html = `<span class="te">${e.emoji}</span>
+      <span class="tt">「${e.ja}」を英語で紹介しよう<br><span class="en" data-t="We have ${e.en} in ${s.en}.">🔊 We have ${e.en} in ${s.en}.</span></span>
+      <div class="task-btns">
+        <button class="t-ok" id="t-ok">言えた!+1pt</button>
+        <button class="t-pass" id="t-next">パス</button>
+      </div>`;
+    speak(`We have ${e.en} in ${s.en}.`);
+  }else{
+    html = `<span class="te">🚩</span><span class="tt">スタート地点!</span>
+      <div class="task-btns"><button class="t-ok" id="t-next">つぎの人へ ▶</button></div>`;
+  }
+  $("task-box").innerHTML = html;
+  drawHud();
+  const okBtn = document.getElementById("t-ok");
+  if(okBtn) okBtn.addEventListener("click", () => { pts[turn]++; nextTurn(); });
+  const nextBtn = document.getElementById("t-next");
+  if(nextBtn) nextBtn.addEventListener("click", nextTurn);
+}
+$("task-box").addEventListener("click", e => {
+  const en = e.target.closest(".en"); if(en) speak(en.dataset.t);
+});
+function nextTurn(){
+  turn = (turn + 1) % playerCount;
+  rolling = false;
+  drawHud();
+  $("game-msg").textContent = `${PIECES[turn]} ${PNAMES[turn]}、サイコロをどうぞ!`;
+}
+
+// ============================================================
+// 行事紹介カード
+// ============================================================
+let selEvent = null, selAct = null;
+function buildIntro(){
+  selEvent = null; selAct = null;
+  $("event-row").innerHTML = EVENTS.map((e,i) =>
+    `<button class="sel-chip" data-i="${i}">${e.emoji} ${e.ja}</button>`).join("");
+  $("act-row").innerHTML = "";
+  $("intro-card").innerHTML = `<div class="ie">🗾</div><div style="font-weight:800;color:var(--sub)">行事をえらんでね</div>`;
+}
+$("event-row").addEventListener("click", e => {
+  const b = e.target.closest(".sel-chip"); if(!b) return;
+  selEvent = EVENTS[+b.dataset.i];
+  selAct = selEvent.act;
+  document.querySelectorAll("#event-row .sel-chip").forEach(x => x.classList.toggle("on", x === b));
+  const acts = [selEvent.act, ...ACTIVITIES];
+  $("act-row").innerHTML = acts.map((a,i) =>
+    `<button class="sel-chip act ${i===0 ? "on" : ""}" data-i="${i}">${a.ja}</button>`).join("");
+  renderIntroCard();
+});
+$("act-row").addEventListener("click", e => {
+  const b = e.target.closest(".sel-chip"); if(!b || !selEvent) return;
+  const acts = [selEvent.act, ...ACTIVITIES];
+  selAct = acts[+b.dataset.i];
+  document.querySelectorAll("#act-row .sel-chip").forEach(x => x.classList.toggle("on", x === b));
+  renderIntroCard();
+});
+function introLines(){
+  const s = SEASONS[selEvent.season];
+  return [
+    `Welcome to Japan!`,
+    `We have ${selEvent.en} in ${s.en}.`,
+    `We ${selAct.en}.`,
+    `It's fun!`,
+  ];
+}
+function renderIntroCard(){
+  if(!selEvent) return;
+  $("intro-card").innerHTML = `<div class="ie">${selEvent.emoji}</div>` +
+    introLines().map((t,i) => `<div class="intro-line" data-i="${i}">🔊 ${t}</div>`).join("");
+  speakQueue(introLines());
+}
+$("intro-card").addEventListener("click", e => {
+  const el = e.target.closest(".intro-line"); if(!el || !selEvent) return;
+  speak(introLines()[+el.dataset.i]);
+});
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  if(c.dataset.mode === "game") startGame();
+  else{ buildIntro(); show("scr-intro"); }
+}));
+$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); $("btn-dice").textContent = "🎲"; show("scr-mode"); });
+
+show("scr-mode");
+</script>
+</body>
+</html>

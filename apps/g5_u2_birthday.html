@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バースデーカレンダー | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff4757; --primary-dark:#d63447; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e; --pink:#ff6b81;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.mode-select{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.mode-card{
+  width:220px;background:#fff;border-radius:24px;padding:22px 16px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)}
+.mode-card.m3{border-color:var(--green)} .mode-card.m4{border-color:var(--yellow)}
+.mode-card .mi{font-size:2.8rem}
+.mode-card h2{font-size:1.02rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.76rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+
+/* 今日のお祝いバナー */
+.today-banner{
+  max-width:640px;margin:14px auto 0;background:linear-gradient(135deg,#ff6b81,#ffa8b5);color:#fff;
+  border-radius:20px;box-shadow:var(--shadow-hover);padding:14px 20px;text-align:center;font-weight:800;
+  font-size:1.1rem;cursor:pointer;animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+
+/* 登録 */
+.reg-box{max-width:620px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:20px}
+.reg-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
+.reg-row input, .reg-row select{
+  border:3px solid #e6ecf2;border-radius:12px;padding:10px;font-family:inherit;font-weight:800;font-size:1rem;
+}
+.reg-row input[type=number]{width:90px;text-align:center}
+.reg-note{font-size:.76rem;color:var(--sub);font-weight:700;margin-top:10px;line-height:1.8}
+.reg-list{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.reg-chip{
+  background:#fff0f2;border:3px solid var(--pink);border-radius:50px;padding:5px 12px;font-weight:800;
+  font-size:.8rem;cursor:pointer;min-height:40px;display:flex;align-items:center;gap:4px;
+}
+.reg-chip:hover{background:#ffe0e5}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:12px 26px;font-family:inherit;font-weight:800;font-size:.95rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:48px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn.blue{background:var(--blue)}
+
+/* カレンダー */
+.year-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.month-box{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:12px;border-top:6px solid var(--pink);cursor:pointer;transition:.15s}
+.month-box:hover{transform:translateY(-3px)}
+.month-box h3{font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--primary-dark)}
+.month-box h3 small{font-family:'M PLUS Rounded 1c',sans-serif;color:var(--sub);font-size:.72rem;margin-left:6px}
+.month-bdays{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;min-height:30px}
+.bd-chip{background:#fff0f2;border-radius:50px;padding:3px 10px;font-weight:800;font-size:.74rem;color:var(--primary-dark)}
+.month-none{color:#ccd4dc;font-weight:700;font-size:.76rem}
+
+/* クイズ */
+.quiz-card{
+  max-width:520px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:22px;text-align:center;
+  border:5px solid var(--blue);
+}
+.quiz-q{font-size:1.3rem;font-weight:800;color:var(--blue)}
+.quiz-sub{color:var(--sub);font-weight:700;font-size:.82rem;margin-top:4px}
+.quiz-opts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.q-opt{
+  border:4px solid #e6ecf2;background:#fff;border-radius:16px;padding:12px 18px;font-family:inherit;
+  font-weight:800;font-size:.95rem;cursor:pointer;min-height:52px;box-shadow:var(--shadow);transition:.15s;
+}
+.q-opt:hover{transform:translateY(-2px);border-color:var(--blue)}
+.q-opt.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.q-opt.ng{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.msg{text-align:center;font-size:1.1rem;font-weight:800;min-height:34px;margin-top:10px}
+.msg.ok{color:var(--green)} .msg.ng{color:var(--pink)}
+
+/* バースデーカード */
+.gift-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;max-width:620px;margin:0 auto}
+.gift-card{
+  background:#fff;border-radius:16px;padding:10px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:104px;display:flex;flex-direction:column;justify-content:center;gap:4px;
+}
+.gift-card:hover{transform:translateY(-3px)}
+.gift-card.on{border-color:var(--yellow);background:#fffbea}
+.gift-card .ge{font-size:2.2rem;line-height:1}
+.gift-card .gl{font-weight:800;font-size:.72rem;line-height:1.2}
+.bcard{
+  max-width:460px;margin:16px auto 0;background:linear-gradient(135deg,#fff5f6,#fff);border-radius:24px;
+  box-shadow:var(--shadow-hover);border:5px solid var(--yellow);padding:24px;text-align:center;
+}
+.bcard .be{font-size:3.5rem}
+.bcard .bl{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--primary-dark);margin-top:6px;cursor:pointer}
+.bcard .bw{font-weight:800;color:var(--sub);margin-top:6px;cursor:pointer}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎂 バースデーカレンダー <span class="u">5年 Unit2 When is your birthday?</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">メニュー</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- メニュー -->
+  <section id="scr-mode">
+    <h2 class="step-title">🎂 バースデーカレンダー</h2>
+    <div id="today-area"></div>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="calendar">
+        <div class="mi">📅</div><h2>カレンダーを見る</h2>
+        <p>クラスの誕生日を12ヶ月の<br>カレンダーでたしかめよう</p>
+      </div>
+      <div class="mode-card m2" data-mode="quiz">
+        <div class="mi">❓</div><h2>誕生日クイズ</h2>
+        <p>When is your birthday?<br>友だちの誕生月をあてよう</p>
+      </div>
+      <div class="mode-card m3" data-mode="card">
+        <div class="mi">💝</div><h2>バースデーカード</h2>
+        <p>ほしいものを選んで<br>ミニカードをつくろう</p>
+      </div>
+      <div class="mode-card m4" data-mode="reg">
+        <div class="mi">✏️</div><h2>誕生日を登録(先生用)</h2>
+        <p>出席番号と誕生日を登録。<br>この端末の中だけに保存されます</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 登録 -->
+  <section id="scr-reg" class="hidden">
+    <h2 class="step-title">✏️ 誕生日の登録(先生用)</h2>
+    <p class="step-sub">氏名は使わず「出席番号」で登録します(プライバシーへの配慮)</p>
+    <div class="reg-box">
+      <div class="reg-row">
+        <input type="number" id="reg-num" placeholder="番号" min="1" max="45">
+        <select id="reg-month"></select>
+        <select id="reg-day"></select>
+        <button class="big-btn" id="btn-add">追加</button>
+      </div>
+      <div class="reg-note">
+        まとめて登録:「番号,月,日」を1行ずつ貼り付けてもOK(例:5,4,15)
+        <textarea id="reg-bulk" style="width:100%;min-height:80px;margin-top:6px;border:2px solid #eee;border-radius:10px;padding:8px;font-family:inherit;font-weight:700"></textarea>
+        <div class="actions" style="margin-top:8px">
+          <button class="big-btn blue" id="btn-bulk">まとめて登録</button>
+          <button class="big-btn gray" id="btn-clear-all">ぜんぶ消す</button>
+        </div>
+      </div>
+      <div class="reg-list" id="reg-list"></div>
+    </div>
+  </section>
+
+  <!-- カレンダー -->
+  <section id="scr-cal" class="hidden">
+    <h2 class="step-title">📅 みんなの誕生日カレンダー</h2>
+    <p class="step-sub">月をタップすると英語で読み上げるよ</p>
+    <div class="year-grid" id="year-grid"></div>
+  </section>
+
+  <!-- クイズ -->
+  <section id="scr-quiz" class="hidden">
+    <h2 class="step-title">❓ 誕生日クイズ</h2>
+    <p class="step-sub" id="quiz-note"></p>
+    <div class="quiz-card">
+      <div class="quiz-q" id="q-text"></div>
+      <div class="quiz-sub" id="q-sub"></div>
+      <div class="quiz-opts" id="q-opts"></div>
+    </div>
+    <div class="msg" id="q-msg"></div>
+    <div class="actions">
+      <button class="big-btn blue" id="btn-next-q">つぎのクイズ 🎲</button>
+    </div>
+  </section>
+
+  <!-- バースデーカード -->
+  <section id="scr-card" class="hidden">
+    <h2 class="step-title">💝 バースデーカードをつくろう</h2>
+    <p class="step-sub">🔊 What do you want for your birthday? — ほしいものを1つえらんでね</p>
+    <div class="gift-grid" id="gift-grid"></div>
+    <div class="bcard hidden" id="bcard">
+      <div class="be" id="bc-emoji">🎁</div>
+      <div class="bl" id="bc-line">Happy Birthday!</div>
+      <div class="bw" id="bc-want"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  誕生日は個人情報のため、氏名ではなく出席番号のみで扱い、この端末の中だけに保存されます。<br>
+  クラス全体で共有したい場合は、教師用端末+電子黒板での利用がおすすめです。
+</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const MONTHS = [
+  { en:"January", ja:"1月" }, { en:"February", ja:"2月" }, { en:"March", ja:"3月" },
+  { en:"April", ja:"4月" }, { en:"May", ja:"5月" }, { en:"June", ja:"6月" },
+  { en:"July", ja:"7月" }, { en:"August", ja:"8月" }, { en:"September", ja:"9月" },
+  { en:"October", ja:"10月" }, { en:"November", ja:"11月" }, { en:"December", ja:"12月" },
+];
+const GIFTS = [
+  { en:"a new bike",       ja:"自転車",       emoji:"🚲" },
+  { en:"a video game",     ja:"ゲーム",       emoji:"🎮" },
+  { en:"a soccer ball",    ja:"サッカーボール", emoji:"⚽" },
+  { en:"a book",           ja:"本",           emoji:"📚" },
+  { en:"a cake",           ja:"ケーキ",       emoji:"🎂" },
+  { en:"a puppy",          ja:"子犬",         emoji:"🐶" },
+  { en:"new shoes",        ja:"くつ",         emoji:"👟" },
+  { en:"a smartphone",     ja:"スマホ",       emoji:"📱" },
+  { en:"colored pencils",  ja:"色えんぴつ",   emoji:"🖍️" },
+];
+const STORAGE_KEY = "g5_birthday_list_v1";
+
+// ============================================================
+// 音声・序数
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function ordinal(d){
+  if(d % 100 >= 11 && d % 100 <= 13) return d + "th";
+  return d + ({1:"st",2:"nd",3:"rd"}[d % 10] || "th");
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let list = []; // {num, month(1-12), day}
+try{ list = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ list = []; }
+let quizAnswer = null, quizLock = false;
+let selGift = null;
+
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-mode","scr-reg","scr-cal","scr-quiz","scr-card"].forEach(s =>
+    $(s).classList.toggle("hidden", s !== id));
+}
+function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){} }
+function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
+
+// ============================================================
+// 今日の誕生日
+// ============================================================
+function renderToday(){
+  const t = new Date();
+  const todays = list.filter(b => b.month === t.getMonth()+1 && b.day === t.getDate());
+  $("today-area").innerHTML = todays.length === 0 ? "" :
+    `<div class="today-banner" id="today-banner">🎉 Happy Birthday! きょうは ${todays.map(b => b.num + "ばん").join("・")} さんの誕生日! 🎂</div>`;
+  const banner = $("today-banner");
+  if(banner) banner.addEventListener("click", () => speak("Happy birthday to you!"));
+}
+
+// ============================================================
+// 登録
+// ============================================================
+$("reg-month").innerHTML = MONTHS.map((m,i) => `<option value="${i+1}">${m.ja}</option>`).join("");
+$("reg-day").innerHTML = Array.from({length:31},(_,i) => `<option value="${i+1}">${i+1}日</option>`).join("");
+function renderRegList(){
+  $("reg-list").innerHTML = list
+    .slice().sort((a,b) => a.month - b.month || a.day - b.day)
+    .map((b,i) => `<span class="reg-chip" data-i="${list.indexOf(b)}">🎂 ${b.num}ばん ${b.month}/${b.day} ✕</span>`).join("");
+}
+$("btn-add").addEventListener("click", () => {
+  const num = +$("reg-num").value;
+  if(!num) return;
+  list = list.filter(b => b.num !== num);
+  list.push({ num, month: +$("reg-month").value, day: +$("reg-day").value });
+  save(); renderRegList(); renderToday();
+  $("reg-num").value = "";
+});
+$("reg-list").addEventListener("click", e => {
+  const chip = e.target.closest(".reg-chip"); if(!chip) return;
+  list.splice(+chip.dataset.i, 1);
+  save(); renderRegList(); renderToday();
+});
+$("btn-bulk").addEventListener("click", () => {
+  $("reg-bulk").value.split("\n").forEach(line => {
+    const [num, month, day] = line.split(/[,、\s]+/).map(Number);
+    if(num && month >= 1 && month <= 12 && day >= 1 && day <= 31){
+      list = list.filter(b => b.num !== num);
+      list.push({ num, month, day });
+    }
+  });
+  save(); renderRegList(); renderToday();
+  $("reg-bulk").value = "";
+});
+$("btn-clear-all").addEventListener("click", () => {
+  if(confirm("登録した誕生日をぜんぶ消します。いいですか?")){
+    list = []; save(); renderRegList(); renderToday();
+  }
+});
+
+// ============================================================
+// カレンダー
+// ============================================================
+function renderCalendar(){
+  $("year-grid").innerHTML = MONTHS.map((m,i) => {
+    const bd = list.filter(b => b.month === i+1).sort((a,b) => a.day - b.day);
+    return `<div class="month-box" data-en="${m.en}">
+      <h3>${m.en}<small>${m.ja}</small></h3>
+      <div class="month-bdays">${bd.length === 0
+        ? `<span class="month-none">— なし —</span>`
+        : bd.map(b => `<span class="bd-chip">🎂${b.num}ばん ${b.day}日</span>`).join("")}</div>
+    </div>`;
+  }).join("");
+}
+$("year-grid").addEventListener("click", e => {
+  const box = e.target.closest(".month-box"); if(!box) return;
+  speak(box.dataset.en);
+});
+
+// ============================================================
+// クイズ
+// ============================================================
+function newQuiz(){
+  quizLock = false;
+  $("q-msg").textContent = ""; $("q-msg").className = "msg";
+  if(list.length === 0){
+    $("quiz-note").textContent = "まだ誕生日が登録されていないよ(先生に登録してもらってね)";
+    $("q-text").textContent = "———";
+    $("q-sub").textContent = ""; $("q-opts").innerHTML = "";
+    return;
+  }
+  $("quiz-note").textContent = "";
+  quizAnswer = list[Math.floor(Math.random() * list.length)];
+  $("q-text").textContent = `${quizAnswer.num}ばんさんの誕生日はいつ?`;
+  $("q-sub").textContent = "🔊 When is your birthday?(タップでもういちど)";
+  const correct = `${MONTHS[quizAnswer.month-1].en} ${ordinal(quizAnswer.day)}`;
+  const wrongs = new Set();
+  while(wrongs.size < 3){
+    const m = 1 + Math.floor(Math.random()*12), d = 1 + Math.floor(Math.random()*28);
+    const s = `${MONTHS[m-1].en} ${ordinal(d)}`;
+    if(s !== correct) wrongs.add(s);
+  }
+  $("q-opts").innerHTML = shuffle([correct, ...wrongs]).map(o =>
+    `<button class="q-opt" data-o="${o}">${o}</button>`).join("");
+  speak("When is your birthday?");
+}
+$("q-sub").addEventListener("click", () => speak("When is your birthday?"));
+$("q-opts").addEventListener("click", e => {
+  const el = e.target.closest(".q-opt"); if(!el || quizLock || !quizAnswer) return;
+  const correct = `${MONTHS[quizAnswer.month-1].en} ${ordinal(quizAnswer.day)}`;
+  if(el.dataset.o === correct){
+    quizLock = true;
+    el.classList.add("ok");
+    $("q-msg").textContent = `⭕ My birthday is ${correct}!`;
+    $("q-msg").className = "msg ok";
+    speak(`My birthday is ${correct}!`);
+  }else{
+    el.classList.add("ng");
+    setTimeout(() => el.classList.remove("ng"), 380);
+    $("q-msg").textContent = "❌ ちがうみたい…";
+    $("q-msg").className = "msg ng";
+  }
+});
+$("btn-next-q").addEventListener("click", newQuiz);
+
+// ============================================================
+// バースデーカード
+// ============================================================
+function renderGifts(){
+  $("gift-grid").innerHTML = GIFTS.map(g => `
+    <div class="gift-card ${selGift === g.en ? "on" : ""}" data-en="${g.en}">
+      <span class="ge">${g.emoji}</span>
+      <span class="gl">${g.ja}<br><small style="color:var(--sub)">${g.en}</small></span>
+    </div>`).join("");
+}
+$("gift-grid").addEventListener("click", e => {
+  const el = e.target.closest(".gift-card"); if(!el) return;
+  selGift = el.dataset.en;
+  const g = GIFTS.find(x => x.en === selGift);
+  renderGifts();
+  $("bcard").classList.remove("hidden");
+  $("bc-emoji").textContent = g.emoji;
+  $("bc-line").textContent = "Happy Birthday!";
+  $("bc-want").textContent = `🔊 I want ${g.en} for my birthday.`;
+  speak(`What do you want for your birthday? — I want ${g.en}, please!`);
+});
+$("bcard").addEventListener("click", e => {
+  if(e.target.closest(".bl")) speak("Happy birthday to you!");
+  if(e.target.closest(".bw") && selGift) speak(`I want ${selGift} for my birthday.`);
+});
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  const m = c.dataset.mode;
+  if(m === "calendar"){ renderCalendar(); show("scr-cal"); }
+  else if(m === "quiz"){ show("scr-quiz"); newQuiz(); }
+  else if(m === "card"){ selGift = null; $("bcard").classList.add("hidden"); renderGifts(); show("scr-card"); speak("What do you want for your birthday?"); }
+  else{ renderRegList(); show("scr-reg"); }
+}));
+$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); renderToday(); show("scr-mode"); });
+
+renderToday();
+show("scr-mode");
+</script>
+</body>
+</html>

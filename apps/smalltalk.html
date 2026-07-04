@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Small Talk トレーナー | 全力ツールズ</title>
+<style>
+:root{
+  --main:#1baf7a; --main-dark:#0e8a5e; --accent:#eda100;
+  --bg:#f2faf6; --card:#fff; --ink:#1d2f27; --sub:#57705f; --line:#d8e8df;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,var(--main),var(--main-dark));color:#fff;padding:10px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header .brand{font-size:12px;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:99px}
+header h1{font-size:20px;flex:1}
+.gradeswitch{display:flex;background:rgba(255,255,255,.2);border-radius:99px;padding:3px}
+.gradeswitch button{border:none;background:transparent;color:#fff;padding:6px 16px;border-radius:99px;cursor:pointer;font-weight:700;font-size:14px}
+.gradeswitch button.on{background:#fff;color:var(--main-dark)}
+main{max-width:900px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 2px 8px rgba(0,60,30,.05);margin-bottom:16px}
+#topicBox{text-align:center;padding:30px 16px}
+#topicJp{font-size:16px;color:var(--sub);font-weight:700}
+#topicEn{font-size:clamp(28px,6vw,52px);font-weight:800;margin:8px 0;color:var(--main-dark);min-height:1.3em}
+#topicEn.spin{color:var(--sub)}
+.btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.btn{border:none;border-radius:12px;padding:13px 24px;font-size:17px;font-weight:700;cursor:pointer;background:#e3f2ea;color:var(--ink)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--main);color:#fff}
+.btn.orange{background:var(--accent);color:#fff}
+.btn.small{padding:8px 14px;font-size:14px}
+h2{font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+h2 .tag{background:var(--main);color:#fff;font-size:12px;padding:2px 10px;border-radius:99px}
+.dialog-line{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:12px;margin-bottom:8px}
+.dialog-line.a{background:#eaf6f0}
+.dialog-line.b{background:#fdf6e7}
+.dialog-line .who{flex-shrink:0;width:34px;height:34px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.dialog-line.a .who{background:var(--main)}
+.dialog-line.b .who{background:var(--accent)}
+.dialog-line .txt{flex:1;font-size:19px;font-weight:600;line-height:1.5;padding-top:4px}
+.dialog-line .jp{display:block;font-size:13px;color:var(--sub);font-weight:400;margin-top:2px}
+.dialog-line button{border:none;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px}
+.hidden{display:none!important}
+.phrase-chips{display:flex;flex-wrap:wrap;gap:8px}
+.phrase-chips button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:8px 16px;font-size:16px;font-weight:600;cursor:pointer}
+.phrase-chips button:hover{border-color:var(--main);color:var(--main-dark)}
+#talkTimer{font-size:clamp(48px,10vw,90px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;color:var(--main-dark)}
+#talkTimer.over{color:#d03b3b;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.3}}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.checks label{display:flex;align-items:center;gap:8px;background:#f4faf7;border:2px solid var(--line);border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer}
+.checks label:has(input:checked){border-color:var(--main);background:#e3f2ea}
+.checks input{width:20px;height:20px;accent-color:var(--main)}
+.speedrow{display:flex;gap:8px;align-items:center;justify-content:center;color:var(--sub);font-size:14px;font-weight:700;margin-top:6px}
+footer{text-align:center;color:var(--sub);font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <span class="brand">全力ツールズ 02</span>
+  <h1>💬 Small Talk トレーナー</h1>
+  <div class="gradeswitch">
+    <button id="g5" class="on">5年</button>
+    <button id="g6">6年</button>
+  </div>
+</header>
+
+<main>
+  <div class="card" id="topicBox">
+    <div id="topicJp">きょうの話題(トピック)</div>
+    <div id="topicEn">Let's talk! 🎤</div>
+    <div class="btnrow">
+      <button class="btn primary" id="gacha">🎰 話題ガチャ</button>
+      <button class="btn small" id="speakTopic">🔊 話題を聞く</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🗣️ モデル対話 <span class="tag" id="dlgTopicTag">-</span>
+      <span style="flex:1"></span>
+      <button class="btn small" id="toggleJp">日本語訳 表示/非表示</button>
+      <button class="btn small primary" id="speakAll">🔊 全部聞く</button>
+    </h2>
+    <div id="dialogArea"><p style="color:var(--sub)">「話題ガチャ」を回すと、モデル対話が表示されます。</p></div>
+    <div class="speedrow">
+      読み上げ速度:
+      <label><input type="radio" name="rate" value="0.7" checked> ゆっくり</label>
+      <label><input type="radio" name="rate" value="0.9"> ふつう</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✨ 会話をつなぐ ひとこと(リアクション)</h2>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:10px">押すと発音が聞けます。会話の中でどんどん使ってみよう!</p>
+    <div class="phrase-chips" id="reactions"></div>
+  </div>
+
+  <div class="card">
+    <h2>⏱ トークタイム</h2>
+    <div id="talkTimer">1:00</div>
+    <div class="btnrow">
+      <button class="btn small" data-t="30">30秒</button>
+      <button class="btn small" data-t="60">1分</button>
+      <button class="btn small" data-t="120">2分</button>
+      <button class="btn primary" id="talkStart">▶ スタート</button>
+      <button class="btn" id="talkReset">↺ リセット</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📝 ふりかえり</h2>
+    <div class="checks">
+      <label><input type="checkbox"> 相手の目を見て話せた</label>
+      <label><input type="checkbox"> リアクションができた</label>
+      <label><input type="checkbox"> しつもんを返せた</label>
+      <label><input type="checkbox"> 知っている言葉でなんとか伝えた</label>
+      <label><input type="checkbox"> 笑顔で話せた</label>
+      <label><input type="checkbox"> 会話を1分つづけられた</label>
+    </div>
+  </div>
+</main>
+<footer>全力ツールズ — 単一HTML・オフライン動作(音声読み上げは端末内蔵の音声を使用)</footer>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+
+/* トピックバンク: 学習指導要領・主要教科書の単元に対応 */
+const TOPICS={
+  g5:[
+    {jp:"すきなもの・こと", en:"What do you like?", d:[
+      ["A","Hello! What sport do you like?","こんにちは! 何のスポーツが好き?"],
+      ["B","I like soccer. It's exciting! How about you?","サッカーが好きだよ。ワクワクするんだ! あなたは?"],
+      ["A","I like swimming. I can swim fast!","水泳が好き。速く泳げるんだ!"],
+      ["B","Wow, nice! Let's play together sometime.","わあ、いいね! 今度いっしょにやろうよ。"]]},
+    {jp:"たん生日・ほしいもの", en:"When is your birthday?", d:[
+      ["A","When is your birthday?","たん生日はいつ?"],
+      ["B","My birthday is July 7th.","7月7日だよ。"],
+      ["A","What do you want for your birthday?","たん生日には何がほしい?"],
+      ["B","I want a new bike!","新しい自転車がほしいな!"]]},
+    {jp:"できること", en:"What can you do?", d:[
+      ["A","Can you play the recorder?","リコーダーはふける?"],
+      ["B","Yes, I can. I can play it well. Can you?","うん、ふけるよ。上手にふけるんだ。あなたは?"],
+      ["A","No, I can't. But I can draw pictures well.","ふけないんだ。でも絵を上手にかけるよ。"],
+      ["B","That's great!","すごいね!"]]},
+    {jp:"時間わり・すきな教科", en:"What do you have on Monday?", d:[
+      ["A","What do you have on Monday?","月曜日は何の授業がある?"],
+      ["B","I have math, P.E., and English.","算数と体育と英語があるよ。"],
+      ["A","Do you like P.E.?","体育は好き?"],
+      ["B","Yes! I like P.E. the best.","うん! 体育がいちばん好き。"]]},
+    {jp:"一日の生活", en:"What time do you get up?", d:[
+      ["A","What time do you get up?","何時に起きる?"],
+      ["B","I usually get up at 6:30.","たいてい6時30分に起きるよ。"],
+      ["A","Wow, early! I get up at 7:00.","わあ、早いね! わたしは7時。"],
+      ["B","I always walk my dog in the morning.","朝はいつも犬の散歩をするんだ。"]]},
+    {jp:"身近な人のしょうかい", en:"Who is your hero?", d:[
+      ["A","Who is your hero?","あなたのヒーローはだれ?"],
+      ["B","My hero is my brother. He is good at basketball.","兄だよ。バスケが上手なんだ。"],
+      ["A","Nice! My hero is my grandma. She is kind.","いいね! わたしはおばあちゃん。やさしいんだ。"],
+      ["B","That's wonderful.","すてきだね。"]]},
+    {jp:"行ってみたい場所(道あんない)", en:"Where is the station?", d:[
+      ["A","Excuse me. Where is the station?","すみません。駅はどこですか?"],
+      ["B","Go straight and turn left. It's by the park.","まっすぐ行って左に曲がってください。公園のそばです。"],
+      ["A","Go straight... and turn left. Thank you!","まっすぐ…左ですね。ありがとう!"],
+      ["B","You're welcome!","どういたしまして!"]]},
+    {jp:"ていしょく屋さんごっこ", en:"What would you like?", d:[
+      ["A","Welcome! What would you like?","いらっしゃいませ! 何になさいますか?"],
+      ["B","I'd like a hamburger and salad, please.","ハンバーガーとサラダをお願いします。"],
+      ["A","OK. Anything else?","はい。ほかには?"],
+      ["B","Orange juice, please. How much is it?","オレンジジュースを。いくらですか?"]]},
+  ],
+  g6:[
+    {jp:"自分のこと・宝物", en:"What is your treasure?", d:[
+      ["A","What is your treasure?","あなたの宝物は何?"],
+      ["B","My treasure is my glove. I love baseball.","グローブだよ。野球が大好きなんだ。"],
+      ["A","How long have you played baseball?","野球はどのくらいやっているの?"],
+      ["B","For five years!","5年間だよ!"]]},
+    {jp:"日本のしょうかい", en:"Welcome to Japan!", d:[
+      ["A","Welcome to Japan! You can see fireworks in summer.","ようこそ日本へ! 夏には花火が見られるよ。"],
+      ["B","Sounds nice! What food do you recommend?","いいね! おすすめの食べ物は?"],
+      ["A","I recommend sushi. It's delicious.","おすしがおすすめ。おいしいよ。"],
+      ["B","I want to eat it!","食べてみたい!"]]},
+    {jp:"夏休みの思い出", en:"How was your summer vacation?", d:[
+      ["A","How was your summer vacation?","夏休みはどうだった?"],
+      ["B","It was great! I went to the sea.","最高だったよ! 海に行ったんだ。"],
+      ["A","Nice! What did you do?","いいね! 何をしたの?"],
+      ["B","I enjoyed swimming and ate watermelon.","泳ぐのを楽しんで、スイカを食べたよ。"]]},
+    {jp:"見たいスポーツ", en:"What sport do you want to watch?", d:[
+      ["A","What sport do you want to watch?","どんなスポーツを見たい?"],
+      ["B","I want to watch table tennis. It's exciting.","たっきゅうが見たいな。ワクワクするから。"],
+      ["A","Me too! Who do you want to see?","わたしも! だれを見たい?"],
+      ["B","I want to see my favorite player!","大好きな選手を見たい!"]]},
+    {jp:"小学校の思い出", en:"What's your best memory?", d:[
+      ["A","What's your best memory?","いちばんの思い出は何?"],
+      ["B","My best memory is our school trip.","修学旅行だよ。"],
+      ["A","What did you enjoy?","何が楽しかった?"],
+      ["B","I enjoyed the old temples. It was fun!","古いお寺を楽しんだよ。楽しかった!"]]},
+    {jp:"なりたい職業", en:"What do you want to be?", d:[
+      ["A","What do you want to be?","何になりたい?"],
+      ["B","I want to be a vet. I like animals.","じゅう医になりたいな。動物が好きだから。"],
+      ["A","Cool! I want to be a game creator.","かっこいい! わたしはゲームクリエイター。"],
+      ["B","Great! Good luck!","いいね! がんばって!"]]},
+    {jp:"中学校でやりたいこと", en:"What club do you want to join?", d:[
+      ["A","What club do you want to join?","何部に入りたい?"],
+      ["B","I want to join the brass band.","すいそう楽部に入りたいな。"],
+      ["A","Nice! What do you want to enjoy?","いいね! 何を楽しみたい?"],
+      ["B","I want to enjoy the school festival!","文化祭を楽しみたい!"]]},
+    {jp:"週末・きのうのこと", en:"How was your weekend?", d:[
+      ["A","How was your weekend?","週末はどうだった?"],
+      ["B","It was good. I watched a movie.","よかったよ。映画を見たんだ。"],
+      ["A","Sounds fun! How was it?","楽しそう! どうだった?"],
+      ["B","It was a little scary, but exciting!","ちょっとこわかったけど、ワクワクした!"]]},
+  ]
+};
+const REACTIONS=[
+  "Nice!","Me too!","Really?","Wow!","Sounds good!","That's great!",
+  "How about you?","I see.","Good idea!","Oh no!","Lucky you!","Why?"
+];
+
+let grade="g5", current=null;
+
+/* ---- speech ---- */
+function speak(text){
+  if(!("speechSynthesis" in window)){alert("この端末では音声読み上げが使えません");return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="en-US";
+  u.rate=+document.querySelector('input[name=rate]:checked').value;
+  const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith("en"));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+if("speechSynthesis" in window) speechSynthesis.getVoices(); // 事前ロード
+
+/* ---- grade switch ---- */
+$("#g5").onclick=()=>{grade="g5";$("#g5").classList.add("on");$("#g6").classList.remove("on");};
+$("#g6").onclick=()=>{grade="g6";$("#g6").classList.add("on");$("#g5").classList.remove("on");};
+
+/* ---- gacha ---- */
+$("#gacha").onclick=()=>{
+  const list=TOPICS[grade];
+  const el=$("#topicEn");
+  el.classList.add("spin");
+  let i=0;
+  const spin=()=>{
+    el.textContent=list[Math.floor(Math.random()*list.length)].en;
+    if(++i<12){setTimeout(spin,60+i*15);}
+    else{
+      current=list[Math.floor(Math.random()*list.length)];
+      el.textContent=current.en;
+      el.classList.remove("spin");
+      $("#topicJp").textContent="きょうの話題: "+current.jp;
+      renderDialog();
+    }
+  };
+  spin();
+};
+$("#speakTopic").onclick=()=>{if(current)speak(current.en);};
+
+/* ---- dialog ---- */
+let jpVisible=true;
+function renderDialog(){
+  if(!current)return;
+  $("#dlgTopicTag").textContent=current.en;
+  $("#dialogArea").innerHTML=current.d.map(([who,en,jp])=>
+    `<div class="dialog-line ${who.toLowerCase()}">
+       <div class="who">${who}</div>
+       <div class="txt">${en}<span class="jp ${jpVisible?"":"hidden"}">${jp}</span></div>
+       <button title="読み上げ" onclick="speak('${en.replace(/'/g,"\\'")}')">🔊</button>
+     </div>`).join("");
+}
+window.speak=speak;
+$("#toggleJp").onclick=()=>{jpVisible=!jpVisible;$$(".dialog-line .jp").forEach(e=>e.classList.toggle("hidden",!jpVisible));};
+$("#speakAll").onclick=()=>{
+  if(!current)return;
+  speechSynthesis.cancel();
+  const rate=+document.querySelector('input[name=rate]:checked').value;
+  current.d.forEach(([,en])=>{
+    const u=new SpeechSynthesisUtterance(en);
+    u.lang="en-US";u.rate=rate;
+    const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith("en"));
+    if(v)u.voice=v;
+    speechSynthesis.speak(u);
+  });
+};
+
+/* ---- reactions ---- */
+$("#reactions").innerHTML=REACTIONS.map(r=>`<button onclick="speak('${r}')">${r}</button>`).join("");
+
+/* ---- talk timer ---- */
+let tTotal=60,tRemain=60,tH=null,ac=null;
+function beep(n){
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    for(let i=0;i<n;i++){
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination);o.frequency.value=880;
+      const t=ac.currentTime+i*.4;
+      g.gain.setValueAtTime(.4,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);
+      o.start(t);o.stop(t+.35);
+    }
+  }catch(e){}
+}
+function drawT(){
+  const m=Math.floor(Math.max(tRemain,0)/60),s=String(Math.max(tRemain,0)%60).padStart(2,"0");
+  $("#talkTimer").textContent=m+":"+s;
+  $("#talkTimer").classList.toggle("over",tRemain<=0);
+}
+$$("[data-t]").forEach(b=>b.onclick=()=>{clearInterval(tH);tH=null;tTotal=+b.dataset.t;tRemain=tTotal;drawT();});
+$("#talkStart").onclick=()=>{
+  if(tH)return;
+  tH=setInterval(()=>{tRemain--;drawT();if(tRemain<=0){clearInterval(tH);tH=null;beep(3);}},1000);
+};
+$("#talkReset").onclick=()=>{clearInterval(tH);tH=null;tRemain=tTotal;drawT();};
+drawT();
+</script>
+</body>
+</html>

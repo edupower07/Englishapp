@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>世界の国紹介ポスタービルダー | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2e86de; --primary-dark:#1e6fc0; --green:#26de81; --pink:#ff6b81; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+/* 国選択 */
+.flag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;max-width:760px;margin:0 auto}
+.flag-card{
+  background:#fff;border-radius:20px;padding:16px 8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:5px solid transparent;transition:.2s;
+}
+.flag-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:var(--primary)}
+.flag-card .fl{font-size:3rem;line-height:1.1}
+.flag-card .fn{font-weight:800;margin-top:6px}
+.flag-card .fn small{display:block;color:var(--sub);font-size:.72rem}
+
+/* 入力 */
+.form-box{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.f-row{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 18px}
+.f-row h3{font-size:.92rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.f-row h3 .tag{font-size:.68rem;color:#fff;padding:3px 12px;border-radius:50px;background:var(--primary)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.chip{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;
+  font-weight:800;font-size:.85rem;cursor:pointer;min-height:44px;transition:.15s;color:var(--ink);
+}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.f-row input[type=text]{
+  width:100%;border:3px solid #e6ecf2;border-radius:12px;padding:10px;font-family:inherit;font-weight:800;font-size:.95rem;
+}
+.f-note{font-size:.72rem;color:var(--sub);font-weight:700;margin-top:6px}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* ポスター */
+.poster-wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.poster{
+  width:360px;background:linear-gradient(160deg,#fff,#f2f9ff);border-radius:24px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--primary);overflow:hidden;
+}
+.po-head{background:linear-gradient(135deg,#2e86de,#54a0ff);color:#fff;text-align:center;padding:14px;font-family:'Fredoka One',cursive;font-size:1.35rem;letter-spacing:1px}
+.po-body{padding:18px;text-align:center}
+.po-flag{font-size:4rem}
+.po-line{font-size:1.02rem;font-weight:800;padding:6px 8px;border-radius:10px;cursor:pointer;text-align:left}
+.po-line:hover{background:#eef6ff}
+.map-box{width:320px;background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:10px}
+svg#wmap{width:100%;height:auto;border-radius:12px}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700;line-height:1.8}
+@media print{
+  header,.actions,footer,.step-title,.step-sub,.map-box{display:none!important}
+  body{background:#fff}
+  .poster{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌍 世界の国紹介ポスタービルダー <span class="u">6年 Unit3 Let's go to Italy.</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-restart">国をえらびなおす</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 国選択 -->
+  <section id="scr-country">
+    <h2 class="step-title">🌍 紹介したい国をえらぼう</h2>
+    <p class="step-sub">調べ学習でしらべた国をえらんでね</p>
+    <div class="flag-grid" id="flag-grid"></div>
+  </section>
+
+  <!-- 入力 -->
+  <section id="scr-form" class="hidden">
+    <h2 class="step-title" id="form-title">🇮🇹 イタリアの見どころを入力しよう</h2>
+    <p class="step-sub">ヒントから選んでも、調べたことを自由に書いてもOK(英語で書けないときは先生に聞こう)</p>
+    <div class="form-box">
+      <div class="f-row">
+        <h3><span class="tag">You can see 〜.</span>見られるもの</h3>
+        <div class="chips" id="see-chips"></div>
+        <input type="text" id="see-input" placeholder="自由に書いてもOK(れい:the Colosseum)">
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">You can eat 〜.</span>食べられるもの</h3>
+        <div class="chips" id="eat-chips"></div>
+        <input type="text" id="eat-input" placeholder="自由に書いてもOK(れい:pizza)">
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">It's 〜.</span>どんな国?(ようす)</h3>
+        <div class="chips" id="adj-chips"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-make" disabled>ポスターをつくる ✨</button>
+      <button class="big-btn gray" id="btn-back-country">国をえらびなおす</button>
+    </div>
+  </section>
+
+  <!-- ポスター -->
+  <section id="scr-poster" class="hidden">
+    <h2 class="step-title">✨ ポスターかんせい!</h2>
+    <p class="step-sub">1文ずつタップして発表練習しよう</p>
+    <div class="poster-wrap">
+      <div class="poster">
+        <div class="po-head" id="po-head">Let's go to Italy!</div>
+        <div class="po-body">
+          <div class="po-flag" id="po-flag">🇮🇹</div>
+          <div id="po-lines"></div>
+        </div>
+      </div>
+      <div class="map-box">
+        <svg id="wmap" viewBox="0 0 500 280"></svg>
+        <div style="text-align:center;font-weight:800;font-size:.8rem;color:var(--sub);margin-top:6px" id="map-note"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
+      <button class="big-btn" id="btn-copy" style="background:var(--green)">📋 文をコピー(Canva等に貼り付け)</button>
+      <button class="big-btn" id="btn-print" style="background:var(--pink)">🖨️ 印刷</button>
+      <button class="big-btn gray" id="btn-back-form">入力にもどる</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  見どころのヒントは代表的な例です(コード冒頭の COUNTRIES を書きかえると先生が編集できます)。<br>
+  「文をコピー」で書き出したテキストは、Canva などでのポスター制作にそのまま使えます。
+</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると国とヒントを変更できます)
+// x,y は地図上のピン位置
+// ============================================================
+const COUNTRIES = [
+  { en:"Italy",     ja:"イタリア",     flag:"🇮🇹", x:255, y:75,
+    sees:["the Colosseum","beautiful old towns","famous paintings"], eats:["pizza","spaghetti","gelato"] },
+  { en:"America",   ja:"アメリカ",     flag:"🇺🇸", x:95,  y:95,
+    sees:["the Statue of Liberty","the Grand Canyon","big cities"], eats:["hamburgers","hot dogs","apple pie"] },
+  { en:"Australia", ja:"オーストラリア", flag:"🇦🇺", x:405, y:210,
+    sees:["koalas","kangaroos","the Great Barrier Reef"], eats:["meat pies","barbecue","Vegemite toast"] },
+  { en:"France",    ja:"フランス",     flag:"🇫🇷", x:238, y:68,
+    sees:["the Eiffel Tower","the Louvre","beautiful streets"], eats:["croissants","cheese","macarons"] },
+  { en:"China",     ja:"中国",         flag:"🇨🇳", x:355, y:95,
+    sees:["the Great Wall","pandas","old temples"], eats:["dumplings","Peking duck","noodles"] },
+  { en:"Korea",     ja:"かんこく",     flag:"🇰🇷", x:395, y:95,
+    sees:["old palaces","K-pop concerts","beautiful markets"], eats:["kimchi","bulgogi","bibimbap"] },
+  { en:"Egypt",     ja:"エジプト",     flag:"🇪🇬", x:270, y:120,
+    sees:["the pyramids","the Sphinx","the Nile River"], eats:["koshari","flat bread","dates"] },
+  { en:"Brazil",    ja:"ブラジル",     flag:"🇧🇷", x:158, y:185,
+    sees:["the Amazon River","carnivals","beautiful beaches"], eats:["feijoada","churrasco","tropical fruits"] },
+  { en:"India",     ja:"インド",       flag:"🇮🇳", x:330, y:125,
+    sees:["the Taj Mahal","elephants","colorful festivals"], eats:["curry","naan","chai"] },
+];
+const ADJECTIVES = [
+  { en:"beautiful", ja:"美しい" }, { en:"famous", ja:"有名" }, { en:"exciting", ja:"わくわくする" },
+  { en:"delicious", ja:"食べ物がおいしい" }, { en:"big", ja:"大きい" }, { en:"wonderful", ja:"すばらしい" },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let country = null;
+let sel = { see:null, eat:null, adj:null };
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-country","scr-form","scr-poster"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+
+// ============================================================
+// 国選択
+// ============================================================
+$("flag-grid").innerHTML = COUNTRIES.map((c,i) => `
+  <div class="flag-card" data-i="${i}">
+    <div class="fl">${c.flag}</div>
+    <div class="fn">${c.ja}<small>${c.en}</small></div>
+  </div>`).join("");
+$("flag-grid").addEventListener("click", e => {
+  const el = e.target.closest(".flag-card"); if(!el) return;
+  country = COUNTRIES[+el.dataset.i];
+  sel = { see:null, eat:null, adj:null };
+  $("form-title").textContent = `${country.flag} ${country.ja}の見どころを入力しよう`;
+  $("see-chips").innerHTML = country.sees.map(s => `<button class="chip" data-v="${s}">${s}</button>`).join("");
+  $("eat-chips").innerHTML = country.eats.map(s => `<button class="chip" data-v="${s}">${s}</button>`).join("");
+  $("adj-chips").innerHTML = ADJECTIVES.map(a => `<button class="chip" data-v="${a.en}">${a.ja}(${a.en})</button>`).join("");
+  $("see-input").value = ""; $("eat-input").value = "";
+  update();
+  show("scr-form");
+  speak(`Let's go to ${country.en}!`);
+});
+function bindChips(elId, inputId, key){
+  $(elId).addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if(!b) return;
+    sel[key] = b.dataset.v;
+    if(inputId) $(inputId).value = "";
+    $(elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b));
+    update();
+    if(key === "see") speak(`You can see ${sel.see}.`);
+    else if(key === "eat") speak(`You can eat ${sel.eat}.`);
+    else speak(`It's ${sel.adj}.`);
+  });
+  if(inputId){
+    $(inputId).addEventListener("input", e => {
+      if(e.target.value.trim()){
+        sel[key] = e.target.value.trim();
+        $(elId).querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+      }else{
+        sel[key] = null;
+      }
+      update();
+    });
+  }
+}
+bindChips("see-chips", "see-input", "see");
+bindChips("eat-chips", "eat-input", "eat");
+bindChips("adj-chips", null, "adj");
+function update(){
+  $("btn-make").disabled = !(sel.see && sel.eat && sel.adj);
+}
+$("btn-back-country").addEventListener("click", () => show("scr-country"));
+
+// ============================================================
+// ポスター
+// ============================================================
+const WMAP_BASE = `
+  <rect x="0" y="0" width="500" height="280" rx="14" fill="#cfe9ff"/>
+  <g fill="#a8dfa9" stroke="#6bbf6e" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M55 40 L150 35 L165 75 L140 110 L100 130 L70 100 L45 70 Z"/>
+    <path d="M120 150 L165 155 L170 195 L145 245 L120 235 L115 185 Z"/>
+    <path d="M225 45 L285 40 L295 75 L260 95 L225 80 Z"/>
+    <path d="M225 105 L290 100 L300 150 L275 200 L240 190 L220 140 Z"/>
+    <path d="M300 55 L420 45 L445 85 L420 120 L380 160 L340 165 L310 120 Z"/>
+    <path d="M375 190 L430 185 L440 225 L400 240 L370 220 Z"/>
+    <circle cx="462" cy="245" r="9"/>
+    <circle cx="416" cy="98" r="10"/>
+  </g>`;
+function posterLines(){
+  return [
+    `Let's go to ${country.en}!`,
+    `You can see ${sel.see}.`,
+    `You can eat ${sel.eat}.`,
+    `It's ${sel.adj}!`,
+    `Let's go together!`,
+  ];
+}
+$("btn-make").addEventListener("click", () => {
+  $("po-head").textContent = `Let's go to ${country.en}!`;
+  $("po-flag").textContent = country.flag;
+  $("po-lines").innerHTML = posterLines().map((t,i) =>
+    `<div class="po-line" data-i="${i}">🔊 ${t}</div>`).join("");
+  $("wmap").innerHTML = WMAP_BASE + `
+    <g>
+      <circle cx="${country.x}" cy="${country.y-18}" r="14" fill="#fff" stroke="#e74c3c" stroke-width="3"/>
+      <line x1="${country.x}" y1="${country.y-5}" x2="${country.x}" y2="${country.y}" stroke="#e74c3c" stroke-width="3"/>
+      <text x="${country.x}" y="${country.y-12}" text-anchor="middle" font-size="15">${country.flag}</text>
+    </g>`;
+  $("map-note").textContent = `${country.ja}はここ!`;
+  show("scr-poster");
+  speakQueue(posterLines());
+});
+$("po-lines").addEventListener("click", e => {
+  const el = e.target.closest(".po-line"); if(!el) return;
+  speak(posterLines()[+el.dataset.i]);
+});
+$("btn-speak-all").addEventListener("click", () => speakQueue(posterLines()));
+$("btn-print").addEventListener("click", () => window.print());
+$("btn-copy").addEventListener("click", async () => {
+  const text = posterLines().join("\n");
+  try{
+    await navigator.clipboard.writeText(text);
+    alert("ポスターの文をコピーしました!Canvaなどに貼り付けて使えます。");
+  }catch(e){
+    prompt("下の文をコピーしてください", text);
+  }
+});
+$("btn-back-form").addEventListener("click", () => show("scr-form"));
+$("btn-restart").addEventListener("click", () => { try{ speechSynthesis.cancel(); }catch(e){} show("scr-country"); });
+
+show("scr-country");
+</script>
+</body>
+</html>

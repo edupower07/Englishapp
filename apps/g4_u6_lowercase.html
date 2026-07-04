@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アルファベット小文字タイピング&神経衰弱 | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+
+.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.mode-card{
+  width:250px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
+}
+.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)} .mode-card.m3{border-color:var(--pink)}
+.mode-card .mi{font-size:3rem}
+.mode-card h2{font-size:1.12rem;font-weight:800;margin-top:8px}
+.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+.size-row{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;align-items:center}
+.size-row .lbl{font-weight:800;color:var(--sub);font-size:.9rem}
+.size-btn{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 20px;font-family:inherit;
+  font-weight:800;font-size:.95rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
+}
+.size-btn.on{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* 神経衰弱 */
+.hud{
+  display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:50px;
+  box-shadow:var(--shadow);padding:8px 20px;margin-bottom:14px;font-weight:800;gap:10px;flex-wrap:wrap;
+}
+.mem-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));max-width:760px;margin:0 auto}
+.mcard{
+  aspect-ratio:3/4;border-radius:14px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .35s;
+}
+.mcard .face{
+  position:absolute;inset:0;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:2.3rem;backface-visibility:hidden;box-shadow:var(--shadow);
+}
+.mcard .back{background:linear-gradient(135deg,#2ed573,#7bed9f);color:#fff;font-size:1.6rem}
+.mcard .front{background:#fff;transform:rotateY(180deg);border:4px solid #d8f5e3}
+.mcard.upper .front{color:var(--primary-dark)} .mcard.lower .front{color:#e17055}
+.mcard.open{transform:rotateY(180deg)}
+.mcard.got{opacity:.15;pointer-events:none}
+.mcard.hard .front::after{content:"★";position:absolute;top:4px;right:8px;font-size:.8rem;color:var(--yellow)}
+
+/* タイピング */
+.type-stage{max-width:640px;margin:0 auto;text-align:center}
+.type-target{
+  width:170px;height:170px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);
+  display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:6rem;color:var(--primary-dark);
+}
+.type-progress{font-weight:800;color:var(--sub);margin:10px 0}
+.kbd{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:10px}
+.kbd-row{display:flex;gap:6px;justify-content:center}
+.key{
+  width:min(8.6vw,52px);height:min(9vw,56px);border-radius:10px;background:#fff;border:3px solid #e0e8ef;
+  font-family:'Fredoka One',cursive;font-size:1.25rem;cursor:pointer;box-shadow:var(--shadow);transition:.1s;color:var(--ink);
+}
+.key:hover{border-color:var(--primary)}
+.key.hit{background:var(--primary);color:#fff;border-color:var(--primary)}
+.key.miss{background:var(--pink);color:#fff;border-color:var(--pink)}
+
+/* まぎらわしい文字 */
+.conf-stage{max-width:560px;margin:0 auto;text-align:center}
+.conf-q{
+  width:190px;height:190px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);
+  display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:6rem;color:var(--blue);
+}
+.conf-ask{font-weight:800;color:var(--sub);margin:10px 0}
+.conf-opts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.conf-btn{
+  width:92px;height:100px;border-radius:18px;background:#fff;border:4px solid #e0e8ef;box-shadow:var(--shadow);
+  font-family:'Fredoka One',cursive;font-size:2.8rem;cursor:pointer;transition:.15s;color:#e17055;
+}
+.conf-btn:hover{transform:translateY(-3px);border-color:var(--pink)}
+.conf-btn.ok{background:var(--primary);color:#fff;border-color:var(--primary);animation:pop .4s}
+.conf-btn.ng{animation:shake .35s;border-color:var(--pink)}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+.result-box{max-width:440px;margin:20px auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);padding:24px;text-align:center;border:5px solid var(--primary)}
+.result-box .big{font-size:4rem;animation:pop .5s}
+.result-box h2{font-size:1.25rem;font-weight:800;margin-top:6px}
+.result-box p{color:var(--sub);font-weight:700;margin-top:6px}
+.actions{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.teal{background:var(--blue)}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔡 小文字タイピング&神経衰弱 <span class="u">4年 Unit6 Alphabet</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- モード選択 -->
+  <section id="scr-mode">
+    <h2 class="step-title">あそびかたを えらんでね</h2>
+    <div class="mode-select">
+      <div class="mode-card m1" data-mode="memory">
+        <div class="mi">🃏</div>
+        <h2>大文字・小文字 神経衰弱</h2>
+        <p>Aとaのペアをそろえよう<br>★マークはまちがえやすい上級文字</p>
+      </div>
+      <div class="mode-card m2" data-mode="typing">
+        <div class="mi">⌨️</div>
+        <h2>タイピングれんしゅう</h2>
+        <p>出てきた小文字をキーボードで<br>タイプしよう(画面/実物どちらでも)</p>
+      </div>
+      <div class="mode-card m3" data-mode="conf">
+        <div class="mi">🌀</div>
+        <h2>まぎらわしい文字チャレンジ</h2>
+        <p>b と d、p と q…<br>にている文字を 見分けられるかな?</p>
+      </div>
+    </div>
+    <div class="size-row" id="size-row">
+      <span class="lbl">神経衰弱のまい数:</span>
+      <button class="size-btn" data-n="3">6まい</button>
+      <button class="size-btn on" data-n="6">12まい</button>
+      <button class="size-btn" data-n="10">20まい</button>
+    </div>
+  </section>
+
+  <!-- 神経衰弱 -->
+  <section id="scr-memory" class="hidden">
+    <div class="hud">
+      <span id="mem-pairs">のこり 6ペア</span>
+      <span id="mem-tries">めくった回数 0</span>
+      <span id="mem-time">0びょう</span>
+    </div>
+    <div class="mem-grid" id="mem-grid"></div>
+  </section>
+
+  <!-- タイピング -->
+  <section id="scr-typing" class="hidden">
+    <div class="type-stage">
+      <div class="type-progress" id="type-progress">1 / 15</div>
+      <div class="type-target" id="type-target">a</div>
+      <div class="type-progress" id="type-hint">この文字をタイプしよう!</div>
+      <div class="kbd" id="kbd"></div>
+    </div>
+  </section>
+
+  <!-- まぎらわしい文字 -->
+  <section id="scr-conf" class="hidden">
+    <div class="conf-stage">
+      <div class="type-progress" id="conf-progress">1 / 10</div>
+      <div class="conf-q" id="conf-q">B</div>
+      <div class="conf-ask" id="conf-ask">この大文字の「小文字」はどれ?</div>
+      <div class="conf-opts" id="conf-opts"></div>
+    </div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="scr-result" class="hidden">
+    <div class="result-box">
+      <div class="big" id="res-emoji">🏆</div>
+      <h2 id="res-title"></h2>
+      <p id="res-detail"></p>
+      <div class="actions">
+        <button class="big-btn" id="btn-again">もういちど!</button>
+        <button class="big-btn teal" id="btn-home2">モードせんたく</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>じっさいのキーボードでも入力できます</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+// まちがえやすい文字グループ(まぎらわしい文字チャレンジ・神経衰弱の★印に使用)
+const CONFUSABLE_GROUPS = [
+  ["b","d","p","q"],
+  ["m","n","h"],
+  ["u","v","w"],
+  ["i","l","j"],
+  ["a","o","e"],
+  ["f","t","r"],
+];
+const TYPING_COUNT = 15; // タイピングの出題数
+const CONF_COUNT = 10;   // まぎらわしい文字チャレンジの出題数
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.8){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+const ALL = "abcdefghijklmnopqrstuvwxyz".split("");
+const HARD = new Set(CONFUSABLE_GROUPS.flat());
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-mode","scr-memory","scr-typing","scr-conf","scr-result"].forEach(s =>
+    $(s).classList.toggle("hidden", s !== id));
+}
+function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
+let mode = null;
+
+// ============================================================
+// 神経衰弱
+// ============================================================
+let pairCount = 6, memOpen = [], memLock = false, memLeft = 0, memTries = 0, memTimer = null, memSec = 0;
+document.querySelectorAll(".size-btn").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".size-btn").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); pairCount = +b.dataset.n;
+}));
+function startMemory(){
+  mode = "memory";
+  const letters = shuffle(ALL).slice(0, pairCount);
+  const cards = shuffle(letters.flatMap(L => [
+    { letter:L, kind:"upper", disp:L.toUpperCase() },
+    { letter:L, kind:"lower", disp:L },
+  ]));
+  memOpen = []; memLock = false; memLeft = pairCount; memTries = 0; memSec = 0;
+  clearInterval(memTimer);
+  memTimer = setInterval(() => { memSec++; $("mem-time").textContent = `${memSec}びょう`; }, 1000);
+  $("mem-pairs").textContent = `のこり ${memLeft}ペア`;
+  $("mem-tries").textContent = "めくった回数 0";
+  $("mem-time").textContent = "0びょう";
+  $("mem-grid").innerHTML = cards.map((c,i) => `
+    <div class="mcard ${c.kind} ${HARD.has(c.letter) ? "hard" : ""}" data-i="${i}" data-letter="${c.letter}">
+      <div class="face back">?</div>
+      <div class="face front">${c.disp}</div>
+    </div>`).join("");
+  show("scr-memory");
+}
+$("mem-grid").addEventListener("click", e => {
+  const el = e.target.closest(".mcard");
+  if(!el || memLock || el.classList.contains("open") || el.classList.contains("got")) return;
+  el.classList.add("open");
+  memOpen.push(el);
+  if(memOpen.length === 2){
+    memLock = true; memTries++;
+    $("mem-tries").textContent = `めくった回数 ${memTries}`;
+    const [a,b] = memOpen;
+    if(a.dataset.letter === b.dataset.letter){
+      speak(a.dataset.letter);
+      setTimeout(() => {
+        a.classList.add("got"); b.classList.add("got");
+        memOpen = []; memLock = false;
+        memLeft--;
+        $("mem-pairs").textContent = `のこり ${memLeft}ペア`;
+        if(memLeft === 0){
+          clearInterval(memTimer);
+          showResult("🏆", "ぜんぶそろったね!", `${memSec}びょう / めくった回数 ${memTries}回`);
+          speak("Great job!");
+        }
+      }, 750);
+    }else{
+      setTimeout(() => {
+        a.classList.remove("open"); b.classList.remove("open");
+        memOpen = []; memLock = false;
+      }, 900);
+    }
+  }
+});
+
+// ============================================================
+// タイピング
+// ============================================================
+const KBD_ROWS = ["qwertyuiop","asdfghjkl","zxcvbnm"];
+let typeSeq = [], typeIdx = 0, typeMiss = 0, typeStart = 0;
+function startTyping(){
+  mode = "typing";
+  typeSeq = shuffle(ALL).slice(0, TYPING_COUNT);
+  typeIdx = 0; typeMiss = 0; typeStart = Date.now();
+  $("kbd").innerHTML = KBD_ROWS.map(row =>
+    `<div class="kbd-row">${row.split("").map(k =>
+      `<button class="key" data-k="${k}">${k}</button>`).join("")}</div>`).join("");
+  show("scr-typing");
+  showTypeTarget();
+}
+function showTypeTarget(){
+  $("type-progress").textContent = `${typeIdx+1} / ${typeSeq.length}`;
+  $("type-target").textContent = typeSeq[typeIdx];
+  speak(typeSeq[typeIdx]);
+}
+function pressKey(k, el){
+  if(mode !== "typing") return;
+  const want = typeSeq[typeIdx];
+  const keyEl = el || document.querySelector(`.key[data-k="${k}"]`);
+  if(k === want){
+    if(keyEl){ keyEl.classList.add("hit"); setTimeout(() => keyEl.classList.remove("hit"), 250); }
+    typeIdx++;
+    if(typeIdx >= typeSeq.length){
+      const sec = ((Date.now() - typeStart) / 1000).toFixed(1);
+      showResult("⌨️", "タイピングクリア!", `${sec}びょう / ミス ${typeMiss}回`);
+      speak("Perfect!");
+    }else showTypeTarget();
+  }else{
+    typeMiss++;
+    if(keyEl){ keyEl.classList.add("miss"); setTimeout(() => keyEl.classList.remove("miss"), 250); }
+  }
+}
+$("kbd").addEventListener("click", e => {
+  const el = e.target.closest(".key"); if(!el) return;
+  pressKey(el.dataset.k, el);
+});
+document.addEventListener("keydown", e => {
+  if(mode === "typing" && /^[a-z]$/.test(e.key)) pressKey(e.key, null);
+});
+
+// ============================================================
+// まぎらわしい文字チャレンジ
+// ============================================================
+let confSeq = [], confIdx = 0, confScore = 0, confLock = false;
+function startConf(){
+  mode = "conf";
+  const qs = [];
+  for(let i=0; i<CONF_COUNT; i++){
+    const g = CONFUSABLE_GROUPS[i % CONFUSABLE_GROUPS.length];
+    qs.push({ group:g, answer:g[Math.floor(Math.random()*g.length)] });
+  }
+  confSeq = shuffle(qs); confIdx = 0; confScore = 0;
+  show("scr-conf");
+  showConfQ();
+}
+function showConfQ(){
+  confLock = false;
+  const q = confSeq[confIdx];
+  $("conf-progress").textContent = `${confIdx+1} / ${confSeq.length}`;
+  $("conf-q").textContent = q.answer.toUpperCase();
+  // 選択肢: 同じグループの文字(たりなければ他の文字を足して4つに)
+  let opts = [...q.group];
+  while(opts.length < 4){
+    const extra = ALL[Math.floor(Math.random()*ALL.length)];
+    if(!opts.includes(extra)) opts.push(extra);
+  }
+  $("conf-opts").innerHTML = shuffle(opts).map(o =>
+    `<button class="conf-btn" data-o="${o}">${o}</button>`).join("");
+  speak(q.answer);
+}
+$("conf-opts").addEventListener("click", e => {
+  const el = e.target.closest(".conf-btn"); if(!el || confLock) return;
+  const q = confSeq[confIdx];
+  if(el.dataset.o === q.answer){
+    confLock = true; confScore++;
+    el.classList.add("ok");
+    speak(q.answer);
+    setTimeout(() => {
+      confIdx++;
+      if(confIdx >= confSeq.length){
+        showResult(confScore === confSeq.length ? "🏆" : "🎉",
+          `${confSeq.length}もん中 ${confScore}もん せいかい!`,
+          "にている文字は 形をよく見てみよう(bのおなかは右、dは左!)");
+        speak(confScore === confSeq.length ? "Perfect!" : "Good job!");
+      }else showConfQ();
+    }, 1000);
+  }else{
+    el.classList.add("ng");
+    setTimeout(() => el.classList.remove("ng"), 380);
+  }
+});
+
+// ============================================================
+// 結果・ナビゲーション
+// ============================================================
+function showResult(emoji, title, detail){
+  $("res-emoji").textContent = emoji;
+  $("res-title").textContent = title;
+  $("res-detail").textContent = detail;
+  show("scr-result");
+}
+document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  const m = c.dataset.mode;
+  if(m === "memory") startMemory();
+  else if(m === "typing") startTyping();
+  else startConf();
+}));
+function goHome(){ mode = null; clearInterval(memTimer); speechSynthesis.cancel(); show("scr-mode"); }
+$("btn-home").addEventListener("click", goHome);
+$("btn-home2").addEventListener("click", goHome);
+$("btn-again").addEventListener("click", () => {
+  if(mode === "memory") startMemory();
+  else if(mode === "typing") startTyping();
+  else if(mode === "conf") startConf();
+});
+
+show("scr-mode");
+</script>
+</body>
+</html>
