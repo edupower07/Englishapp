@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自己紹介プロフィールカードメーカー | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2e86de; --primary-dark:#1e6fc0; --green:#26de81; --pink:#ff6b81; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:880px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+/* 入力フォーム */
+.form-box{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.f-row{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 18px}
+.f-row h3{font-size:.92rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.f-row h3 .tag{font-size:.68rem;color:#fff;padding:3px 12px;border-radius:50px;background:var(--primary)}
+.f-row input[type=text]{
+  width:100%;border:3px solid #e6ecf2;border-radius:12px;padding:11px;font-family:inherit;font-weight:800;font-size:1.05rem;
+}
+.f-row select{
+  border:3px solid #e6ecf2;border-radius:12px;padding:10px;font-family:inherit;font-weight:800;font-size:.95rem;margin-right:6px;
+}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;
+  font-weight:800;font-size:.85rem;cursor:pointer;min-height:44px;transition:.15s;color:var(--ink);
+}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* カード */
+.profile-card{
+  max-width:520px;margin:0 auto;background:linear-gradient(135deg,#fff,#f4f9ff);border-radius:24px;
+  box-shadow:var(--shadow-hover);border:5px solid var(--primary);overflow:hidden;
+}
+.pc-head{background:linear-gradient(135deg,#2e86de,#54a0ff);color:#fff;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.1rem}
+.pc-body{padding:20px;text-align:center}
+.pc-name{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--primary-dark)}
+.pc-meta{font-size:2rem;margin-top:6px}
+.pc-lines{margin-top:12px;text-align:left}
+.pc-line{font-size:1.05rem;font-weight:800;padding:6px 10px;border-radius:10px;cursor:pointer}
+.pc-line:hover{background:#eef6ff}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+@media print{
+  header,.actions,footer,.step-title,.step-sub{display:none!important}
+  body{background:#fff}
+  .profile-card{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🙋 自己紹介プロフィールカード <span class="u">6年 Unit1 This is me!</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-restart">さいしょから</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 入力 -->
+  <section id="scr-form">
+    <h2 class="step-title">🙋 プロフィールを入力しよう</h2>
+    <p class="step-sub">5年生の自己紹介より レベルアップした This is me! をつくろう</p>
+    <div class="form-box">
+      <div class="f-row">
+        <h3><span class="tag">Name</span>名前(ローマ字)</h3>
+        <input type="text" id="f-name" placeholder="SAKURA" maxlength="15" autocomplete="off">
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">From</span>出身の国・行ってみたい国</h3>
+        <div class="chips" id="f-country"></div>
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">Birthday</span>誕生日</h3>
+        <select id="f-month"></select>
+        <select id="f-day"></select>
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">Animal</span>好きな動物</h3>
+        <div class="chips" id="f-animal"></div>
+      </div>
+      <div class="f-row">
+        <h3><span class="tag">Like</span>好きなもの・こと(2つまで)</h3>
+        <div class="chips" id="f-likes"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-make" disabled>プロフィールカードをつくる ✨</button>
+    </div>
+  </section>
+
+  <!-- カード -->
+  <section id="scr-card" class="hidden">
+    <h2 class="step-title">✨ かんせい!</h2>
+    <p class="step-sub">1文ずつタップして発表練習しよう</p>
+    <div class="profile-card">
+      <div class="pc-head">THIS IS ME!</div>
+      <div class="pc-body">
+        <div class="pc-name" id="pc-name"></div>
+        <div class="pc-meta" id="pc-meta"></div>
+        <div class="pc-lines" id="pc-lines"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
+      <button class="big-btn" id="btn-print" style="background:var(--green)">🖨️ 印刷</button>
+      <button class="big-btn gray" id="btn-back">入力にもどる</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>誕生日などの個人情報はどこにも送信されません(画面の中だけで使われます)</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると選択肢を変更できます)
+// ============================================================
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const COUNTRIES = [
+  { en:"Japan",         ja:"日本",         flag:"🇯🇵" },
+  { en:"America",       ja:"アメリカ",     flag:"🇺🇸" },
+  { en:"Australia",     ja:"オーストラリア", flag:"🇦🇺" },
+  { en:"China",         ja:"中国",         flag:"🇨🇳" },
+  { en:"Korea",         ja:"かんこく",     flag:"🇰🇷" },
+  { en:"France",        ja:"フランス",     flag:"🇫🇷" },
+  { en:"Italy",         ja:"イタリア",     flag:"🇮🇹" },
+  { en:"Brazil",        ja:"ブラジル",     flag:"🇧🇷" },
+  { en:"India",         ja:"インド",       flag:"🇮🇳" },
+];
+const ANIMALS = [
+  { en:"dogs",     ja:"犬",       emoji:"🐶" },
+  { en:"cats",     ja:"ねこ",     emoji:"🐱" },
+  { en:"rabbits",  ja:"うさぎ",   emoji:"🐰" },
+  { en:"pandas",   ja:"パンダ",   emoji:"🐼" },
+  { en:"lions",    ja:"ライオン", emoji:"🦁" },
+  { en:"dolphins", ja:"イルカ",   emoji:"🐬" },
+  { en:"penguins", ja:"ペンギン", emoji:"🐧" },
+  { en:"koalas",   ja:"コアラ",   emoji:"🐨" },
+];
+const LIKES = [
+  { en:"soccer",     ja:"サッカー", emoji:"⚽" },
+  { en:"baseball",   ja:"野球",     emoji:"⚾" },
+  { en:"swimming",   ja:"水泳",     emoji:"🏊" },
+  { en:"music",      ja:"音楽",     emoji:"🎵" },
+  { en:"reading",    ja:"読書",     emoji:"📚" },
+  { en:"video games", ja:"ゲーム",  emoji:"🎮" },
+  { en:"pizza",      ja:"ピザ",     emoji:"🍕" },
+  { en:"sushi",      ja:"すし",     emoji:"🍣" },
+  { en:"ice cream",  ja:"アイス",   emoji:"🍦" },
+  { en:"drawing",    ja:"絵をかくこと", emoji:"🎨" },
+];
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+function ordinal(d){
+  if(d % 100 >= 11 && d % 100 <= 13) return d + "th";
+  return d + ({1:"st",2:"nd",3:"rd"}[d % 10] || "th");
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let sel = { country:null, animal:null, likes:[] };
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-form","scr-card"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+
+// ============================================================
+// フォーム
+// ============================================================
+$("f-country").innerHTML = COUNTRIES.map(c =>
+  `<button class="chip" data-en="${c.en}">${c.flag} ${c.ja}</button>`).join("");
+$("f-animal").innerHTML = ANIMALS.map(a =>
+  `<button class="chip" data-en="${a.en}">${a.emoji} ${a.ja}</button>`).join("");
+$("f-likes").innerHTML = LIKES.map(l =>
+  `<button class="chip" data-en="${l.en}">${l.emoji} ${l.ja}</button>`).join("");
+$("f-month").innerHTML = MONTHS.map((m,i) => `<option value="${i}">${i+1}月 ${m}</option>`).join("");
+$("f-day").innerHTML = Array.from({length:31},(_,i) => `<option value="${i+1}">${i+1}日</option>`).join("");
+
+$("f-country").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if(!b) return;
+  sel.country = COUNTRIES.find(c => c.en === b.dataset.en);
+  document.querySelectorAll("#f-country .chip").forEach(x => x.classList.toggle("on", x === b));
+  speak(`I'm from ${sel.country.en}.`);
+  update();
+});
+$("f-animal").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if(!b) return;
+  sel.animal = ANIMALS.find(a => a.en === b.dataset.en);
+  document.querySelectorAll("#f-animal .chip").forEach(x => x.classList.toggle("on", x === b));
+  speak(`I like ${sel.animal.en}.`);
+  update();
+});
+$("f-likes").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if(!b) return;
+  const en = b.dataset.en;
+  if(sel.likes.includes(en)){ sel.likes = sel.likes.filter(x => x !== en); }
+  else if(sel.likes.length < 2){ sel.likes.push(en); speak(`I like ${en}.`); }
+  document.querySelectorAll("#f-likes .chip").forEach(x =>
+    x.classList.toggle("on", sel.likes.includes(x.dataset.en)));
+  update();
+});
+$("f-name").addEventListener("input", update);
+function cleanName(){
+  const n = $("f-name").value.replace(/[^a-zA-Z]/g, "");
+  return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : "";
+}
+function update(){
+  $("btn-make").disabled = !(cleanName() && sel.country && sel.animal && sel.likes.length > 0);
+}
+
+// ============================================================
+// カード
+// ============================================================
+function cardLines(){
+  const bday = `${MONTHS[+$("f-month").value]} ${ordinal(+$("f-day").value)}`;
+  const likeList = sel.likes.length === 1 ? sel.likes[0] : sel.likes.join(" and ");
+  return [
+    `Hello, everyone! I'm ${cleanName()}.`,
+    `I'm from ${sel.country.en}.`,
+    `My birthday is ${bday}.`,
+    `I like ${sel.animal.en}.`,
+    `I like ${likeList}, too.`,
+    `This is me! Thank you!`,
+  ];
+}
+$("btn-make").addEventListener("click", () => {
+  $("pc-name").textContent = cleanName();
+  const likeEmojis = sel.likes.map(en => LIKES.find(l => l.en === en).emoji).join(" ");
+  $("pc-meta").textContent = `${sel.country.flag} 🎂 ${sel.animal.emoji} ${likeEmojis}`;
+  $("pc-lines").innerHTML = cardLines().map((t,i) =>
+    `<div class="pc-line" data-i="${i}">🔊 ${t}</div>`).join("");
+  show("scr-card");
+  speakQueue(cardLines());
+});
+$("pc-lines").addEventListener("click", e => {
+  const el = e.target.closest(".pc-line"); if(!el) return;
+  speak(cardLines()[+el.dataset.i]);
+});
+$("btn-speak-all").addEventListener("click", () => speakQueue(cardLines()));
+$("btn-print").addEventListener("click", () => window.print());
+$("btn-back").addEventListener("click", () => show("scr-form"));
+$("btn-restart").addEventListener("click", () => {
+  sel = { country:null, animal:null, likes:[] };
+  $("f-name").value = "";
+  document.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+  update();
+  try{ speechSynthesis.cancel(); }catch(e){}
+  show("scr-form");
+});
+
+show("scr-form");
+</script>
+</body>
+</html>
