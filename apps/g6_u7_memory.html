@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ベストメモリーアルバムメーカー | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#2e86de; --primary-dark:#1e6fc0; --green:#26de81; --pink:#ff6b81; --yellow:#fdcb6e; --purple:#a29bfe;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:940px;margin:0 auto;padding:16px 16px 60px}
+.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
+.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-width:820px;margin:0 auto}
+.pick{
+  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:4px solid transparent;transition:.15s;min-height:126px;display:flex;flex-direction:column;justify-content:center;gap:3px;
+}
+.pick:hover{transform:translateY(-3px)}
+.pick.on{border-color:var(--primary);background:#eef6ff}
+.pick .pimg{width:64px;height:56px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.pick .pimg img{max-width:100%;max-height:100%;object-fit:contain}
+.pick .pemoji{font-size:2.2rem;line-height:1}
+.pick .plabel{font-weight:800;font-size:.72rem;line-height:1.2}
+.pick .plabel small{display:block;color:var(--sub);font-size:.62rem}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:720px;margin:0 auto}
+.chip{
+  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;
+  font-weight:800;font-size:.85rem;cursor:pointer;min-height:44px;transition:.15s;color:var(--ink);
+}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.cat-h{font-size:.95rem;font-weight:800;margin:16px auto 8px;display:flex;align-items:center;gap:8px;max-width:720px;justify-content:center}
+.cat-h .tag{font-size:.7rem;color:#fff;padding:3px 12px;border-radius:50px;background:var(--primary)}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn.gray{background:#b2bec3;color:#2d3436}
+.big-btn.purple{background:var(--purple)}
+.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+
+/* アルバムページ */
+.album-page{
+  max-width:520px;margin:0 auto;background:#fffdf5;border-radius:26px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--yellow);overflow:hidden;
+}
+.ap-head{background:linear-gradient(135deg,#fdcb6e,#ffeaa7);color:#7a5b1e;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.1rem}
+.ap-body{padding:20px;text-align:center}
+.ap-photo{
+  width:220px;height:160px;margin:0 auto;background:#fff;border:4px solid #eee;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;transform:rotate(-2deg);box-shadow:var(--shadow);
+}
+.ap-photo img{width:100%;height:100%;object-fit:contain}
+.ap-photo .ape{font-size:4rem}
+.ap-lines{margin-top:14px;text-align:left}
+.ap-line{font-size:1.05rem;font-weight:800;padding:6px 10px;border-radius:10px;cursor:pointer}
+.ap-line:hover{background:#fff6dd}
+.ap-note{font-size:.72rem;color:var(--sub);font-weight:700;margin-top:8px}
+.page-nav{display:flex;gap:10px;justify-content:center;margin-top:12px;align-items:center;font-weight:800;color:var(--sub)}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
+@media print{
+  header,.actions,footer,.step-title,.step-sub,.page-nav{display:none!important}
+  body{background:#fff}
+  .album-page{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📔 ベストメモリーアルバム <span class="u">6年 Unit7 My Best Memory</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-new">あたらしい思い出</button>
+    <button class="nav-btn" id="btn-album">クラスアルバム</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP1 行事 -->
+  <section id="scr-event">
+    <h2 class="step-title">① いちばんの思い出の行事は?</h2>
+    <p class="step-sub">What's your best memory?</p>
+    <div class="grid" id="event-grid"></div>
+  </section>
+
+  <!-- STEP2 くわしく -->
+  <section id="scr-detail" class="hidden">
+    <h2 class="step-title" id="detail-title">② くわしく思い出そう</h2>
+    <div class="cat-h"><span class="tag">We went to 〜.</span>行ったところ</div>
+    <div class="chips" id="place-chips"></div>
+    <div class="cat-h"><span class="tag">できごと</span>したこと(過去形)</div>
+    <div class="chips" id="did-chips"></div>
+    <div class="cat-h"><span class="tag">It was 〜.</span>どうだった?</div>
+    <div class="chips" id="feel-chips"></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-make" disabled>アルバムページをつくる ✨</button>
+      <button class="big-btn gray" id="btn-back-event">行事をえらびなおす</button>
+    </div>
+  </section>
+
+  <!-- STEP3 ページ -->
+  <section id="scr-page" class="hidden">
+    <h2 class="step-title">✨ アルバムページかんせい!</h2>
+    <p class="step-sub">1文ずつタップして発表練習しよう</p>
+    <div class="album-page">
+      <div class="ap-head">MY BEST MEMORY</div>
+      <div class="ap-body">
+        <div class="ap-photo" id="ap-photo"></div>
+        <div class="ap-lines" id="ap-lines"></div>
+        <div class="ap-note">印刷したら、写真やイラストをここに貼ってもいいね</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
+      <button class="big-btn purple" id="btn-save">📔 クラスアルバムにのこす</button>
+      <button class="big-btn" id="btn-print" style="background:var(--pink)">🖨️ 印刷</button>
+      <button class="big-btn gray" id="btn-back-detail">えらびなおす</button>
+    </div>
+  </section>
+
+  <!-- アルバム閲覧 -->
+  <section id="scr-album" class="hidden">
+    <h2 class="step-title">📔 クラスのベストメモリーアルバム</h2>
+    <p class="step-sub">みんなの思い出をページ送りで見よう(この端末でのこした分)</p>
+    <div class="album-page" id="album-view"></div>
+    <div class="page-nav">
+      <button class="big-btn gray" id="btn-prev">◀</button>
+      <span id="album-no">1 / 1</span>
+      <button class="big-btn gray" id="btn-next">▶</button>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-clear-album" style="background:var(--pink)">アルバムをぜんぶ消す</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  実際の写真をアップロードする機能はありません(肖像権・個人情報への配慮)。印刷して写真を貼る運用がおすすめです。<br>
+  Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
+</footer>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+
+const EVENTS = [
+  { en:"the sports day",       ja:"運動会",       img:"sports day.jpg",          emoji:"🏃" },
+  { en:"the school trip",      ja:"修学旅行",     img:"school trip.jpg",         emoji:"🚄" },
+  { en:"the music festival",   ja:"音楽会",       img:"music festival.jpg",      emoji:"🎵" },
+  { en:"the field trip",       ja:"遠足・社会科見学", img:"field trip.jpg",      emoji:"🚌" },
+  { en:"the chorus contest",   ja:"合唱コンクール", img:"chorus.jpg",            emoji:"🎤" },
+  { en:"the swimming meet",    ja:"水泳記録会",   img:"swimming meet.jpg",       emoji:"🏊" },
+  { en:"the drama festival",   ja:"学芸会",       img:"drama festival.jpg",      emoji:"🎭" },
+  { en:"the camping trip",     ja:"キャンプ・宿泊学習", img:"camping trip.jpg",  emoji:"⛺" },
+  { en:"the volunteer day",    ja:"ボランティア", img:"volunteer day.jpg",       emoji:"🤝" },
+  { en:"the graduation ceremony", ja:"卒業式",    img:"graduation ceremony.jpg", emoji:"🎓" },
+];
+const PLACES = [
+  { t:"We went to Kyoto.",           ja:"京都" },
+  { t:"We went to Tokyo.",           ja:"東京" },
+  { t:"We went to the mountains.",   ja:"山" },
+  { t:"We went to the sea.",         ja:"海" },
+  { t:"We went to the museum.",      ja:"博物館" },
+  { t:"We went to the gym.",         ja:"体育館" },
+  { t:"We went to the schoolyard.",  ja:"校庭" },
+];
+const DIDS = [
+  { t:"We saw old temples.",        ja:"古いお寺を見た" },
+  { t:"We saw beautiful views.",    ja:"きれいな景色を見た" },
+  { t:"We ate delicious food.",     ja:"おいしいものを食べた" },
+  { t:"We ate lunch together.",     ja:"みんなでお弁当を食べた" },
+  { t:"We enjoyed singing.",        ja:"歌をがんばった" },
+  { t:"We enjoyed dancing.",        ja:"ダンスをがんばった" },
+  { t:"We enjoyed running.",        ja:"走るのをがんばった" },
+  { t:"We played games together.",  ja:"みんなでゲームをした" },
+];
+const FEELS = [
+  { t:"It was fun!",        ja:"楽しかった" },
+  { t:"It was exciting!",   ja:"わくわくした" },
+  { t:"It was great!",      ja:"最高だった" },
+  { t:"It was wonderful!",  ja:"すばらしかった" },
+  { t:"It was delicious!",  ja:"おいしかった" },
+];
+const STORAGE_KEY = "g6_memory_album_v1";
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakQueue(lines, rate = 0.85){
+  try{
+    speechSynthesis.cancel();
+    lines.forEach(t => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let sel = { event:null, place:null, did:null, feel:null };
+let album = [];
+let albumIdx = 0;
+try{ album = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ album = []; }
+
+const $ = id => document.getElementById(id);
+function show(id){
+  ["scr-event","scr-detail","scr-page","scr-album"].forEach(s =>
+    $(s).classList.toggle("hidden", s !== id));
+}
+function saveAlbum(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(album)); }catch(e){} }
+function eventVisual(ev){
+  return `<img src="${IMG_BASE + encodeURIComponent(ev.img)}" alt="${ev.en}"
+    onerror="this.outerHTML='<span class=&quot;ape&quot;>${ev.emoji}</span>'">`;
+}
+
+// ============================================================
+// STEP1 行事
+// ============================================================
+$("event-grid").innerHTML = EVENTS.map((ev,i) => `
+  <div class="pick" data-i="${i}">
+    <div class="pimg"><img src="${IMG_BASE + encodeURIComponent(ev.img)}" alt="${ev.en}"
+      onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${ev.emoji}</span>'"></div>
+    <div class="plabel">${ev.ja}<small>${ev.en}</small></div>
+  </div>`).join("");
+$("event-grid").addEventListener("click", e => {
+  const el = e.target.closest(".pick"); if(!el) return;
+  sel = { event: EVENTS[+el.dataset.i], place:null, did:null, feel:null };
+  $("detail-title").textContent = `② 「${sel.event.ja}」をくわしく思い出そう`;
+  buildChips("place-chips", PLACES, "place");
+  buildChips("did-chips", DIDS, "did");
+  buildChips("feel-chips", FEELS, "feel");
+  $("btn-make").disabled = true;
+  show("scr-detail");
+  speak(`My best memory is ${sel.event.en}.`);
+});
+
+// ============================================================
+// STEP2 くわしく
+// ============================================================
+function buildChips(elId, list, key){
+  const el = $(elId);
+  el.innerHTML = list.map((item,i) => `<button class="chip" data-i="${i}">${item.ja}</button>`).join("");
+  el.onclick = e => {
+    const b = e.target.closest(".chip"); if(!b) return;
+    sel[key] = list[+b.dataset.i];
+    el.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b));
+    speak(sel[key].t);
+    $("btn-make").disabled = !(sel.place && sel.did && sel.feel);
+  };
+}
+$("btn-back-event").addEventListener("click", () => show("scr-event"));
+
+// ============================================================
+// STEP3 ページ
+// ============================================================
+function pageLines(s){
+  return [
+    `My best memory is ${s.event.en}.`,
+    s.place.t,
+    s.did.t,
+    s.feel.t,
+  ];
+}
+function renderPage(container, s, clickable = true){
+  container.querySelector(".ap-photo").innerHTML = eventVisual(s.event);
+  container.querySelector(".ap-lines").innerHTML = pageLines(s).map((t,i) =>
+    `<div class="ap-line" data-t="${t}">🔊 ${t}</div>`).join("");
+}
+$("btn-make").addEventListener("click", () => {
+  renderPage(document.querySelector("#scr-page .album-page"), sel);
+  show("scr-page");
+  speakQueue(pageLines(sel));
+});
+document.addEventListener("click", e => {
+  const line = e.target.closest(".ap-line"); if(line) speak(line.dataset.t);
+});
+$("btn-speak-all").addEventListener("click", () => speakQueue(pageLines(sel)));
+$("btn-print").addEventListener("click", () => window.print());
+$("btn-back-detail").addEventListener("click", () => show("scr-detail"));
+$("btn-save").addEventListener("click", () => {
+  album.push({ event: sel.event.en, place: sel.place.t, did: sel.did.t, feel: sel.feel.t });
+  saveAlbum();
+  alert(`クラスアルバムにのこしました!(いま ${album.length}ページ)`);
+});
+
+// ============================================================
+// アルバム閲覧
+// ============================================================
+function albumEntryToSel(entry){
+  return {
+    event: EVENTS.find(ev => ev.en === entry.event) || EVENTS[0],
+    place: { t: entry.place }, did: { t: entry.did }, feel: { t: entry.feel },
+  };
+}
+function renderAlbum(){
+  if(album.length === 0){
+    $("album-view").innerHTML = `<div class="ap-body" style="text-align:center;font-weight:800;color:var(--sub);padding:40px">まだページがないよ。<br>思い出をつくって「クラスアルバムにのこす」をおしてね</div>`;
+    $("album-no").textContent = "0 / 0";
+    return;
+  }
+  albumIdx = Math.max(0, Math.min(albumIdx, album.length - 1));
+  const s = albumEntryToSel(album[albumIdx]);
+  $("album-view").innerHTML = `
+    <div class="ap-head">MEMORY ${albumIdx+1}</div>
+    <div class="ap-body">
+      <div class="ap-photo">${eventVisual(s.event)}</div>
+      <div class="ap-lines">${pageLines(s).map(t => `<div class="ap-line" data-t="${t}">🔊 ${t}</div>`).join("")}</div>
+    </div>`;
+  $("album-no").textContent = `${albumIdx+1} / ${album.length}`;
+}
+$("btn-album").addEventListener("click", () => { albumIdx = 0; renderAlbum(); show("scr-album"); });
+$("btn-prev").addEventListener("click", () => { albumIdx--; renderAlbum(); });
+$("btn-next").addEventListener("click", () => { albumIdx++; renderAlbum(); });
+$("btn-clear-album").addEventListener("click", () => {
+  if(confirm("クラスアルバムをぜんぶ消します。いいですか?")){
+    album = []; saveAlbum(); renderAlbum();
+  }
+});
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+$("btn-new").addEventListener("click", () => {
+  sel = { event:null, place:null, did:null, feel:null };
+  try{ speechSynthesis.cancel(); }catch(e){}
+  show("scr-event");
+});
+
+show("scr-event");
+</script>
+</body>
+</html>
