@@ -166,19 +166,21 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
 // ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
 const NUM_EN = ["","one","two","three","four","five","six","seven","eight","nine","ten",
   "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
+// img は Picture Dictionary の絵カード(読み込めないときは絵文字で表示)
 const COUNT_ITEMS = [
-  { en:"cats",     ja:"ねこ",     emoji:"🐱" },
-  { en:"dogs",     ja:"いぬ",     emoji:"🐶" },
-  { en:"rabbits",  ja:"うさぎ",   emoji:"🐰" },
-  { en:"birds",    ja:"とり",     emoji:"🐦" },
-  { en:"apples",   ja:"りんご",   emoji:"🍎" },
-  { en:"bananas",  ja:"バナナ",   emoji:"🍌" },
-  { en:"stars",    ja:"ほし",     emoji:"⭐" },
-  { en:"balls",    ja:"ボール",   emoji:"⚽" },
-  { en:"pencils",  ja:"えんぴつ", emoji:"✏️" },
-  { en:"fish",     ja:"さかな",   emoji:"🐟" },
+  { en:"cats",     ja:"ねこ",     img:"cat.jpg",    emoji:"🐱" },
+  { en:"dogs",     ja:"いぬ",     img:"dog.jpg",    emoji:"🐶" },
+  { en:"rabbits",  ja:"うさぎ",   img:"rabbit.jpg", emoji:"🐰" },
+  { en:"birds",    ja:"とり",     img:"bird.jpg",   emoji:"🐦" },
+  { en:"apples",   ja:"りんご",   img:"apple.jpg",  emoji:"🍎" },
+  { en:"bananas",  ja:"バナナ",   img:"banana.jpg", emoji:"🍌" },
+  { en:"stars",    ja:"ほし",     img:"star.jpg",   emoji:"⭐" },
+  { en:"balls",    ja:"ボール",   img:"ball.jpg",   emoji:"⚽" },
+  { en:"pencils",  ja:"えんぴつ", img:"pencil.jpg", emoji:"✏️" },
+  { en:"fish",     ja:"さかな",   img:"fish.jpg",   emoji:"🐟" },
 ];
 const COUNT_QUESTIONS = 5;
 const COUNT_SECONDS = 20;   // かぞえる時間(秒)
@@ -272,7 +274,11 @@ function drawCountQ(){
   $("c-score").textContent = `せいかい ${cq.score}`;
   $("c-ask").textContent = `🔊 How many ${cq.item.en}?`;
   $("c-field").innerHTML = Array.from({length: cq.answer}, () =>
-    `<span>${cq.item.emoji}</span>`).join("");
+    cq.item.img
+      ? `<span><img src="${IMG_BASE + encodeURIComponent(cq.item.img)}" alt="${cq.item.en}"
+          style="width:52px;height:52px;object-fit:contain;border-radius:8px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.12)"
+          onerror="this.outerHTML='${cq.item.emoji}'"></span>`
+      : `<span>${cq.item.emoji}</span>`).join("");
   // 選択肢: 正解ふくむ 6つ
   const opts = new Set([cq.answer]);
   while(opts.size < 6){
