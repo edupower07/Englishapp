@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>絵カードライブラリ | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#a29bfe; --teal:#00cec9; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px;background-size:40px 40px;min-height:100vh;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{max-width:1100px;margin:0 auto;padding:16px 16px 60px}
+.intro{
+  max-width:760px;margin:14px auto;background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:16px 20px;
+  font-size:.88rem;font-weight:700;color:#5d6b79;line-height:1.9;border:4px dashed var(--primary);
+}
+.intro b{color:var(--ink)}
+.intro a{color:#6c5ce7;font-weight:800}
+.searchbar{
+  max-width:560px;margin:0 auto 14px;display:flex;gap:8px;
+}
+.searchbar input{
+  flex:1;border:3px solid #e6ecf2;border-radius:50px;padding:12px 20px;font-family:inherit;font-weight:800;font-size:1rem;
+}
+.count{text-align:center;font-weight:800;color:var(--sub);font-size:.85rem;margin-bottom:12px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.card{
+  background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:.15s;
+  border:4px solid transparent;text-decoration:none;color:var(--ink);
+}
+.card:hover{transform:translateY(-3px);border-color:var(--primary);box-shadow:var(--shadow-hover)}
+.card .imgbox{height:110px;background:#f8f9fb;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card img{width:100%;height:100%;object-fit:contain}
+.card .name{padding:8px;font-weight:800;font-size:.74rem;text-align:center;line-height:1.3;word-break:break-word}
+.more-row{text-align:center;margin-top:18px}
+.big-btn{
+  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+}
+.big-btn:hover{transform:translateY(-2px)}
+footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700;line-height:1.9}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎴 絵カードライブラリ <span class="u">Picture Dictionary の絵カード</span></h1>
+  <a class="nav-btn" href="index.html" style="background:#b2bec3;color:#2d3436">ポータルへ</a>
+</header>
+
+<main>
+  <div class="intro">
+    Picture Dictionary で使っている<b>絵カード 859枚</b>のライブラリです。カードをタップすると大きな画像が開き、
+    右クリック(長押し)で保存できます。ワークシートやスライドづくりにどうぞ。<br>
+    📦 まとめてほしいときは <a href="https://github.com/edupower07/PictureDictionary/archive/refs/heads/main.zip">ZIP一括ダウンロード</a>
+    (画像は images フォルダに入っています)。<br>
+    ※ 学校・自治体の教育目的での利用は自由です。営利目的での再配布はご遠慮ください。
+  </div>
+  <div class="searchbar">
+    <input type="text" id="q" placeholder="えいごで けんさく(れい:cat / apple / Monday)">
+  </div>
+  <div class="count" id="count"></div>
+  <div class="gallery" id="gallery"></div>
+  <div class="more-row"><button class="big-btn" id="btn-more">もっと見る</button></div>
+</main>
+
+<footer>
+  画像が表示されないときは、PictureDictionary リポジトリの GitHub Pages が有効になっているか確認してください。<br>
+  © Edupower07 — Picture Dictionary
+</footer>
+
+<script>
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const FILES = ["AM.jpg", "America.jpg", "April.jpg", "August.jpg", "Australia.jpg", "Azerbaijan.jpg", "Bonjour.jpg", "Brazil.jpg", "Canada.jpg", "Children's Day.jpg", "Chile.jpg", "China.jpg", "December.jpg", "Egypt.jpg", "English.jpg", "February.jpg", "Finland.jpg", "France.jpg", "French fries.jpg", "Friday.jpg", "Germany.jpg", "Good afternoon.jpg", "Good evening.jpg", "Good morning.jpg", "Goodbye.jpg", "Hello.jpg", "Hi.jpg", "I am.jpg", "India.jpg", "Italy.jpg", "January.jpg", "Japan.jpg", "Japanese food.jpg", "Japanese pear.jpg", "Japanese sweets.jpg", "Japanese.jpg", "July.jpg", "June.jpg", "Kenya.jpg", "Konnichiwa.jpg", "Korea.jpg", "March.jpg", "May.jpg", "Momotaro.jpg", "Monday.jpg", "Namaste.jpg", "New Zealand.jpg", "Nihao.jpg", "Norway.jpg", "November.jpg", "October.jpg", "PE.jpg", "PM (2).jpg", "PM (3).jpg", "PM (4).jpg", "PM.jpg", "Peru.jpg", "Russia.jpg", "Saturday.jpg", "Saudi Arabia.jpg", "Sawasdee.jpg", "See you.jpg", "September.jpg", "South Africa.jpg", "Sunday.jpg", "T-shirt.jpg", "Thailand.jpg", "Thursday.jpg", "Tuesday.jpg", "Wednesday.jpg", "YouTuber.jpg", "a fireworks festival.jpg", "a snow festival.jpg", "a summer festival.jpg", "a.jpg", "a_capital.jpg", "a_small.jpg", "active.jpg", "actor.jpg", "afternoon.jpg", "always.jpg", "amusement park.jpg", "angry.jpg", "apple.jpg", "aquarium.jpg", "art club.jpg", "art festival.jpg", "artist.jpg", "arts and crafts room (2).jpg", "arts and crafts room.jpg", "arts and crafts.jpg", "astronaut.jpg", "at 10_30.jpg", "at 5_00.jpg", "ate.jpg", "athlete.jpg", "autumn leaves.jpg", "b.jpg", "b_capital.jpg", "b_small.jpg", "bacon.jpg", "badminton.jpg", "bag.jpg", "baker.jpg", "ball.jpg", "balloon.jpg", "banana.jpg", "bank_check.jpg", "bank_flash.jpg", "bank_organize.jpg", "baseball player.jpg", "baseball team.jpg", "baseball.jpg", "basketball team.jpg", "basketball.jpg", "bath time.jpg", "beach.jpg", "bear.jpg", "beautiful.jpg", "bed time.jpg", "bed.jpg", "beef.jpg", "big.jpg", "bird.jpg", "bitter.jpg", "black.jpg", "block.jpg", "blue.jpg", "body.jpg", "bookstore.jpg", "brass band.jpg", "brave.jpg", "bread.jpg", "breakfast time.jpg", "brother.jpg", "brown.jpg", "brush my teeth.jpg", "bugs.jpg", "bus stop.jpg", "busy.jpg", "buy.jpg", "by.jpg", "c.jpg", "c_capital.jpg", "c_small.jpg", "cabbage.jpg", "cake.jpg", "calendar.jpg", "calligraphy.jpg", "camping trip.jpg", "cap.jpg", "card.jpg", "carrot.jpg", "castle.jpg", "cat.jpg", "cat_actions.jpg", "cat_actions_g6.jpg", "cat_animal.jpg", "cat_body.jpg", "cat_club.jpg", "cat_color.jpg", "cat_country.jpg", "cat_days.jpg", "cat_directions.jpg", "cat_drink.jpg", "cat_events.jpg", "cat_feelings.jpg", "cat_food.jpg", "cat_frequency.jpg", "cat_fruit.jpg", "cat_impressions.jpg", "cat_ingredients.jpg", "cat_items.jpg", "cat_job.jpg", "cat_living.jpg", "cat_months.jpg", "cat_nature.jpg", "cat_nature_g6.jpg", "cat_numbers.jpg", "cat_past.jpg", "cat_people.jpg", "cat_personality.jpg", "cat_routine.jpg", "cat_school_events.jpg", "cat_season.jpg", "cat_skills.jpg", "cat_sport.jpg", "cat_state.jpg", "cat_subject.jpg", "cat_taste.jpg", "cat_town.jpg", "cat_town_g6.jpg", "cat_verbs.jpg", "cat_weather.jpg", "caterpillar.jpg", "chair.jpg", "cheerful.jpg", "cheese.jpg", "chef.jpg", "cherry blossoms.jpg", "cherry.jpg", "chicken.jpg", "chimpanzee.jpg", "chocolate.jpg", "chorus.jpg", "circle.jpg", "city hall.jpg", "classroom (2).jpg", "classroom.jpg", "clean my room.jpg", "clean the bath.jpg", "clean.jpg", "clear the table.jpg", "climb.jpg", "clock.jpg", "cloudy.jpg", "coffee.jpg", "cold.jpg", "comedian.jpg", "computer club.jpg", "computer room (2).jpg", "computer room.jpg", "computer.jpg", "convenience store.jpg", "cook dinner.jpg", "cook.jpg", "cooked.jpg", "cooking room (2).jpg", "cooking room.jpg", "cooking.jpg", "cool_nice.jpg", "cool_weather.jpg", "corn.jpg", "corner.jpg", "cow.jpg", "crab.jpg", "crayon.jpg", "cross.jpg", "cucumber.jpg", "cup.jpg", "curry and rice.jpg", "cute.jpg", "d.jpg", "d_capital.jpg", "d_small.jpg", "dance club.jpg", "dance.jpg", "dancing.jpg", "delicious.jpg", "demon.jpg", "dentist.jpg", "department store.jpg", "desert.jpg", "designer.jpg", "desk.jpg", "diamond.jpg", "dinner time.jpg", "do kendama.jpg", "do my homework.jpg", "doctor.jpg", "dodgeball.jpg", "dog.jpg", "dolphin.jpg", "donut.jpg", "drama club.jpg", "drama festival.jpg", "draw pictures.jpg", "draw.jpg", "drawing pictures.jpg", "drink.jpg", "dugong.jpg", "e.jpg", "e_capital.jpg", "e_small.jpg", "eagle.jpg", "ear.jpg", "eat (2).jpg", "eat breakfast.jpg", "eat dinner.jpg", "eat lunch.jpg", "eat.jpg", "egg.jpg", "eggplant.jpg", "eight o'clock.jpg", "eight.jpg", "eighteen.jpg", "eighty.jpg", "elephant.jpg", "eleven o'clock.jpg", "eleven.jpg", "enjoy (2).jpg", "enjoy.jpg", "enjoyed.jpg", "entrance (2).jpg", "entrance ceremony.jpg", "entrance.jpg", "eraser.jpg", "evening.jpg", "every day.jpg", "excited.jpg", "exciting.jpg", "eye.jpg", "f.jpg", "f_capital.jpg", "f_small.jpg", "fall.jpg", "famous.jpg", "farmer.jpg", "father.jpg", "feather.jpg", "field trip.jpg", "fifteen.jpg", "fifty.jpg", "figure skater.jpg", "fine.jpg", "fire station.jpg", "firefighter.jpg", "fish.jpg", "fishing.jpg", "five o'clock.jpg", "five.jpg", "florist.jpg", "flower shop.jpg", "flower.jpg", "fly.jpg", "forest.jpg", "forty.jpg", "four o'clock.jpg", "four.jpg", "fourteen.jpg", "fresh.jpg", "fried chicken.jpg", "fried rice.jpg", "friend.jpg", "friendly.jpg", "frog.jpg", "fruits.jpg", "fun.jpg", "funny.jpg", "fur.jpg", "g.jpg", "g3_unit1.jpg", "g3_unit2.jpg", "g3_unit3.jpg", "g3_unit4.jpg", "g3_unit5.jpg", "g3_unit6.jpg", "g3_unit7.jpg", "g3_unit8.jpg", "g3_unit9.jpg", "g4_unit1.jpg", "g4_unit2.jpg", "g4_unit3.jpg", "g4_unit4.jpg", "g4_unit5.jpg", "g4_unit6.jpg", "g4_unit7.jpg", "g4_unit8.jpg", "g4_unit9.jpg", "g_capital.jpg", "g_small.jpg", "game creator.jpg", "game_bingo.jpg", "game_karuta.jpg", "game_memory.jpg", "game_spelling.jpg", "garden.jpg", "get up.jpg", "giraffe.jpg", "glasses.jpg", "glue.jpg", "go home.jpg", "go straight.jpg", "go to bed.jpg", "go to school.jpg", "go.jpg", "gold.jpg", "good.jpg", "gorilla.jpg", "grade3.jpg", "grade4.jpg", "grade5.jpg", "grade6.jpg", "graduation ceremony.jpg", "grandfather.jpg", "grandmother.jpg", "grape.jpg", "grapes.jpg", "grass.jpg", "grasshopper.jpg", "gray.jpg", "great.jpg", "green pepper.jpg", "green tea.jpg", "green.jpg", "grilled fish.jpg", "gym (2).jpg", "gym (3).jpg", "gym.jpg", "h.jpg", "h_capital.jpg", "h_small.jpg", "hair stylist (2).jpg", "hair stylist.jpg", "ham.jpg", "hamburger.jpg", "hamster.jpg", "hanami.jpg", "hand.jpg", "happy.jpg", "hard.jpg", "hat.jpg", "have.jpg", "head.jpg", "heart.jpg", "help.jpg", "hippo.jpg", "home economics.jpg", "horn.jpg", "horse.jpg", "hospital.jpg", "hot pot.jpg", "hot spring (2).jpg", "hot spring.jpg", "hot.jpg", "house.jpg", "hungry.jpg", "i.jpg", "i_capital.jpg", "i_small.jpg", "ice cream.jpg", "in.jpg", "integrated_study.jpg", "interesting.jpg", "island.jpg", "j.jpg", "j_capital.jpg", "j_small.jpg", "jellyfish.jpg", "journalist.jpg", "jump rope.jpg", "jump.jpg", "jumping rope.jpg", "junior high school.jpg", "k.jpg", "k_capital.jpg", "k_small.jpg", "kangaroo.jpg", "kendama.jpg", "kendo club.jpg", "kind.jpg", "kiwi fruit.jpg", "koala.jpg", "l.jpg", "l_capital.jpg", "l_small.jpg", "lake.jpg", "leave my house.jpg", "leaves.jpg", "leg.jpg", "library (2).jpg", "library (3).jpg", "library.jpg", "like.jpg", "lion.jpg", "listen.jpg", "long.jpg", "love.jpg", "lunch room (2).jpg", "lunch room.jpg", "lunch time.jpg", "m.jpg", "m_capital.jpg", "m_small.jpg", "made.jpg", "magnet.jpg", "make.jpg", "making sweets.jpg", "manga artist.jpg", "marker.jpg", "matcha.jpg", "math.jpg", "me.jpg", "melon.jpg", "milk.jpg", "miso soup.jpg", "mode_easy.jpg", "mode_hard.jpg", "momijigari.jpg", "monkey.jpg", "moral education.jpg", "morning.jpg", "mother.jpg", "mountain.jpg", "mouse.jpg", "mouth.jpg", "museum.jpg", "mushroom.jpg", "music festival.jpg", "music room (2).jpg", "music room.jpg", "music.jpg", "n.jpg", "n_capital.jpg", "n_small.jpg", "name.jpg", "neck.jpg", "neighbor.jpg", "nervous.jpg", "never.jpg", "new.jpg", "newspaper club.jpg", "nice.jpg", "night.jpg", "nine o'clock.jpg", "nine.jpg", "nineteen.jpg", "ninety.jpg", "noodles.jpg", "nose.jpg", "notebook.jpg", "nurse.jpg", "nursery teacher.jpg", "nuts.jpg", "o.jpg", "o_capital.jpg", "o_small.jpg", "octopus.jpg", "old.jpg", "omelet.jpg", "on.jpg", "one hundred and one.jpg", "one hundred.jpg", "one o'clock.jpg", "one.jpg", "onion.jpg", "orange juice.jpg", "orange_color.jpg", "orange_fruit.jpg", "orangutan.jpg", "oshogatsu.jpg", "owl.jpg", "p.jpg", "p_capital.jpg", "p_small.jpg", "panda.jpg", "pants.jpg", "paper.jpg", "park.jpg", "peach.jpg", "pen.jpg", "pencil case.jpg", "pencil.jpg", "penguin.jpg", "persimmon.jpg", "pheasant.jpg", "pig.jpg", "pineapple.jpg", "pink.jpg", "pizza.jpg", "play badminton.jpg", "play baseball.jpg", "play basketball.jpg", "play cards.jpg", "play dodgeball.jpg", "play soccer.jpg", "play table tennis.jpg", "play tag.jpg", "play the guitar.jpg", "play the piano.jpg", "play the recorder.jpg", "play volleyball.jpg", "play with my friends.jpg", "play.jpg", "played.jpg", "playground (2).jpg", "playground.jpg", "playing the piano.jpg", "playing the recorder.jpg", "playing video games.jpg", "polar bear.jpg", "police station.jpg", "pond.jpg", "popular.jpg", "pork.jpg", "post office.jpg", "potato.jpg", "practice.jpg", "practiced.jpg", "present.jpg", "prince.jpg", "princess.jpg", "pudding.jpg", "purple.jpg", "q.jpg", "q_capital.jpg", "q_small.jpg", "r.jpg", "r_capital.jpg", "r_small.jpg", "rabbit.jpg", "racket.jpg", "rain forest.jpg", "rainbow.jpg", "rainy.jpg", "ramen.jpg", "read.jpg", "rectangle.jpg", "red panda.jpg", "red pencil.jpg", "red.jpg", "restaurant.jpg", "restroom (2).jpg", "restroom.jpg", "rice ball.jpg", "rice cake.jpg", "rice.jpg", "ride a unicycle.jpg", "riding a unicycle.jpg", "river.jpg", "robot creator.jpg", "rock.jpg", "ruler.jpg", "run fast.jpg", "run.jpg", "running.jpg", "s.jpg", "s_capital.jpg", "s_small.jpg", "sad.jpg", "salad.jpg", "salmon.jpg", "salty.jpg", "sandwich.jpg", "sang.jpg", "sausage.jpg", "savanna.jpg", "saw.jpg", "scared.jpg", "school nurse's office (2).jpg", "school nurse's office.jpg", "school office (2).jpg", "school office.jpg", "school principal's office (2).jpg", "school principal's office.jpg", "school trip.jpg", "school.jpg", "science club.jpg", "science room (2).jpg", "science room.jpg", "science.jpg", "scissors.jpg", "scissors_janken.jpg", "sea turtle.jpg", "sea.jpg", "seal.jpg", "seater.jpg", "seaweed.jpg", "see (2).jpg", "see.jpg", "set the table.jpg", "setsubun.jpg", "seven o'clock.jpg", "seven.jpg", "seventeen.jpg", "seventy.jpg", "sewing.jpg", "shark.jpg", "shell.jpg", "shichi-go-san.jpg", "shoes.jpg", "short.jpg", "shoulder.jpg", "shrimp.jpg", "shrine.jpg", "shy.jpg", "silver.jpg", "sing well.jpg", "sing.jpg", "singer.jpg", "singing.jpg", "sister.jpg", "sit down.jpg", "six o'clock.jpg", "six.jpg", "sixteen.jpg", "sixty.jpg", "skiing.jpg", "sky.jpg", "sleepy.jpg", "small.jpg", "smart.jpg", "smartphone.jpg", "snack time.jpg", "snake.jpg", "snowy.jpg", "soccer player.jpg", "soccer team.jpg", "soccer.jpg", "social studies.jpg", "soda.jpg", "soft.jpg", "sometimes.jpg", "soup.jpg", "sour.jpg", "spaghetti.jpg", "speak.jpg", "spicy.jpg", "spinach.jpg", "sports day.jpg", "sports.jpg", "spring.jpg", "square.jpg", "squid.jpg", "stadium.jpg", "stand up.jpg", "staples.jpg", "star.jpg", "stars.jpg", "station.jpg", "steak.jpg", "stop.jpg", "strawberry.jpg", "strong.jpg", "study.jpg", "summer.jpg", "sun.jpg", "sunny.jpg", "sunrise.jpg", "sunset.jpg", "supermarket.jpg", "sushi.jpg", "sweet.jpg", "swim.jpg", "swimming meet.jpg", "swimming pool.jpg", "swimming.jpg", "t.jpg", "t_capital.jpg", "t_small.jpg", "table tennis team.jpg", "table tennis.jpg", "tablet.jpg", "tail (2).jpg", "tail.jpg", "take a bath.jpg", "take out the garbage.jpg", "talk.jpg", "talked.jpg", "tape.jpg", "tea.jpg", "teacher.jpg", "teachers' office (2).jpg", "teachers' office.jpg", "temple.jpg", "ten o'clock.jpg", "ten.jpg", "tennis player.jpg", "tennis team.jpg", "tennis.jpg", "thank you.jpg", "the Doll Festival.jpg", "the Maldives.jpg", "the Philippines.jpg", "the Star Festival.jpg", "the_UK.jpg", "the_US.jpg", "thirsty.jpg", "thirteen.jpg", "thirty.jpg", "three o'clock.jpg", "three.jpg", "tiger.jpg", "tired.jpg", "tomato.jpg", "track team.jpg", "tree.jpg", "triangle.jpg", "tried.jpg", "try.jpg", "tsukimi.jpg", "tuna.jpg", "turn left.jpg", "turn right.jpg", "twelve o'clock.jpg", "twelve.jpg", "twenty-eight.jpg", "twenty-five.jpg", "twenty-four.jpg", "twenty-nine.jpg", "twenty-one.jpg", "twenty-seven.jpg", "twenty-six.jpg", "twenty-three.jpg", "twenty-two.jpg", "twenty.jpg", "two hundred.jpg", "two o'clock.jpg", "two.jpg", "u.jpg", "u_capital.jpg", "u_small.jpg", "under.jpg", "usually.jpg", "v.jpg", "v_capital.jpg", "v_small.jpg", "vet.jpg", "visit (2).jpg", "visit.jpg", "visited.jpg", "voice actor.jpg", "volleyball team.jpg", "volleyball.jpg", "volunteer day.jpg", "w.jpg", "w_capital.jpg", "w_small.jpg", "wake up time.jpg", "walk the dog.jpg", "walk.jpg", "walked.jpg", "want.jpg", "warm.jpg", "wash my face.jpg", "wash the dishes.jpg", "wash.jpg", "washed.jpg", "watch TV.jpg", "watch_action.jpg", "watch_item.jpg", "watched.jpg", "water.jpg", "waterfall.jpg", "watermelon.jpg", "went.jpg", "whale.jpg", "white bear.jpg", "white.jpg", "windy.jpg", "wing.jpg", "winter.jpg", "wonderful.jpg", "write.jpg", "x.jpg", "x_capital.jpg", "x_small.jpg", "y.jpg", "y_capital.jpg", "y_small.jpg", "yellow.jpg", "yogurt.jpg", "z.jpg", "z_capital.jpg", "z_small.jpg", "zebra.jpg", "zero.jpg", "zoo.jpg", "zookeeper.jpg"];
+const PAGE = 60;
+let filtered = FILES, shown = 0;
+const gallery = document.getElementById("gallery");
+const count = document.getElementById("count");
+const moreBtn = document.getElementById("btn-more");
+function nameOf(f){ return f.replace(/\.(jpg|jpeg|png)$/i, ""); }
+function render(reset){
+  if(reset){ gallery.innerHTML = ""; shown = 0; }
+  const next = filtered.slice(shown, shown + PAGE);
+  gallery.insertAdjacentHTML("beforeend", next.map(f => {
+    const url = IMG_BASE + encodeURIComponent(f);
+    return '<a class="card" href="' + url + '" target="_blank" rel="noopener">' +
+      '<div class="imgbox"><img loading="lazy" src="' + url + '" alt="' + nameOf(f) + '"></div>' +
+      '<div class="name">' + nameOf(f) + '</div></a>';
+  }).join(""));
+  shown += next.length;
+  count.textContent = filtered.length + "枚中 " + shown + "枚を表示中";
+  moreBtn.style.display = shown < filtered.length ? "" : "none";
+}
+document.getElementById("q").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  filtered = q ? FILES.filter(f => f.toLowerCase().includes(q)) : FILES;
+  render(true);
+});
+moreBtn.addEventListener("click", () => render(false));
+render(true);
+</script>
+</body>
+</html>

@@ -10,13 +10,14 @@
 
 ```
 index.html          ← ポータルサイト本体(アプリ一覧)
-apps/               ← 各アプリ(単一HTMLファイル)
+cards.html          ← 絵カードライブラリ(859枚の検索・閲覧・保存)
+apps/               ← 各アプリ(単一HTMLファイル、全32本+Small Talk)
   smalltalk.html    ← Small Talk トレーナー(5・6年)
-  g3_*.html         ← 3年生向けアプリ
-  g4_*.html         ← 4年生向けアプリ
-  g5_*.html         ← 5年生向けアプリ
-  g6_*.html         ← 6年生向けアプリ
-gas/                ← GAS連携が必要なアプリ用の Apps Script コード
+  g3_*.html         ← 3年生向けアプリ(8本)
+  g4_*.html         ← 4年生向けアプリ(8本)
+  g5_*.html         ← 5年生向けアプリ(8本)
+  g6_*.html         ← 6年生向けアプリ(8本)
+gas/                ← GAS連携(任意)用の Apps Script コードと手順(README.md)
 ```
 
 アプリ一覧の表示は `index.html` 冒頭の `APPS` 配列で管理しています。アプリを追加したら `status: "live"` と `file` を設定してください。
