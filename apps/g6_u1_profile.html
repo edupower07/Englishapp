@@ -69,6 +69,20 @@ main{max-width:880px;margin:0 auto;padding:16px 16px 60px}
 .pc-lines{margin-top:12px;text-align:left}
 .pc-line{font-size:1.05rem;font-weight:800;padding:6px 10px;border-radius:10px;cursor:pointer}
 .pc-line:hover{background:#eef6ff}
+
+/* 自分で言ってみようステージ */
+.try-card{
+  max-width:560px;margin:0 auto;background:#fffdf5;border-radius:24px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--yellow);padding:22px;text-align:center;
+}
+.try-card .try-hint{font-size:.85rem;color:#8a6d1e;font-weight:800;margin-bottom:14px;line-height:1.8}
+.prompt-list{display:flex;flex-direction:column;gap:10px;text-align:left}
+.prompt-line{
+  background:#fff;border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);
+  cursor:pointer;
+}
+.prompt-line .q{font-weight:800;color:var(--primary-dark);flex:1}
+.prompt-line .a-icons{font-size:1.3rem;white-space:nowrap}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
 @media print{
@@ -81,7 +95,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>🙋 自己紹介プロフィールカード <span class="u">6年 Unit1 This is me!</span></h1>
+  <h1>🙋 自己紹介プロフィールカード <span class="u">6年生 自己紹介</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-restart">さいしょから</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -118,14 +132,28 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
       </div>
     </div>
     <div class="actions">
-      <button class="big-btn" id="btn-make" disabled>プロフィールカードをつくる ✨</button>
+      <button class="big-btn" id="btn-make" disabled>自己紹介にちょうせん ▶</button>
+    </div>
+  </section>
+
+  <!-- 自分で言ってみよう -->
+  <section id="scr-try" class="hidden">
+    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
+    <p class="step-sub">あつめた材料をつかって、This is me! を英語で言ってみよう(声に出してね)</p>
+    <div class="try-card">
+      <div class="try-hint">それぞれの質問に、えらんだ材料をつかってこたえてみよう</div>
+      <div class="prompt-list" id="prompt-list"></div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-check" style="background:var(--yellow);color:#7a5b1e">言えたら たしかめる ✅</button>
+      <button class="big-btn gray" id="btn-back-try">材料をえらびなおす</button>
     </div>
   </section>
 
   <!-- カード -->
   <section id="scr-card" class="hidden">
-    <h2 class="step-title">✨ かんせい!</h2>
-    <p class="step-sub">1文ずつタップして発表練習しよう</p>
+    <h2 class="step-title">🔊 お手本でたしかめよう</h2>
+    <p class="step-sub">じぶんが言ったことと くらべてみよう。1文ずつタップでも聞けるよ</p>
     <div class="profile-card">
       <div class="pc-head">THIS IS ME!</div>
       <div class="pc-body">
@@ -216,40 +244,41 @@ function ordinal(d){
 let sel = { country:null, animal:null, likes:[] };
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-form","scr-card"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  ["scr-form","scr-try","scr-card"].forEach(s => $(s).classList.toggle("hidden", s !== id));
 }
 
 // ============================================================
-// フォーム
+// フォーム(絵カード・英語のみ表示。日本語ラベルは出さない)
 // ============================================================
 $("f-country").innerHTML = COUNTRIES.map(c =>
-  `<button class="chip" data-en="${c.en}">${c.flag} ${c.ja}</button>`).join("");
+  `<button class="chip" data-en="${c.en}">${c.flag} ${c.en}</button>`).join("");
 $("f-animal").innerHTML = ANIMALS.map(a =>
-  `<button class="chip" data-en="${a.en}">${a.emoji} ${a.ja}</button>`).join("");
+  `<button class="chip" data-en="${a.en}">${a.emoji} ${a.en}</button>`).join("");
 $("f-likes").innerHTML = LIKES.map(l =>
-  `<button class="chip" data-en="${l.en}">${l.emoji} ${l.ja}</button>`).join("");
-$("f-month").innerHTML = MONTHS.map((m,i) => `<option value="${i}">${i+1}月 ${m}</option>`).join("");
-$("f-day").innerHTML = Array.from({length:31},(_,i) => `<option value="${i+1}">${i+1}日</option>`).join("");
+  `<button class="chip" data-en="${l.en}">${l.emoji} ${l.en}</button>`).join("");
+$("f-month").innerHTML = MONTHS.map((m,i) => `<option value="${i}">${m}</option>`).join("");
+$("f-day").innerHTML = Array.from({length:31},(_,i) => `<option value="${i+1}">${ordinal(i+1)}</option>`).join("");
 
+// 選択時は単語の音声のみ(文まるごとは聞かせない。文づくりは自分で考える)
 $("f-country").addEventListener("click", e => {
   const b = e.target.closest(".chip"); if(!b) return;
   sel.country = COUNTRIES.find(c => c.en === b.dataset.en);
   document.querySelectorAll("#f-country .chip").forEach(x => x.classList.toggle("on", x === b));
-  speak(`I'm from ${sel.country.en}.`);
+  speak(sel.country.en);
   update();
 });
 $("f-animal").addEventListener("click", e => {
   const b = e.target.closest(".chip"); if(!b) return;
   sel.animal = ANIMALS.find(a => a.en === b.dataset.en);
   document.querySelectorAll("#f-animal .chip").forEach(x => x.classList.toggle("on", x === b));
-  speak(`I like ${sel.animal.en}.`);
+  speak(sel.animal.en);
   update();
 });
 $("f-likes").addEventListener("click", e => {
   const b = e.target.closest(".chip"); if(!b) return;
   const en = b.dataset.en;
   if(sel.likes.includes(en)){ sel.likes = sel.likes.filter(x => x !== en); }
-  else if(sel.likes.length < 2){ sel.likes.push(en); speak(`I like ${en}.`); }
+  else if(sel.likes.length < 2){ sel.likes.push(en); speak(en); }
   document.querySelectorAll("#f-likes .chip").forEach(x =>
     x.classList.toggle("on", sel.likes.includes(x.dataset.en)));
   update();
@@ -278,7 +307,36 @@ function cardLines(){
     `This is me! Thank you!`,
   ];
 }
+// ============================================================
+// 自分で言ってみよう(材料の提示のみ。英文はまだ見せない)
+// ============================================================
+function buildTry(){
+  const likeEmojis = sel.likes.map(en => LIKES.find(l => l.en === en).emoji).join(" ");
+  const prompts = [
+    { q:"Hello, everyone.", a:"👋 " + cleanName() },
+    { q:"Where are you from?", a:sel.country.flag },
+    { q:"When is your birthday?", a:"🎂 " + MONTHS[+$("f-month").value] + " " + ordinal(+$("f-day").value) },
+    { q:"What animal do you like?", a:sel.animal.emoji },
+    { q:"What else do you like?", a:likeEmojis },
+  ];
+  $("prompt-list").innerHTML = prompts.map((p,i) =>
+    `<div class="prompt-line" data-t="${p.q}"><span class="q">🔊 ${p.q}</span><span class="a-icons">${p.a}</span></div>`).join("");
+}
+$("prompt-list").addEventListener("click", e => {
+  const el = e.target.closest(".prompt-line"); if(!el) return;
+  speak(el.dataset.t);
+});
 $("btn-make").addEventListener("click", () => {
+  buildTry();
+  show("scr-try");
+  speak("Where are you from?");
+});
+$("btn-back-try").addEventListener("click", () => show("scr-form"));
+
+// ============================================================
+// お手本で確認
+// ============================================================
+$("btn-check").addEventListener("click", () => {
   $("pc-name").textContent = cleanName();
   const likeEmojis = sel.likes.map(en => LIKES.find(l => l.en === en).emoji).join(" ");
   $("pc-meta").textContent = `${sel.country.flag} 🎂 ${sel.animal.emoji} ${likeEmojis}`;
@@ -293,7 +351,7 @@ $("pc-lines").addEventListener("click", e => {
 });
 $("btn-speak-all").addEventListener("click", () => speakQueue(cardLines()));
 $("btn-print").addEventListener("click", () => window.print());
-$("btn-back").addEventListener("click", () => show("scr-form"));
+$("btn-back").addEventListener("click", () => show("scr-try"));
 $("btn-restart").addEventListener("click", () => {
   sel = { country:null, animal:null, likes:[] };
   $("f-name").value = "";

@@ -107,7 +107,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>🌅 まいにちのタイムライン日課 <span class="u">4年 Unit9 This is my day.</span></h1>
+  <h1>🌅 まいにちのタイムライン日課 <span class="u">4年生 1日の生活</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-home">つくりなおす</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -213,7 +213,7 @@ function renderTimeline(){
         const a = ACTIONS[ai];
         return `${i>0 ? '<span class="tl-arrow">▶</span>' : ""}
           <span class="tl-chip" data-i="${i}">
-            <span class="n">${i+1}</span><span class="e">${a.emoji}</span>${a.ja}
+            <span class="n">${i+1}</span><span class="e">${a.emoji}</span>
           </span>`;
       }).join("");
   $("btn-book").disabled = seq.length < 2;
@@ -222,7 +222,7 @@ function renderPool(){
   $("pool").innerHTML = ACTIONS.map((a,i) => `
     <div class="pcard ${seq.includes(i) ? "used" : ""}" data-i="${i}">
       ${actVisual(a, "pimg", "pemoji")}
-      <div class="plabel">${a.tod} ${a.ja}<small>${a.en}</small></div>
+      <div class="plabel">${a.tod}<br>${a.en}</div>
     </div>`).join("");
 }
 $("pool").addEventListener("click", e => {
@@ -250,7 +250,7 @@ function renderPage(){
     <div class="page">
       ${actVisual(a, "bimg", "bemoji")}
       <div class="btext" data-t="${a.en}">🔊 ${a.en}</div>
-      <div class="bja">${a.ja}</div>
+      
     </div>
     <span class="pageno">${page+1} / ${seq.length}</span>`;
   speak(a.en);

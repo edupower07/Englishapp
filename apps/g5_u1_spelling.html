@@ -100,7 +100,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>🪪 名前スペリング&自己紹介カード <span class="u">5年 Unit1 Hello, friends.</span></h1>
+  <h1>🪪 名前スペリング&自己紹介カード <span class="u">5年生 自己紹介</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-restart">さいしょから</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -279,7 +279,7 @@ function chipHTML(item){
   }else{
     visual = `<span class="cemoji">${item.emoji}</span>`;
   }
-  return `<div class="chip" data-en="${item.en}">${visual}<div class="clabel">${item.ja}<small>${item.en}</small></div></div>`;
+  return `<div class="chip" data-en="${item.en}">${visual}<div class="clabel">${item.en}</div></div>`;
 }
 function buildChips(){
   CATS.forEach(c => { $(c.elId).innerHTML = c.list.map(chipHTML).join(""); });

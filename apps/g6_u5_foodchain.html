@@ -111,7 +111,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 <body>
 
 <header>
-  <h1>🦈 食物連鎖クイズビルダー <span class="u">6年 Unit5 We all live on the Earth.</span></h1>
+  <h1>🦈 食物連鎖クイズビルダー <span class="u">6年生 食物連鎖</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-home">モードせんたく</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -144,7 +144,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
     <div class="chain-zone" id="chain-zone"></div>
     <div class="pool" id="pool"></div>
     <div class="actions">
-      <button class="big-btn green" id="btn-say" disabled>🔊 英語で言ってみる</button>
+      <button class="big-btn green" id="btn-say" disabled>できたら 英語で言ってみる ▶</button>
       <button class="big-btn gray" id="btn-clear">さいしょから</button>
     </div>
     <div class="sent-box hidden" id="sent-box"></div>
@@ -256,7 +256,7 @@ function drawChain(){
         const c = cOf(id);
         return `${i>0 ? '<span class="chain-arrow">→</span>' : ""}
           <div class="chain-card" data-i="${i}" title="タップでここから後ろをけす">
-            ${creatureVisual(c)}<small>${c.ja}<br>${c.en}</small>
+            ${creatureVisual(c)}<small>${c.en}</small>
           </div>`;
       }).join("");
   $("btn-say").disabled = chain.length < 2;
@@ -269,7 +269,7 @@ function drawPool(){
       <div class="pimg">${c.img
         ? `<img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}" onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${c.emoji}</span>'">`
         : `<span class="pemoji">${c.emoji}</span>`}</div>
-      <div class="plabel">${c.ja}<small>${c.en}</small></div>
+      <div class="plabel">${c.en}</div>
     </div>`;
   }).join("");
 }
@@ -277,12 +277,7 @@ $("pool").addEventListener("click", e => {
   const el = e.target.closest(".creature"); if(!el || el.classList.contains("dim")) return;
   const c = cOf(el.dataset.id);
   chain.push(c.id);
-  if(chain.length >= 2){
-    const prev = cOf(chain[chain.length - 2]);
-    speak(`${cap(c.en)} eat ${prev.en}.`);
-  }else{
-    speak(c.en);
-  }
+  speak(c.en);
   $("sent-box").classList.add("hidden");
   drawChain(); drawPool();
 });
@@ -337,11 +332,11 @@ function drawQuizQ(){
   $("q-progress").textContent = `だい${quiz.idx+1}問 / ${quiz.qs.length}問`;
   $("q-score").textContent = `せいかい ${quiz.score}`;
   $("q-text").textContent = `What do ${eater.en} eat?`;
-  $("q-sub").textContent = `${eater.ja}は なにを食べる?したから えらぼう`;
+  $("q-sub").textContent = "したから えらぼう";
   $("q-chain").innerHTML = `
     <div class="chain-card hidden-card"><span class="ce">❓</span><small>???</small></div>
     <span class="chain-arrow">→</span>
-    <div class="chain-card">${creatureVisual(eater)}<small>${eater.ja}<br>${eater.en}</small></div>`;
+    <div class="chain-card">${creatureVisual(eater)}<small>${eater.en}</small></div>`;
   // 選択肢: 正解 + まちがい3つ
   const wrongs = shuffle(CREATURES.filter(c => c.id !== q.prey && !eater.eats.includes(c.id))).slice(0,3);
   const opts = shuffle([cOf(q.prey), ...wrongs]);
@@ -350,7 +345,7 @@ function drawQuizQ(){
       <div class="pimg">${c.img
         ? `<img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}" onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${c.emoji}</span>'">`
         : `<span class="pemoji">${c.emoji}</span>`}</div>
-      <div class="plabel">${c.ja}<small>${c.en}</small></div>
+      <div class="plabel">${c.en}</div>
     </div>`).join("");
   $("q-msg").textContent = ""; $("q-msg").className = "msg";
   speak(`What do ${eater.en} eat?`);

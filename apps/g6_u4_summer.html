@@ -56,6 +56,16 @@ main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
 .cat.food .chip.on{border-color:var(--orange);background:#fff7ec}
 .cat.feel .chip.on{border-color:var(--pink);background:#fff0f2}
 
+/* 自分で言ってみよう */
+.try-card{
+  max-width:560px;margin:10px auto;background:#fffdf5;border-radius:24px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--orange);padding:22px;text-align:center;
+}
+.try-card .try-hint{font-size:.85rem;color:#8a5a1e;font-weight:800;margin-bottom:12px;line-height:1.8}
+.try-list{display:flex;flex-direction:column;gap:8px;text-align:left}
+.try-line{background:#fff;border-radius:12px;padding:10px 14px;font-weight:800;box-shadow:var(--shadow);cursor:pointer;display:flex;align-items:center;gap:10px}
+.try-line .te{font-size:1.5rem}
+
 .actions{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
 .big-btn{
   border:none;border-radius:50px;padding:14px 32px;font-family:inherit;font-weight:800;font-size:1.05rem;
@@ -102,7 +112,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>🏖️ サマーバケーション思い出マップ <span class="u">6年 Unit4 Summer Vacations</span></h1>
+  <h1>🏖️ サマーバケーション思い出マップ <span class="u">6年生 夏の思い出</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-new">あたらしい思い出</button>
     <button class="nav-btn" id="btn-map">みんなのマップ</button>
@@ -135,12 +145,27 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     </div>
 
     <div class="actions">
-      <button class="big-btn" id="btn-diary" disabled>日記をかんせいさせる ✏️</button>
+      <button class="big-btn" id="btn-diary" disabled>夏の思い出を話してみる ▶</button>
     </div>
   </section>
 
-  <!-- STEP2: 日記 -->
+  <!-- STEP2: 自分で言ってみよう -->
+  <section id="scr-try" class="hidden">
+    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
+    <p class="step-sub">あつめた材料をつかって、夏の思い出を英語で話してみよう(声に出してね)</p>
+    <div class="try-card">
+      <div class="try-hint">それぞれの質問に、えらんだ材料でこたえてみよう</div>
+      <div class="try-list" id="try-list"></div>
+    </div>
+    <div class="actions">
+      <button class="big-btn orange" id="btn-check">言えたら たしかめる ✅</button>
+      <button class="big-btn gray" id="btn-back-try">材料をえらびなおす</button>
+    </div>
+  </section>
+
+  <!-- STEP3: 日記 -->
   <section id="scr-diary" class="hidden">
+    <h2 class="step-title">🔊 お手本の日記でたしかめよう</h2>
     <div class="diary">
       <div class="diary-head">MY SUMMER VACATION</div>
       <div class="diary-body" id="diary-lines"></div>
@@ -149,7 +174,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     <div class="actions">
       <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
       <button class="big-btn orange" id="btn-to-map">地図にピンを立てる 📍</button>
-      <button class="big-btn gray" id="btn-back">えらびなおす</button>
+      <button class="big-btn gray" id="btn-back">言ってみようにもどる</button>
     </div>
   </section>
 
@@ -246,13 +271,13 @@ try{ pins = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ pins
 
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-select","scr-diary","scr-map"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  ["scr-select","scr-try","scr-diary","scr-map"].forEach(s => $(s).classList.toggle("hidden", s !== id));
 }
 function chipHTML(item){
   const inner = item.img
     ? `<div class="cimg"><img src="${IMG_BASE + encodeURIComponent(item.img)}" alt="${item.en}" onerror="this.outerHTML='<span class=&quot;cemoji&quot;>${item.emoji}</span>'"></div>`
     : `<span class="cemoji">${item.emoji}</span>`;
-  return `<div class="chip" data-id="${item.id}">${inner}<div class="clabel">${item.ja}<small>${item.en}</small></div></div>`;
+  return `<div class="chip" data-id="${item.id}">${inner}<div class="clabel">${item.en}</div></div>`;
 }
 
 // ============================================================
@@ -271,7 +296,7 @@ function buildChips(){
       const el = e.target.closest(".chip"); if(!el) return;
       sel[c.key] = c.list.find(x => x.id === el.dataset.id);
       $(c.elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === el));
-      speak(c.phrase(sel[c.key].en));
+      speak(sel[c.key].en);
       $("btn-diary").disabled = !(sel.place && sel.act && sel.food && sel.feel);
     });
   });
@@ -300,8 +325,32 @@ $("diary-lines").addEventListener("click", e => {
   const el = e.target.closest(".d-line"); if(!el) return;
   speak(diaryLines()[+el.dataset.i]);
 });
-$("btn-diary").addEventListener("click", showDiary);
 $("btn-speak-all").addEventListener("click", () => speakQueue(diaryLines()));
+
+// ============================================================
+// 自分で言ってみよう(材料の提示のみ。英文はまだ見せない)
+// ============================================================
+const TRY_QUESTIONS = [
+  { q:"Where did you go?",    key:"place" },
+  { q:"What did you enjoy?",  key:"act" },
+  { q:"What did you eat?",    key:"food" },
+  { q:"How was it?",          key:"feel" },
+];
+function buildTry(){
+  $("try-list").innerHTML = TRY_QUESTIONS.map(t =>
+    `<div class="try-line" data-t="${t.q}"><span class="te">${sel[t.key].emoji}</span>🔊 ${t.q}</div>`).join("");
+}
+$("try-list").addEventListener("click", e => {
+  const el = e.target.closest(".try-line"); if(!el) return;
+  speak(el.dataset.t);
+});
+$("btn-diary").addEventListener("click", () => {
+  buildTry();
+  show("scr-try");
+  speak("Where did you go?");
+});
+$("btn-back-try").addEventListener("click", () => show("scr-select"));
+$("btn-check").addEventListener("click", showDiary);
 
 // ============================================================
 // 日本地図(デフォルメ)とピン
@@ -371,7 +420,7 @@ function openMap(){
 }
 $("btn-new").addEventListener("click", newMemory);
 $("btn-new2").addEventListener("click", newMemory);
-$("btn-back").addEventListener("click", () => show("scr-select"));
+$("btn-back").addEventListener("click", () => show("scr-try"));
 $("btn-to-map").addEventListener("click", openMap);
 $("btn-map").addEventListener("click", openMap);
 $("btn-clear").addEventListener("click", () => {

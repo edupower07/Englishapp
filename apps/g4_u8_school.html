@@ -133,7 +133,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>🏫 学校道案内メーカー <span class="u">4年 Unit8 This is my favorite place.</span></h1>
+  <h1>🏫 学校道案内メーカー <span class="u">4年生 道案内</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-home">モードせんたく</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -289,7 +289,7 @@ function drawGrid(){
       const isStart = (x === START.x && y === START.y);
       html += `<div class="cell ${b ? "" : "road"} ${isStart ? "start" : ""}" data-x="${x}" data-y="${y}">
         ${b ? bOf(b.id).emoji : (isStart ? "★" : "")}
-        ${b ? `<span class="bname">${bOf(b.id).ja}</span>` : ""}
+        ${b ? `<span class="bname">${bOf(b.id).en}</span>` : ""}
       </div>`;
     }
   }
@@ -387,7 +387,7 @@ function finishRun(){
       $("msg").className = "msg ok";
       speak(`You made it! This is my favorite place, the ${goal.en}!`)
     }else{
-      $("msg").textContent = here ? `ここは ${bOf(here.id).ja} だった…もういちど!` : "なにもない場所についたよ…もういちど!";
+      $("msg").textContent = here ? `ここは ${bOf(here.id).en} だった…もういちど!` : "なにもない場所についたよ…もういちど!";
       $("msg").className = "msg ng";
       speak("Sorry! Try again!");
     }
@@ -395,8 +395,8 @@ function finishRun(){
     const okPick = guessPick && here && guessPick === here.id;
     if(here){
       $("msg").textContent = okPick
-        ? `⭕ せいかい!${bOf(here.id).ja} にとうちゃく!`
-        : `こたえは ${bOf(here.id).ja} でした!${guessPick ? "" : "(よそうしてからスタートしてみよう)"}`;
+        ? `⭕ せいかい!${bOf(here.id).en} にとうちゃく!`
+        : `こたえは ${bOf(here.id).en} でした!${guessPick ? "" : "(よそうしてからスタートしてみよう)"}`;
       $("msg").className = okPick ? "msg ok" : "msg ng";
       speak(`This is the ${bOf(here.id).en}.`);
     }else{
@@ -420,7 +420,7 @@ function newChallenge(){
   goal = bOf(town[Math.floor(Math.random() * town.length)].id);
   questVisual(goal);
   $("quest-en").textContent = `Where is the ${goal.en}?`;
-  $("quest-ja").textContent = `${goal.ja}まで あんないしよう(★=しょうこうぐちからスタート)`;
+  $("quest-ja").textContent = `${goal.en} まで あんないしよう(★=スタート地点)`;
   document.querySelectorAll(".cell").forEach(c => c.classList.remove("goal-flash"));
   const t = town.find(t => t.id === goal.id);
   $("grid").children[t.y * W + t.x].classList.add("goal-flash");
@@ -466,7 +466,7 @@ $("btn-next").addEventListener("click", () => {
 // ============================================================
 function buildPalette(){
   $("palette").innerHTML = BUILDINGS.map(b =>
-    `<button class="pal-btn" data-id="${b.id}"><span class="pe">${b.emoji}</span><small>${b.ja}</small></button>`).join("") +
+    `<button class="pal-btn" data-id="${b.id}"><span class="pe">${b.emoji}</span><small>${b.en}</small></button>`).join("") +
     `<button class="pal-btn erase" data-id="erase"><span class="pe">🧹</span><small>けす</small></button>`;
 }
 $("palette").addEventListener("click", e => {
@@ -491,7 +491,7 @@ $("grid").addEventListener("click", e => {
     const b = buildingAt(x,y);
     if(!b) return;
     guessPick = b.id;
-    $("msg").textContent = `よそう: ${bOf(b.id).ja} ➡ スタートでたしかめよう!`;
+    $("msg").textContent = `よそう: ${bOf(b.id).en} ➡ スタートでたしかめよう!`;
     $("msg").className = "msg";
     speak(`Is it the ${bOf(b.id).en}?`);
   }

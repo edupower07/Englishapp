@@ -89,7 +89,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>🎤 マイヒーロー投票&スピーチカード <span class="u">5年 Unit8 Who is your hero?</span></h1>
+  <h1>🎤 マイヒーロー投票&スピーチカード <span class="u">5年生 ヒーロー紹介</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-restart">さいしょから</button>
     <button class="nav-btn" id="btn-dash">みんなのけっか</button>
@@ -111,21 +111,35 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     <h2 class="step-title">② どんな人?なにが得意?</h2>
     <p class="step-sub">性格と得意なことを、それぞれ1〜2こえらぼう</p>
     <div class="wrap">
-      <div class="cat-h"><span class="tag">性格</span>He/She is 〜.</div>
+      <div class="cat-h"><span class="tag">せいかく</span>He/She is 〜.</div>
       <div class="grid" id="trait-grid"></div>
-      <div class="cat-h"><span class="tag">得意</span>He/She is good at 〜.</div>
+      <div class="cat-h"><span class="tag">とくい</span>He/She is good at 〜.</div>
       <div class="grid" id="skill-grid"></div>
     </div>
     <div class="actions">
-      <button class="big-btn" id="btn-make" disabled>スピーチ原稿をつくる ✨</button>
+      <button class="big-btn" id="btn-make" disabled>ヒーローをしょうかいしてみる ▶</button>
       <button class="big-btn gray" id="btn-back-hero">ヒーローをえらびなおす</button>
+    </div>
+  </section>
+
+  <!-- STEP2.5 自分で言ってみよう -->
+  <section id="scr-try" class="hidden">
+    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
+    <p class="step-sub">えらんだ材料を見て、きみのヒーローを英語でしょうかいしてみよう(声に出してね)</p>
+    <div class="speech-card" style="max-width:520px">
+      <div class="sp-head">MY HERO</div>
+      <div class="sp-body" id="try-body" style="text-align:center;font-size:1.5rem;line-height:2"></div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-check" style="background:var(--yellow);color:#7a5b1e">言えたら たしかめる ✅</button>
+      <button class="big-btn gray" id="btn-back-try">えらびなおす</button>
     </div>
   </section>
 
   <!-- STEP3 スピーチ -->
   <section id="scr-speech" class="hidden">
-    <h2 class="step-title">③ スピーチ原稿かんせい!</h2>
-    <p class="step-sub">1文ずつタップして発表練習しよう</p>
+    <h2 class="step-title">🔊 お手本でたしかめよう</h2>
+    <p class="step-sub">じぶんが言ったこととくらべてみよう。1文ずつタップでも聞けるよ</p>
     <div class="speech-card">
       <div class="sp-head">MY HERO SPEECH</div>
       <div class="sp-body" id="sp-lines"></div>
@@ -225,7 +239,7 @@ try{ tally = JSON.parse(localStorage.getItem(STORAGE_KEY)) || tally; }catch(e){}
 
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-hero","scr-traits","scr-speech","scr-dash"].forEach(s =>
+  ["scr-hero","scr-traits","scr-try","scr-speech","scr-dash"].forEach(s =>
     $(s).classList.toggle("hidden", s !== id));
 }
 function visual(item){
@@ -235,7 +249,7 @@ function visual(item){
 function pickHTML(item, on){
   return `<div class="pick ${on ? "on" : ""}" data-en="${item.en}">
     ${visual(item)}
-    <div class="plabel">${item.ja}<small>${item.en}</small></div>
+    <div class="plabel">${item.en}</div>
   </div>`;
 }
 
@@ -268,7 +282,7 @@ $("trait-grid").addEventListener("click", e => {
   const before = traits.length;
   traits = toggle(traits, el.dataset.en, MAX_PICK);
   el.classList.toggle("on", traits.includes(el.dataset.en));
-  if(traits.length > before) speak(`${pronoun} is ${el.dataset.en}.`);
+  if(traits.length > before) speak(el.dataset.en);
   updateMakeBtn();
 });
 $("skill-grid").addEventListener("click", e => {
@@ -276,7 +290,7 @@ $("skill-grid").addEventListener("click", e => {
   const before = skills.length;
   skills = toggle(skills, el.dataset.en, MAX_PICK);
   el.classList.toggle("on", skills.includes(el.dataset.en));
-  if(skills.length > before) speak(`${pronoun} is good at ${el.dataset.en}.`);
+  if(skills.length > before) speak(el.dataset.en);
   updateMakeBtn();
 });
 function updateMakeBtn(){
@@ -298,8 +312,18 @@ function speechLines(){
   lines.push({ t:"Thank you, my hero!", cls:"final" });
   return lines;
 }
+// 自分で言ってみよう(材料の提示のみ。スピーチ文はまだ見せない)
 $("btn-make").addEventListener("click", () => {
-  // 集計(性格・特技のみ、匿名)
+  const tIcons = traits.map(en => TRAITS.find(x=>x.en===en).emoji).join(" ");
+  const sIcons = skills.map(en => SKILLS.find(x=>x.en===en).emoji).join(" ");
+  $("try-body").innerHTML = `${hero.emoji}<br>${tIcons}<br>${sIcons}`;
+  show("scr-try");
+  speak(`My hero is ${hero.en}.`);
+});
+$("btn-back-try").addEventListener("click", () => show("scr-traits"));
+
+// お手本で確認(このタイミングで匿名集計)
+$("btn-check").addEventListener("click", () => {
   traits.forEach(t => tally.traits[t] = (tally.traits[t] || 0) + 1);
   skills.forEach(s => tally.skills[s] = (tally.skills[s] || 0) + 1);
   tally.count++;
@@ -315,7 +339,7 @@ $("sp-lines").addEventListener("click", e => {
 });
 $("btn-speak-all").addEventListener("click", () => speakQueue(speechLines().map(l => l.t)));
 $("btn-print").addEventListener("click", () => window.print());
-$("btn-back-traits").addEventListener("click", () => show("scr-traits"));
+$("btn-back-traits").addEventListener("click", () => show("scr-try"));
 
 // ============================================================
 // 集計ダッシュボード

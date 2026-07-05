@@ -117,7 +117,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>🍔 バーチャルレストラン注文 <span class="u">5年 Unit6 What would you like?</span></h1>
+  <h1>🍔 バーチャルレストラン注文 <span class="u">5年生 レストラン</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-home">モードせんたく</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -278,7 +278,7 @@ function buildMenu(){
           <div class="menu-item" data-cat="${c.cat}" data-i="${i}">
             <div class="mimg"><img src="${IMG_BASE + encodeURIComponent(it.img)}" alt="${it.en}"
               onerror="this.outerHTML='<span class=&quot;memoji&quot;>${it.emoji}</span>'"></div>
-            <div class="mlabel">${it.ja}<br><small style="color:var(--sub)">${it.en}</small></div>
+            <div class="mlabel">${it.en}</div>
             <div class="mprice ${hidePrice ? "hide" : ""}">${it.price}円</div>
           </div>`).join("")}
       </div>
@@ -298,7 +298,7 @@ function renderOrderBar(){
   const items = Object.values(picks);
   $("order-items").textContent = items.length === 0
     ? "まだ注文がありません"
-    : items.map(it => `${it.emoji} ${it.ja}`).join(" / ");
+    : items.map(it => `${it.emoji} ${it.en}`).join(" / ");
   const showTotal = (mode !== "pair");
   $("order-total").textContent = showTotal && items.length ? `${total()}円` : "";
   $("btn-checkout").disabled = items.length === 0;

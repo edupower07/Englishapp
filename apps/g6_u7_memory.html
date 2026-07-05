@@ -79,6 +79,14 @@ main{max-width:940px;margin:0 auto;padding:16px 16px 60px}
 .ap-line:hover{background:#fff6dd}
 .ap-note{font-size:.72rem;color:var(--sub);font-weight:700;margin-top:8px}
 .page-nav{display:flex;gap:10px;justify-content:center;margin-top:12px;align-items:center;font-weight:800;color:var(--sub)}
+.try-card{
+  max-width:520px;margin:0 auto;background:#fffdf5;border-radius:22px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--yellow);padding:22px;text-align:center;
+}
+.try-card .try-hint{font-size:.85rem;color:#8a6d1e;font-weight:800;margin-bottom:12px;line-height:1.8}
+.try-list{display:flex;flex-direction:column;gap:8px;text-align:left}
+.try-line{background:#fff;border-radius:12px;padding:10px 14px;font-weight:800;box-shadow:var(--shadow);cursor:pointer;display:flex;align-items:center;gap:10px}
+.try-line .te{font-size:1.4rem}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
 @media print{
@@ -91,7 +99,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 <body>
 
 <header>
-  <h1>📔 ベストメモリーアルバム <span class="u">6年 Unit7 My Best Memory</span></h1>
+  <h1>📔 ベストメモリーアルバム <span class="u">6年生 思い出</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-new">あたらしい思い出</button>
     <button class="nav-btn" id="btn-album">クラスアルバム</button>
@@ -118,15 +126,29 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
     <div class="cat-h"><span class="tag">It was 〜.</span>どうだった?</div>
     <div class="chips" id="feel-chips"></div>
     <div class="actions">
-      <button class="big-btn" id="btn-make" disabled>アルバムページをつくる ✨</button>
+      <button class="big-btn" id="btn-make" disabled>思い出を話してみる ▶</button>
       <button class="big-btn gray" id="btn-back-event">行事をえらびなおす</button>
+    </div>
+  </section>
+
+  <!-- STEP2.5 自分で言ってみよう -->
+  <section id="scr-try" class="hidden">
+    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
+    <p class="step-sub">あつめた材料をつかって、いちばんの思い出を英語で話してみよう(声に出してね)</p>
+    <div class="try-card">
+      <div class="try-hint">What's your best memory? ときかれたら、どうこたえる?</div>
+      <div class="try-list" id="try-list"></div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-check" style="background:var(--yellow);color:#7a5b1e">言えたら たしかめる ✅</button>
+      <button class="big-btn gray" id="btn-back-try">材料をえらびなおす</button>
     </div>
   </section>
 
   <!-- STEP3 ページ -->
   <section id="scr-page" class="hidden">
-    <h2 class="step-title">✨ アルバムページかんせい!</h2>
-    <p class="step-sub">1文ずつタップして発表練習しよう</p>
+    <h2 class="step-title">🔊 お手本でたしかめよう</h2>
+    <p class="step-sub">じぶんが言ったこととくらべてみよう。1文ずつタップでも聞けるよ</p>
     <div class="album-page">
       <div class="ap-head">MY BEST MEMORY</div>
       <div class="ap-body">
@@ -139,7 +161,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
       <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
       <button class="big-btn purple" id="btn-save">📔 クラスアルバムにのこす</button>
       <button class="big-btn" id="btn-print" style="background:var(--pink)">🖨️ 印刷</button>
-      <button class="big-btn gray" id="btn-back-detail">えらびなおす</button>
+      <button class="big-btn gray" id="btn-back-detail">言ってみようにもどる</button>
     </div>
   </section>
 
@@ -172,42 +194,43 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
 
 const EVENTS = [
-  { en:"the sports day",       ja:"運動会",       img:"sports day.jpg",          emoji:"🏃" },
-  { en:"the school trip",      ja:"修学旅行",     img:"school trip.jpg",         emoji:"🚄" },
-  { en:"the music festival",   ja:"音楽会",       img:"music festival.jpg",      emoji:"🎵" },
-  { en:"the field trip",       ja:"遠足・社会科見学", img:"field trip.jpg",      emoji:"🚌" },
-  { en:"the chorus contest",   ja:"合唱コンクール", img:"chorus.jpg",            emoji:"🎤" },
-  { en:"the swimming meet",    ja:"水泳記録会",   img:"swimming meet.jpg",       emoji:"🏊" },
-  { en:"the drama festival",   ja:"学芸会",       img:"drama festival.jpg",      emoji:"🎭" },
-  { en:"the camping trip",     ja:"キャンプ・宿泊学習", img:"camping trip.jpg",  emoji:"⛺" },
-  { en:"the volunteer day",    ja:"ボランティア", img:"volunteer day.jpg",       emoji:"🤝" },
-  { en:"the graduation ceremony", ja:"卒業式",    img:"graduation ceremony.jpg", emoji:"🎓" },
+  { en:"the sports day",       img:"sports day.jpg",          emoji:"🏃" },
+  { en:"the school trip",      img:"school trip.jpg",         emoji:"🚄" },
+  { en:"the music festival",   img:"music festival.jpg",      emoji:"🎵" },
+  { en:"the field trip",       img:"field trip.jpg",          emoji:"🚌" },
+  { en:"the chorus contest",   img:"chorus.jpg",               emoji:"🎤" },
+  { en:"the swimming meet",    img:"swimming meet.jpg",       emoji:"🏊" },
+  { en:"the drama festival",   img:"drama festival.jpg",      emoji:"🎭" },
+  { en:"the camping trip",     img:"camping trip.jpg",        emoji:"⛺" },
+  { en:"the volunteer day",    img:"volunteer day.jpg",       emoji:"🤝" },
+  { en:"the graduation ceremony", img:"graduation ceremony.jpg", emoji:"🎓" },
 ];
+// label: チップに出す短い英語(選択時は単語の音声のみ)。t: モデル確認でだけ使う完成文
 const PLACES = [
-  { t:"We went to Kyoto.",           ja:"京都" },
-  { t:"We went to Tokyo.",           ja:"東京" },
-  { t:"We went to the mountains.",   ja:"山" },
-  { t:"We went to the sea.",         ja:"海" },
-  { t:"We went to the museum.",      ja:"博物館" },
-  { t:"We went to the gym.",         ja:"体育館" },
-  { t:"We went to the schoolyard.",  ja:"校庭" },
+  { label:"Kyoto",           emoji:"🏯", t:"We went to Kyoto." },
+  { label:"Tokyo",           emoji:"🗼", t:"We went to Tokyo." },
+  { label:"the mountains",   emoji:"⛰️", t:"We went to the mountains." },
+  { label:"the sea",         emoji:"🌊", t:"We went to the sea." },
+  { label:"the museum",      emoji:"🏛️", t:"We went to the museum." },
+  { label:"the gym",         emoji:"🏋️", t:"We went to the gym." },
+  { label:"the schoolyard",  emoji:"🏫", t:"We went to the schoolyard." },
 ];
 const DIDS = [
-  { t:"We saw old temples.",        ja:"古いお寺を見た" },
-  { t:"We saw beautiful views.",    ja:"きれいな景色を見た" },
-  { t:"We ate delicious food.",     ja:"おいしいものを食べた" },
-  { t:"We ate lunch together.",     ja:"みんなでお弁当を食べた" },
-  { t:"We enjoyed singing.",        ja:"歌をがんばった" },
-  { t:"We enjoyed dancing.",        ja:"ダンスをがんばった" },
-  { t:"We enjoyed running.",        ja:"走るのをがんばった" },
-  { t:"We played games together.",  ja:"みんなでゲームをした" },
+  { label:"saw old temples",       emoji:"🏯", t:"We saw old temples." },
+  { label:"saw beautiful views",   emoji:"🌄", t:"We saw beautiful views." },
+  { label:"ate delicious food",    emoji:"🍜", t:"We ate delicious food." },
+  { label:"ate lunch together",    emoji:"🍱", t:"We ate lunch together." },
+  { label:"enjoyed singing",       emoji:"🎤", t:"We enjoyed singing." },
+  { label:"enjoyed dancing",       emoji:"💃", t:"We enjoyed dancing." },
+  { label:"enjoyed running",       emoji:"🏃", t:"We enjoyed running." },
+  { label:"played games together", emoji:"🎮", t:"We played games together." },
 ];
 const FEELS = [
-  { t:"It was fun!",        ja:"楽しかった" },
-  { t:"It was exciting!",   ja:"わくわくした" },
-  { t:"It was great!",      ja:"最高だった" },
-  { t:"It was wonderful!",  ja:"すばらしかった" },
-  { t:"It was delicious!",  ja:"おいしかった" },
+  { label:"fun",        emoji:"😄", t:"It was fun!" },
+  { label:"exciting",   emoji:"🤩", t:"It was exciting!" },
+  { label:"great",      emoji:"👍", t:"It was great!" },
+  { label:"wonderful",  emoji:"✨", t:"It was wonderful!" },
+  { label:"delicious",  emoji:"😋", t:"It was delicious!" },
 ];
 const STORAGE_KEY = "g6_memory_album_v1";
 
@@ -243,7 +266,7 @@ try{ album = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ alb
 
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-event","scr-detail","scr-page","scr-album"].forEach(s =>
+  ["scr-event","scr-detail","scr-try","scr-page","scr-album"].forEach(s =>
     $(s).classList.toggle("hidden", s !== id));
 }
 function saveAlbum(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(album)); }catch(e){} }
@@ -259,12 +282,12 @@ $("event-grid").innerHTML = EVENTS.map((ev,i) => `
   <div class="pick" data-i="${i}">
     <div class="pimg"><img src="${IMG_BASE + encodeURIComponent(ev.img)}" alt="${ev.en}"
       onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${ev.emoji}</span>'"></div>
-    <div class="plabel">${ev.ja}<small>${ev.en}</small></div>
+    <div class="plabel">${ev.en}</div>
   </div>`).join("");
 $("event-grid").addEventListener("click", e => {
   const el = e.target.closest(".pick"); if(!el) return;
   sel = { event: EVENTS[+el.dataset.i], place:null, did:null, feel:null };
-  $("detail-title").textContent = `② 「${sel.event.ja}」をくわしく思い出そう`;
+  $("detail-title").textContent = `② くわしく思い出そう`;
   buildChips("place-chips", PLACES, "place");
   buildChips("did-chips", DIDS, "did");
   buildChips("feel-chips", FEELS, "feel");
@@ -274,16 +297,16 @@ $("event-grid").addEventListener("click", e => {
 });
 
 // ============================================================
-// STEP2 くわしく
+// STEP2 くわしく(チップは英語の短い語のみ。選択音声も単語のみ)
 // ============================================================
 function buildChips(elId, list, key){
   const el = $(elId);
-  el.innerHTML = list.map((item,i) => `<button class="chip" data-i="${i}">${item.ja}</button>`).join("");
+  el.innerHTML = list.map((item,i) => `<button class="chip" data-i="${i}">${item.emoji} ${item.label}</button>`).join("");
   el.onclick = e => {
     const b = e.target.closest(".chip"); if(!b) return;
     sel[key] = list[+b.dataset.i];
     el.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b));
-    speak(sel[key].t);
+    speak(sel[key].label);
     $("btn-make").disabled = !(sel.place && sel.did && sel.feel);
   };
 }
@@ -305,7 +328,34 @@ function renderPage(container, s, clickable = true){
   container.querySelector(".ap-lines").innerHTML = pageLines(s).map((t,i) =>
     `<div class="ap-line" data-t="${t}">🔊 ${t}</div>`).join("");
 }
+// ============================================================
+// 自分で言ってみよう(材料の提示のみ。英文はまだ見せない)
+// ============================================================
+function buildTry(){
+  const items = [
+    { q:"What's your best memory?", emoji:sel.event.emoji },
+    { q:"Where did you go?",        emoji:sel.place.emoji },
+    { q:"What did you do?",         emoji:sel.did.emoji },
+    { q:"How was it?",              emoji:sel.feel.emoji },
+  ];
+  $("try-list").innerHTML = items.map(it =>
+    `<div class="try-line" data-t="${it.q}"><span class="te">${it.emoji}</span>🔊 ${it.q}</div>`).join("");
+}
+$("try-list").addEventListener("click", e => {
+  const el = e.target.closest(".try-line"); if(!el) return;
+  speak(el.dataset.t);
+});
 $("btn-make").addEventListener("click", () => {
+  buildTry();
+  show("scr-try");
+  speak("What's your best memory?");
+});
+$("btn-back-try").addEventListener("click", () => show("scr-detail"));
+
+// ============================================================
+// お手本で確認
+// ============================================================
+$("btn-check").addEventListener("click", () => {
   renderPage(document.querySelector("#scr-page .album-page"), sel);
   show("scr-page");
   speakQueue(pageLines(sel));
@@ -315,7 +365,7 @@ document.addEventListener("click", e => {
 });
 $("btn-speak-all").addEventListener("click", () => speakQueue(pageLines(sel)));
 $("btn-print").addEventListener("click", () => window.print());
-$("btn-back-detail").addEventListener("click", () => show("scr-detail"));
+$("btn-back-detail").addEventListener("click", () => show("scr-try"));
 $("btn-save").addEventListener("click", () => {
   album.push({ event: sel.event.en, place: sel.place.t, did: sel.did.t, feel: sel.feel.t });
   saveAlbum();

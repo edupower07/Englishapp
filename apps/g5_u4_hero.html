@@ -131,7 +131,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>🦸 マイヒーロー紹介ジェネレーター <span class="u">5年 Unit4 He can bake bread well.</span></h1>
+  <h1>🦸 マイヒーロー紹介ジェネレーター <span class="u">5年生 できること</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-restart">さいしょから</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -164,8 +164,26 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     <div class="grid" id="ability-grid"></div>
     <div class="hint-note"><span class="can-b">○ can(〜できる)</span> / <span class="cant-b">× can't(〜できない)</span> をまぜると、しょうかいがもっとおもしろくなるよ</div>
     <div class="actions">
-      <button class="big-btn" id="btn-make" disabled>しょうかいカードをつくる ▶</button>
+      <button class="big-btn" id="btn-make" disabled>ヒーローをしょうかいしてみる ▶</button>
       <button class="big-btn blue" id="btn-quiz" disabled>だれでしょうクイズにする ❓</button>
+    </div>
+  </section>
+
+  <!-- 自分で言ってみよう -->
+  <section id="step-try" class="hidden">
+    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
+    <p class="step-sub">えらんだ材料を見て、きみのヒーローを英語でしょうかいしてみよう(声に出してね)</p>
+    <div class="hero-card" style="max-width:520px;margin:0 auto">
+      <div class="hc-head">MY HERO</div>
+      <div class="hc-body">
+        <div class="hc-photo" id="try-photo"></div>
+        <div class="hc-lines" id="try-icons" style="font-size:1.4rem;line-height:1.9"></div>
+      </div>
+      <div class="hc-foot">○=できる / ×=できない。This is 〜. He/She can 〜. で言ってみよう</div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-check" style="background:var(--yellow);color:#7a5b1e">言えたら たしかめる ✅</button>
+      <button class="big-btn gray" id="btn-back-try">えらびなおす</button>
     </div>
   </section>
 
@@ -274,7 +292,7 @@ let quizHintIdx = 0;
 
 const $ = id => document.getElementById(id);
 function show(ids){
-  ["step-person","step-pron","step-ability","step-card","step-quizshow"].forEach(s =>
+  ["step-person","step-pron","step-ability","step-try","step-card","step-quizshow"].forEach(s =>
     $(s).classList.toggle("hidden", !ids.includes(s)));
 }
 function imgOrEmoji(item, cls = "pimg"){
@@ -289,7 +307,7 @@ function buildPersonGrid(){
   $("person-grid").innerHTML = PEOPLE.map(p => `
     <div class="pick" data-id="${p.id}">
       ${imgOrEmoji(p)}
-      <div class="plabel">${p.ja}<small>${p.en}</small></div>
+      <div class="plabel">${p.en}</div>
     </div>`).join("");
 }
 $("person-grid").addEventListener("click", e => {
@@ -307,12 +325,12 @@ document.querySelectorAll("#step-pron .pron-row button").forEach(b => {
 // ============================================================
 function enterAbility(){
   sel.can = []; sel.cant = [];
-  $("ability-title").textContent = `${sel.person.pronoun === null ? "③" : "②"} 「${sel.person.ja}」のできることをえらぼう`;
+  $("ability-title").textContent = `${sel.person.pronoun === null ? "③" : "②"} できることをえらぼう`;
   $("ability-grid").innerHTML = ABILITIES.map(a => `
     <div class="pick ab" data-id="${a.id}">
       <span class="mark"></span>
       ${imgOrEmoji(a)}
-      <div class="plabel">${a.ja}<small>${a.en}</small></div>
+      <div class="plabel">${a.en}</div>
     </div>`).join("");
   show(["step-ability"]);
   updateAbilityButtons();
@@ -326,7 +344,7 @@ $("ability-grid").addEventListener("click", e => {
     sel.cant.push(id);
     el.classList.remove("can"); el.classList.add("cant");
     el.querySelector(".mark").textContent = "×";
-    speak(`${pron()} can't ${a.en}.`);
+    speak(a.en);
   }else if(sel.cant.includes(id)){                // can't → なし
     sel.cant = sel.cant.filter(x => x !== id);
     el.classList.remove("cant");
@@ -335,7 +353,7 @@ $("ability-grid").addEventListener("click", e => {
     sel.can.push(id);
     el.classList.add("can");
     el.querySelector(".mark").textContent = "○";
-    speak(`${pron()} can ${a.en}.`);
+    speak(a.en);
   }
   updateAbilityButtons();
 });
@@ -386,7 +404,21 @@ $("card-lines").addEventListener("click", e => {
   speak(buildSentences()[+el.dataset.i].t);
 });
 $("btn-speak-all").addEventListener("click", () => speakQueue(buildSentences().map(l => l.t)));
-$("btn-make").addEventListener("click", showCard);
+
+// ============================================================
+// 自分で言ってみよう(材料の提示のみ。紹介文はまだ見せない)
+// ============================================================
+function showTry(){
+  $("try-photo").innerHTML = imgOrEmoji(sel.person, "pimg-full").replace('class="pimg-full"','style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"');
+  const canIcons = sel.can.map(id => `⭕${ABILITIES.find(x=>x.id===id).emoji}`).join(" ");
+  const cantIcons = sel.cant.map(id => `❌${ABILITIES.find(x=>x.id===id).emoji}`).join(" ");
+  $("try-icons").innerHTML = `${sel.person.emoji}<br>${canIcons} ${cantIcons}`;
+  show(["step-try"]);
+  speak(sel.person.id === "me" ? "This is me." : `This is ${sel.person.en}.`);
+}
+$("btn-make").addEventListener("click", showTry);
+$("btn-check").addEventListener("click", showCard);
+$("btn-back-try").addEventListener("click", enterAbility);
 
 // ============================================================
 // だれでしょうクイズ

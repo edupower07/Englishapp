@@ -99,7 +99,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 <body>
 
 <header>
-  <h1>💭 将来の夢マッチング <span class="u">5年 Unit3 What do you want to study?</span></h1>
+  <h1>💭 将来の夢マッチング <span class="u">5年生 将来の夢</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-home">モードせんたく</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -141,6 +141,23 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     <div class="grid" id="subject-grid"></div>
     <div class="actions">
       <button class="big-btn gray" id="btn-back-job">職業をえらびなおす</button>
+    </div>
+  </section>
+
+  <!-- STEP2.5 自分で言ってみよう -->
+  <section id="scr-try" class="hidden">
+    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
+    <p class="step-sub">えらんだ教科と職業を見て、自分の夢を英語で言ってみよう(声に出してね)</p>
+    <div class="dream-card" style="max-width:480px;margin:0 auto">
+      <div class="dc-head">MY DREAM</div>
+      <div class="dc-body">
+        <div class="dc-icons" id="try-icons" style="font-size:2.4rem"></div>
+        <div style="color:var(--sub);font-weight:800;margin-top:8px;line-height:1.9">I want to study 〜.<br>I want to be 〜.</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-check" style="background:var(--yellow);color:#7a5b1e">言えたら たしかめる ✅</button>
+      <button class="big-btn gray" id="btn-back-subject">えらびなおす</button>
     </div>
   </section>
 
@@ -242,7 +259,7 @@ let selJob = null, selSubject = null;
 let quiz = { qs:[], idx:0, score:0, lock:false };
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-mode","scr-job","scr-subject","scr-done","scr-quiz"].forEach(s =>
+  ["scr-mode","scr-job","scr-subject","scr-try","scr-done","scr-quiz"].forEach(s =>
     $(s).classList.toggle("hidden", s !== id));
 }
 function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
@@ -256,7 +273,7 @@ function pickHTML(item, extra=""){
   return `<div class="pick ${extra}" data-en="${item.en}">
     <span class="rec">⭐</span>
     ${visual(item)}
-    <div class="plabel">${item.ja}<small>${item.en}</small></div>
+    <div class="plabel">${item.en}</div>
   </div>`;
 }
 
@@ -269,25 +286,31 @@ function buildJobs(){
 $("job-grid").addEventListener("click", e => {
   const el = e.target.closest(".pick"); if(!el) return;
   selJob = JOBS.find(j => j.en === el.dataset.en);
-  speak(`I want to be ${selJob.article} ${selJob.en}.`);
+  speak(`${selJob.article} ${selJob.en}`);
   buildSubjects();
   show("scr-subject");
 });
 function buildSubjects(){
-  $("subject-hint").textContent = `⭐は「${selJob.ja}」におすすめの教科。でも、すきな教科をえらんでOK!`;
+  $("subject-hint").textContent = `⭐は この職業におすすめの教科。でも、すきな教科をえらんでOK!`;
   $("subject-grid").innerHTML = SUBJECTS.map(s =>
     pickHTML(s, selJob.related.includes(s.en) ? "hint" : "")).join("");
 }
 $("subject-grid").addEventListener("click", e => {
   const el = e.target.closest(".pick"); if(!el) return;
   selSubject = SUBJECTS.find(s => s.en === el.dataset.en);
-  showDone();
+  speak(selSubject.en);
+  showTry();
 });
 function dreamLines(){
   return [
     `I want to study ${selSubject.en}.`,
     `I want to be ${selJob.article} ${selJob.en}.`,
   ];
+}
+function showTry(){
+  $("try-icons").textContent = `${selSubject.emoji} ➡ ${selJob.emoji}`;
+  show("scr-try");
+  speak("What do you want to be?");
 }
 function showDone(){
   $("dc-icons").textContent = `${selSubject.emoji} ✕ ${selJob.emoji}`;
@@ -299,6 +322,8 @@ function showDone(){
 $("dc-study").addEventListener("click", () => speak(dreamLines()[0]));
 $("dc-be").addEventListener("click", () => speak(dreamLines()[1]));
 $("btn-speak").addEventListener("click", () => speakQueue(dreamLines()));
+$("btn-check").addEventListener("click", showDone);
+$("btn-back-subject").addEventListener("click", () => show("scr-subject"));
 $("btn-redo").addEventListener("click", () => { buildJobs(); show("scr-job"); });
 $("btn-back-job").addEventListener("click", () => show("scr-job"));
 

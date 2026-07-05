@@ -47,13 +47,14 @@ main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
 /* 国旗グリッド */
 .flag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
 .flag-card{
-  background:#fff;border-radius:20px;padding:14px 8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
-  border:5px solid transparent;transition:.2s;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:6px;
+  background:#fff;border-radius:20px;padding:10px 8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+  border:5px solid transparent;transition:.2s;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:4px;
 }
 .flag-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:var(--primary)}
-.flag-card .fl{font-size:3.4rem;line-height:1}
-.flag-card .fname{font-weight:800;font-size:.95rem}
-.flag-card .fname small{display:block;color:var(--sub);font-size:.7rem}
+.flag-card .cimg{width:100%;height:78px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+.flag-card .cimg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}
+.flag-card .fl{font-size:2.6rem;line-height:1}
+.flag-card .fname{font-weight:700;font-size:.8rem;color:var(--sub)}
 
 /* 詳細 */
 .detail{
@@ -92,12 +93,14 @@ main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
 .quiz-sub{font-size:.85rem;color:var(--sub);font-weight:700;margin-top:6px}
 .quiz-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;max-width:560px;margin:14px auto 0}
 .q-flag{
-  background:#fff;border:4px solid #e6ecf2;border-radius:18px;padding:12px 6px;cursor:pointer;text-align:center;
-  box-shadow:var(--shadow);transition:.15s;font-family:inherit;min-height:110px;
+  background:#fff;border:4px solid #e6ecf2;border-radius:18px;padding:8px 6px;cursor:pointer;text-align:center;
+  box-shadow:var(--shadow);transition:.15s;font-family:inherit;min-height:120px;
 }
 .q-flag:hover{transform:translateY(-3px);border-color:var(--pink)}
-.q-flag .fl{font-size:2.8rem;display:block;line-height:1.2}
-.q-flag small{font-weight:800;font-size:.75rem;color:var(--sub)}
+.q-flag .cimg{width:100%;height:64px;display:flex;align-items:center;justify-content:center}
+.q-flag .cimg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+.q-flag .fl{font-size:2.2rem;display:block;line-height:1.2}
+.q-flag small{font-weight:700;font-size:.72rem;color:var(--sub);display:block;margin-top:2px}
 .q-flag.ok{border-color:var(--green);background:#f0fff7;animation:pop .4s}
 .q-flag.ng{animation:shake .35s}
 @keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
@@ -111,7 +114,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 <body>
 
 <header>
-  <h1>🌏 せかいのあいさつ図鑑 <span class="u">3年 Unit1 Hello!</span></h1>
+  <h1>🌏 せかいのあいさつ図鑑 <span class="u">3年生 世界のあいさつ</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-home">モードせんたく</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
@@ -231,8 +234,9 @@ function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
 function buildFlags(){
   $("flag-grid").innerHTML = COUNTRIES.map((c,i) => `
     <div class="flag-card" data-i="${i}">
-      <span class="fl">${c.flag}</span>
-      <span class="fname">${c.ja}<small>${c.en}</small></span>
+      <span class="cimg"><img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}"
+        onerror="this.parentElement.outerHTML='<span class=&quot;fl&quot;>${c.flag}</span>'"></span>
+      <span class="fname">${c.flag} ${c.ja}</span>
     </div>`).join("");
 }
 $("flag-grid").addEventListener("click", e => {
@@ -273,7 +277,9 @@ function drawQuizQ(){
   const opts = shuffle([q, ...wrongs]);
   $("q-opts").innerHTML = opts.map(c => `
     <button class="q-flag" data-en="${c.en}">
-      <span class="fl">${c.flag}</span><small>${c.ja}</small>
+      <span class="cimg"><img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}"
+        onerror="this.parentElement.outerHTML='<span class=&quot;fl&quot;>${c.flag}</span>'"></span>
+      <small>${c.flag} ${c.ja}</small>
     </button>`).join("");
   $("q-msg").textContent = ""; $("q-msg").className = "msg";
   speakLang(q.speakText, q.lang);
