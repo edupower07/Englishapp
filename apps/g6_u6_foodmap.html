@@ -79,6 +79,12 @@ svg#wmap{width:100%;height:auto;border-radius:14px}
   max-width:620px;margin:12px auto 0;background:#fff;border-radius:18px;box-shadow:var(--shadow);
   padding:14px 18px;font-size:1.1rem;font-weight:800;text-align:center;cursor:pointer;border:4px solid var(--green);
 }
+.try-card{
+  max-width:520px;margin:12px auto 0;background:#fffdf5;border-radius:20px;box-shadow:var(--shadow-hover);
+  border:5px solid var(--yellow);padding:20px;text-align:center;
+}
+.try-card .try-hint{font-size:.85rem;color:#8a6d1e;font-weight:800;margin-bottom:10px;line-height:1.8}
+.try-icons{font-size:2.2rem;margin:6px 0}
 .actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .big-btn{
   border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
@@ -179,10 +185,24 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
     <h2 class="step-title">🍽️ わたしの食事</h2>
     <p class="step-sub">さいきん食べたもの・よく食べるものをタップしてえらぼう(いくつでも)</p>
     <div class="pool" id="meal-pool"></div>
-    <div class="meal-line" id="meal-line">🔊 えらぶと ここに英文がでるよ</div>
     <div class="actions">
+      <button class="big-btn" id="btn-meal-try" disabled>話してみる ▶</button>
       <button class="big-btn gray" id="btn-meal-clear">えらびなおす</button>
     </div>
+  </section>
+
+  <!-- わたしの食事:自分で言ってみよう -->
+  <section id="scr-meal-try" class="hidden">
+    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
+    <div class="try-card">
+      <div class="try-hint">🔊 What do you usually eat?<br>ときかれたら、どうこたえる?</div>
+      <div class="try-icons" id="meal-icons"></div>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-meal-check" style="background:var(--yellow);color:#7a5b1e">言えたら たしかめる ✅</button>
+      <button class="big-btn gray" id="btn-meal-back">えらびなおす</button>
+    </div>
+    <div class="meal-line hidden" id="meal-line"></div>
   </section>
 
   <!-- クイズ -->
@@ -269,7 +289,7 @@ function speak(text, rate = 0.85){
 // ============================================================
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-mode","scr-atlas","scr-meal","scr-quiz","scr-memo"].forEach(s =>
+  ["scr-mode","scr-atlas","scr-meal","scr-meal-try","scr-quiz","scr-memo"].forEach(s =>
     $(s).classList.toggle("hidden", s !== id));
 }
 function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
@@ -278,7 +298,7 @@ function foodCardHTML(f, cls = ""){
     <div class="fimg">${f.img
       ? `<img src="${IMG_BASE + encodeURIComponent(f.img)}" alt="${f.en}" onerror="this.outerHTML='<span class=&quot;femoji&quot;>${f.emoji}</span>'">`
       : `<span class="femoji">${f.emoji}</span>`}</div>
-    <div class="flabel">${f.ja}<small>${f.en}</small></div>
+    <div class="flabel">${f.en}</div>
   </div>`;
 }
 const fOf = en => FOODS.find(f => f.en === en);
@@ -310,7 +330,7 @@ function drawMap(food){
       <line x1="${c.x}" y1="${c.y-6}" x2="${c.x}" y2="${c.y}" stroke="#e74c3c" stroke-width="3"/>
       <text x="${c.x}" y="${c.y-13}" text-anchor="middle" font-size="16">${c.flag}</text>
       <text x="${c.x}" y="${c.y+14}" text-anchor="middle" font-size="11" font-weight="800"
-        font-family="'M PLUS Rounded 1c',sans-serif" fill="#c0392b">${c.ja}</text>
+        font-family="'M PLUS Rounded 1c',sans-serif" fill="#c0392b">${c.en}</text>
     </g>`;
   }
   $("wmap").innerHTML = WMAP_BASE + pin;
@@ -335,7 +355,7 @@ $("atlas-pool").addEventListener("click", e => {
       : `<span class="demoji">${f.emoji}</span>`}</div>
     <div class="sentence" data-t="${sentence}">🔊 ${sentence}</div>
     <div class="flagline">${c.flag}</div>
-    <small>${f.ja}の主な産地(例):${c.ja}<br>※産地は年によってかわります</small>`;
+    <small>主な産地(例):${c.en}<br>※産地は年によってかわります</small>`;
   drawMap(f);
   speak(sentence);
 });
@@ -362,19 +382,34 @@ function mealSentence(){
 function renderMeal(){
   document.querySelectorAll("#meal-pool .food").forEach(x =>
     x.classList.toggle("on", meal.includes(x.dataset.en)));
-  const s = mealSentence();
-  $("meal-line").textContent = s ? `🔊 ${s}` : "🔊 えらぶと ここに英文がでるよ";
+  $("btn-meal-try").disabled = meal.length === 0;
 }
 $("meal-pool").addEventListener("click", e => {
   const el = e.target.closest(".food"); if(!el) return;
   const en = el.dataset.en;
   meal = meal.includes(en) ? meal.filter(x => x !== en) : [...meal, en];
   renderMeal();
+  speak(fOf(en).en);
+});
+$("btn-meal-clear").addEventListener("click", buildMeal);
+
+// ============================================================
+// わたしの食事:自分で言ってみよう
+// ============================================================
+$("btn-meal-try").addEventListener("click", () => {
+  $("meal-icons").textContent = meal.map(en => fOf(en).emoji).join(" ");
+  $("meal-line").classList.add("hidden");
+  show("scr-meal-try");
+  speak("What do you usually eat?");
+});
+$("btn-meal-back").addEventListener("click", () => show("scr-meal"));
+$("btn-meal-check").addEventListener("click", () => {
   const s = mealSentence();
-  if(s) speak(s);
+  $("meal-line").textContent = `🔊 ${s}`;
+  $("meal-line").classList.remove("hidden");
+  speak(s);
 });
 $("meal-line").addEventListener("click", () => { const s = mealSentence(); if(s) speak(s); });
-$("btn-meal-clear").addEventListener("click", buildMeal);
 
 // ============================================================
 // 国旗仕分けクイズ
@@ -399,7 +434,7 @@ function drawQuizQ(){
   const opts = shuffle([f.country, ...wrongKeys]);
   $("q-opts").innerHTML = opts.map(k => `
     <button class="flag-btn" data-k="${k}">
-      <span class="fl">${COUNTRIES[k].flag}</span><small>${COUNTRIES[k].ja}</small>
+      <span class="fl">${COUNTRIES[k].flag}</span><small>${COUNTRIES[k].en}</small>
     </button>`).join("");
   $("q-msg").textContent = ""; $("q-msg").className = "msg";
   speak(`Where is ${f.en.toLowerCase()} from?`);
