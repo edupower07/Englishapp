@@ -280,10 +280,10 @@ function actVisual(a, imgCls="pimg", emojiCls="pemoji"){
 function buildWeek(){
   $("week-grid").innerHTML = DAYS.map((d,i) => `
     <div class="day-col">
-      <div class="day-head ${d.cls}">${d.ja}<small>${d.en}</small></div>
+      <div class="day-head ${d.cls}">${d.en}</div>
       <div class="day-slot ${week[i] !== null ? "filled" : ""}" data-i="${i}">
         ${week[i] !== null
-          ? `<span class="se">${ACTIVITIES[week[i]].emoji}</span><span class="sl">${ACTIVITIES[week[i]].ja}</span>`
+          ? `<span class="se">${ACTIVITIES[week[i]].emoji}</span>`
           : `<span class="sl">タップ<br>してね</span>`}
       </div>
     </div>`).join("");
@@ -292,7 +292,7 @@ function buildPalette(){
   $("pal-grid").innerHTML = ACTIVITIES.map((a,i) => `
     <div class="pal-card ${selAct === i ? "on" : ""}" data-i="${i}">
       ${actVisual(a)}
-      <div class="plabel">${a.ja}<small>${a.phrase}</small></div>
+      <div class="plabel">${a.phrase}</div>
     </div>`).join("");
 }
 $("pal-grid").addEventListener("click", e => {
@@ -324,7 +324,7 @@ function presentLines(){
 }
 function renderPresent(){
   $("fav-row").innerHTML = DAYS.map((d,i) =>
-    `<button class="fav-btn ${favDay === i ? "on" : ""}" data-i="${i}">${d.ja}</button>`).join("");
+    `<button class="fav-btn ${favDay === i ? "on" : ""}" data-i="${i}">${d.en}</button>`).join("");
   const lines = presentLines();
   $("present-box").innerHTML = lines.length === 0
     ? `<div style="text-align:center;font-weight:700;color:var(--sub)">まだ活動がないよ。1週間をつくってからきてね</div>`

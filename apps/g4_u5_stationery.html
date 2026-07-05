@@ -278,7 +278,7 @@ function buildShelf(){
   $("shelf").innerHTML = STATIONERY.map(s => `
     <div class="item-card" data-en="${s.en}">
       ${itemVisual(s)}
-      <div class="ilabel">${s.ja}<small>${s.en}</small></div>
+      <div class="ilabel">${s.en}</div>
     </div>`).join("");
   $("limit-label").textContent = SET_LIMIT;
 }

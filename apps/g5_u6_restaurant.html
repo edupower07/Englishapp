@@ -278,7 +278,7 @@ function buildMenu(){
           <div class="menu-item" data-cat="${c.cat}" data-i="${i}">
             <div class="mimg"><img src="${IMG_BASE + encodeURIComponent(it.img)}" alt="${it.en}"
               onerror="this.outerHTML='<span class=&quot;memoji&quot;>${it.emoji}</span>'"></div>
-            <div class="mlabel">${it.ja}<br><small style="color:var(--sub)">${it.en}</small></div>
+            <div class="mlabel">${it.en}</div>
             <div class="mprice ${hidePrice ? "hide" : ""}">${it.price}円</div>
           </div>`).join("")}
       </div>
@@ -298,7 +298,7 @@ function renderOrderBar(){
   const items = Object.values(picks);
   $("order-items").textContent = items.length === 0
     ? "まだ注文がありません"
-    : items.map(it => `${it.emoji} ${it.ja}`).join(" / ");
+    : items.map(it => `${it.emoji} ${it.en}`).join(" / ");
   const showTotal = (mode !== "pair");
   $("order-total").textContent = showTotal && items.length ? `${total()}円` : "";
   $("btn-checkout").disabled = items.length === 0;

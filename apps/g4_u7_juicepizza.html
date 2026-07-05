@@ -291,7 +291,7 @@ function buildIngredients(){
     <div class="ing-card ${chosen.includes(it.en) ? "used" : ""}" data-en="${it.en}">
       <div class="nimg"><img src="${IMG_BASE + encodeURIComponent(it.img)}" alt="${it.en}"
         onerror="this.outerHTML='<span class=&quot;nemoji&quot;>${it.emoji}</span>'"></div>
-      <div class="nlabel">${it.ja}<small>${it.en}</small></div>
+      <div class="nlabel">${it.en}</div>
     </div>`).join("");
 }
 $("ing-grid").addEventListener("click", e => {

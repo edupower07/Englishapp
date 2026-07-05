@@ -279,7 +279,7 @@ function chipHTML(item){
   }else{
     visual = `<span class="cemoji">${item.emoji}</span>`;
   }
-  return `<div class="chip" data-en="${item.en}">${visual}<div class="clabel">${item.ja}<small>${item.en}</small></div></div>`;
+  return `<div class="chip" data-en="${item.en}">${visual}<div class="clabel">${item.en}</div></div>`;
 }
 function buildChips(){
   CATS.forEach(c => { $(c.elId).innerHTML = c.list.map(chipHTML).join(""); });

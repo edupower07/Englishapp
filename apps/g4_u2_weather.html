@@ -234,7 +234,7 @@ $("weather-row").innerHTML = WEATHER.map((w,i) => `
   <div class="w-card" data-i="${i}">
     <div class="wimg"><img src="${IMG_BASE + encodeURIComponent(w.img)}" alt="${w.en}"
       onerror="this.outerHTML='<span class=&quot;wemoji&quot;>${w.emoji}</span>'"></div>
-    <div class="wlabel">${w.ja}<small>${w.en}</small></div>
+    <div class="wlabel">${w.en}</div>
   </div>`).join("");
 $("weather-row").addEventListener("click", e => {
   const el = e.target.closest(".w-card"); if(!el) return;
@@ -267,7 +267,7 @@ function buildItems(){
   $("item-grid").innerHTML = ITEMS.map((it,i) => `
     <div class="item-card" data-i="${i}">
       ${itemVisual(it)}
-      <div class="ilabel">${it.ja}<small>${it.en}</small></div>
+      <div class="ilabel">${it.en}</div>
     </div>`).join("");
   updateCheckBtn();
 }
