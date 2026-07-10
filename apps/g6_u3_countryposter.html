@@ -88,6 +88,13 @@ main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
 .po-line:hover{background:#eef6ff}
 .map-box{width:320px;background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:10px}
 svg#wmap{width:100%;height:auto;border-radius:12px}
+/* 塗り重ね(相手えらび・もういちどミッション) */
+.aud-row{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0 2px}
+.aud-label{font-weight:800;font-size:.85rem;color:var(--sub)}
+.aud-chip{border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;min-height:44px;transition:.15s}
+.aud-chip.on{border-color:var(--primary);background:#fff5f6}
+.retry-mission{text-align:center;font-weight:800;color:#e17055;font-size:.98rem;min-height:26px;margin:4px 0}
+.model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700;line-height:1.8}
 @media print{
@@ -146,6 +153,8 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
   <section id="scr-try" class="hidden">
     <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
     <p class="step-sub">あつめた材料をつかって、この国を英語でしょうかいしてみよう(声に出してね)</p>
+    <div class="retry-mission" id="retry-mission"></div>
+    <div class="aud-row"><span class="aud-label">だれに つたえる?</span><button class="aud-chip on" data-a="t">👩‍🏫 先生・ALT</button><button class="aud-chip" data-a="f">🧑 友だち</button><button class="aud-chip" data-a="h">👨‍👩‍👧 家の人</button></div>
     <div class="try-card">
       <div class="try-hint" id="try-hint"></div>
       <div class="try-list" id="try-list"></div>
@@ -158,7 +167,8 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
   <!-- ポスター -->
   <section id="scr-poster" class="hidden">
-    <h2 class="step-title">🔊 お手本でたしかめよう</h2>
+    <h2 class="step-title">🔊 お手本を聞いてみよう</h2>
+    <p class="model-note">これは 一つの例だよ。きみの言い方でも つたわれば OK!</p>
     <p class="step-sub">じぶんが言ったこととくらべてみよう。1文ずつタップでも聞けるよ</p>
     <div class="poster-wrap">
       <div class="poster">
@@ -175,6 +185,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     </div>
     <div class="actions">
       <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
+      <button class="big-btn" id="btn-again-try" style="background:var(--green)">🔁 もういちど言ってみよう</button>
       <button class="big-btn" id="btn-copy" style="background:var(--green)">📋 文をコピー(Canva等に貼り付け)</button>
       <button class="big-btn" id="btn-print" style="background:var(--pink)">🖨️ 印刷</button>
       <button class="big-btn gray" id="btn-back-form">言ってみようにもどる</button>
@@ -386,6 +397,25 @@ $("btn-back-form").addEventListener("click", () => show("scr-try"));
 $("btn-restart").addEventListener("click", () => { try{ speechSynthesis.cancel(); }catch(e){} show("scr-country"); });
 
 show("scr-country");
+
+// ============================================================
+// 塗り重ね: 相手をかえて・条件をかえて もういちど言ってみる
+// ============================================================
+document.querySelectorAll(".aud-chip").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".aud-chip").forEach(x => x.classList.toggle("on", x === b));
+}));
+const RETRY_MISSIONS = [
+  "こんどは お手本を見ないで 言ってみよう",
+  "こんどは 1文 つけたして 言ってみよう",
+  "こんどは べつの相手を えらんで 言ってみよう",
+  "こんどは ジェスチャーを つけて 言ってみよう",
+  "こんどは 相手の目を見て ゆっくり はっきり 言ってみよう",
+];
+document.getElementById("btn-again-try").addEventListener("click", () => {
+  document.getElementById("retry-mission").textContent =
+    "🎯 " + RETRY_MISSIONS[Math.floor(Math.random() * RETRY_MISSIONS.length)];
+  show("scr-try");
+});
 </script>
 </body>
 </html>
