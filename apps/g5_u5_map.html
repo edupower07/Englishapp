@@ -119,6 +119,12 @@ main{max-width:1020px;margin:0 auto;padding:16px 16px 60px}
   background:#fffbe8;border:3px dashed var(--yellow);border-radius:16px;
   padding:10px 14px;font-weight:700;font-size:.78rem;color:#8a6d0a;line-height:1.8;
 }
+.map-share{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:12px}
+.map-share textarea{
+  width:100%;min-height:64px;border:2px solid #e6ecf2;border-radius:10px;padding:8px;
+  font-family:monospace;font-weight:700;font-size:.8rem;resize:vertical;
+}
+.share-note{font-size:.72rem;color:var(--sub);font-weight:700;line-height:1.7;margin-top:6px}
 
 /* 建物パレット(編集モード) */
 .palette{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
@@ -194,6 +200,16 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
       <div class="side-col">
         <div class="palette hidden" id="palette"></div>
+        <div class="map-share hidden" id="map-share">
+          <div style="font-weight:800;font-size:.85rem;margin-bottom:6px">🔗 マップコード(別の端末とマップを共有)</div>
+          <textarea id="share-code" placeholder="ここにマップコードを貼り付けて「読み込む」"></textarea>
+          <div class="run-row" style="margin-top:8px">
+            <button class="big-btn green" id="btn-code-out" style="min-height:44px;padding:8px 18px;font-size:.85rem">📤 書き出す</button>
+            <button class="big-btn" id="btn-code-in" style="background:var(--blue);min-height:44px;padding:8px 18px;font-size:.85rem">📥 読み込む</button>
+          </div>
+          <div class="share-note">マップはこの端末の中だけに保存されます。先生がつくったマップをみんなの端末で使うときは、コードをコピーして配ってね。</div>
+          <div class="msg" id="share-msg" style="min-height:22px;font-size:.85rem"></div>
+        </div>
         <div class="block-btns" id="block-btns">
           <button class="block-btn straight" data-b="straight">⬆️ Go straight.</button>
           <button class="block-btn right" data-b="right">➡️ Turn right.</button>
@@ -578,6 +594,39 @@ $("grid").addEventListener("click", e => {
 });
 
 // ============================================================
+// マップコード(端末間の共有用。例: post:1,0;hospital:4,0)
+// ============================================================
+$("btn-code-out").addEventListener("click", () => {
+  const code = town.map(t => `${t.id}:${t.x},${t.y}`).join(";");
+  $("share-code").value = code;
+  const done = () => { $("share-msg").textContent = "📋 コピーしました。別の端末に貼り付けて「読み込む」でつかえます"; $("share-msg").className = "msg ok"; };
+  const fallback = () => { $("share-code").select(); $("share-msg").textContent = "コードを選択してコピーしてください"; $("share-msg").className = "msg ok"; };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(done, fallback);
+  }else{ fallback(); }
+});
+$("btn-code-in").addEventListener("click", () => {
+  const code = $("share-code").value.trim();
+  if(!code){ $("share-msg").textContent = "マップコードを貼り付けてください"; $("share-msg").className = "msg ng"; return; }
+  const items = [];
+  for(const part of code.split(";")){
+    const m = part.trim().match(/^([a-z]+):(\d+),(\d+)$/);
+    if(!m) continue;
+    const [, id, xs, ys] = m;
+    const x = +xs, y = +ys;
+    if(!bOf(id) || x < 0 || x >= W || y < 0 || y >= H) continue;
+    if(x === START.x && y === START.y) continue;
+    if(items.some(t => t.id === id || (t.x === x && t.y === y))) continue;
+    items.push({ id, x, y });
+  }
+  if(items.length === 0){ $("share-msg").textContent = "コードが読み取れませんでした…もういちどコピーしてためしてね"; $("share-msg").className = "msg ng"; return; }
+  town = items;
+  saveTown(); drawGrid();
+  $("share-msg").textContent = `✅ マップを読み込みました(建物 ${items.length}こ)`;
+  $("share-msg").className = "msg ok";
+});
+
+// ============================================================
 // モード切替
 // ============================================================
 function enterMode(m){
@@ -585,6 +634,7 @@ function enterMode(m){
   program = []; drawProgram(); drawGrid(); resetWalker();
   $("msg").textContent = "";
   $("palette").classList.toggle("hidden", m !== "edit");
+  $("map-share").classList.toggle("hidden", m !== "edit");
   $("block-btns").style.display = (m === "edit" || m === "pair") ? "none" : "flex";
   $("walk-btns").classList.toggle("hidden", m !== "pair");
   $("pair-hint").classList.toggle("hidden", m !== "pair");

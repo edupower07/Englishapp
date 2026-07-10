@@ -212,8 +212,14 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
         <textarea id="reg-bulk" style="width:100%;min-height:80px;margin-top:6px;border:2px solid #eee;border-radius:10px;padding:8px;font-family:inherit;font-weight:700"></textarea>
         <div class="actions" style="margin-top:8px">
           <button class="big-btn blue" id="btn-bulk">まとめて登録</button>
+          <button class="big-btn" id="btn-export" style="background:var(--green)">📤 書き出す(別の端末へ)</button>
           <button class="big-btn gray" id="btn-clear-all">ぜんぶ消す</button>
         </div>
+        <div style="margin-top:8px">
+          💡 データはこの端末の中だけに保存されます。別の端末(電子黒板など)でも使いたいときは
+          「書き出す」でコピーして、その端末のこの欄に貼り付けて「まとめて登録」してください。
+        </div>
+        <div class="msg" id="reg-msg" style="min-height:24px"></div>
       </div>
       <div class="reg-list" id="reg-list"></div>
     </div>
@@ -256,8 +262,8 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 </main>
 
 <footer>
-  誕生日は個人情報のため、氏名ではなく出席番号のみで扱い、この端末の中だけに保存されます。<br>
-  クラス全体で共有したい場合は、教師用端末+電子黒板での利用がおすすめです。
+  誕生日は個人情報のため、氏名ではなく出席番号のみで扱い、この端末の中だけに保存されます(どこにも送信されません)。<br>
+  別の端末でも使うときは「まとめて登録(先生用)」の📤書き出し→貼り付けでうつせます。教師用端末+電子黒板での利用がおすすめです。
 </footer>
 
 <script>
@@ -360,6 +366,16 @@ $("btn-bulk").addEventListener("click", () => {
   });
   save(); renderRegList(); renderToday();
   $("reg-bulk").value = "";
+});
+$("btn-export").addEventListener("click", () => {
+  if(list.length === 0){ $("reg-msg").textContent = "まだ登録がありません"; $("reg-msg").className = "msg ng"; return; }
+  const text = list.slice().sort((a,b) => a.num - b.num).map(b => `${b.num},${b.month},${b.day}`).join("\n");
+  $("reg-bulk").value = text;
+  const done = () => { $("reg-msg").textContent = "📋 コピーしました。別の端末のこの欄に貼り付けて「まとめて登録」してください"; $("reg-msg").className = "msg ok"; };
+  const fallback = () => { $("reg-bulk").select(); $("reg-msg").textContent = "下の欄の内容を選択してコピーし、別の端末に貼り付けてください"; $("reg-msg").className = "msg ok"; };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done, fallback);
+  }else{ fallback(); }
 });
 $("btn-clear-all").addEventListener("click", () => {
   if(confirm("登録した誕生日をぜんぶ消します。いいですか?")){
