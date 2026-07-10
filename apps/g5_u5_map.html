@@ -37,7 +37,7 @@ main{max-width:1020px;margin:0 auto;padding:16px 16px 60px}
   box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
 }
 .mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)} .mode-card.m3{border-color:var(--teal)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)} .mode-card.m3{border-color:var(--teal)} .mode-card.m4{border-color:var(--yellow)}
 .mode-card .mi{font-size:3rem}
 .mode-card h2{font-size:1.12rem;font-weight:800;margin-top:8px}
 .mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
@@ -115,6 +115,10 @@ main{max-width:1020px;margin:0 auto;padding:16px 16px 60px}
   text-align:center;font-size:1.15rem;font-weight:800;min-height:36px;margin-top:6px;
 }
 .msg.ok{color:var(--green)} .msg.ng{color:var(--primary)}
+.say-hint{
+  background:#fffbe8;border:3px dashed var(--yellow);border-radius:16px;
+  padding:10px 14px;font-weight:700;font-size:.78rem;color:#8a6d0a;line-height:1.8;
+}
 
 /* 建物パレット(編集モード) */
 .palette{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
@@ -156,6 +160,11 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
         <h2>どこにつくかな?</h2>
         <p>道案内を聞いて、たどりつく建物を<br>先に予想してからたしかめよう</p>
       </div>
+      <div class="mode-card m4" data-mode="pair">
+        <div class="mi">🗣️</div>
+        <h2>ペアで道案内</h2>
+        <p>あんない役が じぶんの英語で道あんない。<br>歩く役は 聞いてうごこう</p>
+      </div>
       <div class="mode-card m3" data-mode="edit">
         <div class="mi">🏗️</div>
         <h2>マップをつくる</h2>
@@ -174,6 +183,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
             <div class="en" id="quest-en">Where is the post office?</div>
             <small id="quest-ja">ゆうびんきょくまで あんないしよう</small>
           </div>
+          <button class="nav-btn hidden" id="btn-peek" style="background:var(--blue);flex-shrink:0">👀 見る</button>
         </div>
         <div style="height:10px"></div>
         <div class="town">
@@ -189,10 +199,21 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
           <button class="block-btn right" data-b="right">➡️ Turn right.</button>
           <button class="block-btn left" data-b="left">⬅️ Turn left.</button>
         </div>
+        <!-- ペアモード: 歩く役の操作(ことばは表示しない。あんない役の英語だけがたより) -->
+        <div class="block-btns hidden" id="walk-btns">
+          <button class="block-btn left" data-w="left" title="ひだりをむく">⬅️</button>
+          <button class="block-btn straight" data-w="fwd" title="すすむ">⬆️</button>
+          <button class="block-btn right" data-w="right" title="みぎをむく">➡️</button>
+        </div>
+        <div class="say-hint hidden" id="pair-hint">
+          🗣️ あんない役:「見る」でひみつの場所をたしかめて、じぶんの英語で あんないしよう<br>
+          👂 歩く役:ことばを聞いて ⬅️⬆️➡️ でうごき、ついたと思ったら「ついた!」
+        </div>
         <div class="program" id="program"></div>
         <div class="run-row" id="run-row">
           <button class="big-btn green" id="btn-run">▶ スタート!</button>
           <button class="big-btn gray" id="btn-clear">ぜんぶけす</button>
+          <button class="big-btn green hidden" id="btn-arrived">🏁 ついた!</button>
           <button class="big-btn" id="btn-next" style="background:var(--blue)">つぎのお題 🎲</button>
         </div>
         <div class="msg" id="msg"></div>
@@ -265,8 +286,9 @@ let town = [];      // [{id,x,y}]
 let mode = null;    // challenge | guess | edit
 let program = [];   // ["straight","right","left",...]
 let running = false;
-let goal = null;    // 建物(challenge/guessの答え)
+let goal = null;    // 建物(challenge/guess/pairの答え)
 let guessPick = null;
+let peeking = false; // ペアモード: あんない役がお題を見ているか
 let editSel = null; // 編集で選択中の建物id("erase"=けす)
 let walker = { x: START.x, y: START.y, dir: 0 }; // dir: 0=上 1=右 2=下 3=左
 
@@ -459,6 +481,64 @@ function newGuess(){
 $("btn-next").addEventListener("click", () => {
   if(mode === "challenge") newChallenge();
   else if(mode === "guess") newGuess();
+  else if(mode === "pair") newPair();
+});
+
+// ============================================================
+// ペアで道案内(アプリは場面と判定だけ。ことばは子どもが出す)
+// ============================================================
+function newPair(){
+  resetWalker();
+  $("msg").textContent = ""; $("msg").className = "msg";
+  goal = bOf(town[Math.floor(Math.random() * town.length)].id);
+  peeking = false;
+  renderPairQuest();
+  document.querySelectorAll(".cell").forEach(c => c.classList.remove("goal-flash"));
+}
+function renderPairQuest(){
+  $("btn-peek").textContent = peeking ? "🙈 かくす" : "👀 見る";
+  if(peeking){
+    questVisual(goal);
+    $("quest-en").textContent = goal.en;
+    $("quest-ja").textContent = "ここまで じぶんの英語で あんないしよう(歩く役は見ないでね)";
+  }else{
+    $("quest-img").innerHTML = `<span class="qe">🤫</span>`;
+    $("quest-en").textContent = "ひみつの ばしょ";
+    $("quest-ja").textContent = "あんない役だけ「見る」をおして たしかめよう";
+  }
+}
+$("btn-peek").addEventListener("click", () => { peeking = !peeking; renderPairQuest(); });
+$("walk-btns").addEventListener("click", e => {
+  const btn = e.target.closest(".block-btn"); if(!btn) return;
+  const w = btn.dataset.w;
+  if(w === "right"){ walker.dir = (walker.dir + 1) % 4; }
+  else if(w === "left"){ walker.dir = (walker.dir + 3) % 4; }
+  else{
+    const nx = walker.x + DX[walker.dir], ny = walker.y + DY[walker.dir];
+    if(nx < 0 || nx >= W || ny < 0 || ny >= H){
+      $("msg").textContent = "🚧 そっちは かべだよ!";
+      $("msg").className = "msg ng";
+      return;
+    }
+    walker.x = nx; walker.y = ny;
+  }
+  $("msg").textContent = "";
+  placeWalker(true);
+});
+$("btn-arrived").addEventListener("click", () => {
+  const here = buildingAt(walker.x, walker.y);
+  if(here && goal && here.id === goal.id){
+    $("msg").textContent = `🎉 You made it! ${goal.en} にとうちゃく!`;
+    $("msg").className = "msg ok";
+    speak(`You made it! This is the ${goal.en}.`);
+    const t = town.find(t => t.id === goal.id);
+    $("grid").children[t.y * W + t.x].classList.add("goal-flash");
+  }else{
+    $("msg").textContent = here
+      ? `ここは ${bOf(here.id).en} みたい…あんないを つづけよう!`
+      : "まだ建物に ついていないよ。あんないを つづけよう!";
+    $("msg").className = "msg ng";
+  }
 });
 
 // ============================================================
@@ -505,13 +585,20 @@ function enterMode(m){
   program = []; drawProgram(); drawGrid(); resetWalker();
   $("msg").textContent = "";
   $("palette").classList.toggle("hidden", m !== "edit");
-  $("block-btns").style.display = (m === "edit") ? "none" : "flex";
+  $("block-btns").style.display = (m === "edit" || m === "pair") ? "none" : "flex";
+  $("walk-btns").classList.toggle("hidden", m !== "pair");
+  $("pair-hint").classList.toggle("hidden", m !== "pair");
   $("run-row").style.display = (m === "edit") ? "none" : "flex";
-  $("program").style.display = (m === "edit") ? "none" : "flex";
+  $("program").style.display = (m === "edit" || m === "pair") ? "none" : "flex";
+  $("btn-run").classList.toggle("hidden", m === "pair");
+  $("btn-clear").classList.toggle("hidden", m === "pair");
+  $("btn-arrived").classList.toggle("hidden", m !== "pair");
+  $("btn-peek").classList.toggle("hidden", m !== "pair");
   $("scr-mode").classList.add("hidden");
   $("scr-play").classList.remove("hidden");
   if(m === "challenge") newChallenge();
   else if(m === "guess") newGuess();
+  else if(m === "pair") newPair();
   else{
     $("quest-img").innerHTML = `<span class="qe">🏗️</span>`;
     $("quest-en").textContent = "マップをつくろう";
