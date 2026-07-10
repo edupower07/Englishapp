@@ -39,6 +39,11 @@ main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
 .mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
 .mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)}
 .mode-card.m3{border-color:var(--green)} .mode-card.m4{border-color:var(--yellow)}
+.mode-card.m5{border-color:#b2bec3}
+.int-hint{
+  background:#fffbe8;border:3px dashed var(--yellow);border-radius:16px;
+  padding:12px 16px;font-weight:700;font-size:.83rem;color:#8a6d0a;text-align:center;line-height:2;
+}
 .mode-card .mi{font-size:2.8rem}
 .mode-card h2{font-size:1.02rem;font-weight:800;margin-top:8px}
 .mode-card p{font-size:.76rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
@@ -141,21 +146,52 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
     <h2 class="step-title">🎂 バースデーカレンダー</h2>
     <div id="today-area"></div>
     <div class="mode-select">
-      <div class="mode-card m1" data-mode="calendar">
+      <div class="mode-card m1" data-mode="interview">
+        <div class="mi">🎤</div><h2>友だちにインタビュー</h2>
+        <p>英語で誕生日を聞き合って、<br>聞き取れたら記録していこう</p>
+      </div>
+      <div class="mode-card m2" data-mode="calendar">
         <div class="mi">📅</div><h2>カレンダーを見る</h2>
-        <p>クラスの誕生日を12ヶ月の<br>カレンダーでたしかめよう</p>
+        <p>インタビューで集めた誕生日が<br>12ヶ月のカレンダーにたまるよ</p>
       </div>
-      <div class="mode-card m2" data-mode="quiz">
-        <div class="mi">❓</div><h2>誕生日クイズ</h2>
-        <p>When is your birthday?<br>友だちの誕生月をあてよう</p>
+      <div class="mode-card m3" data-mode="quiz">
+        <div class="mi">❓</div><h2>思い出しクイズ</h2>
+        <p>インタビューした友だちの誕生日、<br>おぼえているかな?</p>
       </div>
-      <div class="mode-card m3" data-mode="card">
+      <div class="mode-card m4" data-mode="card">
         <div class="mi">💝</div><h2>バースデーカード</h2>
         <p>ほしいものを選んで<br>ミニカードをつくろう</p>
       </div>
-      <div class="mode-card m4" data-mode="reg">
-        <div class="mi">✏️</div><h2>誕生日を登録(先生用)</h2>
+      <div class="mode-card m5" data-mode="reg">
+        <div class="mi">✏️</div><h2>まとめて登録(先生用)</h2>
         <p>出席番号と誕生日を登録。<br>この端末の中だけに保存されます</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- インタビュー -->
+  <section id="scr-int" class="hidden">
+    <h2 class="step-title">🎤 友だちに聞いてみよう</h2>
+    <p class="step-sub">英語で誕生日をたずねて、聞き取れたら記録しよう</p>
+    <div class="reg-box">
+      <div class="int-hint">
+        ① 友だちに 英語で「誕生日はいつ?」と聞く<br>
+        ② こたえを聞き取る(聞き返してもOKだよ)<br>
+        ③ 聞き取れた誕生日を 下に記録!
+        <div style="margin-top:6px">
+          <button class="big-btn blue" id="btn-int-help" style="min-height:42px;padding:8px 16px;font-size:.8rem">🔊 聞き方に こまったら</button>
+        </div>
+      </div>
+      <div class="reg-row" style="margin-top:14px">
+        <input type="number" id="int-num" placeholder="番号" min="1" max="45">
+        <select id="int-month"></select>
+        <select id="int-day"></select>
+        <button class="big-btn" id="btn-int-add">記録する</button>
+      </div>
+      <div class="msg" id="int-msg"></div>
+      <div class="reg-list" id="int-list"></div>
+      <div class="reg-note" style="text-align:center">
+        記録は「カレンダー」にどんどん集まるよ。チップをタップすると、その誕生日を英語で聞けるよ。
       </div>
     </div>
   </section>
@@ -192,7 +228,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 
   <!-- クイズ -->
   <section id="scr-quiz" class="hidden">
-    <h2 class="step-title">❓ 誕生日クイズ</h2>
+    <h2 class="step-title">❓ 思い出しクイズ</h2>
     <p class="step-sub" id="quiz-note"></p>
     <div class="quiz-card">
       <div class="quiz-q" id="q-text"></div>
@@ -273,7 +309,7 @@ let selGift = null;
 
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-mode","scr-reg","scr-cal","scr-quiz","scr-card"].forEach(s =>
+  ["scr-mode","scr-int","scr-reg","scr-cal","scr-quiz","scr-card"].forEach(s =>
     $(s).classList.toggle("hidden", s !== id));
 }
 function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){} }
@@ -332,6 +368,33 @@ $("btn-clear-all").addEventListener("click", () => {
 });
 
 // ============================================================
+// インタビュー(実際に聞き合った誕生日を子どもが記録する)
+// ============================================================
+$("int-month").innerHTML = MONTHS.map((m,i) => `<option value="${i+1}">${m.ja}</option>`).join("");
+$("int-day").innerHTML = Array.from({length:31},(_,i) => `<option value="${i+1}">${i+1}日</option>`).join("");
+function renderIntList(){
+  $("int-list").innerHTML = list
+    .slice().sort((a,b) => a.month - b.month || a.day - b.day)
+    .map(b => `<span class="reg-chip" data-num="${b.num}">🎂 ${b.num}ばん ${b.month}/${b.day}</span>`).join("");
+}
+$("btn-int-help").addEventListener("click", () => speak("When is your birthday?"));
+$("btn-int-add").addEventListener("click", () => {
+  const num = +$("int-num").value;
+  if(!num){ $("int-msg").textContent = "友だちの出席番号を入れてね"; $("int-msg").className = "msg ng"; return; }
+  list = list.filter(b => b.num !== num);
+  list.push({ num, month: +$("int-month").value, day: +$("int-day").value });
+  save(); renderIntList(); renderToday();
+  $("int-num").value = "";
+  $("int-msg").textContent = `🎉 ${num}ばんさんの誕生日をゲット!いま ${list.length}人ぶん あつまったよ。つぎの友だちに聞いてみよう!`;
+  $("int-msg").className = "msg ok";
+});
+$("int-list").addEventListener("click", e => {
+  const chip = e.target.closest(".reg-chip"); if(!chip) return;
+  const b = list.find(x => x.num === +chip.dataset.num); if(!b) return;
+  speak(`My birthday is ${MONTHS[b.month-1].en} ${ordinal(b.day)}.`);
+});
+
+// ============================================================
 // カレンダー
 // ============================================================
 function renderCalendar(){
@@ -357,12 +420,12 @@ function newQuiz(){
   quizLock = false;
   $("q-msg").textContent = ""; $("q-msg").className = "msg";
   if(list.length === 0){
-    $("quiz-note").textContent = "まだ誕生日が登録されていないよ(先生に登録してもらってね)";
+    $("quiz-note").textContent = "まだ誕生日が集まっていないよ(まずインタビューで集めよう!)";
     $("q-text").textContent = "———";
     $("q-sub").textContent = ""; $("q-opts").innerHTML = "";
     return;
   }
-  $("quiz-note").textContent = "";
+  $("quiz-note").textContent = "インタビューを思い出してこたえよう";
   quizAnswer = list[Math.floor(Math.random() * list.length)];
   $("q-text").textContent = `${quizAnswer.num}ばんさんの誕生日はいつ?`;
   $("q-sub").textContent = "🔊 When is your birthday?(タップでもういちど)";
@@ -390,7 +453,7 @@ $("q-opts").addEventListener("click", e => {
   }else{
     el.classList.add("ng");
     setTimeout(() => el.classList.remove("ng"), 380);
-    $("q-msg").textContent = "❌ ちがうみたい…";
+    $("q-msg").textContent = "🤔 もういちど思い出してみよう(こまったら本人にもういちど聞いてもいいよ)";
     $("q-msg").className = "msg ng";
   }
 });
@@ -427,7 +490,8 @@ $("bcard").addEventListener("click", e => {
 // ============================================================
 document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
   const m = c.dataset.mode;
-  if(m === "calendar"){ renderCalendar(); show("scr-cal"); }
+  if(m === "interview"){ renderIntList(); $("int-msg").textContent = ""; show("scr-int"); }
+  else if(m === "calendar"){ renderCalendar(); show("scr-cal"); }
   else if(m === "quiz"){ show("scr-quiz"); newQuiz(); }
   else if(m === "card"){ selGift = null; $("bcard").classList.add("hidden"); renderGifts(); show("scr-card"); speak("What do you want for your birthday?"); }
   else{ renderRegList(); show("scr-reg"); }
