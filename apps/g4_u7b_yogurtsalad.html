@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>オリジナルヨーグルトサラダをつくろう | 小学校外国語アプリポータル</title>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fffdec; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff8c00; --red:#ff6347; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;touch-action:none;overflow:hidden;display:flex;flex-direction:column;
+}
+header{
+  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);z-index:50;gap:8px;flex-wrap:wrap;flex-shrink:0;
+}
+header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;
+}
+.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+
+.subtitle{text-align:center;font-weight:800;color:var(--red);font-size:1.15rem;padding:6px 0 0;flex-shrink:0}
+.container{display:flex;gap:14px;width:100%;max-width:1100px;margin:0 auto;padding:10px 14px 14px;flex:1;min-height:0}
+
+/* サイドバー */
+.sidebar{
+  width:230px;background:#fff;padding:12px;border-radius:22px;border:4px dashed #ffa07a;box-shadow:var(--shadow);
+  overflow-y:auto;display:flex;flex-direction:column;gap:8px;touch-action:pan-y;flex-shrink:0;
+}
+.sidebar h2{font-size:1.1rem;text-align:center;color:var(--primary);border-bottom:3px dotted #ffa07a;padding-bottom:8px;font-family:'Fredoka One',cursive;letter-spacing:1px}
+.fruit-item{
+  display:flex;align-items:center;background:#fffafa;border:3px solid #ffe4e1;border-radius:14px;padding:6px 8px;
+  cursor:grab;transition:.15s;user-select:none;-webkit-user-select:none;min-height:56px;
+}
+.fruit-item:active{transform:scale(.95);background:#ffe4e1}
+.fruit-icon{width:42px;height:42px;object-fit:contain;margin-right:10px;pointer-events:none}
+.fruit-name{font-size:1.02rem;font-weight:800;color:#555;pointer-events:none;line-height:1.1}
+
+/* メインエリア */
+.main-area{
+  flex:1;background:#fff;border-radius:22px;border:4px dashed #87ceeb;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;padding:10px;position:relative;min-width:0;overflow:hidden;
+}
+#message{font-size:1.25rem;color:var(--red);font-weight:800;text-align:center;min-height:30px;flex-shrink:0}
+.count-box{width:100%;max-width:560px;background:#fff8dc;padding:6px 10px;border-radius:14px;border:2px dotted #deb887;text-align:center;flex-shrink:0}
+.count-title{font-size:.8rem;color:#8b4513;display:block;border-bottom:1px dashed #deb887;padding-bottom:2px;font-weight:800}
+#count-display{font-size:1.02rem;color:#333;font-weight:800;min-height:1.2rem}
+
+/* うつわ+ヨーグルト */
+.bowl-wrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0}
+.bowl{
+  width:min(460px, 100%, 58vh);aspect-ratio:1;background:radial-gradient(circle at 50% 50%, #8b4513, #a0522d 60%, #cd853f);
+  border-radius:50%;border:8px solid #5c3317;
+  box-shadow:inset 0 10px 20px rgba(0,0,0,.4), 0 15px 30px rgba(0,0,0,.3);
+  position:relative;overflow:hidden;display:flex;justify-content:center;align-items:center;flex-shrink:0;
+}
+.yogurt-base{
+  position:absolute;width:88%;height:86%;border-radius:45% 55% 40% 60% / 50% 60% 40% 50%;
+  background:radial-gradient(farthest-corner at 30% 30%, #ffffff 20%, #fffff0 60%, #eee8aa 100%);
+  box-shadow:inset 10px 10px 30px rgba(255,255,255,.8), inset -5px -5px 15px rgba(0,0,0,.05), 0 5px 15px rgba(0,0,0,.1);
+  z-index:0;pointer-events:none;
+}
+.yogurt-base::after{
+  content:'';position:absolute;top:20%;left:20%;width:90px;height:55px;border-radius:50%;
+  background:rgba(255,255,255,.6);filter:blur(8px);transform:rotate(-45deg);
+}
+.placed-fruit{
+  position:absolute;width:76px;height:76px;object-fit:contain;cursor:grab;
+  filter:drop-shadow(1px 3px 3px rgba(0,0,0,.3));z-index:10;touch-action:none;
+}
+.placed-fruit:active{cursor:grabbing;opacity:.8}
+.drag-ghost{
+  position:fixed;width:60px;height:60px;opacity:.85;z-index:9999;pointer-events:none;
+  filter:drop-shadow(2px 2px 5px rgba(0,0,0,.3));object-fit:contain;
+}
+
+/* ボタン */
+.controls{display:flex;gap:12px;flex-shrink:0;padding-top:8px;flex-wrap:wrap;justify-content:center}
+.big-btn{
+  border:none;border-radius:50px;padding:10px 22px;font-family:inherit;font-weight:800;font-size:.92rem;
+  cursor:pointer;box-shadow:var(--shadow);min-height:46px;transition:.2s;color:#fff;
+}
+.big-btn:active{transform:translateY(2px)}
+.btn-reset{background:linear-gradient(to bottom,#ff7f50,#ff4500)}
+.btn-save{background:linear-gradient(to bottom,#32cd32,#228b22)}
+.btn-ask{background:var(--blue)}
+
+/* 使い方モーダル */
+.help-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:flex;justify-content:center;align-items:center;padding:16px}
+.help-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);touch-action:pan-y}
+.help-box h3{font-size:1.1rem;font-weight:800;margin-bottom:10px;color:var(--primary)}
+.help-box h4{font-size:.92rem;font-weight:800;margin:12px 0 4px}
+.help-box p,.help-box li{font-size:.86rem;font-weight:600;line-height:1.9}
+.help-box ol,.help-box ul{padding-left:1.4em}
+.help-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72}
+.help-tip{background:#fffbe8;border:2px dashed var(--yellow);border-radius:12px;padding:8px 12px;font-size:.82rem;font-weight:700;margin-top:10px;line-height:1.8}
+
+.hidden{display:none!important}
+
+@media(max-width:680px){
+  .container{flex-direction:column}
+  .sidebar{width:100%;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;touch-action:pan-x}
+  .sidebar h2{display:none}
+  .fruit-item{flex-direction:column;min-width:76px;gap:2px}
+  .fruit-icon{margin:0}
+  .fruit-name{font-size:.68rem;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍓 オリジナルヨーグルトサラダをつくろう <span class="u">4年生 ほしいもの</span></h1>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="btn-help" style="background:var(--blue)">❓ 使い方</button>
+    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436">ポータルへ</a>
+  </div>
+</header>
+
+<div class="subtitle" id="subtitle">🔊 What do you want?</div>
+
+<div class="container">
+  <div class="sidebar" id="fruitList"><h2>Fruits</h2></div>
+  <div class="main-area">
+    <div id="message">Choose a fruit!</div>
+    <div class="count-box">
+      <span class="count-title">オリジナルヨーグルトサラダの中身</span>
+      <span id="count-display">なし (None)</span>
+    </div>
+    <div class="bowl-wrap"><div class="bowl" id="bowl"><div class="yogurt-base"></div></div></div>
+    <div class="controls">
+      <button class="big-btn btn-ask" id="btn-ask">🔊 What do you want?</button>
+      <button class="big-btn btn-reset" id="btn-reset">リセット (Clean up)</button>
+      <button class="big-btn btn-save" id="btn-save">📷 画像をほぞん</button>
+    </div>
+  </div>
+</div>
+
+<!-- 使い方 -->
+<div class="help-modal hidden" id="help-modal">
+  <div class="help-box">
+    <button class="help-close" id="help-close">✕</button>
+    <h3>❓ このアプリの使い方</h3>
+    <p>ほしいくだものを聞いたり答えたりしながら、じぶんだけのヨーグルトサラダをつくるアプリです。</p>
+    <h4>あそびかた</h4>
+    <ol>
+      <li>左のリストから くだものを <b>ドラッグ</b>して、うつわに のせよう(のせると英語が聞けるよ)</li>
+      <li>うつわの中でも うごかせるよ。<b>2回タップ</b>すると とりのぞけるよ</li>
+      <li>できあがったら、中身を英語で言ってみよう(例:くだものの名前と数)</li>
+      <li>「画像をほぞん」で じぶんのサラダを のこせるよ</li>
+    </ol>
+    <h4>ペアでのつかいかた(おすすめ)</h4>
+    <ol>
+      <li>店員さん役とお客さん役にわかれる</li>
+      <li>店員さん役:<b>What do you want?</b> と聞く</li>
+      <li>お客さん役:ほしいものを英語でつたえる(見ないで言えるとすごい!)</li>
+      <li>店員さん役が聞き取って、そのくだものをうつわにのせる</li>
+      <li>できあがったら「これでよかった?」を英語でたしかめて、交代しよう</li>
+    </ol>
+    <div class="help-tip">💡 先生向け:くだものの言い方がわからないときは、リストのカードを1回タップすると発音が聞けます。文の言い方は決めつけず、子どもが自分のことばで伝えようとする姿を大切にしてください。</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// データ(教師向け:ここを書きかえると内容を変更できます)
+// ============================================================
+const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+const FRUITS = [
+  { id:"apple",      name:"Apple",       img:"apple.jpg",         emoji:"🍎" },
+  { id:"orange",     name:"Orange",      img:"orange_fruit.jpg",  emoji:"🍊" },
+  { id:"grape",      name:"Grapes",      img:"grapes.jpg",        emoji:"🍇" },
+  { id:"banana",     name:"Banana",      img:"banana.jpg",        emoji:"🍌" },
+  { id:"watermelon", name:"Watermelon",  img:"watermelon.jpg",    emoji:"🍉" },
+  { id:"peach",      name:"Peach",       img:"peach.jpg",         emoji:"🍑" },
+  { id:"strawberry", name:"Strawberry",  img:"strawberry.jpg",    emoji:"🍓" },
+  { id:"cherry",     name:"Cherry",      img:"cherry.jpg",        emoji:"🍒" },
+  { id:"pineapple",  name:"Pineapple",   img:"pineapple.jpg",     emoji:"🍍" },
+  { id:"kiwi",       name:"Kiwi fruit",  img:"kiwi fruit.jpg",    emoji:"🥝" },
+  { id:"melon",      name:"Melon",       img:"melon.jpg",         emoji:"🍈" },
+  { id:"pear",       name:"Japanese pear", img:"Japanese pear.jpg", emoji:"🍐" },
+];
+const FRUIT_SIZE = 76; // うつわの上のくだものの大きさ(px)
+
+// ============================================================
+// 音声
+// ============================================================
+function speak(text, rate = 0.9){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// ============================================================
+// 状態
+// ============================================================
+const $ = id => document.getElementById(id);
+const bowl = $("bowl");
+let fruitCounts = {};
+FRUITS.forEach(f => fruitCounts[f.id] = 0);
+
+// 絵文字のSVGデータURI(絵カード画像が読めないときの代替)
+function emojiSrc(emoji){
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='55' font-size='80' text-anchor='middle' dominant-baseline='central'>${emoji}</text></svg>`);
+}
+function fruitImg(f, cls){
+  const img = document.createElement("img");
+  img.className = cls;
+  img.alt = f.name;
+  img.draggable = false;
+  img.onerror = () => { img.onerror = null; img.src = emojiSrc(f.emoji); };
+  img.src = IMG_BASE + encodeURIComponent(f.img);
+  return img;
+}
+
+function updateCounts(){
+  const parts = [];
+  for(const f of FRUITS){
+    if(fruitCounts[f.id] > 0) parts.push(`${f.name}: ${fruitCounts[f.id]}`);
+  }
+  $("count-display").textContent = parts.length === 0 ? "なし (None)" : parts.join(", ");
+}
+
+// ============================================================
+// サイドバー(ドラッグ/タッチで追加。タップで発音だけ確認)
+// ============================================================
+FRUITS.forEach(f => {
+  const div = document.createElement("div");
+  div.className = "fruit-item";
+  div.draggable = true;
+  div.appendChild(fruitImg(f, "fruit-icon"));
+  const span = document.createElement("span");
+  span.className = "fruit-name"; span.textContent = f.name;
+  div.appendChild(span);
+
+  // マウスドラッグ
+  div.addEventListener("dragstart", e => {
+    e.dataTransfer.setData("text/plain", JSON.stringify({ mode:"new", id: f.id }));
+    $("message").textContent = `${f.name}...`;
+  });
+  // クリックで発音(ことばのヘルプ)
+  div.addEventListener("click", () => speak(f.name));
+  // タッチドラッグ
+  div.addEventListener("touchstart", e => {
+    e.preventDefault();
+    initTouchDragFromSidebar(e, f);
+  }, { passive:false });
+
+  $("fruitList").appendChild(div);
+});
+
+// ============================================================
+// うつわへのドロップ(マウス)
+// ============================================================
+bowl.addEventListener("dragover", e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
+bowl.addEventListener("drop", e => {
+  e.preventDefault();
+  let data;
+  try{ data = JSON.parse(e.dataTransfer.getData("text/plain")); }catch(err){ return; }
+  if(data.mode === "new"){
+    const f = FRUITS.find(x => x.id === data.id); if(!f) return;
+    addNewFruit(f, e.clientX, e.clientY);
+  }else if(data.mode === "move"){
+    const el = document.getElementById(data.elementId);
+    if(el) moveFruitInBowl(el, e.clientX, e.clientY, data.offsetX, data.offsetY);
+  }
+});
+
+function addNewFruit(f, clientX, clientY){
+  placeFruit(f, clientX, clientY);
+  fruitCounts[f.id]++;
+  updateCounts();
+  speak(f.name);
+  $("message").textContent = `${f.name}!`;
+}
+
+function placeFruit(f, clientX, clientY){
+  const img = fruitImg(f, "placed-fruit");
+  img.id = "fruit-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+  img.draggable = true;
+
+  img.addEventListener("dragstart", e => {
+    e.stopPropagation();
+    const rect = img.getBoundingClientRect();
+    e.dataTransfer.setData("text/plain", JSON.stringify({
+      mode:"move", elementId: img.id, offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top
+    }));
+  });
+  img.addEventListener("touchstart", e => {
+    e.preventDefault(); e.stopPropagation();
+    initTouchMoveInBowl(e, img);
+  }, { passive:false });
+
+  const rect = bowl.getBoundingClientRect();
+  const limit = bowl.clientWidth - FRUIT_SIZE;
+  let x = Math.max(0, Math.min(clientX - rect.left - FRUIT_SIZE/2, limit));
+  let y = Math.max(0, Math.min(clientY - rect.top - FRUIT_SIZE/2, limit));
+  img.style.left = x + "px";
+  img.style.top = y + "px";
+  img.style.transform = `rotate(${Math.floor(Math.random()*360)}deg)`;
+
+  // ダブルクリック/ダブルタップでとりのぞく
+  const removeSelf = () => { img.remove(); fruitCounts[f.id]--; updateCounts(); };
+  img.addEventListener("dblclick", removeSelf);
+  let lastTap = 0;
+  img.addEventListener("touchend", e => {
+    const now = Date.now();
+    if(now - lastTap < 300 && now - lastTap > 0){ removeSelf(); e.preventDefault(); }
+    lastTap = now;
+  });
+
+  bowl.appendChild(img);
+}
+
+function moveFruitInBowl(el, clientX, clientY, offsetX, offsetY){
+  const rect = bowl.getBoundingClientRect();
+  const limit = bowl.clientWidth - FRUIT_SIZE;
+  el.style.left = Math.max(0, Math.min(clientX - rect.left - offsetX, limit)) + "px";
+  el.style.top  = Math.max(0, Math.min(clientY - rect.top  - offsetY, limit)) + "px";
+}
+
+// ============================================================
+// タッチ操作
+// ============================================================
+function initTouchDragFromSidebar(e, f){
+  const touch = e.touches[0];
+  const ghost = fruitImg(f, "drag-ghost");
+  ghost.style.left = (touch.clientX - 30) + "px";
+  ghost.style.top = (touch.clientY - 30) + "px";
+  document.body.appendChild(ghost);
+  $("message").textContent = `${f.name}...`;
+  let moved = false;
+
+  function onMove(ev){
+    moved = true;
+    const t = ev.touches[0];
+    ghost.style.left = (t.clientX - 30) + "px";
+    ghost.style.top = (t.clientY - 30) + "px";
+  }
+  function onEnd(ev){
+    const t = ev.changedTouches[0];
+    ghost.style.display = "none";
+    const target = document.elementFromPoint(t.clientX, t.clientY);
+    if(target && (target.id === "bowl" || bowl.contains(target))){
+      addNewFruit(f, t.clientX, t.clientY);
+    }else if(!moved){
+      speak(f.name); // その場タップ=発音の確認
+    }
+    ghost.remove();
+    document.removeEventListener("touchmove", onMove);
+    document.removeEventListener("touchend", onEnd);
+  }
+  document.addEventListener("touchmove", onMove, { passive:false });
+  document.addEventListener("touchend", onEnd);
+}
+
+function initTouchMoveInBowl(e, el){
+  const touch = e.touches[0];
+  const rect = el.getBoundingClientRect();
+  const offsetX = touch.clientX - rect.left;
+  const offsetY = touch.clientY - rect.top;
+  el.style.opacity = ".8";
+
+  function onMove(ev){
+    const t = ev.touches[0];
+    moveFruitInBowl(el, t.clientX, t.clientY, offsetX, offsetY);
+  }
+  function onEnd(){
+    el.style.opacity = "1";
+    document.removeEventListener("touchmove", onMove);
+    document.removeEventListener("touchend", onEnd);
+  }
+  document.addEventListener("touchmove", onMove, { passive:false });
+  document.addEventListener("touchend", onEnd);
+}
+
+// ============================================================
+// ボタン
+// ============================================================
+$("btn-ask").addEventListener("click", () => speak("What do you want?"));
+$("subtitle").addEventListener("click", () => speak("What do you want?"));
+$("btn-reset").addEventListener("click", () => {
+  bowl.querySelectorAll(".placed-fruit").forEach(el => el.remove());
+  FRUITS.forEach(f => fruitCounts[f.id] = 0);
+  updateCounts();
+  $("message").textContent = "Choose a fruit!";
+});
+$("btn-save").addEventListener("click", () => {
+  if(typeof html2canvas === "undefined"){
+    alert("画像ほぞん機能が読み込めませんでした(オフラインのときは使えません)");
+    return;
+  }
+  html2canvas(bowl, { backgroundColor:null, scale:2, useCORS:true }).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "my_yogurt_salad.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }).catch(() => alert("画像のほぞんにしっぱいしました。"));
+});
+
+// 使い方
+$("btn-help").addEventListener("click", () => $("help-modal").classList.remove("hidden"));
+$("help-close").addEventListener("click", () => $("help-modal").classList.add("hidden"));
+$("help-modal").addEventListener("click", e => { if(e.target === $("help-modal")) $("help-modal").classList.add("hidden"); });
+
+updateCounts();
+</script>
+</body>
+</html>
