@@ -119,6 +119,15 @@ main{max-width:1020px;margin:0 auto;padding:16px 16px 60px}
   background:#fffbe8;border:3px dashed var(--yellow);border-radius:16px;
   padding:10px 14px;font-weight:700;font-size:.78rem;color:#8a6d0a;line-height:1.8;
 }
+.map-pick{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:8px 12px;margin-bottom:10px;font-weight:800}
+.map-pick select{border:3px solid #e6ecf2;border-radius:10px;padding:8px;font-family:inherit;font-weight:800;font-size:.95rem;min-height:44px}
+.map-pick small{color:var(--sub);font-weight:700;font-size:.72rem;line-height:1.4}
+.w-svg{width:76%;height:76%}
+.cell.facing{box-shadow:inset 0 0 0 4px var(--yellow)}
+.dir-badge{
+  display:flex;justify-content:center;align-items:center;gap:6px;font-weight:800;margin:8px auto 0;
+  background:#fff;border-radius:50px;box-shadow:var(--shadow);padding:6px 16px;width:fit-content;font-size:.9rem;
+}
 .map-share{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:12px}
 .map-share textarea{
   width:100%;min-height:64px;border:2px solid #e6ecf2;border-radius:10px;padding:8px;
@@ -183,6 +192,11 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
   <section id="scr-play" class="hidden">
     <div class="play-wrap">
       <div class="map-col">
+        <div class="map-pick" id="map-pick">
+          <span>🗺️ マップ</span>
+          <select id="map-no"></select>
+          <small>ペアの人と おなじ番号に すると、おなじ町になるよ</small>
+        </div>
         <div class="quest-card" id="quest-card">
           <div class="quest-img" id="quest-img">🧭</div>
           <div class="quest-text">
@@ -194,8 +208,9 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
         <div style="height:10px"></div>
         <div class="town">
           <div class="town-grid" id="grid"></div>
-          <div id="walker">🚶</div>
+          <div id="walker"><svg viewBox="0 0 100 100" class="w-svg"><polygon points="50,8 80,52 61,52 61,90 39,90 39,52 20,52" fill="#ff4757" stroke="#fff" stroke-width="7" stroke-linejoin="round"/></svg></div>
         </div>
+        <div class="dir-badge" id="dir-badge">むいている方向: ⬆️</div>
       </div>
 
       <div class="side-col">
@@ -223,7 +238,8 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
         </div>
         <div class="say-hint hidden" id="pair-hint">
           🗣️ あんない役:「見る」でひみつの場所をたしかめて、じぶんの英語で あんないしよう<br>
-          👂 歩く役:ことばを聞いて ⬅️⬆️➡️ でうごき、ついたと思ったら「ついた!」
+          👂 歩く役:ことばを聞いて ⬅️⬆️➡️ でうごき、ついたと思ったら「ついた!」<br>
+          📱 べつべつの端末でやるときは、二人とも<b>おなじマップ番号</b>にすれば、[お題]の番号もそろうよ
         </div>
         <div class="program" id="program"></div>
         <div class="run-row" id="run-row">
@@ -298,8 +314,10 @@ function speakQueue(lines, rate = 0.85){
 // ============================================================
 // 状態
 // ============================================================
-let town = [];      // [{id,x,y}]
-let mode = null;    // challenge | guess | edit
+let town = [];       // いま表示中のマップ [{id,x,y}]
+let customTown = []; // 「じぶんの町」(編集モードでつくるマップ)
+let mapNo = "1";     // "1"〜"20" または "own"(じぶんの町)
+let mode = null;    // challenge | guess | pair | edit
 let program = [];   // ["straight","right","left",...]
 let running = false;
 let goal = null;    // 建物(challenge/guess/pairの答え)
@@ -308,13 +326,59 @@ let peeking = false; // ペアモード: あんない役がお題を見ている
 let editSel = null; // 編集で選択中の建物id("erase"=けす)
 let walker = { x: START.x, y: START.y, dir: 0 }; // dir: 0=上 1=右 2=下 3=左
 
-try{ town = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_MAP.map(b => ({...b})); }
-catch(e){ town = DEFAULT_MAP.map(b => ({...b})); }
+try{ customTown = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_MAP.map(b => ({...b})); }
+catch(e){ customTown = DEFAULT_MAP.map(b => ({...b})); }
+try{ mapNo = localStorage.getItem("g5_map_no_v1") || "1"; }catch(e){}
 
 const $ = id => document.getElementById(id);
 const bOf = id => BUILDINGS.find(b => b.id === id);
 function buildingAt(x,y){ return town.find(t => t.x === x && t.y === y); }
-function saveTown(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(town)); }catch(e){} }
+function saveTown(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(customTown)); }catch(e){} }
+
+// ============================================================
+// プリセットマップ(No.1〜No.20)
+// 番号から決まった手順で生成するため、どの端末でも同じ番号=同じ町になる
+// ============================================================
+const PRESET_COUNT = 20;
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function presetTown(n){
+  const rnd = mulberry32(1000 + n * 7919);
+  const ids = BUILDINGS.map(b => b.id);
+  for(let i = ids.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+  const cells = [];
+  for(let y = 0; y < H; y++) for(let x = 0; x < W; x++){
+    if(!(x === START.x && y === START.y)) cells.push({ x, y });
+  }
+  for(let i = cells.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  const count = 8 + Math.floor(rnd() * 3); // 8〜10けんの建物
+  return ids.slice(0, count).map((id, i) => ({ id, x: cells[i].x, y: cells[i].y }));
+}
+function applyMap(){
+  town = (mapNo === "own") ? customTown : presetTown(+mapNo);
+  try{ localStorage.setItem("g5_map_no_v1", mapNo); }catch(e){}
+}
+function buildMapSelect(){
+  let html = "";
+  for(let n = 1; n <= PRESET_COUNT; n++) html += `<option value="${n}">No.${n}</option>`;
+  html += `<option value="own">じぶんの町</option>`;
+  $("map-no").innerHTML = html;
+  $("map-no").value = (mapNo === "own" || (+mapNo >= 1 && +mapNo <= PRESET_COUNT)) ? mapNo : "1";
+  mapNo = $("map-no").value;
+}
+$("map-no").addEventListener("change", () => {
+  mapNo = $("map-no").value;
+  applyMap(); drawGrid();
+  if(mode === "challenge") newChallenge();
+  else if(mode === "guess") newGuess();
+  else if(mode === "pair") newPair();
+});
 
 // ============================================================
 // マップ描画
@@ -347,6 +411,18 @@ function placeWalker(animate = true){
   w.style.top = (r.top + 10) + "px";
   w.style.transform = `rotate(${walker.dir * 90}deg)`;
   if(!animate){ void w.offsetWidth; w.style.transition = ""; }
+  updateFacing();
+}
+// いま向いている方向を、バッジと「一歩先のマス」のハイライトで見えるようにする
+const DIR_ARROWS = ["⬆️","➡️","⬇️","⬅️"];
+function updateFacing(){
+  document.querySelectorAll(".cell.facing").forEach(c => c.classList.remove("facing"));
+  $("dir-badge").innerHTML = `むいている方向: <b style="font-size:1.15rem">${DIR_ARROWS[walker.dir]}</b>`;
+  const nx = walker.x + DX[walker.dir], ny = walker.y + DY[walker.dir];
+  if(nx >= 0 && nx < W && ny >= 0 && ny < H){
+    const cell = $("grid").children[ny * W + nx];
+    if(cell) cell.classList.add("facing");
+  }
 }
 function resetWalker(){
   walker = { x: START.x, y: START.y, dir: 0 };
@@ -497,16 +573,19 @@ function newGuess(){
 $("btn-next").addEventListener("click", () => {
   if(mode === "challenge") newChallenge();
   else if(mode === "guess") newGuess();
-  else if(mode === "pair") newPair();
+  else if(mode === "pair"){ pairRound++; newPair(); }
 });
 
 // ============================================================
 // ペアで道案内(アプリは場面と判定だけ。ことばは子どもが出す)
 // ============================================================
+let pairRound = 1; // お題番号。同じマップ番号+同じお題番号なら、どの端末でも同じ場所になる
 function newPair(){
   resetWalker();
   $("msg").textContent = ""; $("msg").className = "msg";
-  goal = bOf(town[Math.floor(Math.random() * town.length)].id);
+  const seed = (mapNo === "own" ? 999 : +mapNo) * 1000 + pairRound * 13;
+  const rnd = mulberry32(seed);
+  goal = bOf(town[Math.floor(rnd() * town.length)].id);
   peeking = false;
   renderPairQuest();
   document.querySelectorAll(".cell").forEach(c => c.classList.remove("goal-flash"));
@@ -516,11 +595,11 @@ function renderPairQuest(){
   if(peeking){
     questVisual(goal);
     $("quest-en").textContent = goal.en;
-    $("quest-ja").textContent = "ここまで じぶんの英語で あんないしよう(歩く役は見ないでね)";
+    $("quest-ja").textContent = `ここまで じぶんの英語で あんないしよう(歩く役は見ないでね)[お題 ${pairRound}]`;
   }else{
     $("quest-img").innerHTML = `<span class="qe">🤫</span>`;
     $("quest-en").textContent = "ひみつの ばしょ";
-    $("quest-ja").textContent = "あんない役だけ「見る」をおして たしかめよう";
+    $("quest-ja").textContent = `あんない役だけ「見る」をおして たしかめよう [お題 ${pairRound}]`;
   }
 }
 $("btn-peek").addEventListener("click", () => { peeking = !peeking; renderPairQuest(); });
@@ -582,7 +661,7 @@ $("grid").addEventListener("click", e => {
       town.push({ id: editSel, x, y });
       speak(bOf(editSel).en);
     }
-    saveTown(); drawGrid();
+    customTown = town; saveTown(); drawGrid();
   }else if(mode === "guess" && !running){
     const b = buildingAt(x,y);
     if(!b) return;
@@ -620,7 +699,8 @@ $("btn-code-in").addEventListener("click", () => {
     items.push({ id, x, y });
   }
   if(items.length === 0){ $("share-msg").textContent = "コードが読み取れませんでした…もういちどコピーしてためしてね"; $("share-msg").className = "msg ng"; return; }
-  town = items;
+  customTown = items; town = customTown;
+  mapNo = "own"; $("map-no").value = "own";
   saveTown(); drawGrid();
   $("share-msg").textContent = `✅ マップを読み込みました(建物 ${items.length}こ)`;
   $("share-msg").className = "msg ok";
@@ -631,8 +711,11 @@ $("btn-code-in").addEventListener("click", () => {
 // ============================================================
 function enterMode(m){
   mode = m;
+  if(m === "edit"){ mapNo = "own"; $("map-no").value = "own"; }
+  applyMap();
   program = []; drawProgram(); drawGrid(); resetWalker();
   $("msg").textContent = "";
+  $("map-pick").classList.toggle("hidden", m === "edit");
   $("palette").classList.toggle("hidden", m !== "edit");
   $("map-share").classList.toggle("hidden", m !== "edit");
   $("block-btns").style.display = (m === "edit" || m === "pair") ? "none" : "flex";
@@ -648,7 +731,7 @@ function enterMode(m){
   $("scr-play").classList.remove("hidden");
   if(m === "challenge") newChallenge();
   else if(m === "guess") newGuess();
-  else if(m === "pair") newPair();
+  else if(m === "pair"){ pairRound = 1; newPair(); }
   else{
     $("quest-img").innerHTML = `<span class="qe">🏗️</span>`;
     $("quest-en").textContent = "マップをつくろう";
@@ -664,6 +747,8 @@ $("btn-home").addEventListener("click", () => {
 });
 
 buildPalette();
+buildMapSelect();
+applyMap();
 drawGrid();
 </script>
 </body>
