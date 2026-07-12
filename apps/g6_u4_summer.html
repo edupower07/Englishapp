@@ -462,5 +462,38 @@ document.getElementById("btn-again-try").addEventListener("click", () => {
   show("scr-try");
 });
 </script>
+
+<style>
+#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
+#app-help-overlay.ah-hidden{display:none}
+.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
+.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
+.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
+.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
+.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
+.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
+.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
+#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
+</style>
+<div id="app-help-overlay" class="ah-hidden">
+  <div class="ah-box">
+    <button class="ah-close" id="app-help-close">✕</button>
+    <h3>❓ このアプリの使い方</h3>
+    <p>夏の思い出を過去の表現で伝え合うアプリです。</p><h4>あそびかた</h4><ol><li>夏の思い出(行った場所・したこと・食べたもの・気持ち)をえらぶ</li><li>まず<b>じぶんの口で</b>言ってみてから、お手本の日記でたしかめよう</li><li>「みんなの夏の思い出マップ」で、クラスの思い出をながめてみよう</li></ol><div class="ah-tip">💡 先生向け:went / ate / saw などの過去形は、まちがえても伝わればOKの姿勢で。</div>
+  </div>
+</div>
+<script>
+(function(){
+  var ov = document.getElementById("app-help-overlay");
+  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
+  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
+  var btn = document.createElement("button");
+  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
+  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
+  var portal = document.querySelector('header a[href="../index.html"]');
+  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
+  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+})();
+</script>
 </body>
 </html>
