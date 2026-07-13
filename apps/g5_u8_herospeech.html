@@ -77,6 +77,13 @@ main{max-width:940px;margin:0 auto;padding:16px 16px 60px}
 .bar-fill{height:20px;border-radius:0 6px 6px 0;min-width:2px;background:var(--teal);transition:width .5s}
 .bar-count{font-weight:800;font-size:.85rem}
 .dash-note{font-size:.76rem;color:var(--sub);font-weight:700;text-align:center;line-height:1.8;margin-top:8px}
+/* 塗り重ね(相手えらび・もういちどミッション) */
+.aud-row{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0 2px}
+.aud-label{font-weight:800;font-size:.85rem;color:var(--sub)}
+.aud-chip{border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;min-height:44px;transition:.15s}
+.aud-chip.on{border-color:var(--primary);background:#fff5f6}
+.retry-mission{text-align:center;font-weight:800;color:#e17055;font-size:.98rem;min-height:26px;margin:4px 0}
+.model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700;line-height:1.8}
 @media print{
@@ -126,6 +133,8 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
   <section id="scr-try" class="hidden">
     <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
     <p class="step-sub">えらんだ材料を見て、きみのヒーローを英語でしょうかいしてみよう(声に出してね)</p>
+    <div class="retry-mission" id="retry-mission"></div>
+    <div class="aud-row"><span class="aud-label">だれに つたえる?</span><button class="aud-chip on" data-a="t">👩‍🏫 先生・ALT</button><button class="aud-chip" data-a="f">🧑 友だち</button><button class="aud-chip" data-a="h">👨‍👩‍👧 家の人</button></div>
     <div class="speech-card" style="max-width:520px">
       <div class="sp-head">MY HERO</div>
       <div class="sp-body" id="try-body" style="text-align:center;font-size:1.5rem;line-height:2"></div>
@@ -138,7 +147,8 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
   <!-- STEP3 スピーチ -->
   <section id="scr-speech" class="hidden">
-    <h2 class="step-title">🔊 お手本でたしかめよう</h2>
+    <h2 class="step-title">🔊 お手本を聞いてみよう</h2>
+    <p class="model-note">これは 一つの例だよ。きみの言い方でも つたわれば OK!</p>
     <p class="step-sub">じぶんが言ったこととくらべてみよう。1文ずつタップでも聞けるよ</p>
     <div class="speech-card">
       <div class="sp-head">MY HERO SPEECH</div>
@@ -146,6 +156,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     </div>
     <div class="actions">
       <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ(お手本)</button>
+      <button class="big-btn" id="btn-again-try" style="background:var(--green)">🔁 もういちど言ってみよう</button>
       <button class="big-btn blue" id="btn-print">🖨️ 原稿を印刷</button>
       <button class="big-btn gray" id="btn-back-traits">えらびなおす</button>
     </div>
@@ -320,14 +331,18 @@ $("btn-make").addEventListener("click", () => {
   show("scr-try");
   speak(`My hero is ${hero.en}.`);
 });
-$("btn-back-try").addEventListener("click", () => show("scr-traits"));
+$("btn-back-try").addEventListener("click", () => { tallied = false; show("scr-traits"); });
 
-// お手本で確認(このタイミングで匿名集計)
+// お手本で確認(このタイミングで匿名集計。もういちど言う→再確認では二重に数えない)
+let tallied = false;
 $("btn-check").addEventListener("click", () => {
-  traits.forEach(t => tally.traits[t] = (tally.traits[t] || 0) + 1);
-  skills.forEach(s => tally.skills[s] = (tally.skills[s] || 0) + 1);
-  tally.count++;
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(tally)); }catch(e){}
+  if(!tallied){
+    traits.forEach(t => tally.traits[t] = (tally.traits[t] || 0) + 1);
+    skills.forEach(s => tally.skills[s] = (tally.skills[s] || 0) + 1);
+    tally.count++;
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(tally)); }catch(e){}
+    tallied = true;
+  }
   $("sp-lines").innerHTML = speechLines().map((l,i) =>
     `<div class="sp-line ${l.cls}" data-i="${i}">🔊 ${l.t}</div>`).join("");
   show("scr-speech");
@@ -377,6 +392,58 @@ $("btn-restart").addEventListener("click", () => {
 });
 
 show("scr-hero");
+
+// ============================================================
+// 塗り重ね: 相手をかえて・条件をかえて もういちど言ってみる
+// ============================================================
+document.querySelectorAll(".aud-chip").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".aud-chip").forEach(x => x.classList.toggle("on", x === b));
+}));
+const RETRY_MISSIONS = [
+  "こんどは お手本を見ないで 言ってみよう",
+  "こんどは 1文 つけたして 言ってみよう",
+  "こんどは べつの相手を えらんで 言ってみよう",
+  "こんどは ジェスチャーを つけて 言ってみよう",
+  "こんどは 相手の目を見て ゆっくり はっきり 言ってみよう",
+];
+document.getElementById("btn-again-try").addEventListener("click", () => {
+  document.getElementById("retry-mission").textContent =
+    "🎯 " + RETRY_MISSIONS[Math.floor(Math.random() * RETRY_MISSIONS.length)];
+  show("scr-try");
+});
+</script>
+
+<style>
+#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
+#app-help-overlay.ah-hidden{display:none}
+.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
+.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
+.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
+.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
+.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
+.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
+.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
+#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
+</style>
+<div id="app-help-overlay" class="ah-hidden">
+  <div class="ah-box">
+    <button class="ah-close" id="app-help-close">✕</button>
+    <h3>❓ このアプリの使い方</h3>
+    <p>あこがれのヒーローを紹介するスピーチをつくって、はっぴょうの練習をするアプリです。</p><h4>あそびかた</h4><ol><li>きみのヒーローをえらぶ</li><li>せいかく・とくいなことをえらぶ</li><li>「だれにつたえる?」をえらび、まず<b>じぶんの口で</b>スピーチしてみよう</li><li>お手本でたしかめたら「🔁もういちど言ってみよう」で2回目・3回目に挑戦</li></ol><h4>先生向け</h4><p>「みんなのけっか」で、人気の性格・特技の傾向が見られます(匿名・この端末内のみ)。</p><div class="ah-tip">💡 スピーチ原稿は印刷もできます。読み上げず、キーワードだけ見て話す練習につなげてください。</div>
+  </div>
+</div>
+<script>
+(function(){
+  var ov = document.getElementById("app-help-overlay");
+  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
+  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
+  var btn = document.createElement("button");
+  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
+  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
+  var portal = document.querySelector('header a[href="../index.html"]');
+  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
+  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+})();
 </script>
 </body>
 </html>

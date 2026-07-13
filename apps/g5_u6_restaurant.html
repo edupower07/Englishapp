@@ -63,7 +63,13 @@ main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
 .menu-item{
   background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
   border:4px solid transparent;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:128px;justify-content:center;
+  position:relative;
 }
+.whelp{
+  position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:2px solid #e6ecf2;background:#fff;
+  font-size:.72rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;font-family:inherit;
+}
+.whelp:hover{border-color:var(--blue);background:#eef2ff}
 .menu-item:hover{transform:translateY(-3px)}
 .menu-item.on{border-color:var(--primary);background:#fff5f6}
 .menu-item .mimg{width:60px;height:60px;display:flex;align-items:center;justify-content:center}
@@ -103,6 +109,18 @@ main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
 .bill-msg.ok{color:var(--green)} .bill-msg.ng{color:var(--primary)}
 .actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 
+/* 注文タイム(自分の口で言う) */
+.say-tray{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:14px auto;max-width:640px}
+.say-tray .titem{background:#fff;border-radius:16px;padding:10px;box-shadow:var(--shadow);text-align:center;cursor:pointer;width:110px;transition:.15s}
+.say-tray .titem:hover{transform:translateY(-3px)}
+.say-tray .titem .timg{width:66px;height:66px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.say-tray .titem img{max-width:100%;max-height:100%;object-fit:contain}
+.say-tray .titem .temoji{font-size:2.5rem;line-height:1}
+.say-hint{
+  max-width:640px;margin:0 auto;background:#fffbe8;border:3px dashed var(--yellow);border-radius:16px;
+  padding:12px 16px;font-weight:700;font-size:.85rem;color:#8a6d0a;text-align:center;line-height:1.8;
+}
+
 /* 店員あてクイズ(ペア) */
 .sum-quiz{max-width:480px;margin:10px auto;text-align:center}
 .sum-input{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:10px;flex-wrap:wrap}
@@ -133,7 +151,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
       <div class="mode-card m1" data-mode="order">
         <div class="mi">🍽️</div>
         <h2>ふつうに注文する</h2>
-        <p>食べもの・飲みもの・デザートを<br>えらんで注文。合計金額も学べるよ</p>
+        <p>メニューをえらんで、<br>じぶんの口で 店員さんに注文しよう</p>
       </div>
       <div class="mode-card m2" data-mode="pair">
         <div class="mi">🧑‍🍳</div>
@@ -162,7 +180,30 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     <div class="order-bar">
       <span class="order-items" id="order-items">まだ注文がありません</span>
       <span class="order-total" id="order-total"></span>
-      <button class="big-btn" id="btn-checkout" disabled>ちゅうもんする!</button>
+      <button class="big-btn" id="btn-checkout" disabled>きまった!注文しに行く</button>
+    </div>
+  </section>
+
+  <!-- 注文タイム(自分の口で言う) -->
+  <section id="scr-say" class="hidden">
+    <h2 class="step-title">🗣️ じぶんの口で 注文しよう</h2>
+    <div class="clerk-bar">
+      <span class="clerk-face">🧑‍🍳</span>
+      <span class="clerk-text">
+        <span class="en">What would you like?</span>
+        <small>店員さんが 聞いているよ</small>
+      </span>
+      <button class="nav-btn" id="btn-ask-again" style="background:var(--blue)">🔊 もういちど</button>
+    </div>
+    <div class="say-tray" id="say-tray"></div>
+    <div class="say-hint">
+      えらんだものを 見ながら、店員さんに つたわるように 注文してみよう。<br>
+      言い方は ひとつじゃないよ。じぶんの ことばで OK!<br>
+      <span style="font-size:.75rem">(ことばに こまったら、カードにさわると 聞けるよ)</span>
+    </div>
+    <div class="actions">
+      <button class="big-btn" id="btn-said">言えたよ! お会計へ</button>
+      <button class="big-btn gray" id="btn-back-menu">メニューにもどる</button>
     </div>
   </section>
 
@@ -173,21 +214,25 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
       <div class="bill-body">
         <div id="bill-lines"></div>
         <div class="sum-quiz hidden" id="sum-quiz">
-          <p style="font-weight:800;margin-top:10px">🧑‍🍳 店員さん役:合計はいくら?</p>
+          <p style="font-weight:800;margin-top:10px">🧑‍🍳 お客さん役が英語でねだんを聞いたら、<br>店員さん役は 合計を暗算でこたえよう</p>
           <div class="sum-input">
             <input type="number" id="sum-guess" placeholder="???" inputmode="numeric">
             <span style="font-weight:800">yen</span>
             <button class="big-btn" id="btn-sum-check" style="min-height:44px;padding:8px 18px">こたえあわせ</button>
           </div>
         </div>
+        <div style="text-align:center;margin-top:12px" id="ask-price-wrap">
+          <button class="big-btn" id="btn-ask-price" style="background:var(--blue)">💰 ねだんを聞こう</button>
+          <div style="font-weight:700;font-size:.75rem;color:var(--sub);margin-top:6px">英語で「いくらですか?」と店員さんに聞いてから おしてね</div>
+        </div>
         <div class="bill-total hidden" id="bill-total-row">
-          <span>How much is it?</span><span class="amt" id="bill-total"></span>
+          <span>🧑‍🍳</span><span class="amt" id="bill-total"></span>
         </div>
         <div class="bill-msg" id="bill-msg"></div>
       </div>
     </div>
     <div class="actions">
-      <button class="big-btn" id="btn-speak-order">🔊 注文を読み上げ</button>
+      <button class="big-btn" id="btn-speak-order">🔊 お手本の注文を聞いてみる</button>
       <button class="big-btn gray" id="btn-again">もういちど注文する</button>
     </div>
   </section>
@@ -259,7 +304,7 @@ let mode = "order";              // order | pair | budget
 let picks = {};                  // cat -> item
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-mode","scr-order","scr-bill"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  ["scr-mode","scr-order","scr-say","scr-bill"].forEach(s => $(s).classList.toggle("hidden", s !== id));
 }
 function total(){
   return Object.values(picks).reduce((s,it) => s + it.price, 0);
@@ -276,6 +321,7 @@ function buildMenu(){
       <div class="menu-grid" data-cat="${c.cat}">
         ${c.items.map((it,i) => `
           <div class="menu-item" data-cat="${c.cat}" data-i="${i}">
+            <button class="whelp" title="ことばを聞く">🔊</button>
             <div class="mimg"><img src="${IMG_BASE + encodeURIComponent(it.img)}" alt="${it.en}"
               onerror="this.outerHTML='<span class=&quot;memoji&quot;>${it.emoji}</span>'"></div>
             <div class="mlabel">${it.en}</div>
@@ -288,10 +334,10 @@ $("menu-area").addEventListener("click", e => {
   const el = e.target.closest(".menu-item"); if(!el) return;
   const cat = MENU.find(c => c.cat === el.dataset.cat);
   const it = cat.items[+el.dataset.i];
+  if(e.target.closest(".whelp")){ speak(it.en); return; } // ことばの確認だけ(文は言わない)
   picks[cat.cat] = it;
   document.querySelectorAll(`.menu-item[data-cat="${cat.cat}"]`).forEach(x =>
     x.classList.toggle("on", x === el));
-  speak(`I'd like ${it.en}, please.`);
   renderOrderBar();
 });
 function renderOrderBar(){
@@ -312,33 +358,53 @@ function renderOrderBar(){
 }
 
 // ============================================================
-// 会計
+// 注文タイム(子どもが自分の口で注文する。アプリは店員役だけ)
 // ============================================================
 $("btn-checkout").addEventListener("click", () => {
+  $("say-tray").innerHTML = Object.values(picks).map((it,i) => `
+    <div class="titem" data-i="${i}">
+      <div class="timg"><img src="${IMG_BASE + encodeURIComponent(it.img)}" alt="${it.en}"
+        onerror="this.outerHTML='<span class=&quot;temoji&quot;>${it.emoji}</span>'"></div>
+    </div>`).join("");
+  show("scr-say");
+  speak("What would you like?");
+});
+$("say-tray").addEventListener("click", e => {
+  const el = e.target.closest(".titem"); if(!el) return;
+  speak(Object.values(picks)[+el.dataset.i].en); // 単語だけのヘルプ
+});
+$("btn-ask-again").addEventListener("click", () => speak("What would you like?"));
+$("btn-back-menu").addEventListener("click", () => show("scr-order"));
+$("btn-said").addEventListener("click", () => { speak("OK! Sure."); buildBill(); });
+
+// ============================================================
+// 会計
+// ============================================================
+function buildBill(){
   const items = Object.values(picks);
   $("bill-lines").innerHTML = items.map((it,i) =>
     `<div class="bill-line" data-i="${i}"><span>${it.emoji} ${it.en}</span><span>${mode === "pair" ? "?" : it.price + " yen"}</span></div>`).join("");
   $("bill-msg").textContent = ""; $("bill-msg").className = "bill-msg";
   const isPair = (mode === "pair");
   $("sum-quiz").classList.toggle("hidden", !isPair);
-  $("bill-total-row").classList.toggle("hidden", isPair);
-  if(!isPair){
-    $("bill-total").textContent = `${total()} yen`;
-    if(mode === "budget"){
-      const ok = total() <= BUDGET;
-      $("bill-msg").textContent = ok
-        ? `🎉 よさん内におさまったよ!(のこり ${BUDGET - total()}円)`
-        : `💦 ${total() - BUDGET}円 オーバー…もういちどチャレンジ!`;
-      $("bill-msg").className = "bill-msg " + (ok ? "ok" : "ng");
-      speak(ok ? `It's ${total()} yen. Great!` : `It's ${total()} yen. Oh no!`);
-    }else{
-      speak(`How much is it? It's ${total()} yen.`);
-    }
-  }else{
-    $("sum-guess").value = "";
-    speak("How much is it?");
-  }
+  $("ask-price-wrap").classList.toggle("hidden", isPair);
+  $("bill-total-row").classList.add("hidden");
+  if(isPair){ $("sum-guess").value = ""; }
   show("scr-bill");
+}
+// ねだんは、子どもが英語でたずねてから店員(アプリ)が答える
+$("btn-ask-price").addEventListener("click", () => {
+  $("ask-price-wrap").classList.add("hidden");
+  $("bill-total-row").classList.remove("hidden");
+  $("bill-total").textContent = `It's ${total()} yen.`;
+  speak(`It's ${total()} yen.`);
+  if(mode === "budget"){
+    const ok = total() <= BUDGET;
+    $("bill-msg").textContent = ok
+      ? `🎉 よさん内におさまったよ!(のこり ${BUDGET - total()}円)`
+      : `💦 ${total() - BUDGET}円 オーバー…もういちどチャレンジ!`;
+    $("bill-msg").className = "bill-msg " + (ok ? "ok" : "ng");
+  }
 });
 $("bill-lines").addEventListener("click", e => {
   const el = e.target.closest(".bill-line"); if(!el) return;
@@ -348,7 +414,7 @@ $("btn-sum-check").addEventListener("click", () => {
   const g = +$("sum-guess").value;
   const t = total();
   $("bill-total-row").classList.remove("hidden");
-  $("bill-total").textContent = `${t} yen`;
+  $("bill-total").textContent = `It's ${t} yen.`;
   $("bill-lines").innerHTML = Object.values(picks).map((it,i) =>
     `<div class="bill-line" data-i="${i}"><span>${it.emoji} ${it.en}</span><span>${it.price} yen</span></div>`).join("");
   const ok = (g === t);
@@ -384,6 +450,39 @@ document.querySelectorAll(".mode-card").forEach(c =>
 $("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
 
 show("scr-mode");
+</script>
+
+<style>
+#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
+#app-help-overlay.ah-hidden{display:none}
+.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
+.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
+.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
+.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
+.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
+.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
+.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
+#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
+</style>
+<div id="app-help-overlay" class="ah-hidden">
+  <div class="ah-box">
+    <button class="ah-close" id="app-help-close">✕</button>
+    <h3>❓ このアプリの使い方</h3>
+    <p>レストランでの注文のやりとりを、<b>じぶんの口で</b>言ってみるアプリです。アプリは店員さん役だけをします。</p><h4>あそびかた</h4><ol><li>メニューから たべもの・のみもの・デザートをえらぶ(🔊はことばのたしかめ)</li><li>「注文タイム」:店員さんの What would you like? に、じぶんのことばで注文しよう</li><li>お会計では、えいごで「いくらですか?」と聞いてから「ねだんを聞こう」をおそう</li><li>「お店屋さんごっこ」はペアで店員役・お客役に。店員役は合計金額の暗算にちょうせん!</li><li>「予算チャレンジ」は500円以内でおさまるように考えて注文しよう</li></ol><div class="ah-tip">💡 先生向け:注文の言い方はひとつに決めず、伝わったかどうかを大切に。お手本は言ったあとの確認用です。</div>
+  </div>
+</div>
+<script>
+(function(){
+  var ov = document.getElementById("app-help-overlay");
+  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
+  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
+  var btn = document.createElement("button");
+  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
+  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
+  var portal = document.querySelector('header a[href="../index.html"]');
+  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
+  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+})();
 </script>
 </body>
 </html>

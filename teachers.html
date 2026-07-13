@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>先生向けガイド | 小学校外国語アプリポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
+  --primary:#ff4757; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e;
+  --shadow:0 4px 10px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.9}
+header{
+  background:rgba(255,255,255,.95);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
+}
+header h1{font-size:1.05rem;font-weight:800}
+.nav-btn{
+  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);text-decoration:none;display:inline-flex;align-items:center;
+}
+main{max-width:780px;margin:0 auto;padding:24px 18px 80px}
+h2{font-size:1.2rem;font-weight:800;margin:34px 0 10px;padding-left:12px;border-left:6px solid var(--primary)}
+h2:first-of-type{margin-top:10px}
+p, li{font-size:.92rem;font-weight:500}
+ul, ol{padding-left:1.5em;margin:8px 0}
+li{margin-bottom:4px}
+.card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px 22px;margin-bottom:10px}
+.point{
+  background:#fffbe8;border:3px dashed var(--yellow);border-radius:14px;padding:12px 16px;
+  font-weight:700;font-size:.88rem;margin:10px 0;
+}
+.ok{color:#1a9e5f;font-weight:800}
+.ng{color:var(--primary);font-weight:800}
+code{background:#eef2f6;border-radius:6px;padding:2px 8px;font-size:.85em;font-weight:700}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:.86rem}
+th,td{border:2px solid #e6ecf2;padding:8px 10px;text-align:left;font-weight:600}
+th{background:#f6f8fa;font-weight:800}
+footer{text-align:center;padding:24px;color:#b2bec3;font-size:.78rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>👩‍🏫 先生向けガイド — このサイトのしくみと使い方</h1>
+  <a class="nav-btn" href="index.html">ポータルへもどる</a>
+</header>
+
+<main>
+
+  <h2>だれでも・どの学校でも使えます</h2>
+  <div class="card">
+    <p>このポータルのアプリは、<b>全国どの先生でも、そのままのURLで無料で使えます</b>。
+    アカウント登録・申請・インストールは不要です。学校のPC・タブレット・電子黒板のブラウザで開くだけで動きます。</p>
+    <p style="margin-top:8px">教科書の単元名・教材名は使っていないため、どの教科書を採用している地域でも使えます。</p>
+  </div>
+
+  <h2>データはどこに保存される?(重要)</h2>
+  <div class="card">
+    <p>誕生日の登録、つくったマップ、集計などのデータは、すべて<b>使っている端末のブラウザの中だけ</b>に保存されます(localStorage)。</p>
+    <ul>
+      <li><span class="ok">✅ 安心な点:</span> どこのサーバーにも送信されません。他の学校・他の先生とデータが混ざることもありません。児童の個人情報を扱う機能(誕生日など)も、氏名を使わず出席番号のみ・端末内のみです。</li>
+      <li><span class="ng">⚠️ 注意する点:</span> 端末をまたいで自動では共有されません。先生のPCで登録したデータは、児童のタブレットや電子黒板には出ません。また、同じ端末を複数クラスで共有すると前のクラスのデータが残ります(リセット機能で消してください)。</li>
+    </ul>
+  </div>
+
+  <h2>端末をまたいでデータを使うには(共有コード)</h2>
+  <div class="card">
+    <p>データを別の端末へ移せるように、次のアプリには「書き出し/読み込み」があります。</p>
+    <table>
+      <tr><th>アプリ</th><th>方法</th></tr>
+      <tr><td>🎂 バースデーカレンダー</td><td>「まとめて登録(先生用)」画面の <code>📤 書き出す</code> でコピー →別の端末の同じ欄に貼り付けて「まとめて登録」</td></tr>
+      <tr><td>🗺️ 道案内マップ</td><td>「マップをつくる」画面の <code>📤 書き出す</code> でマップコードをコピー →児童の端末で <code>📥 読み込む</code>。先生がつくった町マップを学級全員の端末でそろえられます</td></tr>
+    </table>
+    <div class="point">💡 コードはただの短い文字列なので、授業支援ツールやチャット・QRコード化などで配れます。</div>
+  </div>
+
+  <h2>アプリの中身を自分の学級に合わせて変えたい</h2>
+  <div class="card">
+    <p>各アプリは<b>1つのHTMLファイルだけ</b>で動く作りです。カスタマイズしたい場合:</p>
+    <ol>
+      <li>アプリのページを開き、右クリック→「名前を付けて保存」(またはGitHubからダウンロード)</li>
+      <li>保存したHTMLファイルをメモ帳などで開く</li>
+      <li>ファイル前半にある <code>// データ(教師向け:ここを書きかえると内容を変更できます)</code> のブロックを書き換える(メニューの品目・値段、建物、選択肢など)</li>
+      <li>保存してブラウザで開けば、自分専用版として使えます(学校のサーバーや共有フォルダに置いてもOK)</li>
+    </ol>
+    <div class="point">🖼️ 絵カード画像はインターネット上(Picture Dictionary)から読み込みます。オフラインでは絵文字で代替表示されるので、授業が止まることはありません。</div>
+  </div>
+
+  <h2>クラス集計を使いたい(GAS連携)</h2>
+  <div class="card">
+    <p>アンケート集計などをクラス全体で集めたい場合は、<b>各学校・各先生が自分のGoogleアカウントで</b> Google Apps Script を設置して使う方式です(このサイトにデータは集まりません)。
+    手順はリポジトリ内の <code>gas/README.md</code> を参照してください。</p>
+  </div>
+
+  <h2>利用条件</h2>
+  <div class="card">
+    <p>学校・自治体の教育目的での利用・共有は自由です(申請不要)。営利目的での再配布はご遠慮ください。
+    不具合報告・リクエストは X <a href="https://x.com/Edupower07" target="_blank" rel="noopener">@Edupower07</a> へ。</p>
+  </div>
+
+</main>
+
+<footer>ENGLISH APP PORTAL — 先生向けガイド</footer>
+
+</body>
+</html>

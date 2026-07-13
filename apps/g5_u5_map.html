@@ -37,7 +37,7 @@ main{max-width:1020px;margin:0 auto;padding:16px 16px 60px}
   box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
 }
 .mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)} .mode-card.m3{border-color:var(--teal)}
+.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)} .mode-card.m3{border-color:var(--teal)} .mode-card.m4{border-color:var(--yellow)}
 .mode-card .mi{font-size:3rem}
 .mode-card h2{font-size:1.12rem;font-weight:800;margin-top:8px}
 .mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
@@ -115,6 +115,25 @@ main{max-width:1020px;margin:0 auto;padding:16px 16px 60px}
   text-align:center;font-size:1.15rem;font-weight:800;min-height:36px;margin-top:6px;
 }
 .msg.ok{color:var(--green)} .msg.ng{color:var(--primary)}
+.say-hint{
+  background:#fffbe8;border:3px dashed var(--yellow);border-radius:16px;
+  padding:10px 14px;font-weight:700;font-size:.78rem;color:#8a6d0a;line-height:1.8;
+}
+.map-pick{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:8px 12px;margin-bottom:10px;font-weight:800}
+.map-pick select{border:3px solid #e6ecf2;border-radius:10px;padding:8px;font-family:inherit;font-weight:800;font-size:.95rem;min-height:44px}
+.map-pick small{color:var(--sub);font-weight:700;font-size:.72rem;line-height:1.4}
+.w-svg{width:76%;height:76%}
+.cell.facing{box-shadow:inset 0 0 0 4px var(--yellow)}
+.dir-badge{
+  display:flex;justify-content:center;align-items:center;gap:6px;font-weight:800;margin:8px auto 0;
+  background:#fff;border-radius:50px;box-shadow:var(--shadow);padding:6px 16px;width:fit-content;font-size:.9rem;
+}
+.map-share{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:12px}
+.map-share textarea{
+  width:100%;min-height:64px;border:2px solid #e6ecf2;border-radius:10px;padding:8px;
+  font-family:monospace;font-weight:700;font-size:.8rem;resize:vertical;
+}
+.share-note{font-size:.72rem;color:var(--sub);font-weight:700;line-height:1.7;margin-top:6px}
 
 /* 建物パレット(編集モード) */
 .palette{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
@@ -156,6 +175,11 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
         <h2>どこにつくかな?</h2>
         <p>道案内を聞いて、たどりつく建物を<br>先に予想してからたしかめよう</p>
       </div>
+      <div class="mode-card m4" data-mode="pair">
+        <div class="mi">🗣️</div>
+        <h2>ペアで道案内</h2>
+        <p>あんない役が じぶんの英語で道あんない。<br>歩く役は 聞いてうごこう</p>
+      </div>
       <div class="mode-card m3" data-mode="edit">
         <div class="mi">🏗️</div>
         <h2>マップをつくる</h2>
@@ -168,31 +192,60 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
   <section id="scr-play" class="hidden">
     <div class="play-wrap">
       <div class="map-col">
+        <div class="map-pick" id="map-pick">
+          <span>🗺️ マップ</span>
+          <select id="map-no"></select>
+          <small>ペアの人と おなじ番号に すると、おなじ町になるよ</small>
+        </div>
         <div class="quest-card" id="quest-card">
           <div class="quest-img" id="quest-img">🧭</div>
           <div class="quest-text">
             <div class="en" id="quest-en">Where is the post office?</div>
             <small id="quest-ja">ゆうびんきょくまで あんないしよう</small>
           </div>
+          <button class="nav-btn hidden" id="btn-peek" style="background:var(--blue);flex-shrink:0">👀 見る</button>
         </div>
         <div style="height:10px"></div>
         <div class="town">
           <div class="town-grid" id="grid"></div>
-          <div id="walker">🚶</div>
+          <div id="walker"><svg viewBox="0 0 100 100" class="w-svg"><polygon points="50,8 80,52 61,52 61,90 39,90 39,52 20,52" fill="#ff4757" stroke="#fff" stroke-width="7" stroke-linejoin="round"/></svg></div>
         </div>
+        <div class="dir-badge" id="dir-badge">むいている方向: ⬆️</div>
       </div>
 
       <div class="side-col">
         <div class="palette hidden" id="palette"></div>
+        <div class="map-share hidden" id="map-share">
+          <div style="font-weight:800;font-size:.85rem;margin-bottom:6px">🔗 マップコード(別の端末とマップを共有)</div>
+          <textarea id="share-code" placeholder="ここにマップコードを貼り付けて「読み込む」"></textarea>
+          <div class="run-row" style="margin-top:8px">
+            <button class="big-btn green" id="btn-code-out" style="min-height:44px;padding:8px 18px;font-size:.85rem">📤 書き出す</button>
+            <button class="big-btn" id="btn-code-in" style="background:var(--blue);min-height:44px;padding:8px 18px;font-size:.85rem">📥 読み込む</button>
+          </div>
+          <div class="share-note">マップはこの端末の中だけに保存されます。先生がつくったマップをみんなの端末で使うときは、コードをコピーして配ってね。</div>
+          <div class="msg" id="share-msg" style="min-height:22px;font-size:.85rem"></div>
+        </div>
         <div class="block-btns" id="block-btns">
           <button class="block-btn straight" data-b="straight">⬆️ Go straight.</button>
           <button class="block-btn right" data-b="right">➡️ Turn right.</button>
           <button class="block-btn left" data-b="left">⬅️ Turn left.</button>
         </div>
+        <!-- ペアモード: 歩く役の操作(ことばは表示しない。あんない役の英語だけがたより) -->
+        <div class="block-btns hidden" id="walk-btns">
+          <button class="block-btn left" data-w="left" title="ひだりをむく">⬅️</button>
+          <button class="block-btn straight" data-w="fwd" title="すすむ">⬆️</button>
+          <button class="block-btn right" data-w="right" title="みぎをむく">➡️</button>
+        </div>
+        <div class="say-hint hidden" id="pair-hint">
+          🗣️ あんない役:「見る」でひみつの場所をたしかめて、じぶんの英語で あんないしよう<br>
+          👂 歩く役:ことばを聞いて ⬅️⬆️➡️ でうごき、ついたと思ったら「ついた!」<br>
+          📱 べつべつの端末でやるときは、二人とも<b>おなじマップ番号</b>にすれば、[お題]の番号もそろうよ
+        </div>
         <div class="program" id="program"></div>
         <div class="run-row" id="run-row">
           <button class="big-btn green" id="btn-run">▶ スタート!</button>
           <button class="big-btn gray" id="btn-clear">ぜんぶけす</button>
+          <button class="big-btn green hidden" id="btn-arrived">🏁 ついた!</button>
           <button class="big-btn" id="btn-next" style="background:var(--blue)">つぎのお題 🎲</button>
         </div>
         <div class="msg" id="msg"></div>
@@ -261,22 +314,71 @@ function speakQueue(lines, rate = 0.85){
 // ============================================================
 // 状態
 // ============================================================
-let town = [];      // [{id,x,y}]
-let mode = null;    // challenge | guess | edit
+let town = [];       // いま表示中のマップ [{id,x,y}]
+let customTown = []; // 「じぶんの町」(編集モードでつくるマップ)
+let mapNo = "1";     // "1"〜"20" または "own"(じぶんの町)
+let mode = null;    // challenge | guess | pair | edit
 let program = [];   // ["straight","right","left",...]
 let running = false;
-let goal = null;    // 建物(challenge/guessの答え)
+let goal = null;    // 建物(challenge/guess/pairの答え)
 let guessPick = null;
+let peeking = false; // ペアモード: あんない役がお題を見ているか
 let editSel = null; // 編集で選択中の建物id("erase"=けす)
 let walker = { x: START.x, y: START.y, dir: 0 }; // dir: 0=上 1=右 2=下 3=左
 
-try{ town = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_MAP.map(b => ({...b})); }
-catch(e){ town = DEFAULT_MAP.map(b => ({...b})); }
+try{ customTown = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_MAP.map(b => ({...b})); }
+catch(e){ customTown = DEFAULT_MAP.map(b => ({...b})); }
+try{ mapNo = localStorage.getItem("g5_map_no_v1") || "1"; }catch(e){}
 
 const $ = id => document.getElementById(id);
 const bOf = id => BUILDINGS.find(b => b.id === id);
 function buildingAt(x,y){ return town.find(t => t.x === x && t.y === y); }
-function saveTown(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(town)); }catch(e){} }
+function saveTown(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(customTown)); }catch(e){} }
+
+// ============================================================
+// プリセットマップ(No.1〜No.20)
+// 番号から決まった手順で生成するため、どの端末でも同じ番号=同じ町になる
+// ============================================================
+const PRESET_COUNT = 20;
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function presetTown(n){
+  const rnd = mulberry32(1000 + n * 7919);
+  const ids = BUILDINGS.map(b => b.id);
+  for(let i = ids.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+  const cells = [];
+  for(let y = 0; y < H; y++) for(let x = 0; x < W; x++){
+    if(!(x === START.x && y === START.y)) cells.push({ x, y });
+  }
+  for(let i = cells.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  const count = 8 + Math.floor(rnd() * 3); // 8〜10けんの建物
+  return ids.slice(0, count).map((id, i) => ({ id, x: cells[i].x, y: cells[i].y }));
+}
+function applyMap(){
+  town = (mapNo === "own") ? customTown : presetTown(+mapNo);
+  try{ localStorage.setItem("g5_map_no_v1", mapNo); }catch(e){}
+}
+function buildMapSelect(){
+  let html = "";
+  for(let n = 1; n <= PRESET_COUNT; n++) html += `<option value="${n}">No.${n}</option>`;
+  html += `<option value="own">じぶんの町</option>`;
+  $("map-no").innerHTML = html;
+  $("map-no").value = (mapNo === "own" || (+mapNo >= 1 && +mapNo <= PRESET_COUNT)) ? mapNo : "1";
+  mapNo = $("map-no").value;
+}
+$("map-no").addEventListener("change", () => {
+  mapNo = $("map-no").value;
+  applyMap(); drawGrid();
+  if(mode === "challenge") newChallenge();
+  else if(mode === "guess") newGuess();
+  else if(mode === "pair") newPair();
+});
 
 // ============================================================
 // マップ描画
@@ -309,6 +411,18 @@ function placeWalker(animate = true){
   w.style.top = (r.top + 10) + "px";
   w.style.transform = `rotate(${walker.dir * 90}deg)`;
   if(!animate){ void w.offsetWidth; w.style.transition = ""; }
+  updateFacing();
+}
+// いま向いている方向を、バッジと「一歩先のマス」のハイライトで見えるようにする
+const DIR_ARROWS = ["⬆️","➡️","⬇️","⬅️"];
+function updateFacing(){
+  document.querySelectorAll(".cell.facing").forEach(c => c.classList.remove("facing"));
+  $("dir-badge").innerHTML = `むいている方向: <b style="font-size:1.15rem">${DIR_ARROWS[walker.dir]}</b>`;
+  const nx = walker.x + DX[walker.dir], ny = walker.y + DY[walker.dir];
+  if(nx >= 0 && nx < W && ny >= 0 && ny < H){
+    const cell = $("grid").children[ny * W + nx];
+    if(cell) cell.classList.add("facing");
+  }
 }
 function resetWalker(){
   walker = { x: START.x, y: START.y, dir: 0 };
@@ -459,6 +573,67 @@ function newGuess(){
 $("btn-next").addEventListener("click", () => {
   if(mode === "challenge") newChallenge();
   else if(mode === "guess") newGuess();
+  else if(mode === "pair"){ pairRound++; newPair(); }
+});
+
+// ============================================================
+// ペアで道案内(アプリは場面と判定だけ。ことばは子どもが出す)
+// ============================================================
+let pairRound = 1; // お題番号。同じマップ番号+同じお題番号なら、どの端末でも同じ場所になる
+function newPair(){
+  resetWalker();
+  $("msg").textContent = ""; $("msg").className = "msg";
+  const seed = (mapNo === "own" ? 999 : +mapNo) * 1000 + pairRound * 13;
+  const rnd = mulberry32(seed);
+  goal = bOf(town[Math.floor(rnd() * town.length)].id);
+  peeking = false;
+  renderPairQuest();
+  document.querySelectorAll(".cell").forEach(c => c.classList.remove("goal-flash"));
+}
+function renderPairQuest(){
+  $("btn-peek").textContent = peeking ? "🙈 かくす" : "👀 見る";
+  if(peeking){
+    questVisual(goal);
+    $("quest-en").textContent = goal.en;
+    $("quest-ja").textContent = `ここまで じぶんの英語で あんないしよう(歩く役は見ないでね)[お題 ${pairRound}]`;
+  }else{
+    $("quest-img").innerHTML = `<span class="qe">🤫</span>`;
+    $("quest-en").textContent = "ひみつの ばしょ";
+    $("quest-ja").textContent = `あんない役だけ「見る」をおして たしかめよう [お題 ${pairRound}]`;
+  }
+}
+$("btn-peek").addEventListener("click", () => { peeking = !peeking; renderPairQuest(); });
+$("walk-btns").addEventListener("click", e => {
+  const btn = e.target.closest(".block-btn"); if(!btn) return;
+  const w = btn.dataset.w;
+  if(w === "right"){ walker.dir = (walker.dir + 1) % 4; }
+  else if(w === "left"){ walker.dir = (walker.dir + 3) % 4; }
+  else{
+    const nx = walker.x + DX[walker.dir], ny = walker.y + DY[walker.dir];
+    if(nx < 0 || nx >= W || ny < 0 || ny >= H){
+      $("msg").textContent = "🚧 そっちは かべだよ!";
+      $("msg").className = "msg ng";
+      return;
+    }
+    walker.x = nx; walker.y = ny;
+  }
+  $("msg").textContent = "";
+  placeWalker(true);
+});
+$("btn-arrived").addEventListener("click", () => {
+  const here = buildingAt(walker.x, walker.y);
+  if(here && goal && here.id === goal.id){
+    $("msg").textContent = `🎉 You made it! ${goal.en} にとうちゃく!`;
+    $("msg").className = "msg ok";
+    speak(`You made it! This is the ${goal.en}.`);
+    const t = town.find(t => t.id === goal.id);
+    $("grid").children[t.y * W + t.x].classList.add("goal-flash");
+  }else{
+    $("msg").textContent = here
+      ? `ここは ${bOf(here.id).en} みたい…あんないを つづけよう!`
+      : "まだ建物に ついていないよ。あんないを つづけよう!";
+    $("msg").className = "msg ng";
+  }
 });
 
 // ============================================================
@@ -486,7 +661,7 @@ $("grid").addEventListener("click", e => {
       town.push({ id: editSel, x, y });
       speak(bOf(editSel).en);
     }
-    saveTown(); drawGrid();
+    customTown = town; saveTown(); drawGrid();
   }else if(mode === "guess" && !running){
     const b = buildingAt(x,y);
     if(!b) return;
@@ -498,20 +673,65 @@ $("grid").addEventListener("click", e => {
 });
 
 // ============================================================
+// マップコード(端末間の共有用。例: post:1,0;hospital:4,0)
+// ============================================================
+$("btn-code-out").addEventListener("click", () => {
+  const code = town.map(t => `${t.id}:${t.x},${t.y}`).join(";");
+  $("share-code").value = code;
+  const done = () => { $("share-msg").textContent = "📋 コピーしました。別の端末に貼り付けて「読み込む」でつかえます"; $("share-msg").className = "msg ok"; };
+  const fallback = () => { $("share-code").select(); $("share-msg").textContent = "コードを選択してコピーしてください"; $("share-msg").className = "msg ok"; };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(done, fallback);
+  }else{ fallback(); }
+});
+$("btn-code-in").addEventListener("click", () => {
+  const code = $("share-code").value.trim();
+  if(!code){ $("share-msg").textContent = "マップコードを貼り付けてください"; $("share-msg").className = "msg ng"; return; }
+  const items = [];
+  for(const part of code.split(";")){
+    const m = part.trim().match(/^([a-z]+):(\d+),(\d+)$/);
+    if(!m) continue;
+    const [, id, xs, ys] = m;
+    const x = +xs, y = +ys;
+    if(!bOf(id) || x < 0 || x >= W || y < 0 || y >= H) continue;
+    if(x === START.x && y === START.y) continue;
+    if(items.some(t => t.id === id || (t.x === x && t.y === y))) continue;
+    items.push({ id, x, y });
+  }
+  if(items.length === 0){ $("share-msg").textContent = "コードが読み取れませんでした…もういちどコピーしてためしてね"; $("share-msg").className = "msg ng"; return; }
+  customTown = items; town = customTown;
+  mapNo = "own"; $("map-no").value = "own";
+  saveTown(); drawGrid();
+  $("share-msg").textContent = `✅ マップを読み込みました(建物 ${items.length}こ)`;
+  $("share-msg").className = "msg ok";
+});
+
+// ============================================================
 // モード切替
 // ============================================================
 function enterMode(m){
   mode = m;
+  if(m === "edit"){ mapNo = "own"; $("map-no").value = "own"; }
+  applyMap();
   program = []; drawProgram(); drawGrid(); resetWalker();
   $("msg").textContent = "";
+  $("map-pick").classList.toggle("hidden", m === "edit");
   $("palette").classList.toggle("hidden", m !== "edit");
-  $("block-btns").style.display = (m === "edit") ? "none" : "flex";
+  $("map-share").classList.toggle("hidden", m !== "edit");
+  $("block-btns").style.display = (m === "edit" || m === "pair") ? "none" : "flex";
+  $("walk-btns").classList.toggle("hidden", m !== "pair");
+  $("pair-hint").classList.toggle("hidden", m !== "pair");
   $("run-row").style.display = (m === "edit") ? "none" : "flex";
-  $("program").style.display = (m === "edit") ? "none" : "flex";
+  $("program").style.display = (m === "edit" || m === "pair") ? "none" : "flex";
+  $("btn-run").classList.toggle("hidden", m === "pair");
+  $("btn-clear").classList.toggle("hidden", m === "pair");
+  $("btn-arrived").classList.toggle("hidden", m !== "pair");
+  $("btn-peek").classList.toggle("hidden", m !== "pair");
   $("scr-mode").classList.add("hidden");
   $("scr-play").classList.remove("hidden");
   if(m === "challenge") newChallenge();
   else if(m === "guess") newGuess();
+  else if(m === "pair"){ pairRound = 1; newPair(); }
   else{
     $("quest-img").innerHTML = `<span class="qe">🏗️</span>`;
     $("quest-en").textContent = "マップをつくろう";
@@ -527,7 +747,42 @@ $("btn-home").addEventListener("click", () => {
 });
 
 buildPalette();
+buildMapSelect();
+applyMap();
 drawGrid();
+</script>
+
+<style>
+#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
+#app-help-overlay.ah-hidden{display:none}
+.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
+.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
+.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
+.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
+.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
+.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
+.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
+#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
+</style>
+<div id="app-help-overlay" class="ah-hidden">
+  <div class="ah-box">
+    <button class="ah-close" id="app-help-close">✕</button>
+    <h3>❓ このアプリの使い方</h3>
+    <p>道案内の表現をつかって、町を案内し合うアプリです。</p><h4>あそびかた</h4><ol><li>さいしょに<b>マップ番号</b>をえらぼう(ペアの人と同じ番号にすると同じ町になるよ)</li><li>「道案内チャレンジ」:お題の場所まで指示ブロックで案内</li><li>「どこにつくかな?」:聞こえた道案内から、つく場所をよそう</li><li>「ペアで道案内」:あんない役だけがひみつの場所を見て、<b>じぶんの英語</b>で案内。歩く役は⬅️⬆️➡️でうごく</li><li>赤い矢印が「いま向いている方向」。黄色いマスが「1歩すすむとつく場所」だよ</li></ol><h4>先生向け</h4><p>「マップをつくる」で自作マップも使えます(マップコードで配布可能)。ペアモードは1台でも2台でも:2台のときは同じマップ番号+同じ[お題番号]にそろえてください。</p><div class="ah-tip">💡 あんない役のことばだけがたより、という状況が「伝える必然性」をつくります。</div>
+  </div>
+</div>
+<script>
+(function(){
+  var ov = document.getElementById("app-help-overlay");
+  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
+  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
+  var btn = document.createElement("button");
+  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
+  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
+  var portal = document.querySelector('header a[href="../index.html"]');
+  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
+  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+})();
 </script>
 </body>
 </html>

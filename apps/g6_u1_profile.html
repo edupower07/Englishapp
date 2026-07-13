@@ -83,6 +83,13 @@ main{max-width:880px;margin:0 auto;padding:16px 16px 60px}
 }
 .prompt-line .q{font-weight:800;color:var(--primary-dark);flex:1}
 .prompt-line .a-icons{font-size:1.3rem;white-space:nowrap}
+/* 塗り重ね(相手えらび・もういちどミッション) */
+.aud-row{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0 2px}
+.aud-label{font-weight:800;font-size:.85rem;color:var(--sub)}
+.aud-chip{border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;min-height:44px;transition:.15s}
+.aud-chip.on{border-color:var(--primary);background:#fff5f6}
+.retry-mission{text-align:center;font-weight:800;color:#e17055;font-size:.98rem;min-height:26px;margin:4px 0}
+.model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
 @media print{
@@ -140,6 +147,8 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
   <section id="scr-try" class="hidden">
     <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
     <p class="step-sub">あつめた材料をつかって、This is me! を英語で言ってみよう(声に出してね)</p>
+    <div class="retry-mission" id="retry-mission"></div>
+    <div class="aud-row"><span class="aud-label">だれに つたえる?</span><button class="aud-chip on" data-a="t">👩‍🏫 先生・ALT</button><button class="aud-chip" data-a="f">🧑 友だち</button><button class="aud-chip" data-a="h">👨‍👩‍👧 家の人</button></div>
     <div class="try-card">
       <div class="try-hint">それぞれの質問に、えらんだ材料をつかってこたえてみよう</div>
       <div class="prompt-list" id="prompt-list"></div>
@@ -152,7 +161,8 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
   <!-- カード -->
   <section id="scr-card" class="hidden">
-    <h2 class="step-title">🔊 お手本でたしかめよう</h2>
+    <h2 class="step-title">🔊 お手本を聞いてみよう</h2>
+    <p class="model-note">これは 一つの例だよ。きみの言い方でも つたわれば OK!</p>
     <p class="step-sub">じぶんが言ったことと くらべてみよう。1文ずつタップでも聞けるよ</p>
     <div class="profile-card">
       <div class="pc-head">THIS IS ME!</div>
@@ -164,6 +174,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     </div>
     <div class="actions">
       <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
+      <button class="big-btn" id="btn-again-try" style="background:var(--green)">🔁 もういちど言ってみよう</button>
       <button class="big-btn" id="btn-print" style="background:var(--green)">🖨️ 印刷</button>
       <button class="big-btn gray" id="btn-back">入力にもどる</button>
     </div>
@@ -362,6 +373,58 @@ $("btn-restart").addEventListener("click", () => {
 });
 
 show("scr-form");
+
+// ============================================================
+// 塗り重ね: 相手をかえて・条件をかえて もういちど言ってみる
+// ============================================================
+document.querySelectorAll(".aud-chip").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".aud-chip").forEach(x => x.classList.toggle("on", x === b));
+}));
+const RETRY_MISSIONS = [
+  "こんどは お手本を見ないで 言ってみよう",
+  "こんどは 1文 つけたして 言ってみよう",
+  "こんどは べつの相手を えらんで 言ってみよう",
+  "こんどは ジェスチャーを つけて 言ってみよう",
+  "こんどは 相手の目を見て ゆっくり はっきり 言ってみよう",
+];
+document.getElementById("btn-again-try").addEventListener("click", () => {
+  document.getElementById("retry-mission").textContent =
+    "🎯 " + RETRY_MISSIONS[Math.floor(Math.random() * RETRY_MISSIONS.length)];
+  show("scr-try");
+});
+</script>
+
+<style>
+#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
+#app-help-overlay.ah-hidden{display:none}
+.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
+.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
+.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
+.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
+.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
+.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
+.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
+#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
+</style>
+<div id="app-help-overlay" class="ah-hidden">
+  <div class="ah-box">
+    <button class="ah-close" id="app-help-close">✕</button>
+    <h3>❓ このアプリの使い方</h3>
+    <p>自己紹介プロフィールカードをつくり、This is me! のスピーチを練習するアプリです。</p><h4>あそびかた</h4><ol><li>プロフィール(名前・誕生日・すきなもの など)を入力しよう</li><li>「だれにつたえる?」をえらんで、まず<b>じぶんの口で</b>言ってみよう</li><li>お手本はひとつの例。「🔁もういちど言ってみよう」でミッションつきの2回目へ</li><li>カードは印刷して 教室にかざったり 交流に使ったりできるよ</li></ol><div class="ah-tip">💡 先生向け:入力した個人情報はどこにも送信されません(画面の中だけ)。</div>
+  </div>
+</div>
+<script>
+(function(){
+  var ov = document.getElementById("app-help-overlay");
+  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
+  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
+  var btn = document.createElement("button");
+  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
+  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
+  var portal = document.querySelector('header a[href="../index.html"]');
+  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
+  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+})();
 </script>
 </body>
 </html>
