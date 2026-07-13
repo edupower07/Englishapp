@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link href="/__slides/_base.css" rel="stylesheet">
+<style>
+body{background:#f0f4f8}
+.badge{width:22px;height:74px;border-radius:11px;display:inline-block;vertical-align:middle;margin-right:20px;animation:popin .5s both}
+h1{font-size:4.4rem;font-weight:800;display:inline-block;vertical-align:middle;animation:popin .6s .15s both}
+.sub{font-size:1.5rem;font-weight:800;color:#7f8c9b;margin-top:14px;animation:fadein .6s .5s both}
+.apps{margin-top:36px;display:flex;gap:18px;justify-content:center}
+.app{background:#fff;border-radius:18px;padding:16px 26px;font-weight:800;font-size:1.35rem;box-shadow:0 4px 10px rgba(0,0,0,.08);
+  border-top:7px solid #ccc;animation:popin .55s both}
+.app .i{font-size:2rem;display:block;margin-bottom:4px}
+.apps .app:nth-child(1){animation-delay:.7s}
+.apps .app:nth-child(2){animation-delay:.95s}
+.apps .app:nth-child(3){animation-delay:1.2s}
+</style></head><body>
+<div class="dots"></div>
+<div>
+  <div><span class="badge" id="badge"></span><h1 id="glabel"></h1></div>
+  <div class="sub" id="gsub"></div>
+  <div class="apps" id="apps"></div>
+</div>
+<script>
+const q = new URLSearchParams(location.search);
+const DATA = {
+  g3: { label:"3年生", sub:"外国語活動", color:"#ffa502",
+        apps:[["🌏","せかいのあいさつ図鑑"],["🅰️","アルファベット大文字かるた"],["📊","すきなものアンケート"]] },
+  g4: { label:"4年生", sub:"外国語活動", color:"#2ed573",
+        apps:[["🕐","なんじなにをする?時計アプリ"],["☀️","天気&服装コーディネート"],["🍕","オリジナルジュース・ピザ作り"]] },
+  g5: { label:"5年生", sub:"外国語科", color:"#ff4757",
+        apps:[["🍔","バーチャルレストラン注文"],["🗺️","道案内マップアプリ"],["💬","Small Talk トレーナー"]] },
+  g6: { label:"6年生", sub:"外国語科", color:"#2e86de",
+        apps:[["🦈","食物連鎖クイズビルダー"],["🏖️","サマーバケーション思い出マップ"],["📔","ベストメモリーアルバム"]] },
+};
+const d = DATA[q.get("g") || "g3"];
+document.getElementById("badge").style.background = d.color;
+document.getElementById("glabel").textContent = d.label;
+document.getElementById("gsub").textContent = d.sub + " のアプリから";
+document.getElementById("apps").innerHTML = d.apps.map(a =>
+  `<div class="app" style="border-top-color:${d.color}"><span class="i">${a[0]}</span>${a[1]}</div>`).join("");
+</script>
+</body></html>
