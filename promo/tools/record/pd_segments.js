@@ -12,9 +12,12 @@ fs.mkdirSync(RAW, { recursive: true });
 
 const ORANGE = '#d35400', TEAL = '#00cec9', PURPLE = '#6c5ce7', PINK = '#e84393';
 const manifest = [];
+// PD_ONLY=名前カンマ区切り で対象クリップのみ録画 / PD_MERGE=1 で既存manifestに結果をマージ
+const ONLY = process.env.PD_ONLY ? process.env.PD_ONLY.split(',') : null;
 let browser;
 
 async function clip(name, speed, fn) {
+  if (ONLY && !ONLY.includes(name)) return;
   const context = await browser.newContext({
     viewport: { width: 1280, height: 720 },
     recordVideo: { dir: RAW, size: { width: 1280, height: 720 } },
@@ -27,13 +30,21 @@ async function clip(name, speed, fn) {
   try {
     await fn(page, mark, context);
     const tEnd = Date.now();
+    // 読み上げログを回収(mark時点からの相対秒に変換)
+    const sp = await page.evaluate(() => ({
+      t0: window.__t0 || null,
+      events: window.__speakLog || [],
+    })).catch(() => ({ t0: null, events: [] }));
+    const speech = (sp.t0 === null) ? [] : sp.events
+      .map(e => ({ text: e.text, rate: e.rate, at: (e.t - sp.t0) / 1000 }))
+      .filter(e => e.at > -0.2);
     const video = page.video();
     await context.close();
     const vp = await video.path();
     const out = path.join(RAW, name + '.webm');
     fs.renameSync(vp, out);
-    manifest.push({ name, file: out, offset: (tMark - tPage) / 1000, duration: (tEnd - tMark) / 1000, speed });
-    console.log('clip ok:', name, 'dur', ((tEnd - tMark) / 1000).toFixed(2), 'speed', speed);
+    manifest.push({ name, file: out, offset: (tMark - tPage) / 1000, duration: (tEnd - tMark) / 1000, speed, speech });
+    console.log('clip ok:', name, 'dur', ((tEnd - tMark) / 1000).toFixed(2), 'speech events', speech.length);
   } catch (e) {
     await context.close().catch(() => {});
     console.log('CLIP FAIL:', name, e.message.split('\n')[0]);
@@ -45,13 +56,19 @@ async function prep(page) {
   await page.addStyleTag({ content: '::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}html{scrollbar-width:none}' }).catch(() => {});
   await page.evaluate(() => document.fonts.ready).catch(() => {});
   await attachOverlay(page);
-  // speak() をフックして最後に読み上げた単語を記録(正解タップ用)
+  // speak() をフックして「最後に読み上げた単語」(正解タップ用)と
+  // 「読み上げイベントの全ログ」(音声トラック合成用)を記録する
   await page.evaluate(() => {
     if (window.speak && !window.__speakHooked) {
       const orig = window.speak;
       window.__speakHooked = true;
       window.__spoken = null;
-      window.speak = (w, ...rest) => { window.__spoken = w; try { return orig(w, ...rest); } catch (e) {} };
+      window.__speakLog = [];
+      window.speak = (w, rate = 1.0) => {
+        window.__spoken = w;
+        window.__speakLog.push({ text: String(w), rate, t: performance.now() });
+        try { return orig(w, rate); } catch (e) {}
+      };
     }
   });
 }
@@ -73,27 +90,36 @@ async function jsTap(page, fn, arg, opts = {}) {
   return true;
 }
 
-// 直前に読み上げられた単語の正解カードを、辞書で word→img 解決してクリック
+// 直前に読み上げられた単語の正解カードをクリック。
+// アプリ内部の辞書は let 宣言で window から見えないため、カード画像の
+// ファイル名と単語を直接照合する(orange_fruit のようなエイリアスにも対応)
 async function clickCorrect(page, cardSelector, opts = {}) {
   const handle = await page.evaluateHandle((sel) => {
-    const word = window.__spoken;
-    if (!word) return null;
-    let img = null;
-    for (const cat of Object.values(window.dictionary || {})) {
-      for (const it of cat.items) {
-        const p = window.parseItem(it);
-        if (p.word === word) { img = p.img; break; }
-      }
-      if (img) break;
-    }
+    const word = (window.__spoken || '').toLowerCase();
     const cards = [...document.querySelectorAll(sel)];
-    return cards.find(c => {
+    if (!word) return cards[0];
+    const hit = cards.find(c => {
       const el = c.querySelector('img');
-      return el && img && decodeURIComponent(el.getAttribute('src')) === decodeURIComponent(img);
-    }) || cards[0];
+      if (!el) return false;
+      const base = decodeURIComponent(el.getAttribute('src') || '').split('/').pop().replace(/\.jpe?g$/i, '').toLowerCase();
+      return base === word || base.startsWith(word + '_');
+    });
+    return hit || cards[0];
   }, cardSelector);
   const el = handle.asElement();
-  if (el) await moveClickHandle(page, el, opts);
+  if (!el) return;
+  // 画面外のカードでも確実に: スクロールで見せてから DOM クリック
+  await page.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), el);
+  await page.waitForTimeout(450);
+  const box = await el.boundingBox();
+  if (box) {
+    const x = box.x + box.width / 2, y = box.y + box.height / 2;
+    await page.evaluate(([x, y]) => window.__pv && window.__pv.move(x, y), [x, y]);
+    await page.waitForTimeout(opts.moveWait ?? 650);
+    await page.evaluate(([x, y]) => window.__pv && window.__pv.ripple(x, y), [x, y]);
+  }
+  await page.evaluate((el) => el.click(), el);
+  await page.waitForTimeout(opts.afterWait ?? 450);
 }
 
 async function openPD(page, mark, capText, capColor, chipText) {
@@ -103,6 +129,7 @@ async function openPD(page, mark, capText, capColor, chipText) {
   if (chipText) await chip(page, chipText, '#2d3436');
   await caption(page, capText, capColor);
   mark();
+  await page.evaluate(() => { window.__t0 = performance.now(); }).catch(() => {});
   await page.waitForTimeout(700);
 }
 
@@ -152,6 +179,7 @@ async function toGrade3(page) {
     await caption(page, '🎤 発音練習 ― ろくおんして じぶんの声をチェック', PINK);
     const mic = page.locator('#card-area .word-card >> nth=0').locator('.rec-btn-mini');
     await moveClickHandle(page, await mic.elementHandle(), { moveWait: 600, afterWait: 800 });
+    await jsTap(page, () => document.querySelector('.btn-listen'), null, { moveWait: 450, afterWait: 1100 }); // お手本
     await jsTap(page, () => document.getElementById('btn-record'), null, { moveWait: 500, afterWait: 1600 }); // ろくおん
     await jsTap(page, () => document.getElementById('btn-record'), null, { moveWait: 250, afterWait: 700 });  // とめる
     await jsTap(page, () => document.getElementById('btn-play-my'), null, { moveWait: 400, afterWait: 1100 });
@@ -255,14 +283,16 @@ async function toGrade3(page) {
     });
     await openPD(page, mark, '📒 My Word Bank ― ♥でためた 自分だけの単語帳', ORANGE, '単語バンク');
     await moveClick(page, '.bank-entry-btn', { moveWait: 700, afterWait: 800 });
-    await moveClick(page, '.bank-action-btn.check', { moveWait: 650, afterWait: 1000 }); // かくにん
+    await moveClick(page, '.bank-action-btn.check', { moveWait: 650, afterWait: 900 }); // かくにん
+    await moveClick(page, '#card-area .word-card >> nth=0', { moveWait: 600, afterWait: 900 }); // タップで音声
     await caption(page, 'かくにん・せいり・フラッシュカード特訓(20問)', ORANGE);
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(700);
     await moveClick(page, '#back-btn', { moveWait: 550, afterWait: 600 });
     await moveClick(page, '.bank-action-btn.flash', { moveWait: 600, afterWait: 900 }); // 特訓
-    await moveClick(page, '.btn-got-it', { moveWait: 700, afterWait: 700 });   // ⭕覚えた
+    await jsTap(page, () => document.querySelector('.flash-speaker-btn'), null, { moveWait: 450, afterWait: 1000 }); // 🔊
+    await moveClick(page, '.btn-got-it', { moveWait: 650, afterWait: 700 });   // ⭕覚えた
+    await jsTap(page, () => document.querySelector('.flash-speaker-btn'), null, { moveWait: 400, afterWait: 1000 }); // 🔊
     await moveClick(page, '.btn-not-yet', { moveWait: 600, afterWait: 700 });  // 🔺もう少し
-    await moveClick(page, '.btn-got-it', { moveWait: 600, afterWait: 700 });
     await caption(page, '「もう少し」の単語だけ もう一度挑戦できる', ORANGE);
     await page.waitForTimeout(1000);
   });
@@ -295,6 +325,7 @@ async function toGrade3(page) {
     await chip(page, '絵カードライブラリ', '#6c5ce7');
     await caption(page, '🎴 絵カード859枚は 検索して保存・ZIP一括DLも(ポータルから)', '#a29bfe');
     mark();
+    await page.evaluate(() => { window.__t0 = performance.now(); }).catch(() => {});
     await page.waitForTimeout(1400);
     await moveClick(page, '#q', { moveWait: 650, afterWait: 300 });
     await page.keyboard.type('cat', { delay: 260 });
@@ -312,8 +343,17 @@ async function toGrade3(page) {
     await page.waitForTimeout(8500);
   });
 
-  fs.writeFileSync(path.join(SP, 'out/manifest_pd.json'), JSON.stringify(manifest, null, 2));
-  const total = manifest.reduce((s, c) => s + c.duration / c.speed, 0);
-  console.log('TOTAL clips:', manifest.length, 'estimated final video:', total.toFixed(1) + 's');
+  const mf = path.join(SP, 'out/manifest_pd.json');
+  let outManifest = manifest;
+  if (process.env.PD_MERGE === '1' && fs.existsSync(mf)) {
+    outManifest = JSON.parse(fs.readFileSync(mf, 'utf8'));
+    for (const r of manifest) {
+      const e = outManifest.find(c => c.name === r.name);
+      if (e) Object.assign(e, r); else outManifest.push(r);
+    }
+  }
+  fs.writeFileSync(mf, JSON.stringify(outManifest, null, 2));
+  const total = outManifest.reduce((s, c) => s + c.duration / c.speed, 0);
+  console.log('TOTAL clips:', outManifest.length, 'estimated final video:', total.toFixed(1) + 's');
   await browser.close();
 })();
