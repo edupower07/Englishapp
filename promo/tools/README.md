@@ -1,6 +1,7 @@
 # 紹介ムービー生成ツール
 
-`promo/portal_pr_movie.mp4` を再生成するためのスクリプト一式です。
+`promo/portal_pr_movie.mp4`(ポータル紹介)と `promo/pd_feature_movie.mp4`
+(Picture Dictionary 機能紹介)を再生成するためのスクリプト一式です。
 Playwright(Chromium)でポータルと各アプリを実際に操作しながら録画し、
 ffmpeg で1本のMP4に結合します。BGMも numpy で合成します。
 
@@ -26,6 +27,22 @@ node record/segments.js
 python3 record/build.py
 cp out/portal_pr_movie.mp4 ../portal_pr_movie.mp4
 ```
+
+### Picture Dictionary 機能紹介ムービーの場合
+
+PictureDictionary リポジトリのクローンが別途必要です(絵カード実画像で録画するため)。
+
+```bash
+git clone https://github.com/edupower07/PictureDictionary /workspace/picturedictionary
+(cd /workspace/picturedictionary && python3 -m http.server 8001 &)  # PD本体を配信
+# ポータル側の 8000 も起動したうえで
+node record/pd_segments.js      # 録画(デモ部分はあとで1.5倍速化)
+python3 record/build_pd.py      # 結合・倍速化・BGM(out/pd_feature_movie.mp4)
+cp out/pd_feature_movie.mp4 ../pd_feature_movie.mp4
+```
+
+クローン先を変える場合は環境変数 `PD_DIR` で場所を指定してください
+(cards.html の絵カード画像をローカルから差し込むのに使います)。
 
 ## 構成
 

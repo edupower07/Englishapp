@@ -58,7 +58,16 @@ async function setupRouting(context) {
     if (u.hostname === 'fonts.googleapis.com') {
       return route.fulfill({ status: 200, contentType: 'text/css', body: FONT_CSS });
     }
-    // それ以外の外部(絵カード画像など)は遮断 → アプリは絵文字フォールバック
+    // PictureDictionary の絵カード画像はローカルのクローンから応答(クローンがある場合)
+    if (u.hostname === 'edupower07.github.io' && u.pathname.includes('/PictureDictionary/images/')) {
+      const PD_DIR = process.env.PD_DIR || '/workspace/picturedictionary';
+      const f = path.join(PD_DIR, 'images', decodeURIComponent(u.pathname.split('/images/')[1]));
+      if (fs.existsSync(f)) {
+        return route.fulfill({ status: 200, contentType: 'image/jpeg', body: fs.readFileSync(f) });
+      }
+      return route.abort();
+    }
+    // それ以外の外部は遮断 → アプリは絵文字フォールバック
     return route.abort();
   });
 }
@@ -131,7 +140,24 @@ async function moveClick(page, selector, opts = {}) {
   await page.waitForTimeout(opts.moveWait ?? 650);
   if (!opts.noClick) {
     await page.evaluate(([x, y]) => window.__pv && window.__pv.ripple(x, y), [x, y]);
-    await el.click({ force: true }).catch(async () => { await page.mouse.click(x, y); });
+    await el.click({ force: true, timeout: 1500 }).catch(async () => { await page.mouse.click(x, y); });
+  }
+  await page.waitForTimeout(opts.afterWait ?? 450);
+  return true;
+}
+
+// ElementHandle / Locator を疑似カーソルつきでクリック
+async function moveClickHandle(page, handle, opts = {}) {
+  const box = await handle.boundingBox();
+  if (!box) return false;
+  const x = box.x + box.width / 2 + (opts.dx || 0);
+  const y = box.y + box.height / 2 + (opts.dy || 0);
+  await page.evaluate(([x, y]) => window.__pv && window.__pv.move(x, y), [x, y]);
+  await page.waitForTimeout(opts.moveWait ?? 650);
+  if (!opts.noClick) {
+    await page.evaluate(([x, y]) => window.__pv && window.__pv.ripple(x, y), [x, y]);
+    if (opts.dblclick) { await handle.dblclick({ force: true, timeout: 1500 }).catch(async () => { await page.mouse.dblclick(x, y); }); }
+    else { await handle.click({ force: true, timeout: 1500 }).catch(async () => { await page.mouse.click(x, y); }); }
   }
   await page.waitForTimeout(opts.afterWait ?? 450);
   return true;
@@ -144,4 +170,4 @@ async function chip(page, text, bg) {
   await page.evaluate(([t, b]) => window.__pv && window.__pv.chip(t, b), [text, bg || null]);
 }
 
-module.exports = { setupRouting, attachOverlay, moveClick, caption, chip, OVERLAY_JS };
+module.exports = { setupRouting, attachOverlay, moveClick, moveClickHandle, caption, chip, OVERLAY_JS };
