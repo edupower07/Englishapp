@@ -2,401 +2,652 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>せかいのあいさつ図鑑 | 小学校外国語アプリポータル</title>
+<meta name="description" content="せかいの国旗タイルをタップして、いろいろなことばの あいさつを聞き、スタンプを あつめる小学校3年生向けアプリ。ミッションで じっさいに あいさつを言う体験、クイズで ふくしゅうもできる。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#ffa502; --primary-dark:#e08e00; --teal:#00cec9; --pink:#ff7675; --blue:#74b9ff; --green:#2ed573;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は g-
+   ============================================================ */
+html,body{ height:100%; }
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  margin:0; min-height:100vh;
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+/* main は素直なブロック要素にする(flexで親いっぱいに伸ばすと、コンテンツが少ない画面で
+   min-height:0 により箱が縮み、はみ出た内容が footer と重なるバグを起こすため採用しない。
+   画面いっぱい感が必要な図鑑タイルは .g-flag-grid 自体に min-height を持たせて対応する) */
+main{ width:100%; max-width:1320px; margin:0 auto; padding:12px 16px 26px; }
 
-.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
-.mode-card{
-  width:250px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
-  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
-}
-.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--pink)}
-.mode-card .mi{font-size:3rem}
-.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
-.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+/* AppUI.cardImg() の絵文字フォールバック span 用CSS(キットには無いのでここで定義) */
+.app-card-emoji{ font-size:2.2rem; line-height:1; display:flex; align-items:center; justify-content:center; }
 
-/* 国旗グリッド */
-.flag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-.flag-card{
-  background:#fff;border-radius:20px;padding:10px 8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
-  border:5px solid transparent;transition:.2s;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:4px;
-}
-.flag-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:var(--primary)}
-.flag-card .cimg{width:100%;height:78px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
-.flag-card .cimg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}
-.flag-card .fl{font-size:2.6rem;line-height:1}
-.flag-card .fname{font-weight:700;font-size:.8rem;color:var(--sub)}
+.g-screen{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+.g-title{ text-align:center; font-size:clamp(1.1rem,2.6vw,1.4rem); font-weight:800; margin:8px 0 2px; }
+.g-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.85rem; margin:0 0 10px; line-height:1.7; }
+.g-hint{ text-align:center; color:var(--sub); font-weight:700; font-size:.76rem; margin-top:10px; line-height:1.7; }
 
-/* 詳細 */
-.detail{
-  max-width:560px;margin:0 auto;background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);
-  border:5px solid var(--primary);overflow:hidden;text-align:center;
+/* ---------- 常時表示: スタンプバー ---------- */
+.g-stampbar{
+  display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+  background:rgba(255,255,255,.92); padding:7px 16px; box-shadow:0 3px 10px rgba(0,0,0,.05);
+  cursor:pointer;
 }
-.detail-head{background:linear-gradient(135deg,#ffa502,#ffc048);color:#fff;padding:12px;font-weight:800;font-size:1.15rem}
-.detail-body{padding:20px}
-.detail-img{height:170px;background:#fff8ec;border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px}
-.detail-img img{width:100%;height:100%;object-fit:contain}
-.detail-img .de{font-size:5rem}
-.greet-big{font-size:2rem;font-weight:800;color:var(--primary-dark);cursor:pointer}
-.greet-roma{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--sub);letter-spacing:1px;margin-top:2px}
-.greet-note{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:8px;line-height:1.6}
-.speak-btn{
-  background:var(--blue);color:#fff;border:none;border-radius:50px;padding:12px 26px;font-family:inherit;
-  font-weight:800;font-size:1rem;cursor:pointer;box-shadow:var(--shadow);margin-top:12px;min-height:48px;transition:.2s;
+.g-stampbar-label{ font-weight:800; font-size:.78rem; color:var(--sub); white-space:nowrap; }
+.g-stamp-rail{ display:flex; gap:3px; flex-wrap:wrap; justify-content:center; }
+.g-stamp-chip{
+  width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  font-size:1.05rem; background:#eef2f6; filter:grayscale(1) opacity(.55); transition:.2s;
 }
-.speak-btn:hover{transform:translateY(-2px);background:#0984e3}
-.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:12px 26px;font-family:inherit;font-weight:800;font-size:.95rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:48px;transition:.2s;color:#fff;background:var(--primary);
-}
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.gray{background:#b2bec3;color:#2d3436}
+.g-stamp-chip.got{ background:#eafff4; filter:none; transform:scale(1.05); box-shadow:0 0 0 2px var(--green) inset; }
+.g-stampbar-count{ font-weight:800; font-size:.8rem; color:var(--ink); white-space:nowrap; }
+.g-stampbar .app-hud-bar{ height:10px; }
 
-/* クイズ */
-.quiz-hud{display:flex;justify-content:space-between;max-width:560px;margin:0 auto 10px;font-weight:800;color:var(--sub)}
-.quiz-card{
-  max-width:560px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:22px;text-align:center;
-  border:5px solid var(--pink);
+/* ---------- モードせんたく ---------- */
+#scr-mode{ justify-content:center; }
+
+/* ---------- 図鑑: 国旗タイル(画面いっぱい) ---------- */
+#scr-zukan{ align-items:stretch; }
+.g-flag-grid{
+  min-height:clamp(320px,58vh,620px); display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); grid-auto-rows:1fr; gap:16px; width:100%;
 }
-.quiz-greet{font-size:2rem;font-weight:800;color:var(--pink);cursor:pointer}
-.quiz-roma{font-family:'Fredoka One',cursive;color:var(--sub);margin-top:2px}
-.quiz-sub{font-size:.85rem;color:var(--sub);font-weight:700;margin-top:6px}
-.quiz-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;max-width:560px;margin:14px auto 0}
-.q-flag{
-  background:#fff;border:4px solid #e6ecf2;border-radius:18px;padding:8px 6px;cursor:pointer;text-align:center;
-  box-shadow:var(--shadow);transition:.15s;font-family:inherit;min-height:120px;
+.g-flag-tile{
+  position:relative; background:#fff; border-radius:26px; border:6px solid #e6ecf2; box-shadow:var(--shadow);
+  cursor:pointer; font-family:inherit; color:var(--ink); padding:12px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center;
+  min-height:150px; transition:transform .18s,box-shadow .18s,border-color .18s;
 }
-.q-flag:hover{transform:translateY(-3px);border-color:var(--pink)}
-.q-flag .cimg{width:100%;height:64px;display:flex;align-items:center;justify-content:center}
-.q-flag .cimg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
-.q-flag .fl{font-size:2.2rem;display:block;line-height:1.2}
-.q-flag small{font-weight:700;font-size:.72rem;color:var(--sub);display:block;margin-top:2px}
-.q-flag.ok{border-color:var(--green);background:#f0fff7;animation:pop .4s}
-.q-flag.ng{animation:shake .35s}
-@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
-.msg{text-align:center;font-size:1.2rem;font-weight:800;min-height:36px;margin-top:10px}
-.msg.ok{color:var(--green)} .msg.ng{color:var(--pink)}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
+.g-flag-tile:hover,.g-flag-tile:focus-visible{ transform:translateY(-5px); box-shadow:var(--shadow-hover); border-color:var(--primary); outline:none; }
+.g-flag-tile:active{ transform:translateY(-1px) scale(.97); }
+.g-flag-tile.got{ border-color:var(--green); background:#f4fffa; }
+.g-flag-imgwrap{ width:78%; height:44%; min-height:64px; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:16px; background:#f7fafc; }
+.g-flag-imgwrap img{ max-width:100%; max-height:100%; object-fit:contain; }
+.g-flag-imgwrap .app-card-emoji{ font-size:3rem; }
+.g-flag-label{ display:flex; flex-direction:column; align-items:center; gap:1px; }
+.g-flag-emoji{ font-size:1.7rem; line-height:1; }
+.g-flag-name{ font-weight:800; font-size:clamp(.92rem,1.7vw,1.08rem); }
+.g-flag-en{ font-size:.7rem; color:var(--sub); font-weight:700; }
+.g-flag-badge{ position:absolute; top:8px; right:10px; font-size:1.4rem; filter:drop-shadow(0 2px 3px rgba(0,0,0,.18)); }
+
+/* クイズの選択肢用(サイズちがい) */
+.g-flag-tile.opt{ min-height:126px; padding:8px; }
+.g-flag-tile.opt .g-flag-imgwrap{ height:56px; min-height:44px; }
+.g-flag-tile.opt .g-flag-imgwrap .app-card-emoji{ font-size:2rem; }
+.g-flag-tile.opt .g-flag-emoji{ font-size:1.4rem; }
+.g-flag-tile.opt .g-flag-name{ font-size:.86rem; }
+.g-flag-tile.g-tile-ok{ border-color:var(--green); background:#eafff4; }
+.g-flag-tile.g-tile-ng{ opacity:.4; pointer-events:none; border-color:var(--pink); }
+
+/* ---------- 図鑑: 詳細 ---------- */
+.g-detail-card{
+  max-width:520px; width:100%; margin:6px auto 0; background:#fff; border-radius:var(--app-radius-lg);
+  box-shadow:var(--shadow-hover); border:6px solid var(--primary); overflow:hidden; text-align:center;
+}
+.g-detail-head{ background:linear-gradient(135deg,var(--g3),#ffc048); color:#fff; padding:14px 12px; font-weight:800; font-size:1.2rem; }
+.g-detail-body{ padding:18px 20px 22px; }
+.g-detail-stampchip{ display:inline-flex; align-items:center; gap:5px; font-weight:800; font-size:.76rem; padding:4px 12px; border-radius:50px; margin-bottom:10px; background:#eef2f6; color:var(--sub); }
+.g-detail-stampchip.got{ background:#eafff4; color:#0a6b4f; }
+.g-detail-img{ height:180px; background:#f7fafc; border-radius:18px; display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:12px; }
+.g-detail-img img{ max-width:100%; max-height:100%; object-fit:contain; }
+.g-detail-img .app-card-emoji{ font-size:5rem; }
+.g-detail-greet{ font-size:2rem; font-weight:800; color:var(--g3); line-height:1.3; }
+.g-detail-roma{ font-family:var(--app-font-display); font-size:1.05rem; color:var(--sub); letter-spacing:.5px; margin-top:2px; }
+.g-detail-note{ font-size:.82rem; color:var(--sub); font-weight:700; margin:10px 0 0; line-height:1.7; }
+
+/* ---------- ミッション ---------- */
+.g-mission-card{
+  max-width:520px; width:100%; margin:4px auto 0; background:#fff; border-radius:var(--app-radius-lg);
+  box-shadow:var(--shadow-hover); border:6px solid var(--yellow); padding:26px 22px; text-align:center;
+}
+.g-mission-flag{ font-size:3.4rem; line-height:1; }
+.g-mission-text{ font-size:1.15rem; font-weight:800; line-height:1.9; margin:10px 0 4px; }
+.g-mission-text b{ color:#d68000; font-size:1.28em; }
+.g-mission-hint{ font-size:.95rem; color:var(--sub); font-weight:700; background:#f7f9fb; border-radius:14px; padding:8px 12px; margin:10px 0 14px; }
+.g-mission-hint .roma{ font-family:var(--app-font-display); }
+
+/* ---------- クイズ ---------- */
+.g-quiz-card{ max-width:520px; width:100%; margin:0 auto; text-align:center; }
+.g-quiz-listen{
+  width:100%; max-width:360px; margin:6px auto 0; background:#fff; border:6px solid var(--blue); border-radius:var(--app-radius-lg);
+  box-shadow:var(--shadow); cursor:pointer; font-family:inherit; padding:20px 16px; min-height:112px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; transition:.18s;
+}
+.g-quiz-listen:hover{ transform:translateY(-3px); box-shadow:var(--shadow-hover); }
+.g-quiz-listen:active{ transform:translateY(0) scale(.98); }
+.g-quiz-listen-ico{ font-size:2.6rem; line-height:1; }
+.g-quiz-listen-txt{ font-weight:800; font-size:1rem; color:var(--ink); }
+.g-quiz-hint{ font-size:.8rem; color:var(--sub); font-weight:700; margin:8px 0 4px; }
+.g-quiz-opts{ max-width:620px; margin:10px auto 0; --app-min-col:150px; }
+.g-quiz-msg{ text-align:center; font-size:1.1rem; font-weight:800; min-height:34px; margin-top:8px; }
+.g-quiz-msg.ok{ color:var(--green); } .g-quiz-msg.ng{ color:var(--pink); }
+.g-quiz-result{ text-align:center; margin-top:16px; }
+
+/* ---------- トースト ---------- */
+/* pointer-events:none なので、下のボタンを かくれさせても タップは つねに つうかする(操作をブロックしない) */
+.g-toast{
+  position:fixed; left:50%; bottom:20px; transform:translate(-50%,16px); z-index:1500;
+  background:#2d3436; color:#fff; font-weight:800; font-size:.92rem; padding:12px 22px; border-radius:50px;
+  box-shadow:0 8px 24px rgba(0,0,0,.28); opacity:0; pointer-events:none; transition:opacity .25s ease,transform .25s ease;
+  max-width:88vw; text-align:center;
+}
+.g-toast.show{ opacity:1; transform:translate(-50%,0); }
+
+footer.g-foot{ text-align:center; padding:16px; color:#b2bec3; font-size:.72rem; font-weight:700; line-height:1.8; }
+
+@media (max-width:520px){
+  .g-flag-grid{ grid-template-columns:repeat(2,1fr); }
+  .g-stampbar-label{ display:none; }
+}
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🌏 せかいのあいさつ図鑑 <span class="u">3年生 世界のあいさつ</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🌏 せかいのあいさつ図鑑 <span class="app-unit-badge" style="background:var(--g3)">3年 世界のあいさつ</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
+<div class="g-stampbar" id="stampbar-wrap" role="button" tabindex="0" aria-label="あつめたスタンプをみる(ずかんへ)">
+  <span class="g-stampbar-label">🎫 あつめた あいさつ</span>
+  <span class="g-stamp-rail" id="stamp-rail"></span>
+  <span class="g-stampbar-count"><b id="stamp-count">0 / 8</b></span>
+  <span class="app-hud-bar" style="max-width:120px"><span class="app-hud-bar-fill" id="stamp-bar-fill" style="width:0%"></span></span>
+</div>
+
 <main>
 
-  <!-- モード選択 -->
-  <section id="scr-mode">
-    <h2 class="step-title">あそびかたを えらんでね</h2>
-    <div class="mode-select">
-      <div class="mode-card m1" data-mode="zukan">
-        <div class="mi">📖</div>
-        <h2>あいさつ図鑑</h2>
-        <p>国旗をタップして、せかいの<br>あいさつを聞いてみよう</p>
+  <!-- ============ モードせんたく ============ -->
+  <section id="scr-mode" class="g-screen">
+    <h2 class="g-title">あそびかたを えらんでね</h2>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card primary" id="mode-zukan">
+        <span class="app-mode-icon">📖</span>
+        <span class="app-mode-title">あいさつ図鑑</span>
+        <span class="app-mode-sub">国旗タイルをタップして、せかいの<br>あいさつを聞こう。スタンプもたまるよ</span>
+      </button>
+      <button type="button" class="app-mode-card yellow" id="mode-mission">
+        <span class="app-mode-icon">🎯</span>
+        <span class="app-mode-title">あいさつミッション</span>
+        <span class="app-mode-sub">カードを引いて、となりの人と<br>じっさいに あいさつしてみよう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-quiz">
+        <span class="app-mode-icon">❓</span>
+        <span class="app-mode-title">あいさつクイズ</span>
+        <span class="app-mode-sub">あいさつを聞いて、どこの国か<br>国旗タイルからあてよう</span>
+      </button>
+    </div>
+    <p class="g-hint">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
+  </section>
+
+  <!-- ============ 図鑑: 国旗タイル ============ -->
+  <section id="scr-zukan" class="g-screen app-hidden">
+    <h2 class="g-title">📖 国旗タイルを タップしてみよう</h2>
+    <div class="g-flag-grid" id="flag-grid"></div>
+  </section>
+
+  <!-- ============ 図鑑: 詳細 ============ -->
+  <section id="scr-detail" class="g-screen app-hidden">
+    <div class="g-detail-card">
+      <div class="g-detail-head" id="d-head"></div>
+      <div class="g-detail-body">
+        <div class="g-detail-stampchip" id="d-stampchip"></div>
+        <div class="g-detail-img" id="d-img"></div>
+        <div class="g-detail-greet" id="d-greet"></div>
+        <div class="g-detail-roma" id="d-roma"></div>
+        <p class="g-detail-note" id="d-note"></p>
+        <div class="app-btn-row" style="margin-top:14px">
+          <button type="button" class="app-big-btn blue" id="btn-d-speak">🔊 あいさつを きく</button>
+        </div>
       </div>
-      <div class="mode-card m2" data-mode="quiz">
-        <div class="mi">❓</div>
-        <h2>あいさつクイズ</h2>
-        <p>あいさつを聞いて、どこの国か<br>国旗からえらぼう(5もん)</p>
-      </div>
+    </div>
+    <div class="app-btn-row" style="margin-top:14px">
+      <button type="button" class="app-big-btn gray" id="btn-back-zukan">⬅ ずかんに もどる</button>
     </div>
   </section>
 
-  <!-- 図鑑: 国旗一覧 -->
-  <section id="scr-zukan" class="hidden">
-    <h2 class="step-title">📖 国旗をタップしてみよう</h2>
-    <div class="flag-grid" id="flag-grid"></div>
-  </section>
-
-  <!-- 図鑑: 詳細 -->
-  <section id="scr-detail" class="hidden">
-    <div class="detail">
-      <div class="detail-head" id="d-country"></div>
-      <div class="detail-body">
-        <div class="detail-img" id="d-img"></div>
-        <div class="greet-big" id="d-greet"></div>
-        <div class="greet-roma" id="d-roma"></div>
-        <div class="greet-note" id="d-note"></div>
-        <button class="speak-btn" id="btn-d-speak">🔊 あいさつを聞く</button>
+  <!-- ============ ミッション ============ -->
+  <section id="scr-mission" class="g-screen app-hidden">
+    <h2 class="g-title">🎯 あいさつ ミッション</h2>
+    <p class="g-sub">カードを引いて、となりの人と じっさいに あいさつしてみよう</p>
+    <div class="g-mission-card">
+      <div class="g-mission-flag" id="m-flag">🌏</div>
+      <p class="g-mission-text">となりの 人と<br><b id="m-country">〇〇</b>の くにの あいさつで<br>あいさつ してみよう</p>
+      <div class="g-mission-hint">(れい)<span id="m-greet">-</span> <span class="roma" id="m-roma"></span></div>
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn blue sm" id="btn-m-speak">🔊 おてほんを きく(にんいだよ)</button>
       </div>
     </div>
-    <div class="actions">
-      <button class="big-btn gray" id="btn-back-zukan">国旗一覧にもどる</button>
+    <div class="app-btn-row" style="margin-top:18px">
+      <button type="button" class="app-big-btn green" id="btn-m-done">✅ できた!</button>
+      <button type="button" class="app-big-btn outline" id="btn-m-shuffle">🔄 べつの ミッション</button>
+    </div>
+    <div class="app-btn-row" style="margin-top:10px">
+      <button type="button" class="app-big-btn gray sm" id="btn-back-mode-m">モードせんたくへ</button>
     </div>
   </section>
 
-  <!-- クイズ -->
-  <section id="scr-quiz" class="hidden">
-    <div class="quiz-hud">
-      <span id="q-progress">だい1もん / 5もん</span>
-      <span id="q-score">せいかい 0</span>
+  <!-- ============ クイズ: もんすうせんたく ============ -->
+  <section id="scr-quiz-setup" class="g-screen app-hidden">
+    <h2 class="g-title">❓ あいさつクイズ</h2>
+    <p class="g-sub">なんもん ちょうせんする?</p>
+    <div class="app-mode-select" style="max-width:520px">
+      <button type="button" class="app-mode-card pink" id="qn-5">
+        <span class="app-mode-icon">5️⃣</span>
+        <span class="app-mode-title">5もん</span>
+        <span class="app-mode-sub">さくっと ちょうせん</span>
+      </button>
+      <button type="button" class="app-mode-card purple" id="qn-8">
+        <span class="app-mode-icon">🎯</span>
+        <span class="app-mode-title">8もん</span>
+        <span class="app-mode-sub">8か国 ぜんぶに ちょうせん</span>
+      </button>
     </div>
-    <div class="quiz-card">
-      <div class="quiz-greet" id="q-greet">🔊 こんにちは</div>
-      <div class="quiz-roma" id="q-roma"></div>
-      <div class="quiz-sub">このあいさつは どこの国のことば?(タップすると もういちど聞けるよ)</div>
+    <div class="app-btn-row" style="margin-top:16px">
+      <button type="button" class="app-big-btn gray sm" id="btn-back-mode-q">モードせんたくへ</button>
     </div>
-    <div class="quiz-opts" id="q-opts"></div>
-    <div class="msg" id="q-msg"></div>
+  </section>
+
+  <!-- ============ クイズ ============ -->
+  <section id="scr-quiz" class="g-screen app-hidden">
+    <div class="app-hud" id="quiz-hud">
+      <span class="app-hud-chip primary">📖 だい <b id="q-idx">1</b> もん / <b id="q-total">5</b> もん</span>
+      <span class="app-hud-chip">⭐ せいかい <b id="q-score">0</b></span>
+    </div>
+
+    <div id="quiz-live">
+      <div class="g-quiz-card">
+        <button type="button" class="g-quiz-listen" id="btn-q-speak">
+          <span class="g-quiz-listen-ico">🔊</span>
+          <span class="g-quiz-listen-txt">タップして きいてみよう</span>
+        </button>
+        <p class="g-quiz-hint">なんかいでも きけるよ。どこの くにの あいさつかな?</p>
+      </div>
+      <div class="app-grid g-quiz-opts" id="q-opts"></div>
+      <p class="g-quiz-msg" id="q-msg"></p>
+    </div>
+
+    <div class="g-quiz-result app-hidden" id="quiz-result">
+      <h2 class="g-title" id="qr-title">🎉 おつかれさま!</h2>
+      <p class="g-sub" id="qr-sub"></p>
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn pink" id="btn-q-retry">🔄 もう一度</button>
+        <button type="button" class="app-big-btn gray" id="btn-q-mode">モードせんたくへ</button>
+      </div>
+    </div>
   </section>
 
 </main>
 
-<footer>
-  ブラウザが対応していない言語は、ちかい発音または画面の文字で確認してね。<br>
+<footer class="g-foot">
+  ブラウザが対応していないことばは、ちかい発音または画面の文字で確認してね。<br>
   Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
 </footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
-// ============================================================
-// データ(教師向け:ここを書きかえると国やあいさつを変更できます)
-// lang: Web Speech API の言語コード(ブラウザ非対応の言語はちかい音になります)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-const QUIZ_COUNT = 5;
+(function(){
+'use strict';
 
-const COUNTRIES = [
-  { ja:"日本",       en:"Japan",   flag:"🇯🇵", img:"Japan.jpg",   greet:"こんにちは",       roma:"Konnichiwa",     speakText:"こんにちは",       lang:"ja-JP", greetImg:"Konnichiwa.jpg", note:"「こんにちは」は日本のあいさつ" },
-  { ja:"アメリカ",   en:"America", flag:"🇺🇸", img:"America.jpg", greet:"Hello!",           roma:"Hello",          speakText:"Hello!",           lang:"en-US", greetImg:"Hello.jpg",      note:"英語のあいさつ。世界中でつかわれているよ" },
-  { ja:"中国",       en:"China",   flag:"🇨🇳", img:"China.jpg",   greet:"你好",             roma:"Ni hao(ニーハオ)", speakText:"你好",           lang:"zh-CN", greetImg:"Nihao.jpg",      note:"中国語のあいさつ" },
-  { ja:"かんこく",   en:"Korea",   flag:"🇰🇷", img:"Korea.jpg",   greet:"안녕하세요",       roma:"Annyeonghaseyo(アンニョンハセヨ)", speakText:"안녕하세요", lang:"ko-KR", greetImg:null,   note:"かんこく語のあいさつ" },
-  { ja:"インド",     en:"India",   flag:"🇮🇳", img:"India.jpg",   greet:"नमस्ते",            roma:"Namaste(ナマステ)", speakText:"Namaste",       lang:"hi-IN", greetImg:"Namaste.jpg",    note:"ヒンディー語のあいさつ。手をあわせて言うよ" },
-  { ja:"ケニア",     en:"Kenya",   flag:"🇰🇪", img:"Kenya.jpg",   greet:"Jambo!",           roma:"Jambo(ジャンボ)",   speakText:"Jambo!",        lang:"en-US", greetImg:null,             note:"スワヒリ語のあいさつ" },
-  { ja:"フィンランド", en:"Finland", flag:"🇫🇮", img:"Finland.jpg", greet:"Hei!",           roma:"Hei(ヘイ)",         speakText:"Hei!",          lang:"fi-FI", greetImg:null,             note:"フィンランド語のあいさつ" },
-  { ja:"フランス",   en:"France",  flag:"🇫🇷", img:"France.jpg",  greet:"Bonjour!",         roma:"Bonjour(ボンジュール)", speakText:"Bonjour!",  lang:"fr-FR", greetImg:"Bonjour.jpg",    note:"フランス語のあいさつ" },
+/* ============================================================
+   0. 小さなヘルパー
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(name, arg){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[name]) AppUI.sfx[name](arg); }catch(e){} }
+function say(text, lang){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, lang ? { lang:lang } : undefined); }catch(e){} }
+function stars(x,y){ try{ if(window.AppUI && AppUI.stars) AppUI.stars(x,y); }catch(e){} }
+function confetti(o){ try{ if(window.AppUI && AppUI.confetti) AppUI.confetti(o); }catch(e){} }
+function celebrate(o){ try{ if(window.AppUI && AppUI.celebrate) AppUI.celebrate(o); }catch(e){} }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function shuffle(a){ if(window.AppUI && AppUI.shuffle) return AppUI.shuffle(a); var b=a.slice(); for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; } return b; }
+function pick(a){ if(window.AppUI && AppUI.pick) return AppUI.pick(a); return a[Math.floor(Math.random()*a.length)]; }
+function centerOf(el){ var r = el.getBoundingClientRect(); return { x:r.left + r.width/2, y:r.top + r.height/2 }; }
+
+/* ============================================================
+   1. データ(教師向け: ここを書きかえると 国やあいさつを変更できます)
+   lang: Web Speech API の言語コード(ブラウザ非対応の言語は ちかい音になります)
+   ============================================================ */
+var COUNTRIES = [
+  { ja:"にほん",       en:"Japan",   flag:"🇯🇵", img:"Japan.jpg",   greet:"こんにちは",       roma:"Konnichiwa", speakText:"こんにちは",       lang:"ja-JP", greetImg:"Konnichiwa.jpg", note:"にほんの あいさつだよ" },
+  { ja:"アメリカ",     en:"America", flag:"🇺🇸", img:"America.jpg", greet:"Hello!",           roma:"Hello",       speakText:"Hello!",           lang:"en-US", greetImg:"Hello.jpg",      note:"えいごの あいさつ。せかいじゅうで つかわれているよ" },
+  { ja:"ちゅうごく",   en:"China",   flag:"🇨🇳", img:"China.jpg",   greet:"你好",             roma:"Ni hao",      speakText:"你好",             lang:"zh-CN", greetImg:"Nihao.jpg",      note:"ちゅうごくごの あいさつだよ" },
+  { ja:"かんこく",     en:"Korea",   flag:"🇰🇷", img:"Korea.jpg",   greet:"안녕하세요",       roma:"Annyeonghaseyo", speakText:"안녕하세요",     lang:"ko-KR", greetImg:null,             note:"かんこくごの あいさつだよ" },
+  { ja:"インド",       en:"India",   flag:"🇮🇳", img:"India.jpg",   greet:"नमस्ते",            roma:"Namaste",     speakText:"Namaste",         lang:"hi-IN", greetImg:"Namaste.jpg",    note:"ヒンディーごの あいさつ。てを あわせて 言うよ" },
+  { ja:"ケニア",       en:"Kenya",   flag:"🇰🇪", img:"Kenya.jpg",   greet:"Jambo!",           roma:"Jambo",       speakText:"Jambo!",           lang:"en-US", greetImg:null,             note:"スワヒリごの あいさつだよ" },
+  { ja:"フィンランド", en:"Finland", flag:"🇫🇮", img:"Finland.jpg", greet:"Hei!",             roma:"Hei",         speakText:"Hei!",             lang:"fi-FI", greetImg:null,             note:"フィンランドごの あいさつだよ" },
+  { ja:"フランス",     en:"France",  flag:"🇫🇷", img:"France.jpg",  greet:"Bonjour!",         roma:"Bonjour",     speakText:"Bonjour!",         lang:"fr-FR", greetImg:"Bonjour.jpg",    note:"フランスごの あいさつだよ" }
 ];
+var byEn = {};
+COUNTRIES.forEach(function(c){ byEn[c.en] = c; });
+/* あいさつ語じたいへの日本語訳・よみがなは併記しない方針のため、
+   roma(ローマ字表記)は「そのままでは読めない文字」の国だけ画面に出す */
+var ROMA_SHOW = { China:1, Korea:1, India:1 };
+function romaFor(c){ return (c && ROMA_SHOW[c.en]) ? c.roma : null; }
 
-// ============================================================
-// 音声
-// ============================================================
-function speakLang(text, lang){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang; u.rate = 0.85;
-    speechSynthesis.speak(u);
-  }catch(e){}
+/* ============================================================
+   2. スタンプ(あいさつコレクション)
+   ============================================================ */
+var stampStore = (window.AppUI && AppUI.store) ? AppUI.store('g3u1-greetings-stamps') : null;
+var stamps = {};
+(function loadStamps(){
+  var arr = stampStore ? stampStore.get([]) : [];
+  if(!Array.isArray(arr)) arr = [];
+  arr.forEach(function(en){ if(byEn[en]) stamps[en] = true; });
+})();
+function stampCount(){ return Object.keys(stamps).length; }
+function saveStamps(){ if(stampStore) stampStore.set(Object.keys(stamps)); }
+/* あいさつを聞いた国にスタンプ。戻り値: { isNew, completedNow } */
+function awardStamp(en){
+  var already = !!stamps[en];
+  var before = stampCount();
+  if(!already) stamps[en] = true;
+  saveStamps();
+  renderStampBar();
+  var after = stampCount();
+  return { isNew: !already, completedNow: (before < COUNTRIES.length && after === COUNTRIES.length) };
+}
+function renderStampBar(){
+  var rail = $('stamp-rail');
+  rail.innerHTML = COUNTRIES.map(function(c){
+    return '<span class="g-stamp-chip' + (stamps[c.en] ? ' got' : '') + '" title="' + esc(c.ja) + '" aria-hidden="true">' + c.flag + '</span>';
+  }).join('');
+  $('stamp-count').textContent = stampCount() + ' / ' + COUNTRIES.length;
+  $('stamp-bar-fill').style.width = Math.round(stampCount() / COUNTRIES.length * 100) + '%';
+}
+function celebrateIfComplete(result, extraSub){
+  if(!result.completedNow) return;
+  celebrate({
+    title: '🏆 コンプリート!',
+    sub: (extraSub ? extraSub + ' ' : '') + '8か国 ぜんぶの あいさつを あつめたよ!',
+    icon: '🏆'
+  });
 }
 
-// ============================================================
-// 状態
-// ============================================================
-let current = null;
-let quiz = { qs:[], idx:0, score:0, lock:false };
-const $ = id => document.getElementById(id);
+/* ============================================================
+   3. トースト(かるい お知らせ)
+   ============================================================ */
+var toastTimer = null;
+function toast(msg){
+  var t = $('g-toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'g-toast'; t.className = 'g-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.remove('show');
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1900);
+}
+
+/* ============================================================
+   4. 画面切りかえ
+   ============================================================ */
+var SCREENS = ['scr-mode','scr-zukan','scr-detail','scr-mission','scr-quiz-setup','scr-quiz'];
+var curScreen = 'scr-mode';
 function show(id){
-  ["scr-mode","scr-zukan","scr-detail","scr-quiz"].forEach(s =>
-    $(s).classList.toggle("hidden", s !== id));
+  curScreen = id;
+  SCREENS.forEach(function(s){ $(s).classList.toggle('app-hidden', s !== id); });
 }
-function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
 
-// ============================================================
-// 図鑑
-// ============================================================
-function buildFlags(){
-  $("flag-grid").innerHTML = COUNTRIES.map((c,i) => `
-    <div class="flag-card" data-i="${i}">
-      <span class="cimg"><img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}"
-        onerror="this.parentElement.outerHTML='<span class=&quot;fl&quot;>${c.flag}</span>'"></span>
-      <span class="fname">${c.flag} ${c.ja}</span>
-    </div>`).join("");
+/* ============================================================
+   5. 図鑑
+   ============================================================ */
+function renderFlags(){
+  var grid = $('flag-grid');
+  grid.innerHTML = '';
+  COUNTRIES.forEach(function(c){
+    var tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'g-flag-tile' + (stamps[c.en] ? ' got' : '');
+    tile.setAttribute('aria-label', c.ja + ' の あいさつを きく');
+
+    var imgWrap = document.createElement('span');
+    imgWrap.className = 'g-flag-imgwrap';
+    imgWrap.appendChild(AppUI.cardImg(c.img, c.flag));
+    tile.appendChild(imgWrap);
+
+    var label = document.createElement('span');
+    label.className = 'g-flag-label';
+    label.innerHTML = '<span class="g-flag-emoji">' + c.flag + '</span>' +
+      '<span class="g-flag-name">' + esc(c.ja) + '</span>' +
+      '<span class="g-flag-en">' + esc(c.en) + '</span>';
+    tile.appendChild(label);
+
+    if(stamps[c.en]){
+      var badge = document.createElement('span');
+      badge.className = 'g-flag-badge';
+      badge.setAttribute('aria-hidden','true');
+      badge.textContent = '🎫';
+      tile.appendChild(badge);
+    }
+
+    tile.addEventListener('click', function(){ openDetail(c); });
+    grid.appendChild(tile);
+  });
 }
-$("flag-grid").addEventListener("click", e => {
-  const el = e.target.closest(".flag-card"); if(!el) return;
-  current = COUNTRIES[+el.dataset.i];
-  $("d-country").textContent = `${current.flag} ${current.ja}(${current.en})`;
-  const imgName = current.greetImg || current.img;
-  $("d-img").innerHTML = `<img src="${IMG_BASE + encodeURIComponent(imgName)}" alt="${current.en}"
-    onerror="this.outerHTML='<span class=&quot;de&quot;>${current.flag}</span>'">`;
-  $("d-greet").textContent = current.greet;
-  $("d-roma").textContent = current.roma;
-  $("d-note").textContent = current.note;
-  show("scr-detail");
-  speakLang(current.speakText, current.lang);
-});
-$("btn-d-speak").addEventListener("click", () => {
-  if(current) speakLang(current.speakText, current.lang);
-});
-$("d-greet")?.addEventListener?.("click", () => { if(current) speakLang(current.speakText, current.lang); });
-$("btn-back-zukan").addEventListener("click", () => show("scr-zukan"));
+var current = null;
+function openDetail(c){
+  current = c;
+  $('d-head').textContent = c.flag + ' ' + c.ja + '(' + c.en + ')';
+  var chip = $('d-stampchip');
+  var wasGot = !!stamps[c.en];
+  chip.textContent = wasGot ? '🎫 スタンプずみ' : '🔲 まだ スタンプなし';
+  chip.classList.toggle('got', wasGot);
+  var imgHost = $('d-img');
+  imgHost.innerHTML = '';
+  imgHost.appendChild(AppUI.cardImg(c.greetImg || c.img, c.flag));
+  $('d-greet').textContent = c.greet;
+  var rd = romaFor(c);
+  var romaEl = $('d-roma');
+  if(rd){ romaEl.textContent = rd; romaEl.style.display = ''; }
+  else{ romaEl.textContent = ''; romaEl.style.display = 'none'; }
+  $('d-note').textContent = c.note;
+  show('scr-detail');
 
-// ============================================================
-// クイズ
-// ============================================================
-function startQuiz(){
-  quiz = { qs: shuffle(COUNTRIES).slice(0, QUIZ_COUNT), idx:0, score:0, lock:false };
-  show("scr-quiz");
+  /* タイルをタップして あいさつを聞いた → スタンプ(子どもが聞きたくて押した操作なので発話OK) */
+  say(c.speakText, c.lang);
+  var result = awardStamp(c.en);
+  chip.textContent = '🎫 スタンプずみ';
+  chip.classList.add('got');
+  if(result.isNew){
+    sfx('pop');
+    setTimeout(function(){ stars(centerOf(chip).x, centerOf(chip).y); }, 120);
+    toast('🎫 ' + c.ja + 'の スタンプを ゲットしたよ!');
+  }
+  celebrateIfComplete(result);
+}
+$('btn-d-speak').addEventListener('click', function(){ if(current) say(current.speakText, current.lang); });
+$('btn-back-zukan').addEventListener('click', function(){ sfx('tap'); renderFlags(); show('scr-zukan'); });
+
+/* ============================================================
+   6. ミッション
+   ============================================================ */
+var missionCountry = null;
+function drawMission(){
+  var pool = COUNTRIES;
+  if(missionCountry && COUNTRIES.length > 1){ pool = COUNTRIES.filter(function(c){ return c.en !== missionCountry.en; }); }
+  missionCountry = pick(pool);
+  $('m-flag').textContent = missionCountry.flag;
+  $('m-country').textContent = missionCountry.ja;
+  $('m-greet').textContent = missionCountry.greet;
+  var mrd = romaFor(missionCountry);
+  $('m-roma').textContent = mrd ? ('(' + mrd + ')') : '';
+  show('scr-mission');
+}
+$('btn-m-speak').addEventListener('click', function(){ if(missionCountry) say(missionCountry.speakText, missionCountry.lang); });
+$('btn-m-shuffle').addEventListener('click', function(){ sfx('tap'); drawMission(); });
+$('btn-m-done').addEventListener('click', function(e){
+  if(!missionCountry) return;
+  var result = awardStamp(missionCountry.en);
+  var pos = centerOf(e.currentTarget);
+  if(result.isNew){
+    sfx('correct');
+    stars(pos.x, pos.y);
+    toast('🎫 ' + missionCountry.ja + 'の スタンプを ゲットしたよ!よく できました!');
+  }else{
+    sfx('pop');
+    stars(pos.x, pos.y);
+    toast('じょうずに あいさつ できたね!');
+  }
+  celebrateIfComplete(result, 'ミッション せいこう!');
+});
+$('btn-back-mode-m').addEventListener('click', function(){ sfx('tap'); show('scr-mode'); });
+
+/* ============================================================
+   7. クイズ(自動読み上げなし: 🔊は かならず 手動)
+   ============================================================ */
+var quiz = { qs:[], idx:0, score:0, total:0, lock:false };
+
+function startQuiz(n){
+  var qs = shuffle(COUNTRIES).slice(0, Math.min(n, COUNTRIES.length));
+  quiz = { qs:qs, idx:0, score:0, total:qs.length, lock:false };
+  $('quiz-live').classList.remove('app-hidden');
+  $('quiz-result').classList.add('app-hidden');
+  $('quiz-hud').classList.remove('app-hidden');
+  show('scr-quiz');
   drawQuizQ();
 }
 function drawQuizQ(){
-  const q = quiz.qs[quiz.idx];
+  var q = quiz.qs[quiz.idx];
   quiz.lock = false;
-  $("q-progress").textContent = `だい${quiz.idx+1}もん / ${quiz.qs.length}もん`;
-  $("q-score").textContent = `せいかい ${quiz.score}`;
-  $("q-greet").textContent = `🔊 ${q.greet}`;
-  $("q-roma").textContent = q.roma;
-  const wrongs = shuffle(COUNTRIES.filter(c => c.en !== q.en)).slice(0,3);
-  const opts = shuffle([q, ...wrongs]);
-  $("q-opts").innerHTML = opts.map(c => `
-    <button class="q-flag" data-en="${c.en}">
-      <span class="cimg"><img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}"
-        onerror="this.parentElement.outerHTML='<span class=&quot;fl&quot;>${c.flag}</span>'"></span>
-      <small>${c.flag} ${c.ja}</small>
-    </button>`).join("");
-  $("q-msg").textContent = ""; $("q-msg").className = "msg";
-  speakLang(q.speakText, q.lang);
+  $('q-idx').textContent = quiz.idx + 1;
+  $('q-total').textContent = quiz.total;
+  $('q-score').textContent = quiz.score;
+  $('q-msg').textContent = ''; $('q-msg').className = 'g-quiz-msg';
+
+  var wrongs = shuffle(COUNTRIES.filter(function(c){ return c.en !== q.en; })).slice(0, 3);
+  var opts = shuffle([q].concat(wrongs));
+  var wrap = $('q-opts');
+  wrap.innerHTML = '';
+  opts.forEach(function(c){
+    var tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'g-flag-tile opt';
+    tile.dataset.en = c.en;
+    var imgWrap = document.createElement('span');
+    imgWrap.className = 'g-flag-imgwrap';
+    imgWrap.appendChild(AppUI.cardImg(c.img, c.flag));
+    tile.appendChild(imgWrap);
+    var label = document.createElement('span');
+    label.className = 'g-flag-label';
+    label.innerHTML = '<span class="g-flag-emoji">' + c.flag + '</span><span class="g-flag-name">' + esc(c.ja) + '</span>';
+    tile.appendChild(label);
+    tile.addEventListener('click', function(){ answerQuiz(tile, c, q); });
+    wrap.appendChild(tile);
+  });
+  /* 出題ごとの音声は自動再生しない。🔊ボタンを押したときだけ聞こえる */
 }
-$("q-greet").addEventListener("click", () => {
-  const q = quiz.qs[quiz.idx]; if(q) speakLang(q.speakText, q.lang);
+$('btn-q-speak').addEventListener('click', function(){
+  var q = quiz.qs[quiz.idx];
+  if(q) say(q.speakText, q.lang);
 });
-$("q-opts").addEventListener("click", e => {
-  const el = e.target.closest(".q-flag"); if(!el || quiz.lock) return;
-  const q = quiz.qs[quiz.idx];
-  if(el.dataset.en === q.en){
-    quiz.lock = true; quiz.score++;
-    el.classList.add("ok");
-    $("q-msg").textContent = `⭕ せいかい!${q.ja}の「${q.greet}」`;
-    $("q-msg").className = "msg ok";
-    speakLang(q.speakText, q.lang);
-    $("q-score").textContent = `せいかい ${quiz.score}`;
-    setTimeout(() => {
+function answerQuiz(tile, c, q){
+  if(quiz.lock) return;
+  if(c.en === q.en){
+    quiz.lock = true;
+    quiz.score++;
+    tile.classList.add('g-tile-ok', 'app-anim-pop');
+    sfx('correct');
+    stars(centerOf(tile).x, centerOf(tile).y);
+    $('q-score').textContent = quiz.score;
+    var qrd = romaFor(q);
+    $('q-msg').textContent = '⭕ せいかい! ' + q.ja + 'の「' + q.greet + '」だったね' + (qrd ? ' (' + qrd + ')' : '');
+    $('q-msg').className = 'g-quiz-msg ok';
+    setTimeout(function(){
       quiz.idx++;
-      if(quiz.idx >= quiz.qs.length){
-        $("q-greet").textContent = quiz.score === quiz.qs.length ? "🏆 パーフェクト!" : "🎉 おつかれさま!";
-        $("q-roma").textContent = `${quiz.qs.length}もん中 ${quiz.score}もん せいかい`;
-        $("q-opts").innerHTML = ""; $("q-msg").textContent = "";
-        speakLang(quiz.score === quiz.qs.length ? "Perfect!" : "Good job!", "en-US");
-      }else drawQuizQ();
+      if(quiz.idx >= quiz.total) finishQuiz();
+      else drawQuizQ();
     }, 1500);
   }else{
-    el.classList.add("ng");
-    setTimeout(() => el.classList.remove("ng"), 380);
-    $("q-msg").textContent = "❌ ちがう国みたい…もういちど!";
-    $("q-msg").className = "msg ng";
+    tile.classList.add('g-tile-ng');
+    sfx('wrong');
+    tile.classList.add('app-anim-shake');
+    setTimeout(function(){ tile.classList.remove('app-anim-shake'); }, 450);
+    $('q-msg').textContent = '❌ ちがう くにみたい…のこりから もう一度!';
+    $('q-msg').className = 'g-quiz-msg ng';
   }
+}
+function finishQuiz(){
+  $('quiz-live').classList.add('app-hidden');
+  var pct = quiz.total ? quiz.score / quiz.total : 0;
+  var title = pct >= 1 ? '🏆 パーフェクト!' : (pct >= 0.6 ? '🎉 よくできました!' : '😊 おつかれさま!');
+  $('qr-title').textContent = title;
+  $('qr-sub').textContent = quiz.total + 'もんちゅう ' + quiz.score + 'もん せいかい';
+  $('quiz-result').classList.remove('app-hidden');
+  celebrate({ title: title, sub: quiz.total + 'もんちゅう ' + quiz.score + 'もん せいかい だったよ', icon: pct >= 1 ? '🏆' : '🎉' });
+}
+$('qn-5').addEventListener('click', function(){ sfx('tap'); startQuiz(5); });
+$('qn-8').addEventListener('click', function(){ sfx('tap'); startQuiz(8); });
+$('btn-back-mode-q').addEventListener('click', function(){ sfx('tap'); show('scr-mode'); });
+$('btn-q-retry').addEventListener('click', function(){ sfx('tap'); startQuiz(quiz.total || 5); });
+$('btn-q-mode').addEventListener('click', function(){ sfx('tap'); show('scr-mode'); });
+
+/* ============================================================
+   8. ナビゲーション
+   ============================================================ */
+$('mode-zukan').addEventListener('click', function(){ sfx('tap'); renderFlags(); show('scr-zukan'); });
+$('mode-mission').addEventListener('click', function(){ sfx('tap'); drawMission(); });
+$('mode-quiz').addEventListener('click', function(){ sfx('tap'); show('scr-quiz-setup'); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); show('scr-mode'); });
+$('stampbar-wrap').addEventListener('click', function(){
+  sfx('tap'); renderFlags(); show('scr-zukan');
+});
+$('stampbar-wrap').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); sfx('tap'); renderFlags(); show('scr-zukan'); }
 });
 
-// ============================================================
-// ナビゲーション
-// ============================================================
-document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
-  if(c.dataset.mode === "zukan") show("scr-zukan");
-  else startQuiz();
-}));
-$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
+/* ============================================================
+   9. 使い方モーダル
+   ============================================================ */
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  AppUI.help(
+    '<p>せかいには いろいろな <b>あいさつのことば</b>が あります。きいて、まねして、じっさいに 言ってみよう。' +
+    'アプリは <b>あいさつを 言いません</b>。🔊を おしたときだけ おてほんが きこえるよ。</p>' +
+    '<h4 style="margin:14px 0 4px;font-size:1rem">📖 あいさつ図鑑</h4>' +
+    '<ul>' +
+    '<li>国旗タイルを タップすると、その国の あいさつが きこえるよ</li>' +
+    '<li>きいた国には 🎫スタンプが たまるよ。8か国 ぜんぶ あつめると はなびが 出るよ!</li>' +
+    '</ul>' +
+    '<h4 style="margin:14px 0 4px;font-size:1rem">🎯 あいさつミッション</h4>' +
+    '<ul>' +
+    '<li>ひいたカードの国のあいさつで、となりの人と じっさいに あいさつしてみよう</li>' +
+    '<li>🔊は おてほんが ききたいときだけ おしてね</li>' +
+    '<li>できたら「✅ できた!」を おすと スタンプが もらえるよ</li>' +
+    '</ul>' +
+    '<h4 style="margin:14px 0 4px;font-size:1rem">❓ あいさつクイズ</h4>' +
+    '<ul>' +
+    '<li>もんすう(5もん/8もん)を えらんで スタート</li>' +
+    '<li>🔊を おして あいさつを きき、どこの国か 国旗タイルから えらぼう</li>' +
+    '<li>まちがえても だいじょうぶ、のこりの タイルから もう一度 ちょうせんしよう</li>' +
+    '</ul>' +
+    '<p style="margin-top:12px;background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 14px;font-size:.85rem">' +
+    '💡 <b>せんせいへ</b>: あつめた スタンプは この端末の localStorage だけに保存され、外部へは送信しません。' +
+    'ミッションの あとは、じっさいに 友だちや 先生と あいさつを かわす時間を つくると、ことばが 生きて はたらきます。</p>',
+    { title: 'せかいのあいさつ図鑑の あそびかた' }
+  );
+});
 
-buildFlags();
-show("scr-mode");
-</script>
-
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>世界には いろいろな あいさつが あることに気づいて、まねして言ってみるアプリです。</p><h4>あそびかた</h4><ol><li>「あいさつ図鑑」で 国のカードをタップ → その国のあいさつが聞けるよ</li><li>聞いたら、こえに出して まねして言ってみよう</li><li>「あいさつクイズ」で、どの国のあいさつか あてっこしよう</li></ol><div class="ah-tip">💡 先生向け:おぼえたあいさつで、じっさいに友だちや先生とあいさつを交わす時間をつくると、ことばが生きて働きます。</div>
-  </div>
-</div>
-<script>
-(function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+/* ============================================================
+   10. 初期化(自動読み上げは一切しない)
+   ============================================================ */
+renderStampBar();
+show('scr-mode');
 })();
 </script>
 </body>
