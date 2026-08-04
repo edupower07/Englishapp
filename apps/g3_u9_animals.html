@@ -2,188 +2,243 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>どうぶつ・からだ神経衰弱 | 小学校外国語アプリポータル</title>
+<meta name="description" content="小学校3年生 外国語活動。どうぶつ・からだの単語で遊ぶ神経衰弱ゲーム。2〜4人対戦、めくったカードは自分で声に出して言う設計。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#ffa502; --teal:#00cec9; --pink:#ff7675; --blue:#74b9ff; --green:#2ed573;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は u9-
+   ============================================================ */
+html,body{ height:100%; }
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  margin:0; min-height:100vh; height:100vh; overflow:hidden;
+  display:flex; flex-direction:column;
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:900px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+main{ flex:1 1 auto; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
 
-.opt-row{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;align-items:center}
-.opt-row .lbl{font-weight:800;color:var(--sub);font-size:.9rem}
-.opt-btn{
-  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 20px;font-family:inherit;
-  font-weight:800;font-size:.95rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
-}
-.opt-btn.on{background:var(--primary);border-color:var(--primary);color:#fff}
-.actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:14px 34px;font-family:inherit;font-weight:800;font-size:1.05rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:52px;transition:.2s;color:#fff;background:var(--primary);
-}
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.teal{background:var(--teal)}
+/* 画面切り替え */
+.u9-screen{ display:none; flex-direction:column; min-height:0; }
+.u9-screen.active{ display:flex; flex:1 1 auto; min-height:0; }
+#scr-setup.active, #scr-result.active{ overflow-y:auto; -webkit-overflow-scrolling:touch; }
+#scr-game.active{ overflow:hidden; }
 
-/* 盤面 */
-.hud{
-  display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:50px;
-  box-shadow:var(--shadow);padding:8px 20px;margin-bottom:14px;font-weight:800;gap:10px;flex-wrap:wrap;
-}
-.hud .pl{padding:4px 14px;border-radius:50px;transition:.2s}
-.hud .pl.now{background:var(--primary);color:#fff}
-.mem-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));max-width:760px;margin:0 auto}
-.mcard{
-  aspect-ratio:3/4;border-radius:16px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .38s;
-}
-.mcard.open{transform:rotateY(180deg)}
-.mcard .face{
-  position:absolute;inset:0;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  backface-visibility:hidden;box-shadow:var(--shadow);gap:3px;
-}
-.mcard .back{background:linear-gradient(135deg,#ffa502,#ffc048);color:#fff;font-size:2rem}
-.mcard .front{background:#fff;transform:rotateY(180deg);border:4px solid #ffeacc;padding:4px}
-.mcard .mimg{width:64px;height:56px;display:flex;align-items:center;justify-content:center}
-.mcard .mimg img{max-width:100%;max-height:100%;object-fit:contain}
-.mcard .memoji{font-size:2.3rem;line-height:1}
-.mcard .mword{font-weight:800;font-size:.76rem;line-height:1.1}
-.mcard.got{opacity:.15;pointer-events:none}
+/* ---------- 見出し ---------- */
+.u9-title{ text-align:center; font-size:clamp(1.1rem,3vw,1.5rem); font-weight:800; margin:8px 0 2px; }
+.u9-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.84rem; margin-bottom:2px; line-height:1.6; }
+.u9-label{ text-align:center; font-weight:800; font-size:.88rem; color:var(--sub); margin:10px 0 2px; }
 
-/* 結果 */
-.result-box{max-width:440px;margin:20px auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);padding:24px;text-align:center;border:5px solid var(--primary)}
-.result-box .big{font-size:4rem;animation:pop .5s}
-@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1)}}
-.result-box h2{font-size:1.25rem;font-weight:800;margin-top:6px}
-.result-box p{color:var(--sub);font-weight:700;margin-top:6px}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+/* ---------- 設定画面 ---------- */
+.u9-setup-wrap{ max-width:920px; margin:0 auto; padding:4px 14px 20px; width:100%; }
+.u9-cat-select{ padding:8px; gap:12px; }
+.u9-cat-select .app-mode-card{ position:relative; min-height:148px; padding:14px 16px; gap:6px; }
+.u9-cat-select .app-mode-icon{ font-size:2.6rem; }
+.u9-cat-btn.on{ border-width:6px; background:#fff8e6; transform:translateY(-4px); box-shadow:var(--shadow-hover); }
+.u9-cat-btn.on::after{
+  content:"✓"; position:absolute; top:8px; right:12px; width:26px; height:26px; border-radius:50%;
+  background:var(--ink); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:.8rem;
+}
+
+.u9-toggle-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:6px 0 2px; }
+.u9-toggle{
+  font-family:inherit; font-weight:800; font-size:.9rem; color:var(--sub); background:#fff;
+  border:3px solid #e6ecf2; border-radius:50px; padding:8px 20px; min-height:52px; cursor:pointer; transition:.18s;
+}
+.u9-toggle:hover:not(:disabled){ border-color:var(--primary); transform:translateY(-2px); }
+.u9-toggle.on{ background:var(--primary); border-color:var(--primary); color:#fff; }
+.u9-toggle small{ display:block; font-size:.64rem; font-weight:700; opacity:.85; margin-top:1px; }
+.u9-toggle:disabled{ opacity:.32; cursor:not-allowed; }
+.u9-start-row{ margin-top:14px; }
+.u9-hint{ text-align:center; font-weight:800; color:var(--sub); font-size:.78rem; margin-top:10px; line-height:1.6; }
+
+/* ---------- ゲーム画面 ---------- */
+.u9-game-wrap{ flex:1 1 auto; display:flex; flex-direction:column; min-height:0; padding:8px 12px 10px; gap:6px; }
+
+.u9-turn-banner{
+  text-align:center; font-weight:800; font-size:clamp(1.15rem,3.2vw,1.6rem); padding:10px 18px; border-radius:20px;
+  margin:2px auto 0; max-width:640px; width:100%; color:#fff; background:var(--pink); box-shadow:var(--shadow); transition:background .25s;
+}
+.u9-turn-banner.p-pink{ background:var(--pink); }
+.u9-turn-banner.p-blue{ background:var(--blue); }
+.u9-turn-banner.p-yellow{ background:var(--yellow); color:#7a4a00; }
+.u9-turn-banner.p-purple{ background:var(--purple); }
+
+.app-hud.u9-player-hud, .app-hud.u9-solo-hud{ margin:0; padding:6px 10px; }
+.app-hud .app-hud-chip.blue{ background:var(--blue); color:#fff; }
+.app-hud .app-hud-chip.purple{ background:var(--purple); color:#fff; }
+#pchips{ display:inline-flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.u9-pchip{ transition:transform .2s, box-shadow .2s; }
+.u9-pchip.now{ transform:scale(1.15); outline:3px solid #2d3436; outline-offset:2px; }
+
+.u9-say-bar{ min-height:58px; display:flex; align-items:center; justify-content:center; max-width:920px; margin:0 auto; width:100%; }
+.u9-say-default{ font-weight:800; color:var(--sub); font-size:.92rem; text-align:center; }
+.u9-say-words{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%; }
+.u9-say-chip{
+  display:inline-flex; align-items:center; gap:10px; background:#fff; border:4px solid var(--primary); border-radius:26px;
+  padding:8px 20px; box-shadow:var(--shadow-hover); cursor:pointer; font-family:inherit;
+}
+.u9-say-chip .u9-say-word{ font-weight:800; font-size:clamp(1.2rem,3.6vw,1.9rem); color:var(--ink); line-height:1.15; text-align:left; }
+.u9-say-chip .u9-say-ico{ font-size:1.5rem; line-height:1; }
+
+/* ---------- カードグリッド ---------- */
+.u9-grid{
+  flex:1 1 auto; display:grid; gap:12px; align-content:center; justify-content:center; overflow:auto; min-height:0; padding:2px;
+}
+.mcard{ position:relative; cursor:pointer; min-height:64px; }
+.mcard[aria-disabled="true"]{ cursor:default; }
+.mcard .app-flip-inner{ width:100%; height:100%; }
+
+/* backface のクリック抜け防止(app-ui.css には無いのでここで補う) */
+.app-flip:not(.flipped) .app-flip-back{ pointer-events:none; }
+.app-flip.flipped .app-flip-front{ pointer-events:none; }
+
+.mcard-face{ width:100%; height:100%; border-radius:18px; box-shadow:var(--shadow); }
+.mcard-back{ background:linear-gradient(135deg,var(--g3),#ffc048); color:#fff; font-size:clamp(1.7rem,6vw,3rem); font-weight:800; }
+.mcard-front{ background:#fff; border:4px solid #ffeacc; flex-direction:column; gap:4px; padding:8px; }
+.mcard-imgwrap{ width:55%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; }
+.mcard-imgwrap img{ max-width:100%; max-height:100%; object-fit:contain; }
+/* cardImg() の絵文字フォールバック span は app-ui.css に定義が無いためここで補う */
+.mcard-imgwrap .app-card-emoji{ font-size:2.4rem; line-height:1; }
+.mcard-word{ font-weight:800; font-size:clamp(.7rem,2.4vw,1.05rem); text-align:center; line-height:1.25; color:var(--ink); }
+.mcard-say{
+  position:absolute; top:5px; right:5px; width:30px; height:30px; border-radius:50%; border:none;
+  background:rgba(255,255,255,.92); box-shadow:var(--shadow); font-size:.95rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; padding:0; z-index:2;
+}
+
+/* マッチ演出: 光って → 飛んでいく */
+@keyframes u9-glow{ 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.4) saturate(1.3); } }
+.mcard.matched .mcard-face{ box-shadow:0 0 0 5px var(--yellow), 0 0 26px 8px rgba(253,203,110,.85); }
+.mcard.matched .app-flip-inner{ animation:u9-glow .45s ease 2; }
+.mcard.matched-fly{ pointer-events:none; }
+.mcard.matched-fly .app-flip-inner{
+  transition:transform .6s cubic-bezier(.4,0,1,1), opacity .55s ease;
+  transform:translateY(-70px) scale(.25) rotate(14deg); opacity:0;
+}
+
+/* ---------- 結果画面 ---------- */
+.u9-result-wrap{ max-width:540px; margin:16px auto; padding:0 14px 40px; width:100%; }
+.u9-result-box{ background:#fff; border-radius:24px; box-shadow:var(--shadow-hover); padding:26px 22px; text-align:center; border:5px solid var(--g3); }
+.u9-result-emoji{ font-size:4rem; }
+.u9-result-title{ font-size:1.3rem; font-weight:800; margin-top:8px; }
+.u9-result-detail{ color:var(--sub); font-weight:700; margin-top:10px; line-height:1.8; }
+.u9-rank-list{ margin-top:16px; display:flex; flex-direction:column; gap:8px; }
+.u9-rank-row{ display:flex; align-items:center; gap:10px; background:#f7f9fb; border-radius:16px; padding:10px 16px; font-weight:800; }
+.u9-rank-row.top{ background:#fff8e1; border:3px solid var(--yellow); }
+.u9-rank-medal{ font-size:1.35rem; width:1.6em; text-align:center; }
+.u9-rank-label{ flex:1; text-align:left; }
+.u9-rank-score{ color:var(--sub); font-weight:800; }
+.u9-result-actions{ margin-top:20px; }
+
+footer{ text-align:center; padding:6px; color:#b2bec3; font-size:.7rem; font-weight:700; flex:0 0 auto; }
+#scr-setup.active ~ footer, #scr-result.active ~ footer{ }
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🐘 どうぶつ・からだ神経衰弱 <span class="u">3年生 どうぶつ・からだ</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">せっていにもどる</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🐘 どうぶつ・からだ神経衰弱 <span class="app-unit-badge" style="background:var(--g3)">3年生 どうぶつ・からだ</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 せっていにもどる</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- 設定 -->
-  <section id="scr-setup">
-    <h2 class="step-title">🃏 神経衰弱であそぼう</h2>
-    <p class="step-sub">おなじカードのペアをそろえると、ことばが聞けるよ</p>
-    <div class="opt-row">
-      <span class="lbl">カード:</span>
-      <button class="opt-btn cat-btn on" data-cat="animal">どうぶつ</button>
-      <button class="opt-btn cat-btn" data-cat="body">からだ</button>
-      <button class="opt-btn cat-btn" data-cat="mix">ミックス</button>
-    </div>
-    <div class="opt-row">
-      <span class="lbl">まいすう:</span>
-      <button class="opt-btn size-btn" data-n="3">6まい</button>
-      <button class="opt-btn size-btn on" data-n="6">12まい</button>
-      <button class="opt-btn size-btn" data-n="10">20まい</button>
-    </div>
-    <div class="opt-row">
-      <span class="lbl">あそびかた:</span>
-      <button class="opt-btn mode-btn on" data-m="solo">ひとりでタイムアタック</button>
-      <button class="opt-btn mode-btn" data-m="vs">ふたりでたいせん</button>
-    </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-start">スタート!</button>
+  <!-- ============ 設定画面 ============ -->
+  <section id="scr-setup" class="u9-screen active">
+    <div class="u9-setup-wrap">
+      <h2 class="u9-title">🃏 神経衰弱で あそぼう</h2>
+      <p class="u9-sub">おなじ カードの ペアを 見つけよう。めくったら、じぶんで 声に出して 言ってみよう!</p>
+
+      <h3 class="u9-label">📚 カードのしゅるい</h3>
+      <div class="app-mode-select u9-cat-select" id="cat-row">
+        <button type="button" class="app-mode-card primary u9-cat-btn on" data-cat="animal">
+          <span class="app-mode-icon">🐶</span>
+          <span class="app-mode-title">どうぶつ</span>
+          <span class="app-mode-sub">cat, dog, elephant...</span>
+        </button>
+        <button type="button" class="app-mode-card pink u9-cat-btn" data-cat="body">
+          <span class="app-mode-icon">✋</span>
+          <span class="app-mode-title">からだ</span>
+          <span class="app-mode-sub">head, eye, hand...</span>
+        </button>
+        <button type="button" class="app-mode-card yellow u9-cat-btn" data-cat="mix">
+          <span class="app-mode-icon">🎲</span>
+          <span class="app-mode-title">ミックス</span>
+          <span class="app-mode-sub">どうぶつ + からだ</span>
+        </button>
+      </div>
+
+      <h3 class="u9-label">🃏 ペアの かず</h3>
+      <div class="u9-toggle-row" id="size-row">
+        <button type="button" class="u9-toggle on" data-n="6">6ペア <small>(12まい)</small></button>
+        <button type="button" class="u9-toggle" data-n="8">8ペア <small>(16まい)</small></button>
+        <button type="button" class="u9-toggle" data-n="10">10ペア <small>(20まい)</small></button>
+      </div>
+
+      <h3 class="u9-label">👥 なんにんで あそぶ?</h3>
+      <div class="u9-toggle-row" id="player-row">
+        <button type="button" class="u9-toggle" data-p="1">👤 ひとり</button>
+        <button type="button" class="u9-toggle on" data-p="2">🔴🔵 ふたり</button>
+        <button type="button" class="u9-toggle" data-p="3">🔴🔵🟡 3にん</button>
+        <button type="button" class="u9-toggle" data-p="4">🔴🔵🟡🟣 4にん</button>
+      </div>
+
+      <div class="app-btn-row u9-start-row">
+        <button type="button" class="app-big-btn primary" id="btn-start">🎮 スタート!</button>
+      </div>
+      <p class="u9-hint">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
     </div>
   </section>
 
-  <!-- 盤面 -->
-  <section id="scr-game" class="hidden">
-    <div class="hud" id="hud-solo">
-      <span id="h-pairs">のこり 6ペア</span>
-      <span id="h-tries">めくった回数 0</span>
-      <span id="h-time">0びょう</span>
+  <!-- ============ ゲーム画面 ============ -->
+  <section id="scr-game" class="u9-screen">
+    <div class="u9-game-wrap">
+
+      <!-- 複数人プレイ用 HUD -->
+      <div class="u9-turn-banner p-pink" id="turn-banner">
+        <span id="turn-icon">🔴</span> <span id="turn-text">プレイヤー1の ばん!</span>
+      </div>
+      <div class="app-hud u9-player-hud" id="player-hud">
+        <span class="app-hud-chip" id="pairs-chip">🃏 のこり <b id="pairs-left">6</b>ペア</span>
+        <span class="app-hud-chip yellow" id="time-chip">⏱️ <b id="mp-time">0</b>びょう</span>
+        <span id="pchips"></span>
+      </div>
+
+      <!-- ひとりプレイ用 HUD -->
+      <div class="app-hud u9-solo-hud app-hidden" id="solo-hud">
+        <span class="app-hud-chip primary">⭐ そろえた <b id="solo-score">0</b> / <b id="solo-total">6</b></span>
+        <span class="app-hud-chip">🔁 めくった <b id="solo-tries">0</b>かい</span>
+        <span class="app-hud-chip yellow">⏱️ <b id="solo-time">0</b>びょう</span>
+      </div>
+
+      <div class="u9-say-bar" id="say-bar">
+        <span class="u9-say-default" id="say-default">🗣️ めくったひとが 言ってみよう!</span>
+        <div class="u9-say-words app-hidden" id="say-words"></div>
+      </div>
+
+      <div class="u9-grid" id="grid" role="group" aria-label="神経衰弱のカード"></div>
     </div>
-    <div class="hud hidden" id="hud-vs">
-      <span class="pl now" id="pl1">🔴 プレイヤー1: 0</span>
-      <span id="h-pairs2">のこり 6ペア</span>
-      <span class="pl" id="pl2">🔵 プレイヤー2: 0</span>
-    </div>
-    <div class="mem-grid" id="grid"></div>
   </section>
 
-  <!-- 結果 -->
-  <section id="scr-result" class="hidden">
-    <div class="result-box">
-      <div class="big" id="r-emoji">🏆</div>
-      <h2 id="r-title"></h2>
-      <p id="r-detail"></p>
-      <div class="actions">
-        <button class="big-btn" id="btn-again">もういちど!</button>
-        <button class="big-btn teal" id="btn-setup">せっていをかえる</button>
+  <!-- ============ 結果画面 ============ -->
+  <section id="scr-result" class="u9-screen">
+    <div class="u9-result-wrap">
+      <div class="u9-result-box" id="result-box"></div>
+      <div class="app-btn-row u9-result-actions">
+        <button type="button" class="app-big-btn primary" id="btn-again">🔁 もういっかい!</button>
+        <button type="button" class="app-big-btn outline" id="btn-setup">⚙️ せっていをかえる</button>
       </div>
     </div>
   </section>
@@ -192,201 +247,520 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
 
-<script>
-// ============================================================
-// データ(教師向け:ここを書きかえると単語を変更できます)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-
-const CARDS = {
-  animal: [
-    { word:"cat",      ja:"ねこ",     img:"cat.jpg",      emoji:"🐱" },
-    { word:"dog",      ja:"いぬ",     img:"dog.jpg",      emoji:"🐶" },
-    { word:"rabbit",   ja:"うさぎ",   img:"rabbit.jpg",   emoji:"🐰" },
-    { word:"bird",     ja:"とり",     img:"bird.jpg",     emoji:"🐦" },
-    { word:"elephant", ja:"ぞう",     img:"elephant.jpg", emoji:"🐘" },
-    { word:"lion",     ja:"ライオン", img:"lion.jpg",     emoji:"🦁" },
-    { word:"monkey",   ja:"さる",     img:"monkey.jpg",   emoji:"🐵" },
-    { word:"panda",    ja:"パンダ",   img:"panda.jpg",    emoji:"🐼" },
-    { word:"tiger",    ja:"とら",     img:"tiger.jpg",    emoji:"🐯" },
-    { word:"bear",     ja:"くま",     img:"bear.jpg",     emoji:"🐻" },
-  ],
-  body: [
-    { word:"head",     ja:"あたま",   img:"head.jpg",     emoji:"🙂" },
-    { word:"eye",      ja:"め",       img:"eye.jpg",      emoji:"👀" },
-    { word:"ear",      ja:"みみ",     img:"ear.jpg",      emoji:"👂" },
-    { word:"nose",     ja:"はな",     img:"nose.jpg",     emoji:"👃" },
-    { word:"mouth",    ja:"くち",     img:"mouth.jpg",    emoji:"👄" },
-    { word:"hand",     ja:"て",       img:"hand.jpg",     emoji:"✋" },
-    { word:"leg",      ja:"あし",     img:"leg.jpg",      emoji:"🦵" },
-    { word:"shoulder", ja:"かた",     img:"shoulder.jpg", emoji:"💪" },
-  ],
-};
-
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-
-// ============================================================
-// 状態
-// ============================================================
-let cat = "animal", pairCount = 6, mode = "solo";
-let open = [], lock = false, left = 0, tries = 0, sec = 0, timer = null;
-let vsTurn = 0, vsScore = [0,0];
-const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-setup","scr-game","scr-result"].forEach(s => $(s).classList.toggle("hidden", s !== id));
-}
-function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
-
-document.querySelectorAll(".cat-btn").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".cat-btn").forEach(x => x.classList.remove("on"));
-  b.classList.add("on"); cat = b.dataset.cat;
-}));
-document.querySelectorAll(".size-btn").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".size-btn").forEach(x => x.classList.remove("on"));
-  b.classList.add("on"); pairCount = +b.dataset.n;
-}));
-document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".mode-btn").forEach(x => x.classList.remove("on"));
-  b.classList.add("on"); mode = b.dataset.m;
-}));
-
-// ============================================================
-// ゲーム
-// ============================================================
-function cardPool(){
-  if(cat === "mix") return shuffle([...CARDS.animal, ...CARDS.body]);
-  return shuffle([...CARDS[cat]]);
-}
-function startGame(){
-  const words = cardPool().slice(0, pairCount);
-  const deck = shuffle(words.flatMap(w => [{...w}, {...w}]));
-  open = []; lock = false; left = words.length; tries = 0; sec = 0;
-  vsTurn = 0; vsScore = [0,0];
-  clearInterval(timer);
-  $("hud-solo").classList.toggle("hidden", mode !== "solo");
-  $("hud-vs").classList.toggle("hidden", mode !== "vs");
-  if(mode === "solo"){
-    timer = setInterval(() => { sec++; $("h-time").textContent = `${sec}びょう`; }, 1000);
-    $("h-time").textContent = "0びょう";
-    $("h-tries").textContent = "めくった回数 0";
-    $("h-pairs").textContent = `のこり ${left}ペア`;
-  }else{
-    updateVsHud();
-  }
-  $("grid").innerHTML = deck.map((c,i) => `
-    <div class="mcard" data-w="${c.word}">
-      <div class="face back">?</div>
-      <div class="face front">
-        <div class="mimg"><img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.word}"
-          onerror="this.outerHTML='<span class=&quot;memoji&quot;>${c.emoji}</span>'"></div>
-        <div class="mword">${c.word}</div>
-      </div>
-    </div>`).join("");
-  show("scr-game");
-}
-function updateVsHud(){
-  $("pl1").textContent = `🔴 プレイヤー1: ${vsScore[0]}`;
-  $("pl2").textContent = `🔵 プレイヤー2: ${vsScore[1]}`;
-  $("pl1").classList.toggle("now", vsTurn === 0);
-  $("pl2").classList.toggle("now", vsTurn === 1);
-  $("h-pairs2").textContent = `のこり ${left}ペア`;
-}
-$("grid").addEventListener("click", e => {
-  const el = e.target.closest(".mcard");
-  if(!el || lock || el.classList.contains("open") || el.classList.contains("got")) return;
-  el.classList.add("open");
-  open.push(el);
-  if(open.length === 2){
-    lock = true; tries++;
-    if(mode === "solo") $("h-tries").textContent = `めくった回数 ${tries}`;
-    const [a,b] = open;
-    if(a.dataset.w === b.dataset.w){
-      speak(`${a.dataset.w}! ${a.dataset.w}!`);
-      if(mode === "vs") vsScore[vsTurn]++;
-      setTimeout(() => {
-        a.classList.add("got"); b.classList.add("got");
-        open = []; lock = false; left--;
-        if(mode === "solo") $("h-pairs").textContent = `のこり ${left}ペア`;
-        else updateVsHud();
-        if(left === 0) finish();
-      }, 800);
-    }else{
-      setTimeout(() => {
-        a.classList.remove("open"); b.classList.remove("open");
-        open = []; lock = false;
-        if(mode === "vs"){ vsTurn = 1 - vsTurn; updateVsHud(); }
-      }, 950);
-    }
-  }
-});
-function finish(){
-  clearInterval(timer);
-  if(mode === "solo"){
-    $("r-emoji").textContent = "🏆";
-    $("r-title").textContent = "ぜんぶそろったね!";
-    $("r-detail").textContent = `${sec}びょう / めくった回数 ${tries}回`;
-  }else{
-    const w = vsScore[0] === vsScore[1] ? -1 : (vsScore[0] > vsScore[1] ? 0 : 1);
-    $("r-emoji").textContent = w === -1 ? "🤝" : "🏆";
-    $("r-title").textContent = w === -1 ? "ひきわけ!" : `プレイヤー${w+1}のかち!`;
-    $("r-detail").textContent = `🔴 ${vsScore[0]}ペア vs 🔵 ${vsScore[1]}ペア`;
-  }
-  show("scr-result");
-  speak("Great job!");
-}
-
-// ============================================================
-// ナビゲーション
-// ============================================================
-$("btn-start").addEventListener("click", startGame);
-$("btn-again").addEventListener("click", startGame);
-$("btn-setup").addEventListener("click", () => { clearInterval(timer); show("scr-setup"); });
-$("btn-home").addEventListener("click", () => { clearInterval(timer); speechSynthesis.cancel(); show("scr-setup"); });
-
-show("scr-setup");
-</script>
-
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>動物とからだのことばで神経衰弱をするアプリです。</p><h4>あそびかた</h4><ol><li>ペアや グループで こうたいに カードを2まいめくる</li><li>めくったカードのことばを、かならず こえに出して言おう</li><li>そろったらもう1回! たくさんそろえた人のかち</li></ol><div class="ah-tip">💡 先生向け:「声に出してからめくる」をルールにすると、ゲームがそのまま語彙の練習になります。</div>
-  </div>
-</div>
+<script src="../shared/app-ui.js"></script>
 <script>
 (function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+'use strict';
+
+/* ============================================================
+   0. ヘルパー
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(name, arg){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[name]) AppUI.sfx[name](arg); }catch(e){} }
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function debounce(fn, ms){ var t=null; return function(){ var args=arguments, ctx=this; clearTimeout(t); t=setTimeout(function(){ fn.apply(ctx,args); }, ms); }; }
+function shuffleArr(a){ if(window.AppUI && AppUI.shuffle) return AppUI.shuffle(a); var b=a.slice(); for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; } return b; }
+
+/* ============================================================
+   1. データ(教師向け: ここを書きかえると単語を変更できます)
+   ============================================================ */
+var CARDS = {
+  animal: [
+    { word:'cat',      ja:'ねこ',     img:'cat.jpg',      emoji:'🐱' },
+    { word:'dog',      ja:'いぬ',     img:'dog.jpg',      emoji:'🐶' },
+    { word:'rabbit',   ja:'うさぎ',   img:'rabbit.jpg',   emoji:'🐰' },
+    { word:'bird',     ja:'とり',     img:'bird.jpg',     emoji:'🐦' },
+    { word:'elephant', ja:'ぞう',     img:'elephant.jpg', emoji:'🐘' },
+    { word:'lion',     ja:'ライオン', img:'lion.jpg',     emoji:'🦁' },
+    { word:'monkey',   ja:'さる',     img:'monkey.jpg',   emoji:'🐵' },
+    { word:'panda',    ja:'パンダ',   img:'panda.jpg',    emoji:'🐼' },
+    { word:'tiger',    ja:'とら',     img:'tiger.jpg',    emoji:'🐯' },
+    { word:'bear',     ja:'くま',     img:'bear.jpg',     emoji:'🐻' }
+  ],
+  body: [
+    { word:'head',     ja:'あたま',   img:'head.jpg',     emoji:'🙂' },
+    { word:'eye',      ja:'め',       img:'eye.jpg',      emoji:'👀' },
+    { word:'ear',      ja:'みみ',     img:'ear.jpg',      emoji:'👂' },
+    { word:'nose',     ja:'はな',     img:'nose.jpg',     emoji:'👃' },
+    { word:'mouth',    ja:'くち',     img:'mouth.jpg',    emoji:'👄' },
+    { word:'hand',     ja:'て',       img:'hand.jpg',     emoji:'✋' },
+    { word:'leg',      ja:'あし',     img:'leg.jpg',      emoji:'🦵' },
+    { word:'shoulder', ja:'かた',     img:'shoulder.jpg', emoji:'💪' }
+  ]
+};
+var PLAYER_DEFS = [
+  { icon:'🔴', label:'プレイヤー1', cls:'pink' },
+  { icon:'🔵', label:'プレイヤー2', cls:'blue' },
+  { icon:'🟡', label:'プレイヤー3', cls:'yellow' },
+  { icon:'🟣', label:'プレイヤー4', cls:'purple' }
+];
+
+/* ============================================================
+   2. 状態
+   ============================================================ */
+var state = {
+  category: 'animal',
+  pairCount: 6,
+  playerCount: 2,
+  players: [],
+  scores: [],
+  turn: 0,
+  deck: [],
+  totalPairs: 0,
+  matchedPairs: 0,
+  flipped: [],
+  lock: false,
+  totalFlips: 0,
+  elapsedSec: 0,
+  timerId: null
+};
+var curScreen = 'setup';
+
+function maxPairsFor(cat){
+  if(cat === 'animal') return CARDS.animal.length;
+  if(cat === 'body') return CARDS.body.length;
+  return CARDS.animal.length + CARDS.body.length;
+}
+function poolFor(cat){
+  if(cat === 'animal') return CARDS.animal.slice();
+  if(cat === 'body') return CARDS.body.slice();
+  return CARDS.animal.concat(CARDS.body);
+}
+
+/* ============================================================
+   3. 画面切り替え
+   ============================================================ */
+function showScreen(name){
+  curScreen = name;
+  ['setup','game','result'].forEach(function(s){
+    $('scr-' + s).classList.toggle('active', s === name);
+  });
+  if(name === 'game'){
+    requestAnimationFrame(function(){ requestAnimationFrame(layoutGrid); });
+  }
+}
+
+/* ============================================================
+   4. 設定画面の操作
+   ============================================================ */
+$('cat-row').addEventListener('click', function(e){
+  var b = e.target.closest('.u9-cat-btn'); if(!b) return;
+  document.querySelectorAll('.u9-cat-btn').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on');
+  state.category = b.getAttribute('data-cat');
+  sfx('tap');
+  updatePairAvailability();
+});
+function updatePairAvailability(){
+  var max = maxPairsFor(state.category);
+  var allowed = [];
+  document.querySelectorAll('#size-row .u9-toggle').forEach(function(b){
+    var n = parseInt(b.getAttribute('data-n'), 10);
+    var disabled = n > max;
+    b.disabled = disabled;
+    if(!disabled) allowed.push(n);
+  });
+  if(state.pairCount > max){
+    var fallback = allowed.length ? allowed[allowed.length - 1] : max;
+    state.pairCount = fallback;
+    document.querySelectorAll('#size-row .u9-toggle').forEach(function(b){
+      b.classList.toggle('on', parseInt(b.getAttribute('data-n'), 10) === fallback);
+    });
+  }
+}
+$('size-row').addEventListener('click', function(e){
+  var b = e.target.closest('.u9-toggle'); if(!b || b.disabled) return;
+  document.querySelectorAll('#size-row .u9-toggle').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on');
+  state.pairCount = parseInt(b.getAttribute('data-n'), 10);
+  sfx('tap');
+});
+$('player-row').addEventListener('click', function(e){
+  var b = e.target.closest('.u9-toggle'); if(!b) return;
+  document.querySelectorAll('#player-row .u9-toggle').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on');
+  state.playerCount = parseInt(b.getAttribute('data-p'), 10);
+  sfx('tap');
+});
+updatePairAvailability();
+
+/* ============================================================
+   5. 盤面レイアウト(ペア数・画面サイズに応じて列数を自動計算)
+   ============================================================ */
+function layoutGrid(){
+  var gridEl = $('grid');
+  if(!gridEl || !gridEl.children.length) return;
+  var rect = gridEl.getBoundingClientRect();
+  var w = rect.width, h = rect.height;
+  if(w <= 0 || h <= 0) return;
+  var n = gridEl.children.length;
+  var gap = 12;
+  var best = { cols: Math.max(1, Math.round(Math.sqrt(n))), size: 0 };
+  for(var cols = 1; cols <= n; cols++){
+    var rows = Math.ceil(n / cols);
+    var cw = (w - gap * (cols - 1)) / cols;
+    var chFromW = cw * 4 / 3;
+    var size;
+    if(chFromW * rows + gap * (rows - 1) <= h){
+      size = cw;
+    }else{
+      var chH = (h - gap * (rows - 1)) / rows;
+      var cwFromH = chH * 3 / 4;
+      size = Math.min(cwFromH, cw);
+    }
+    if(size > best.size){ best = { cols: cols, size: size }; }
+  }
+  var size = Math.max(56, best.size);
+  gridEl.style.gridTemplateColumns = 'repeat(' + best.cols + ', ' + size.toFixed(1) + 'px)';
+  gridEl.style.gridAutoRows = (size * 4 / 3).toFixed(1) + 'px';
+}
+window.addEventListener('resize', debounce(function(){
+  if(curScreen === 'game') layoutGrid();
+}, 150));
+
+/* ============================================================
+   6. ゲーム開始 / カード生成
+   ============================================================ */
+function buildDeck(){
+  var pool = shuffleArr(poolFor(state.category));
+  var words = pool.slice(0, state.pairCount);
+  var pairArr = words.concat(words);
+  return shuffleArr(pairArr);
+}
+function makeCard(w, uid){
+  var card = document.createElement('div');
+  card.className = 'mcard app-flip';
+  card.setAttribute('data-key', w.word);
+  card.setAttribute('data-uid', uid);
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label', 'カード');
+
+  var inner = document.createElement('div');
+  inner.className = 'app-flip-inner';
+
+  var front = document.createElement('div');
+  front.className = 'app-flip-front mcard-face mcard-back';
+  front.innerHTML = '<span aria-hidden="true">?</span>';
+
+  var back = document.createElement('div');
+  back.className = 'app-flip-back mcard-face mcard-front';
+  var imgWrap = document.createElement('div');
+  imgWrap.className = 'mcard-imgwrap';
+  imgWrap.appendChild(AppUI.cardImg(w.img, w.emoji));
+  var wordEl = document.createElement('div');
+  wordEl.className = 'mcard-word';
+  wordEl.textContent = w.word;
+  var sayBtn = document.createElement('button');
+  sayBtn.type = 'button';
+  sayBtn.className = 'mcard-say';
+  sayBtn.setAttribute('aria-label', 'きく: ' + w.word);
+  sayBtn.textContent = '🔊';
+  back.appendChild(imgWrap);
+  back.appendChild(wordEl);
+  back.appendChild(sayBtn);
+
+  inner.appendChild(front);
+  inner.appendChild(back);
+  card.appendChild(inner);
+  return card;
+}
+function renderGrid(){
+  var gridEl = $('grid');
+  gridEl.innerHTML = '';
+  gridEl.style.gridTemplateColumns = '';
+  gridEl.style.gridAutoRows = '';
+  state.deck.forEach(function(w, i){ gridEl.appendChild(makeCard(w, i)); });
+}
+function startGame(){
+  state.players = PLAYER_DEFS.slice(0, state.playerCount);
+  state.scores = new Array(state.playerCount).fill(0);
+  state.turn = 0;
+  state.deck = buildDeck();
+  state.totalPairs = state.deck.length / 2;
+  state.matchedPairs = 0;
+  state.flipped = [];
+  state.lock = false;
+  state.totalFlips = 0;
+
+  renderGrid();
+  clearSayBar();
+  $('solo-hud').classList.toggle('app-hidden', state.playerCount !== 1);
+  $('player-hud').classList.toggle('app-hidden', state.playerCount === 1);
+  $('turn-banner').classList.toggle('app-hidden', state.playerCount === 1);
+  $('solo-total').textContent = state.totalPairs;
+  $('solo-score').textContent = 0;
+  $('solo-tries').textContent = 0;
+  renderPlayerHud();
+  updateTurnBanner();
+  startTimer();
+  showScreen('game');
+}
+
+/* ============================================================
+   7. HUD 更新
+   ============================================================ */
+function renderPlayerHud(){
+  $('pairs-left').textContent = state.totalPairs - state.matchedPairs;
+  var html = '';
+  state.players.forEach(function(p, i){
+    html += '<span class="app-hud-chip u9-pchip ' + p.cls + (i === state.turn ? ' now' : '') + '" data-p="' + i + '">' +
+            p.icon + ' ' + esc(p.label) + ' <b>' + state.scores[i] + '</b></span>';
+  });
+  $('pchips').innerHTML = html;
+}
+function updateTurnBanner(){
+  if(state.playerCount === 1) return;
+  var p = state.players[state.turn];
+  var banner = $('turn-banner');
+  banner.className = 'u9-turn-banner p-' + p.cls;
+  $('turn-icon').textContent = p.icon;
+  $('turn-text').textContent = p.label + 'の ばん!';
+  banner.classList.remove('app-anim-pop');
+  void banner.offsetWidth;
+  banner.classList.add('app-anim-pop');
+}
+function startTimer(){
+  state.elapsedSec = 0;
+  $('solo-time').textContent = 0;
+  $('mp-time').textContent = 0;
+  clearInterval(state.timerId);
+  state.timerId = setInterval(function(){
+    state.elapsedSec++;
+    $('solo-time').textContent = state.elapsedSec;
+    $('mp-time').textContent = state.elapsedSec;
+  }, 1000);
+}
+
+/* ============================================================
+   8. 言ってみようバー(めくったカードの単語を大きく表示)
+   ============================================================ */
+function clearSayBar(){
+  $('say-default').classList.remove('app-hidden');
+  $('say-words').classList.add('app-hidden');
+  $('say-words').innerHTML = '';
+}
+function updateSayBar(){
+  if(!state.flipped.length){ clearSayBar(); return; }
+  $('say-default').classList.add('app-hidden');
+  var wordsEl = $('say-words');
+  wordsEl.classList.remove('app-hidden');
+  wordsEl.innerHTML = '';
+  state.flipped.forEach(function(card){
+    var word = card.getAttribute('data-key');
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'u9-say-chip';
+    chip.setAttribute('data-say', word);
+    chip.innerHTML = '<span class="u9-say-word">' + esc(word) + '</span><span class="u9-say-ico">🔊</span>';
+    wordsEl.appendChild(chip);
+  });
+}
+$('say-words').addEventListener('click', function(e){
+  var chip = e.target.closest('[data-say]'); if(!chip) return;
+  say(chip.getAttribute('data-say'));
+});
+
+/* ============================================================
+   9. カードをめくる処理
+   ============================================================ */
+function attemptFlip(card){
+  if(state.lock) return;
+  if(card.classList.contains('flipped')) return;
+  if(card.classList.contains('matched')) return;
+  if(state.flipped.length >= 2) return;
+
+  card.classList.add('flipped');
+  sfx('pop');
+  state.flipped.push(card);
+  updateSayBar();
+
+  if(state.flipped.length === 2){
+    state.lock = true;
+    state.totalFlips++;
+    $('solo-tries').textContent = state.totalFlips;
+    var a = state.flipped[0], b = state.flipped[1];
+    if(a.getAttribute('data-key') === b.getAttribute('data-key')){
+      setTimeout(function(){ resolveMatch(a, b); }, 550);
+    }else{
+      setTimeout(function(){ resolveMismatch(a, b); }, 950);
+    }
+  }
+}
+function resolveMatch(a, b){
+  sfx('correct');
+  [a, b].forEach(function(card){
+    card.classList.add('matched');
+    var r = card.getBoundingClientRect();
+    try{ AppUI.stars(r.left + r.width / 2, r.top + r.height / 2); }catch(e){}
+    setTimeout(function(){ card.classList.add('matched-fly'); }, 480);
+  });
+  state.scores[state.turn]++;
+  state.matchedPairs++;
+  state.flipped = [];
+  state.lock = false;
+  clearSayBar();
+  $('solo-score').textContent = state.matchedPairs;
+  renderPlayerHud();
+  if(state.matchedPairs >= state.totalPairs){
+    setTimeout(finishGame, 900);
+  }
+}
+function resolveMismatch(a, b){
+  sfx('wrong');
+  a.classList.remove('flipped');
+  b.classList.remove('flipped');
+  state.flipped = [];
+  state.lock = false;
+  clearSayBar();
+  if(state.playerCount > 1){
+    state.turn = (state.turn + 1) % state.playerCount;
+    updateTurnBanner();
+  }
+  renderPlayerHud();
+}
+
+var gridEl = $('grid');
+gridEl.addEventListener('click', function(e){
+  var sayBtn = e.target.closest('.mcard-say');
+  if(sayBtn){
+    e.stopPropagation();
+    var c = sayBtn.closest('.mcard');
+    if(c) say(c.getAttribute('data-key'));
+    return;
+  }
+  var card = e.target.closest('.mcard');
+  if(!card) return;
+  attemptFlip(card);
+});
+gridEl.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter' && e.key !== ' ') return;
+  var card = e.target.closest('.mcard');
+  if(!card) return;
+  e.preventDefault();
+  attemptFlip(card);
+});
+
+/* ============================================================
+   10. 終了 / 順位発表
+   ============================================================ */
+function computeRanking(){
+  var arr = state.players.map(function(p, i){
+    return { icon:p.icon, label:p.label, cls:p.cls, score: state.scores[i] };
+  });
+  arr.sort(function(x, y){ return y.score - x.score; });
+  var rank = 1;
+  arr.forEach(function(p, i){
+    if(i > 0 && arr[i - 1].score > p.score) rank = i + 1;
+    p.rank = rank;
+  });
+  return arr;
+}
+function medalFor(rank){
+  return rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '🎖️';
+}
+function resultHTML(){
+  if(state.playerCount === 1){
+    return '<div class="u9-result-emoji">🏆</div>' +
+      '<h2 class="u9-result-title">ぜんぶ そろったね!</h2>' +
+      '<p class="u9-result-detail">めくった かいすう: ' + state.totalFlips + 'かい<br>かかった じかん: ' + state.elapsedSec + 'びょう</p>';
+  }
+  var ranking = computeRanking();
+  var winners = ranking.filter(function(p){ return p.rank === 1; });
+  var title = winners.length > 1
+    ? winners.map(function(w){ return w.label; }).join('・') + ' どうてん ゆうしょう!'
+    : winners[0].label + ' の かち!';
+  var rows = ranking.map(function(p){
+    return '<div class="u9-rank-row' + (p.rank === 1 ? ' top' : '') + '">' +
+      '<span class="u9-rank-medal">' + medalFor(p.rank) + '</span>' +
+      '<span>' + p.icon + '</span>' +
+      '<span class="u9-rank-label">' + esc(p.label) + '</span>' +
+      '<span class="u9-rank-score">' + p.score + 'ペア</span></div>';
+  }).join('');
+  return '<div class="u9-result-emoji">🏆</div>' +
+    '<h2 class="u9-result-title">' + esc(title) + '</h2>' +
+    '<div class="u9-rank-list">' + rows + '</div>';
+}
+function finishGame(){
+  clearInterval(state.timerId);
+  state.lock = true;
+  $('result-box').innerHTML = resultHTML();
+  showScreen('result');
+  sfx('drumroll', 1000);
+  setTimeout(function(){
+    var title, sub;
+    if(state.playerCount === 1){
+      title = 'よくできました!';
+      sub = 'ぜんぶの ペアを そろえたね!';
+    }else{
+      var ranking = computeRanking();
+      var winners = ranking.filter(function(p){ return p.rank === 1; });
+      title = winners.length > 1
+        ? winners.map(function(w){ return w.label; }).join('・') + ' どうてん!'
+        : winners[0].label + ' の かち!';
+      sub = 'たくさん こえに出して 言えたかな?';
+    }
+    try{ AppUI.celebrate({ title: title, sub: sub, icon: '🏆', autoHideMs: 2200 }); }catch(e){}
+  }, 1100);
+}
+
+/* ============================================================
+   11. ナビゲーション
+   ============================================================ */
+function goSetup(){
+  clearInterval(state.timerId);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  try{ AppUI.hideCelebrate(); }catch(e){}
+  showScreen('setup');
+}
+$('btn-start').addEventListener('click', function(){ sfx('tap'); startGame(); });
+$('btn-again').addEventListener('click', function(){ sfx('tap'); startGame(); });
+$('btn-setup').addEventListener('click', function(){ sfx('tap'); goSetup(); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); goSetup(); });
+
+/* ============================================================
+   12. 使い方モーダル
+   ============================================================ */
+var HELP_HTML =
+  '<p>どうぶつと からだの ことばで 神経衰弱を するよ。</p>' +
+  '<h4 style="margin:10px 0 4px;font-weight:800">あそびかた</h4>' +
+  '<ol>' +
+  '<li>カードを 2まい めくる</li>' +
+  '<li>めくったひとが、ことばを <b>声に出して</b> 言ってみよう(🔊は 聞きたいときだけ)</li>' +
+  '<li>おなじ ことばの ペアなら そろう!もういちど めくれる</li>' +
+  '<li>ちがったら つぎのひとの ばん</li>' +
+  '<li>ぜんぶ そろったら じゅんい はっぴょう!</li>' +
+  '</ol>' +
+  '<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:10px;font-size:.85rem;line-height:1.8">' +
+  '💡 先生へ: 「めくったら 必ず 声に出す」を ルールに すると、ゲームが そのまま 語彙練習に なります。アプリは 単語を 自動では 読み上げません。</div>';
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  try{ AppUI.help(HELP_HTML, { title:'つかいかた' }); }catch(e){}
+});
+
+/* ============================================================
+   13. テスト・デバッグ用フック(授業では使いません)
+   ============================================================ */
+window.__u9State = function(){
+  return {
+    screen: curScreen,
+    category: state.category,
+    pairCount: state.pairCount,
+    playerCount: state.playerCount,
+    turn: state.turn,
+    scores: state.scores.slice(),
+    matchedPairs: state.matchedPairs,
+    totalPairs: state.totalPairs,
+    totalFlips: state.totalFlips,
+    deckSize: state.deck.length,
+    cardsInGrid: $('grid').children.length
+  };
+};
+
+showScreen('setup');
 })();
 </script>
+
 </body>
 </html>
