@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>共通デザインキット デモ | English App Portal</title>
+<meta name="description" content="小学校外国語アプリ 共通デザインキット(app-ui.css / app-ui.js)の全部品を1ページで確認できるデモです。">
+
+<!-- 各アプリでの読み込み例 -->
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app-ui.css">
+
+<style>
+  /* デモページ専用のスタイル(各アプリではここは不要) */
+  body{ background:var(--bg); background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%); background-position:0 0,20px 20px; background-size:40px 40px; }
+  main{ max-width:1080px; margin:0 auto; padding:20px 16px 80px; }
+  .demo-sec{ background:#fff; border-radius:24px; padding:22px 20px; box-shadow:var(--shadow); margin-bottom:26px; }
+  .demo-sec h2{ font-size:1.1rem; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .demo-sec .demo-note{ font-size:.82rem; color:var(--sub); font-weight:700; margin-bottom:16px; line-height:1.7; }
+  .demo-sec .demo-code{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.72rem; background:#f0f4f8; color:#546e7a; padding:2px 8px; border-radius:6px; }
+  .demo-flexbox{ display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+  .anim-target{
+    width:100px; height:100px; border-radius:20px; background:linear-gradient(135deg,var(--primary),var(--blue));
+    display:flex; align-items:center; justify-content:center; font-size:2.4rem; color:#fff; box-shadow:var(--shadow);
+    margin:0 auto 16px;
+  }
+  .flip-demo{ width:110px; height:140px; margin:0 auto; }
+  .flip-demo .app-flip-front, .flip-demo .app-flip-back{ background:#fff; border:4px solid var(--purple); font-size:2.4rem; box-shadow:var(--shadow); cursor:pointer; }
+  .flip-demo .app-flip-back{ border-color:var(--pink); }
+  #log-box{
+    background:#2d3436; color:#dfe6ec; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.75rem;
+    border-radius:14px; padding:12px 14px; max-height:160px; overflow-y:auto; line-height:1.7; white-space:pre-wrap;
+  }
+  footer.demo-footer{ text-align:center; color:var(--sub); font-size:.78rem; font-weight:700; padding:20px 0 60px; }
+</style>
+</head>
+<body class="app-ui-root">
+
+<header class="app-header">
+  <h1>🎨 共通デザインキット デモ <span class="app-unit-badge">app-ui.css / app-ui.js</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-nav-ghost">ゴーストボタン</button>
+    <button type="button" class="app-nav-btn" id="btn-nav">app-nav-btn</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ モード選択カード ============ -->
+  <section class="demo-sec">
+    <h2>🧩 app-mode-select / app-mode-card</h2>
+    <p class="demo-note">最小高さ200px・絵文字4rem・タッチしやすい大きなカード。タップすると効果音(tap)が鳴ります。</p>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card primary" data-sfx="tap">
+        <span class="app-mode-icon">📖</span>
+        <span class="app-mode-title">学ぶ</span>
+        <span class="app-mode-sub">絵カードで単語を覚えよう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" data-sfx="tap">
+        <span class="app-mode-icon">✏️</span>
+        <span class="app-mode-title">練習</span>
+        <span class="app-mode-sub">クイズにチャレンジ</span>
+      </button>
+      <button type="button" class="app-mode-card blue" data-sfx="tap">
+        <span class="app-mode-icon">🎮</span>
+        <span class="app-mode-title">ゲーム</span>
+        <span class="app-mode-sub">タイムアタックで対決</span>
+      </button>
+      <button type="button" class="app-mode-card green" data-sfx="tap">
+        <span class="app-mode-icon">🏆</span>
+        <span class="app-mode-title">きろく</span>
+        <span class="app-mode-sub">これまでのスコアを見る</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ ボタン ============ -->
+  <section class="demo-sec">
+    <h2>🔘 app-big-btn(色バリエーション)</h2>
+    <p class="demo-note">最小高さ64px・文字サイズ1.1rem以上。クリックで tap 音が鳴ります。</p>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn primary" data-sfx="tap">Primary</button>
+      <button type="button" class="app-big-btn pink" data-sfx="tap">Pink</button>
+      <button type="button" class="app-big-btn blue" data-sfx="tap">Blue</button>
+      <button type="button" class="app-big-btn yellow" data-sfx="tap">Yellow</button>
+      <button type="button" class="app-big-btn purple" data-sfx="tap">Purple</button>
+      <button type="button" class="app-big-btn green" data-sfx="tap">Green</button>
+      <button type="button" class="app-big-btn gray" data-sfx="tap">Gray</button>
+      <button type="button" class="app-big-btn outline" data-sfx="tap">Outline</button>
+      <button type="button" class="app-big-btn sm" data-sfx="tap">Small</button>
+      <button type="button" class="app-big-btn primary" disabled>Disabled</button>
+    </div>
+  </section>
+
+  <!-- ============ 絵カード & グリッド ============ -->
+  <section class="demo-sec">
+    <h2>🎴 app-card / app-grid(AppUI.cardImg)</h2>
+    <p class="demo-note">画像は Picture Dictionary の絵カード。読み込めない単語は自動で絵文字にフォールバックします(<span class="demo-code">AppUI.cardImg(name, emoji)</span>)。タップで読み上げ。</p>
+    <div class="app-grid" id="card-grid-normal" style="margin-bottom:16px"></div>
+    <p class="demo-note">サイズちがい: <span class="demo-code">.lg</span></p>
+    <div class="app-grid" id="card-grid-lg" style="--app-min-col:180px;margin-bottom:16px"></div>
+    <p class="demo-note">サイズちがい: <span class="demo-code">.xl</span></p>
+    <div class="app-grid" id="card-grid-xl" style="--app-min-col:220px"></div>
+  </section>
+
+  <!-- ============ HUD ============ -->
+  <section class="demo-sec">
+    <h2>📊 app-hud</h2>
+    <p class="demo-note">スコア・タイマー等の上部帯。カウントダウンは AppUI.countdown で動作(ボタンで開始、tick 音つき)。</p>
+    <div class="app-hud">
+      <span class="app-hud-chip primary">⭐ スコア <b id="hud-score">0</b></span>
+      <span class="app-hud-chip">⏱️ のこり <b id="hud-timer">10</b> びょう</span>
+      <span class="app-hud-chip yellow">🔥 れんぞく <b id="hud-combo">0</b></span>
+      <span class="app-hud-bar"><span class="app-hud-bar-fill" id="hud-bar" style="width:40%"></span></span>
+    </div>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn sm blue" id="btn-countdown">⏱️ カウントダウン開始(AppUI.countdown)</button>
+      <button type="button" class="app-big-btn sm primary" id="btn-score-up">スコア +1(AppUI.store)</button>
+    </div>
+  </section>
+
+  <!-- ============ カード反転 & アニメーション ============ -->
+  <section class="demo-sec">
+    <h2>🌀 アニメーション(pop / shake / flip3d / bounce / slidein)</h2>
+    <p class="demo-note">ボタンでボックスにアニメーションクラスを付け替えます。カードはクリックで <span class="demo-code">app-flip</span> 反転(flip3d)。</p>
+    <div class="demo-flexbox" style="justify-content:center;width:100%">
+      <div style="text-align:center">
+        <div class="anim-target" id="anim-box">🐱</div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm primary" data-anim="app-anim-pop">pop</button>
+          <button type="button" class="app-big-btn sm pink" data-anim="app-anim-shake">shake</button>
+          <button type="button" class="app-big-btn sm blue" data-anim="app-anim-bounce">bounce</button>
+          <button type="button" class="app-big-btn sm green" data-anim="app-anim-slidein">slidein</button>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div class="app-flip flip-demo" id="flip-card">
+          <div class="app-flip-inner">
+            <div class="app-flip-front">🐶</div>
+            <div class="app-flip-back">dog</div>
+          </div>
+        </div>
+        <p class="demo-note" style="margin-top:10px">クリックで flip3d</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 効果音 / 紙吹雪 / 星 ============ -->
+  <section class="demo-sec">
+    <h2>🔊 AppUI.sfx / 🎊 confetti / ✨ stars</h2>
+    <p class="demo-note">音声ファイル不要の WebAudio 合成音。初回タップで AudioContext が resume されます。</p>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn sm" id="sfx-tap">tap()</button>
+      <button type="button" class="app-big-btn sm green" id="sfx-correct">correct()</button>
+      <button type="button" class="app-big-btn sm pink" id="sfx-wrong">wrong()</button>
+      <button type="button" class="app-big-btn sm yellow" id="sfx-fanfare">fanfare()</button>
+      <button type="button" class="app-big-btn sm blue" id="sfx-tick">tick()</button>
+      <button type="button" class="app-big-btn sm purple" id="sfx-pop">pop()</button>
+      <button type="button" class="app-big-btn sm gray" id="sfx-drumroll">drumroll(1200)</button>
+    </div>
+    <div class="app-btn-row" style="margin-top:12px">
+      <button type="button" class="app-big-btn primary" id="btn-confetti">🎊 confetti()</button>
+      <button type="button" class="app-big-btn outline" id="btn-stars">✨ stars(x, y) ※このボタンの位置で発生</button>
+    </div>
+  </section>
+
+  <!-- ============ 読み上げ ============ -->
+  <section class="demo-sec">
+    <h2>🗣️ AppUI.speak / speakSlow</h2>
+    <p class="demo-note">自動読み上げはしません。ボタンを押したときだけ話します。声は自動で聞き取りやすいものが選ばれます。</p>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn primary" id="btn-speak">🔊 speak("Hello! Nice to meet you.")</button>
+      <button type="button" class="app-big-btn blue" id="btn-speak-slow">🐢 speakSlow("Hello!")</button>
+    </div>
+  </section>
+
+  <!-- ============ celebrate ============ -->
+  <section class="demo-sec">
+    <h2>🎉 AppUI.celebrate(オーバーレイ+紙吹雪+ファンファーレ)</h2>
+    <p class="demo-note">正解・クリア演出。全画面オーバーレイの上に紙吹雪が舞い、ファンファーレが鳴ります。背景タップで閉じます。</p>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn pink" id="btn-celebrate">🎉 celebrate() を発火</button>
+    </div>
+  </section>
+
+  <!-- ============ shuffle / pick ============ -->
+  <section class="demo-sec">
+    <h2>🎲 AppUI.shuffle / AppUI.pick</h2>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn sm" id="btn-shuffle">shuffle([1..8])</button>
+      <button type="button" class="app-big-btn sm" id="btn-pick">pick(colors)</button>
+    </div>
+    <p class="demo-note" id="shuffle-result" style="margin-top:10px">結果がここに表示されます</p>
+  </section>
+
+  <!-- ============ ログ ============ -->
+  <section class="demo-sec">
+    <h2>📝 実行ログ(evaluate 検証用)</h2>
+    <div id="log-box">ready.</div>
+  </section>
+
+</main>
+
+<footer class="demo-footer">
+  English App Portal 共通デザインキット / Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
+</footer>
+
+<script src="app-ui.js"></script>
+<script>
+(function(){
+  function log(msg){
+    var box = document.getElementById('log-box');
+    var t = new Date().toISOString().split('T')[1].replace('Z','');
+    box.textContent += '\n[' + t + '] ' + msg;
+    box.scrollTop = box.scrollHeight;
+  }
+  window.__demoLog = log;
+
+  // ---- 絵カードの描画(AppUI.cardImg) ----
+  var CARDS = [
+    { word:'cat',   ja:'ねこ', img:'cat.jpg',   emoji:'🐱' },
+    { word:'dog',   ja:'いぬ', img:'dog.jpg',   emoji:'🐶' },
+    { word:'apple', ja:'りんご', img:'apple.jpg', emoji:'🍎' },
+    { word:'???',   ja:'画像なし語(フォールバック確認)', img:'this-file-does-not-exist-xyz.jpg', emoji:'❓' },
+    { word:'panda', ja:'パンダ', img:'panda.jpg', emoji:'🐼' },
+    { word:'bus',   ja:'バス', img:'bus.jpg',   emoji:'🚌' },
+  ];
+  function buildCards(containerId, sizeClass){
+    var grid = document.getElementById(containerId);
+    CARDS.forEach(function(c){
+      var card = document.createElement('div');
+      card.className = 'app-card' + (sizeClass ? ' ' + sizeClass : '');
+      card.tabIndex = 0;
+      var imgWrap = document.createElement('div');
+      imgWrap.className = 'app-card-img';
+      imgWrap.appendChild(AppUI.cardImg(c.img, c.emoji));
+      var label = document.createElement('div');
+      label.className = 'app-card-label';
+      label.textContent = c.word;
+      var sub = document.createElement('div');
+      sub.className = 'app-card-sub';
+      sub.textContent = c.ja;
+      card.appendChild(imgWrap);
+      card.appendChild(label);
+      card.appendChild(sub);
+      card.addEventListener('click', function(){
+        card.classList.add('app-anim-pop');
+        setTimeout(function(){ card.classList.remove('app-anim-pop'); }, 500);
+        AppUI.sfx.tap();
+        AppUI.speak(c.word);
+        log('cardImg tap: ' + c.word);
+      });
+      grid.appendChild(card);
+    });
+  }
+  buildCards('card-grid-normal', '');
+  buildCards('card-grid-lg', 'lg');
+  buildCards('card-grid-xl', 'xl');
+
+  // ---- ヘッダー ----
+  document.getElementById('btn-help').addEventListener('click', function(){
+    AppUI.help(
+      '<p>これは <b>共通デザインキット(app-ui.css / app-ui.js)</b> のデモページです。</p>' +
+      '<ul>' +
+      '<li>各セクションのボタンを押すと、効果音・アニメーション・紙吹雪などが動作します。</li>' +
+      '<li>絵カードは Picture Dictionary の画像を使用し、読み込めない場合は絵文字に自動で切り替わります。</li>' +
+      '<li>実際のアプリでは <span class="demo-code">AppUI.help(html)</span> のように呼び出します。</li>' +
+      '</ul>',
+      { title: 'このデモの使い方' }
+    );
+    log('AppUI.help() opened');
+  });
+  document.getElementById('btn-nav').addEventListener('click', function(){ AppUI.sfx.tap(); log('nav-btn click'); });
+  document.getElementById('btn-nav-ghost').addEventListener('click', function(){ AppUI.sfx.tap(); log('nav-btn ghost click'); });
+
+  // ---- data-sfx 付きボタン共通 ----
+  document.querySelectorAll('[data-sfx]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var name = btn.dataset.sfx;
+      try{ AppUI.sfx[name](); }catch(e){ log('sfx error: ' + e.message); }
+      btn.classList.add('app-anim-pop');
+      setTimeout(function(){ btn.classList.remove('app-anim-pop'); }, 450);
+      log('sfx.' + name + '() via ' + (btn.className.split(' ')[0]));
+    });
+  });
+
+  // ---- アニメーションボタン ----
+  var animBox = document.getElementById('anim-box');
+  document.querySelectorAll('[data-anim]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var cls = btn.dataset.anim;
+      ['app-anim-pop','app-anim-shake','app-anim-bounce','app-anim-slidein'].forEach(function(c){ animBox.classList.remove(c); });
+      void animBox.offsetWidth;
+      animBox.classList.add(cls);
+      AppUI.sfx.tap();
+      log('animate: ' + cls);
+    });
+  });
+
+  // ---- flip card ----
+  document.getElementById('flip-card').addEventListener('click', function(){
+    this.classList.toggle('flipped');
+    AppUI.sfx.pop();
+    log('flip-card toggled: ' + this.classList.contains('flipped'));
+  });
+
+  // ---- sfx 個別ボタン ----
+  ['tap','correct','wrong','fanfare','tick','pop','drumroll'].forEach(function(name){
+    var btn = document.getElementById('sfx-' + name);
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      try{
+        if(name === 'drumroll') AppUI.sfx.drumroll(1200);
+        else AppUI.sfx[name]();
+        log('AppUI.sfx.' + name + '() OK');
+      }catch(e){ log('AppUI.sfx.' + name + '() ERROR: ' + e.message); }
+    });
+  });
+
+  // ---- confetti / stars ----
+  document.getElementById('btn-confetti').addEventListener('click', function(){
+    AppUI.confetti({ durationMs: 2000 });
+    log('AppUI.confetti() fired');
+  });
+  document.getElementById('btn-stars').addEventListener('click', function(e){
+    var r = e.currentTarget.getBoundingClientRect();
+    AppUI.stars(r.left + r.width/2, r.top + r.height/2);
+    log('AppUI.stars() fired');
+  });
+
+  // ---- speak ----
+  document.getElementById('btn-speak').addEventListener('click', function(){
+    AppUI.speak('Hello! Nice to meet you.');
+    log('AppUI.speak() called');
+  });
+  document.getElementById('btn-speak-slow').addEventListener('click', function(){
+    AppUI.speakSlow('Hello!');
+    log('AppUI.speakSlow() called');
+  });
+
+  // ---- celebrate ----
+  document.getElementById('btn-celebrate').addEventListener('click', function(){
+    AppUI.celebrate({ title: 'せいかい!', sub: 'よくできました。次のもんだいに挑戦しよう!', icon: '🎉' });
+    log('AppUI.celebrate() fired');
+  });
+
+  // ---- shuffle / pick ----
+  document.getElementById('btn-shuffle').addEventListener('click', function(){
+    var res = AppUI.shuffle([1,2,3,4,5,6,7,8]);
+    document.getElementById('shuffle-result').textContent = 'shuffle → ' + res.join(', ');
+    log('AppUI.shuffle() → ' + res.join(','));
+  });
+  document.getElementById('btn-pick').addEventListener('click', function(){
+    var res = AppUI.pick(['red','blue','green','yellow','pink','purple']);
+    document.getElementById('shuffle-result').textContent = 'pick → ' + res;
+    log('AppUI.pick() → ' + res);
+  });
+
+  // ---- HUD: countdown / store ----
+  document.getElementById('btn-countdown').addEventListener('click', function(){
+    AppUI.countdown(document.getElementById('hud-timer'), 5, function(){
+      log('AppUI.countdown() ended');
+      AppUI.sfx.correct();
+    });
+    log('AppUI.countdown() started');
+  });
+  var scoreStore = AppUI.store('demo-score');
+  var score = scoreStore.get(0);
+  document.getElementById('hud-score').textContent = score;
+  document.getElementById('btn-score-up').addEventListener('click', function(){
+    score++;
+    scoreStore.set(score);
+    document.getElementById('hud-score').textContent = score;
+    document.getElementById('hud-bar').style.width = Math.min(100, score * 10) + '%';
+    AppUI.sfx.pop();
+    log('AppUI.store set score=' + score);
+  });
+
+  log('demo.html initialized. AppUI keys: ' + Object.keys(AppUI).join(', '));
+})();
+</script>
+
+</body>
+</html>
