@@ -99,6 +99,46 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 </head>
 <body>
 
+<script>
+/* ============================================================
+   読み上げの声をそろえる(共通)
+   声を指定しないと macOS などで既定のコンパクト音声が使われ、
+   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
+   speechSynthesis.speak をラップしているので、各アプリの
+   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
+   ============================================================ */
+(function(){
+  if(!window.speechSynthesis) return;
+  var voices = [];
+  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
+  load();
+  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
+  function pick(lang){
+    if(!voices.length) load();
+    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
+    var cand = voices.filter(function(v){
+      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
+    });
+    if(!cand.length) return null;
+    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
+    if(base === 'en'){
+      return byName(/Google US English/i)
+          || byName(/Google UK English Female/i)
+          || byName(/Samantha/i)
+          || byName(/Ava|Allison|Kate/i)
+          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
+          || cand[0];
+    }
+    return byName(/Google/i) || cand[0];
+  }
+  var orig = speechSynthesis.speak.bind(speechSynthesis);
+  speechSynthesis.speak = function(u){
+    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
+    return orig(u);
+  };
+})();
+</script>
+
 <header>
   <h1>🪪 名前スペリング&自己紹介カード <span class="u">5年生 自己紹介</span></h1>
   <div style="display:flex;gap:8px">
