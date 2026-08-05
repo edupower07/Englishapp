@@ -2,239 +2,297 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>きもちジェスチャーカード | 小学校外国語アプリポータル</title>
+<meta name="description" content="Let's Try! 1 Unit 2「How are you? / I'm happy.」きもちのことばに慣れ親しむ小学校3年生向けアプリ。カードめくり・ペアれんしゅう・ジェスチャーあてっこの3モード。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#ffa502; --teal:#00cec9; --pink:#ff7675; --blue:#74b9ff; --green:#2ed573; --purple:#a29bfe;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は f-
+   ============================================================ */
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  margin:0; min-height:100vh; -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+main{ max-width:1180px; margin:0 auto; padding:14px 16px 70px; }
 
-.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
-.mode-card{
-  width:250px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
-  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
-}
-.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--teal)} .mode-card.m2{border-color:var(--pink)} .mode-card.m3{border-color:var(--purple)}
-.mode-card .mi{font-size:3rem}
-.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
-.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+.f-title{ text-align:center; font-size:clamp(1.1rem,2.8vw,1.4rem); font-weight:800; margin:14px 0 4px; }
+.f-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.86rem; margin-bottom:14px; line-height:1.7; }
+.f-hint{ text-align:center; color:var(--sub); font-weight:700; font-size:.78rem; margin-top:18px; line-height:1.7; }
 
-/* カードめくり */
-.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:12px}
-.fcard{
-  aspect-ratio:3/4;border-radius:18px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .4s;
-}
-.fcard.open{transform:rotateY(180deg)}
-.fcard .face{
-  position:absolute;inset:0;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  backface-visibility:hidden;box-shadow:var(--shadow);gap:4px;
-}
-.fcard .back{background:linear-gradient(135deg,#00cec9,#81ecec);color:#fff;font-size:2.4rem}
-.fcard .front{background:#fff;transform:rotateY(180deg);border:4px solid #d5f5f4;padding:6px}
-.fcard .fimg{width:76px;height:70px;display:flex;align-items:center;justify-content:center}
-.fcard .fimg img{max-width:100%;max-height:100%;object-fit:contain}
-.fcard .femoji{font-size:2.8rem;line-height:1}
-.fcard .fword{font-weight:800;font-size:.95rem}
-.fcard .fword small{display:block;color:var(--sub);font-size:.68rem;font-weight:700}
+/* 絵文字フォールバック(AppUI.cardImg が使う .app-card-emoji はキットに定義が無いためここで補う) */
+.app-card-emoji{ font-size:2.2rem; line-height:1; display:inline-block; }
 
-/* ペア練習 */
-.pair-stage{max-width:640px;margin:0 auto;text-align:center}
-.bubble{
-  max-width:420px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:16px 22px;
-  font-size:1.5rem;font-weight:800;color:var(--teal);position:relative;cursor:pointer;border:4px solid var(--teal);
+/* ---------- カードめくり ---------- */
+.f-flip-grid{ --app-min-col:210px; max-width:1100px; margin:0 auto; }
+.f-fcard{ aspect-ratio:3/4; cursor:pointer; border-radius:24px; }
+.f-fcard .app-flip-front,
+.f-fcard .app-flip-back{
+  border-radius:24px; box-shadow:var(--shadow-hover); padding:14px; flex-direction:column; gap:10px;
 }
-.bubble::after{
-  content:"";position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
-  border:14px solid transparent;border-top-color:var(--teal);border-bottom:0;
+.f-fcard .app-flip-front{
+  color:#fff; border:4px solid rgba(255,255,255,.55);
+  background:linear-gradient(155deg,var(--f-col,var(--primary)),rgba(0,0,0,.18));
 }
-.bubble small{display:block;font-size:.8rem;color:var(--sub)}
-.answer-line{
-  min-height:56px;margin-top:22px;font-size:1.35rem;font-weight:800;color:var(--pink);
-}
-.emo-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:14px}
-.emo-chip{
-  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
-  border:4px solid transparent;transition:.15s;min-height:112px;display:flex;flex-direction:column;justify-content:center;gap:3px;
-}
-.emo-chip:hover{transform:translateY(-3px)}
-.emo-chip.on{border-color:var(--pink);background:#fff5f6}
-.emo-chip .eimg{width:56px;height:50px;margin:0 auto;display:flex;align-items:center;justify-content:center}
-.emo-chip .eimg img{max-width:100%;max-height:100%;object-fit:contain}
-.emo-chip .eemoji{font-size:2.1rem;line-height:1}
-.emo-chip .elabel{font-weight:800;font-size:.74rem;line-height:1.2}
-.emo-chip .elabel small{display:block;color:var(--sub);font-size:.62rem}
+.f-fcard .f-closed-ico{ font-size:3rem; line-height:1; }
+.f-fcard .f-closed-txt{ font-weight:800; font-size:.85rem; text-align:center; }
+.f-fcard .app-flip-back{ background:#fff; border:5px solid var(--f-col,var(--primary)); position:relative; }
+.f-fcard[data-c="0"]{ --f-col:var(--primary); }
+.f-fcard[data-c="1"]{ --f-col:var(--pink); }
+.f-fcard[data-c="2"]{ --f-col:var(--blue); }
+.f-fcard[data-c="3"]{ --f-col:var(--yellow); }
+.f-fcard[data-c="4"]{ --f-col:var(--purple); }
+.f-fcard[data-c="5"]{ --f-col:var(--green); }
+.f-fcard .f-fimg{ width:58%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; }
+.f-fcard .f-fimg img{ max-width:100%; max-height:100%; object-fit:contain; }
+.f-fcard .f-fimg .app-card-emoji{ font-size:3.4rem; }
+.f-fcard .f-fword{ font-weight:800; font-size:1.15rem; text-align:center; line-height:1.3; }
 
-/* ジェスチャー出題 */
-.ges-stage{max-width:560px;margin:0 auto;text-align:center}
-.ges-card{
-  background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);border:5px solid var(--purple);padding:24px;
+.f-say-mini{
+  position:absolute; top:8px; right:8px; width:44px; height:44px; border-radius:50%; border:none;
+  background:#f0f4f8; font-size:1.15rem; cursor:pointer; box-shadow:var(--shadow); z-index:2;
+  display:flex; align-items:center; justify-content:center; transition:.18s;
 }
-.ges-big{width:150px;height:130px;margin:0 auto;display:flex;align-items:center;justify-content:center}
-.ges-big img{max-width:100%;max-height:100%;object-fit:contain}
-.ges-emoji{font-size:5rem}
-.ges-word{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--purple);margin-top:6px;letter-spacing:1px}
-.ges-hint{font-weight:800;color:var(--sub);margin-top:6px;font-size:.95rem}
-.ges-timer{
-  font-family:'Fredoka One',cursive;font-size:2.6rem;color:var(--primary);margin-top:8px;min-height:56px;
+.f-say-mini:hover{ transform:scale(1.08); background:#e6ecf2; }
+
+/* ---------- ペアれんしゅう ---------- */
+.f-pair-wrap{ max-width:720px; margin:0 auto; }
+.f-turn-row{ display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.f-turn-row .app-chip{ font-size:.85rem; padding:7px 18px; transition:background .18s; }
+
+.f-bubble{
+  display:flex; align-items:center; justify-content:space-between; gap:14px; width:100%; max-width:440px;
+  margin:0 auto 6px; background:#fff; border:4px solid var(--primary); border-radius:26px; box-shadow:var(--shadow);
+  padding:14px 20px; cursor:pointer; font-family:inherit; text-align:left; transition:.18s;
 }
-.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--purple);
+.f-bubble:hover{ transform:translateY(-2px); box-shadow:var(--shadow-hover); }
+.f-bubble .f-bubble-txt{ font-weight:800; font-size:1.3rem; color:var(--ink); }
+.f-bubble .f-bubble-txt small{ display:block; color:var(--sub); font-size:.72rem; font-weight:700; margin-top:2px; }
+.f-bubble .f-bubble-ico{ font-size:1.6rem; flex-shrink:0; }
+
+.f-emo-grid{ --app-min-col:150px; margin-top:14px; }
+
+.f-say-card{
+  position:relative; background:#fff; border-radius:28px; box-shadow:var(--shadow-hover); border:5px solid var(--pink);
+  padding:30px 20px 22px; text-align:center; max-width:420px; margin:10px auto 0;
 }
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.gray{background:#b2bec3;color:#2d3436}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+.f-say-img{ width:min(46vw,190px); aspect-ratio:1; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; }
+.f-say-img img{ max-width:100%; max-height:100%; object-fit:contain; }
+.f-say-img .app-card-emoji{ font-size:5rem; }
+.f-say-sentence{ font-family:var(--app-font-display); font-size:1.9rem; color:var(--pink); letter-spacing:.5px; }
+.f-say-mini-lg{ position:absolute; top:12px; right:12px; }
+.f-ok-btn{ font-size:1.2rem; padding:16px 34px; }
+
+.f-next-card{
+  text-align:center; background:#fff; border-radius:28px; box-shadow:var(--shadow-hover); border:5px solid var(--green);
+  padding:26px 20px; max-width:420px; margin:10px auto 0;
+}
+.f-next-card .f-next-ico{ font-size:3.2rem; line-height:1; }
+.f-next-card .f-next-msg{ font-weight:800; font-size:1.15rem; margin-top:8px; }
+.f-swap-btn{ flex-direction:column; line-height:1.5; padding:14px 26px; gap:2px; }
+.f-swap-btn .f-next-sub{ font-size:.72rem; font-weight:700; opacity:.92; }
+
+/* ---------- ジェスチャーあてっこ ---------- */
+.f-ges-wrap{ max-width:600px; margin:0 auto; text-align:center; }
+.f-ges-idle{ margin-top:22px; }
+.f-roulette-btn{ font-size:1.2rem; padding:18px 36px; }
+
+.f-ges-card{
+  background:#fff; border-radius:30px; box-shadow:var(--shadow-hover); border:5px solid var(--purple);
+  padding:26px 22px; margin-top:6px;
+}
+.f-ges-visual{
+  width:min(50vw,180px); aspect-ratio:1; margin:0 auto; display:flex; align-items:center; justify-content:center;
+}
+.f-ges-visual img{ max-width:100%; max-height:100%; object-fit:contain; }
+.f-ges-visual .app-card-emoji{ font-size:4.6rem; }
+@keyframes f-spin-wobble{
+  0%,100%{ transform:scale(1) rotate(0deg); }
+  25%{ transform:scale(1.08) rotate(-4deg); }
+  75%{ transform:scale(1.08) rotate(4deg); }
+}
+.f-ges-visual.spin{ animation:f-spin-wobble .16s linear infinite; }
+.f-ges-word{ font-family:var(--app-font-display); font-size:1.8rem; color:var(--purple); margin-top:10px; letter-spacing:1px; }
+.f-ges-hint{ font-weight:800; color:var(--sub); margin-top:6px; font-size:.92rem; min-height:1.4em; }
+.f-ges-count{ margin-top:14px; }
+.f-ges-count-num{ font-family:var(--app-font-display); font-size:4rem; color:var(--primary); line-height:1; }
+.f-ges-timer{ font-weight:800; font-size:1.6rem; color:var(--primary); margin-top:14px; }
+.f-ges-timeup{ font-weight:800; font-size:1.3rem; color:var(--pink); margin-top:14px; }
+.f-ges-actions{ margin-top:18px; }
+.f-again-btn{ font-size:1.15rem; padding:16px 32px; }
+.f-correct-msg{ width:100%; text-align:center; font-weight:800; font-size:1.05rem; margin:0 0 4px; }
+
+footer{ text-align:center; padding:18px; color:#b2bec3; font-size:.75rem; font-weight:700; }
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>😊 きもちジェスチャーカード <span class="u">3年生 きもちの表現</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>😊 きもちジェスチャーカード <span class="app-unit-badge" style="background:var(--g3)">3年生 きもちの表現</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- モード選択 -->
+  <!-- ============ モードせんたく ============ -->
   <section id="scr-mode">
-    <h2 class="step-title">あそびかたを えらんでね</h2>
-    <div class="mode-select">
-      <div class="mode-card m1" data-mode="flip">
-        <div class="mi">🃏</div>
-        <h2>カードめくり</h2>
-        <p>カードをめくって、きもちのことばを<br>おぼえよう</p>
+    <h2 class="f-title">あそびかたを えらんでね</h2>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card primary" id="mode-flip">
+        <span class="app-mode-icon">🃏</span>
+        <span class="app-mode-title">カードめくり</span>
+        <span class="app-mode-sub">カードをめくって、きもちのことばを<br>おぼえよう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-pair">
+        <span class="app-mode-icon">🗣️</span>
+        <span class="app-mode-title">ペアれんしゅう</span>
+        <span class="app-mode-sub">How are you? に じぶんのきもちで<br>こたえてみよう</span>
+      </button>
+      <button type="button" class="app-mode-card purple" id="mode-gesture">
+        <span class="app-mode-icon">💃</span>
+        <span class="app-mode-title">ジェスチャーあてっこ</span>
+        <span class="app-mode-sub">出てきたきもちをジェスチャーで<br>あらわして、あててもらおう</span>
+      </button>
+    </div>
+    <p class="f-hint">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
+  </section>
+
+  <!-- ============ カードめくり ============ -->
+  <section id="scr-flip" class="app-hidden">
+    <h2 class="f-title">🃏 カードをめくってみよう</h2>
+    <p class="f-sub">タップして めくる → もういちど タップで もどる。みぎ上の 🔊で モデルの こえが 聞けるよ</p>
+    <div class="app-grid f-flip-grid" id="flip-grid"></div>
+  </section>
+
+  <!-- ============ ペアれんしゅう ============ -->
+  <section id="scr-pair" class="app-hidden">
+    <div class="f-pair-wrap">
+      <h2 class="f-title">🗣️ How are you?</h2>
+      <p class="f-sub">きもちを えらぶ → 大きな絵が出たら <b>じぶんの こえで</b> 言おう → 相手が つたわったら ⭕をおしてね</p>
+
+      <div class="f-turn-row">
+        <span class="app-chip" id="pair-turn-chip">はなす人: A さん</span>
+        <button type="button" class="app-big-btn sm outline" id="btn-pair-swap">🔄 こうたい</button>
       </div>
-      <div class="mode-card m2" data-mode="pair">
-        <div class="mi">🗣️</div>
-        <h2>ペアれんしゅう</h2>
-        <p>How are you? に じぶんのきもちで<br>こたえてみよう</p>
+
+      <!-- えらぶ画面 -->
+      <div id="pair-pick-panel">
+        <button type="button" class="f-bubble" id="pair-ask-btn">
+          <span class="f-bubble-txt">How are you?<small>タップで きこえるよ</small></span>
+          <span class="f-bubble-ico">🔊</span>
+        </button>
+        <div class="app-grid f-emo-grid" id="pair-emos"></div>
       </div>
-      <div class="mode-card m3" data-mode="gesture">
-        <div class="mi">💃</div>
-        <h2>ジェスチャーあてっこ</h2>
-        <p>出てきたきもちをジェスチャーで<br>あらわして、あててもらおう</p>
+
+      <!-- 言う画面 -->
+      <div id="pair-say-panel" class="app-hidden">
+        <div class="f-say-card">
+          <button type="button" class="f-say-mini f-say-mini-lg" id="btn-pair-say" aria-label="お手本の 発音を 聞く">🔊</button>
+          <div class="f-say-img" id="pair-say-img"></div>
+          <div class="f-say-sentence" id="pair-say-sentence">I'm happy.</div>
+          <p class="f-hint" style="margin-top:8px">じぶんの こえで 言ってみよう!</p>
+        </div>
+        <div class="app-btn-row" style="margin-top:16px">
+          <button type="button" class="app-big-btn gray" id="btn-pair-back">↩️ えらびなおす</button>
+          <button type="button" class="app-big-btn green f-ok-btn" id="btn-pair-ok">つたわった! ⭕</button>
+        </div>
+      </div>
+
+      <!-- こうたい画面 -->
+      <div id="pair-next-panel" class="app-hidden">
+        <div class="f-next-card">
+          <div class="f-next-ico">🎉</div>
+          <p class="f-next-msg">つたわったね!</p>
+        </div>
+        <div class="app-btn-row" style="margin-top:16px">
+          <button type="button" class="app-big-btn primary f-swap-btn" id="btn-pair-next-swap">
+            <span>🔄 こうたい</span><span class="f-next-sub" id="pair-next-sub">つぎは B さんの ばん</span>
+          </button>
+          <button type="button" class="app-big-btn outline" id="btn-pair-next-again">もういちど はなす</button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- カードめくり -->
-  <section id="scr-flip" class="hidden">
-    <h2 class="step-title">🃏 カードをめくってみよう</h2>
-    <p class="step-sub">めくると きもちのことばが聞けるよ(もういちどタップすると もどるよ)</p>
-    <div class="flip-grid" id="flip-grid"></div>
-  </section>
+  <!-- ============ ジェスチャーあてっこ ============ -->
+  <section id="scr-gesture" class="app-hidden">
+    <div class="f-ges-wrap">
+      <h2 class="f-title">💃 ジェスチャーあてっこ</h2>
+      <p class="f-sub">お題が でたら、こえを出さずに ジェスチャーで あらわそう。まわりの 友だちが あてるよ!</p>
 
-  <!-- ペア練習 -->
-  <section id="scr-pair" class="hidden">
-    <div class="pair-stage">
-      <h2 class="step-title">🗣️ How are you?</h2>
-      <p class="step-sub">先生や友だちの「How are you?」に、カードをえらんでこたえよう</p>
-      <div class="bubble" id="pair-bubble">🔊 How are you?<small>(ごきげんいかが?)タップで もういちど聞けるよ</small></div>
-      <div class="answer-line" id="pair-answer"></div>
-      <div class="emo-row" id="pair-emos"></div>
-    </div>
-  </section>
+      <div id="ges-idle" class="f-ges-idle">
+        <button type="button" class="app-big-btn primary f-roulette-btn" id="btn-ges-roll">🎲 きもちを きめる</button>
+      </div>
 
-  <!-- ジェスチャー出題 -->
-  <section id="scr-gesture" class="hidden">
-    <div class="ges-stage">
-      <h2 class="step-title">💃 ジェスチャーあてっこ</h2>
-      <p class="step-sub">出てきたきもちを、こえを出さずにジェスチャーだけであらわそう。まわりの友だちがあてるよ!</p>
-      <div class="ges-card">
-        <div class="ges-big" id="ges-big"><span class="ges-emoji">🎲</span></div>
-        <div class="ges-word" id="ges-word">スタートをおしてね</div>
-        <div class="ges-hint" id="ges-hint"></div>
-        <div class="ges-timer" id="ges-timer"></div>
+      <div id="ges-stage" class="f-ges-card app-hidden">
+        <div class="f-ges-visual" id="ges-visual"></div>
+        <div class="f-ges-word" id="ges-word">?</div>
+        <div class="f-ges-hint" id="ges-hint"></div>
+        <div class="f-ges-count app-hidden" id="ges-count-wrap"><div class="f-ges-count-num" id="ges-count-num">3</div></div>
+        <div class="f-ges-timer app-hidden" id="ges-timer-wrap">⏱️ のこり <span id="ges-timer-num">10</span> びょう</div>
+        <div class="f-ges-timeup app-hidden" id="ges-timeup-msg">⏰ タイムアップ!</div>
       </div>
-      <div class="actions">
-        <button class="big-btn" id="btn-ges-start">🎲 きもちを出す(10びょう)</button>
-        <button class="big-btn gray" id="btn-ges-answer">🔊 こたえを聞く</button>
-      </div>
+
+      <div class="app-btn-row f-ges-actions" id="ges-actions"></div>
     </div>
   </section>
 
 </main>
 
-<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+<footer>Let's Try! 1 Unit 2 "How are you?" / Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
-// ============================================================
-// データ(教師向け:ここを書きかえると内容を変更できます)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-const GESTURE_SECONDS = 10; // ジェスチャーの持ち時間
+(function(){
+'use strict';
 
-const EMOTIONS = [
+/* ============================================================
+   0. 小さなヘルパー(AppUI が無くても落ちないように)
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(name, arg){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[name]) AppUI.sfx[name](arg); }catch(e){} }
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function starsAt(x, y){ try{ if(window.AppUI && AppUI.stars) AppUI.stars(x, y); }catch(e){} }
+function celebrate(o){ try{ if(window.AppUI && AppUI.celebrate) AppUI.celebrate(o); }catch(e){} }
+function shuffleArr(a){
+  if(window.AppUI && AppUI.shuffle){ try{ return AppUI.shuffle(a); }catch(e){} }
+  var b = a.slice();
+  for(var i=b.length-1;i>0;i--){ var j = Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; }
+  return b;
+}
+function pickOne(a){
+  if(window.AppUI && AppUI.pick){ try{ return AppUI.pick(a); }catch(e){} }
+  return a[Math.floor(Math.random()*a.length)];
+}
+function cardImgEl(img, emoji){
+  try{ if(window.AppUI && AppUI.cardImg) return AppUI.cardImg(img, emoji); }catch(e){}
+  var span = document.createElement('span');
+  span.className = 'app-card-emoji';
+  span.textContent = emoji || '❓';
+  return span;
+}
+function countdownEl(el, sec, onEnd, opts){
+  try{ if(window.AppUI && AppUI.countdown) return AppUI.countdown(el, sec, onEnd, opts); }catch(e){}
+  if(el) el.textContent = String(sec);
+  var t = setTimeout(function(){ if(typeof onEnd === 'function') onEnd(); }, sec*1000);
+  return { stop:function(){ clearTimeout(t); } };
+}
+
+/* ============================================================
+   1. データ(先生向け: ここを書きかえると 内容を変更できます)
+   ============================================================ */
+var GESTURE_SECONDS = 10;
+var EMOTIONS = [
   { word:"happy",   ja:"うれしい",     img:"happy.jpg",   emoji:"😊", hint:"りょう手をあげて にっこり!" },
   { word:"fine",    ja:"げんき",       img:"fine.jpg",    emoji:"😀", hint:"むねをはって グッドポーズ" },
   { word:"good",    ja:"いいかんじ",   img:"good.jpg",    emoji:"🙂", hint:"おやゆびを立てて グー!" },
@@ -244,149 +302,360 @@ const EMOTIONS = [
   { word:"hungry",  ja:"おなかすいた", img:"hungry.jpg",  emoji:"😋", hint:"おなかを おさえてみよう" },
   { word:"sleepy",  ja:"ねむい",       img:"sleepy.jpg",  emoji:"😪", hint:"大きな あくびを してみよう" },
   { word:"thirsty", ja:"のどかわいた", img:"thirsty.jpg", emoji:"🥤", hint:"のみものを のむまねを しよう" },
-  { word:"scared",  ja:"こわい",       img:"scared.jpg",  emoji:"😨", hint:"りょう手で かおを かくそう" },
+  { word:"scared",  ja:"こわい",       img:"scared.jpg",  emoji:"😨", hint:"りょう手で かおを かくそう" }
 ];
 
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-
-const $ = id => document.getElementById(id);
+/* ============================================================
+   2. 画面切りかえ
+   ============================================================ */
+var SCREENS = ['scr-mode','scr-flip','scr-pair','scr-gesture'];
 function show(id){
-  ["scr-mode","scr-flip","scr-pair","scr-gesture"].forEach(s =>
-    $(s).classList.toggle("hidden", s !== id));
-}
-function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
-function emoVisual(e, imgCls, emojiCls){
-  return `<div class="${imgCls}"><img src="${IMG_BASE + encodeURIComponent(e.img)}" alt="${e.word}"
-    onerror="this.outerHTML='<span class=&quot;${emojiCls}&quot;>${e.emoji}</span>'"></div>`;
+  SCREENS.forEach(function(s){ $(s).classList.toggle('app-hidden', s !== id); });
+  if(id !== 'scr-gesture') stopGestureTimers();
 }
 
-// ============================================================
-// カードめくり
-// ============================================================
+/* ============================================================
+   3. カードめくり
+   ============================================================ */
+var revealedWords = {};
+var revealedAllDone = false;
 function buildFlip(){
-  $("flip-grid").innerHTML = shuffle(EMOTIONS).map((e,i) => `
-    <div class="fcard" data-word="${e.word}">
-      <div class="face back">?</div>
-      <div class="face front">
-        ${emoVisual(e, "fimg", "femoji")}
-        <div class="fword">${e.word}<small>${e.ja}</small></div>
-      </div>
-    </div>`).join("");
+  revealedWords = {};
+  revealedAllDone = false;
+  var order = shuffleArr(EMOTIONS);
+  var grid = $('flip-grid');
+  grid.innerHTML = '';
+  order.forEach(function(e, i){
+    var card = document.createElement('div');
+    card.className = 'app-flip f-fcard';
+    card.dataset.word = e.word;
+    card.dataset.c = String(i % 6);
+    card.innerHTML =
+      '<div class="app-flip-inner">' +
+        '<div class="app-flip-front">' +
+          '<span class="f-closed-ico">🎁</span>' +
+          '<span class="f-closed-txt">タップして めくる</span>' +
+        '</div>' +
+        '<div class="app-flip-back">' +
+          '<button type="button" class="f-say-mini" data-say="' + e.word + '" aria-label="お手本の 発音を 聞く">🔊</button>' +
+          '<div class="f-fimg"></div>' +
+          '<div class="f-fword">' + e.word + '</div>' +
+        '</div>' +
+      '</div>';
+    card.querySelector('.f-fimg').appendChild(cardImgEl(e.img, e.emoji));
+    grid.appendChild(card);
+  });
 }
-$("flip-grid").addEventListener("click", e => {
-  const card = e.target.closest(".fcard"); if(!card) return;
-  const emo = EMOTIONS.find(x => x.word === card.dataset.word);
-  if(card.classList.contains("open")){ card.classList.remove("open"); return; }
-  card.classList.add("open");
-  speak(`${emo.word}! I'm ${emo.word}.`);
-});
-
-// ============================================================
-// ペア練習
-// ============================================================
-function buildPair(){
-  $("pair-answer").textContent = "";
-  $("pair-emos").innerHTML = EMOTIONS.map(e => `
-    <div class="emo-chip" data-word="${e.word}">
-      ${emoVisual(e, "eimg", "eemoji")}
-      <div class="elabel">${e.ja}<small>${e.word}</small></div>
-    </div>`).join("");
-}
-$("pair-bubble").addEventListener("click", () => speak("How are you?"));
-$("pair-emos").addEventListener("click", e => {
-  const chip = e.target.closest(".emo-chip"); if(!chip) return;
-  const emo = EMOTIONS.find(x => x.word === chip.dataset.word);
-  document.querySelectorAll(".emo-chip").forEach(x => x.classList.toggle("on", x === chip));
-  $("pair-answer").textContent = `I'm ${emo.word}, thank you!`;
-  speak(`I'm ${emo.word}, thank you!`);
-});
-
-// ============================================================
-// ジェスチャー出題
-// ============================================================
-let gesCurrent = null, gesTimer = null;
-function gesStart(){
-  clearInterval(gesTimer);
-  gesCurrent = EMOTIONS[Math.floor(Math.random() * EMOTIONS.length)];
-  $("ges-big").innerHTML = emoVisual(gesCurrent, "ges-big-in", "ges-emoji").replace('class="ges-big-in"','style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"');
-  $("ges-word").textContent = gesCurrent.word;
-  $("ges-hint").textContent = `ヒント:${gesCurrent.hint}`;
-  let left = GESTURE_SECONDS;
-  $("ges-timer").textContent = `⏱ ${left}`;
-  speak(gesCurrent.word);
-  gesTimer = setInterval(() => {
-    left--;
-    if(left <= 0){
-      clearInterval(gesTimer);
-      $("ges-timer").textContent = "⏰ タイムアップ!";
-      speak("Time's up! How are you?");
-    }else{
-      $("ges-timer").textContent = `⏱ ${left}`;
+$('flip-grid').addEventListener('click', function(e){
+  var sayBtn = e.target.closest('.f-say-mini');
+  if(sayBtn){
+    e.stopPropagation();
+    var w = sayBtn.getAttribute('data-say');
+    sfx('tap');
+    say("I'm " + w + ".");
+    return;
+  }
+  var card = e.target.closest('.f-fcard'); if(!card) return;
+  var opening = !card.classList.contains('flipped');
+  card.classList.toggle('flipped');
+  sfx(opening ? 'pop' : 'tap');
+  if(opening){
+    revealedWords[card.dataset.word] = true;
+    if(!revealedAllDone && Object.keys(revealedWords).length >= EMOTIONS.length){
+      revealedAllDone = true;
+      setTimeout(function(){
+        celebrate({ title:'ぜんぶ めくったね! 🌟', sub:'10この きもち、ぜんぶ おぼえられたかな?', icon:'🌟', autoHideMs:2400 });
+      }, 350);
     }
-  }, 1000);
+  }
+});
+
+/* ============================================================
+   4. ペアれんしゅう
+   ============================================================ */
+var pairTurn = 'A';
+var pairEmo = null;
+function turnLabel(t){ return t === 'A' ? 'A さん' : 'B さん'; }
+function otherTurn(t){ return t === 'A' ? 'B' : 'A'; }
+function updateTurnChip(){
+  var chip = $('pair-turn-chip');
+  chip.textContent = 'はなす人: ' + turnLabel(pairTurn);
+  chip.classList.toggle('pink', pairTurn === 'A');
+  chip.classList.toggle('blue', pairTurn === 'B');
 }
-$("btn-ges-start").addEventListener("click", gesStart);
-$("btn-ges-answer").addEventListener("click", () => {
-  if(gesCurrent) speak(`I'm ${gesCurrent.word}!`);
+function makeEmoCard(e){
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'app-card lg';
+  btn.dataset.word = e.word;
+  var imgWrap = document.createElement('div');
+  imgWrap.className = 'app-card-img';
+  imgWrap.appendChild(cardImgEl(e.img, e.emoji));
+  var label = document.createElement('div');
+  label.className = 'app-card-label';
+  label.textContent = e.word;
+  btn.appendChild(imgWrap); btn.appendChild(label);
+  return btn;
+}
+function buildPairEmos(){
+  var wrap = $('pair-emos');
+  wrap.innerHTML = '';
+  EMOTIONS.forEach(function(e){ wrap.appendChild(makeEmoCard(e)); });
+}
+function resetPairFlow(){
+  pairEmo = null;
+  $('pair-say-panel').classList.add('app-hidden');
+  $('pair-next-panel').classList.add('app-hidden');
+  $('pair-pick-panel').classList.remove('app-hidden');
+}
+function slideIn(el){
+  el.classList.remove('app-hidden');
+  el.classList.remove('app-anim-slidein');
+  void el.offsetWidth;
+  el.classList.add('app-anim-slidein');
+}
+function showPairSay(){
+  $('pair-pick-panel').classList.add('app-hidden');
+  $('pair-next-panel').classList.add('app-hidden');
+  slideIn($('pair-say-panel'));
+  var imgWrap = $('pair-say-img');
+  imgWrap.innerHTML = '';
+  imgWrap.appendChild(cardImgEl(pairEmo.img, pairEmo.emoji));
+  $('pair-say-sentence').textContent = "I'm " + pairEmo.word + ".";
+}
+function showPairNext(){
+  $('pair-say-panel').classList.add('app-hidden');
+  slideIn($('pair-next-panel'));
+  $('pair-next-sub').textContent = 'つぎは ' + turnLabel(otherTurn(pairTurn)) + ' の ばん';
+}
+$('pair-emos').addEventListener('click', function(e){
+  var btn = e.target.closest('.app-card'); if(!btn) return;
+  var word = btn.dataset.word;
+  var emo = null;
+  for(var i=0;i<EMOTIONS.length;i++){ if(EMOTIONS[i].word === word){ emo = EMOTIONS[i]; break; } }
+  if(!emo) return;
+  pairEmo = emo;
+  sfx('pop');
+  btn.classList.add('app-anim-pop');
+  setTimeout(function(){ btn.classList.remove('app-anim-pop'); }, 450);
+  showPairSay();
+});
+$('pair-ask-btn').addEventListener('click', function(){ sfx('tap'); say('How are you?'); });
+$('btn-pair-say').addEventListener('click', function(){ if(pairEmo){ sfx('tap'); say("I'm " + pairEmo.word + "."); } });
+$('btn-pair-back').addEventListener('click', function(){ sfx('tap'); resetPairFlow(); });
+$('btn-pair-ok').addEventListener('click', function(e){
+  var r = e.currentTarget.getBoundingClientRect();
+  starsAt(r.left + r.width/2, r.top + r.height/2);
+  sfx('correct');
+  showPairNext();
+});
+$('btn-pair-swap').addEventListener('click', function(){
+  pairTurn = otherTurn(pairTurn); updateTurnChip(); sfx('tap');
+});
+$('btn-pair-next-swap').addEventListener('click', function(){
+  pairTurn = otherTurn(pairTurn); updateTurnChip(); sfx('tap'); resetPairFlow();
+});
+$('btn-pair-next-again').addEventListener('click', function(){ sfx('tap'); resetPairFlow(); });
+
+/* ============================================================
+   5. ジェスチャーあてっこ
+   ============================================================ */
+var gesQueue = [];
+var currentGes = null;
+var gesPhase = 'idle';
+var rouletteTimer = null;
+var gesCountdownCtrl = null;
+var gesTimerCtrl = null;
+
+function nextGesTopic(){
+  if(!gesQueue.length) gesQueue = shuffleArr(EMOTIONS);
+  return gesQueue.shift();
+}
+function stopGestureTimers(){
+  if(rouletteTimer){ clearTimeout(rouletteTimer); rouletteTimer = null; }
+  if(gesCountdownCtrl){ gesCountdownCtrl.stop(); gesCountdownCtrl = null; }
+  if(gesTimerCtrl){ gesTimerCtrl.stop(); gesTimerCtrl = null; }
+}
+function resetGesture(){
+  stopGestureTimers();
+  gesPhase = 'idle';
+  currentGes = null;
+  renderGesture();
+}
+function renderGesTopic(e, spinning){
+  var visual = $('ges-visual');
+  visual.innerHTML = '';
+  if(spinning){
+    var span = document.createElement('span');
+    span.className = 'app-card-emoji';
+    span.textContent = e.emoji;
+    visual.appendChild(span);
+    $('ges-word').textContent = e.word;
+    $('ges-hint').textContent = '';
+  }else{
+    visual.appendChild(cardImgEl(e.img, e.emoji));
+    $('ges-word').textContent = e.word;
+    $('ges-hint').textContent = 'ヒント: ' + e.hint;
+  }
+}
+function startRoulette(){
+  stopGestureTimers();
+  gesPhase = 'roulette';
+  renderGesture();
+  $('ges-visual').classList.add('spin');
+  var delay = 70, step = 0, total = 14;
+  function tick(){
+    renderGesTopic(pickOne(EMOTIONS), true);
+    sfx('tick');
+    step++;
+    if(step < total){
+      delay = Math.min(delay + 16, 240);
+      rouletteTimer = setTimeout(tick, delay);
+    }else{
+      var final = nextGesTopic();
+      currentGes = final;
+      $('ges-visual').classList.remove('spin');
+      renderGesTopic(final, false);
+      sfx('pop');
+      gesPhase = 'ready';
+      renderGesture();
+    }
+  }
+  tick();
+}
+function startPrepCountdown(){
+  gesPhase = 'countdown';
+  renderGesture();
+  gesCountdownCtrl = countdownEl($('ges-count-num'), 3, function(){
+    $('ges-count-num').textContent = 'GO!';
+    sfx('pop');
+    setTimeout(startGesTimer, 500);
+  }, { format:function(n){ return n > 0 ? String(n) : 'GO!'; } });
+}
+function startGesTimer(){
+  gesPhase = 'timing';
+  renderGesture();
+  gesTimerCtrl = countdownEl($('ges-timer-num'), GESTURE_SECONDS, function(){
+    gesPhase = 'timeup';
+    renderGesture();
+  });
+}
+function onGesCorrect(e){
+  stopGestureTimers();
+  var r = e.currentTarget.getBoundingClientRect();
+  starsAt(r.left + r.width/2, r.top + r.height/2);
+  celebrate({
+    title:'せいかい! 🎉',
+    sub: currentGes ? currentGes.word : '',
+    icon:'🎉',
+    autoHideMs:2200
+  });
+  gesPhase = 'correct';
+  renderGesture();
+}
+function renderGesture(){
+  var stage = $('ges-stage');
+  var actions = $('ges-actions');
+  var countWrap = $('ges-count-wrap');
+  var timerWrap = $('ges-timer-wrap');
+  var timeupMsg = $('ges-timeup-msg');
+  countWrap.classList.add('app-hidden');
+  timerWrap.classList.add('app-hidden');
+  timeupMsg.classList.add('app-hidden');
+
+  if(gesPhase === 'idle'){
+    $('ges-idle').classList.remove('app-hidden');
+    stage.classList.add('app-hidden');
+    actions.innerHTML = '';
+    return;
+  }
+  $('ges-idle').classList.add('app-hidden');
+  stage.classList.remove('app-hidden');
+
+  if(gesPhase === 'roulette'){
+    actions.innerHTML = '';
+  }else if(gesPhase === 'ready'){
+    actions.innerHTML =
+      '<button type="button" class="app-big-btn primary" id="btn-ges-start">▶️ スタート(3びょう ごに はじまるよ)</button>' +
+      '<button type="button" class="app-big-btn outline sm" id="btn-ges-reroll">🎲 べつの きもちに する</button>';
+  }else if(gesPhase === 'countdown'){
+    countWrap.classList.remove('app-hidden');
+    actions.innerHTML = '<button type="button" class="app-big-btn green f-ok-btn" id="btn-ges-correct">😲 せいかい!</button>';
+  }else if(gesPhase === 'timing'){
+    timerWrap.classList.remove('app-hidden');
+    actions.innerHTML = '<button type="button" class="app-big-btn green f-ok-btn" id="btn-ges-correct">😲 せいかい!</button>';
+  }else if(gesPhase === 'timeup'){
+    timeupMsg.classList.remove('app-hidden');
+    actions.innerHTML =
+      '<button type="button" class="app-big-btn green f-ok-btn" id="btn-ges-correct">😲 せいかい!(まだ こたえられるよ)</button>' +
+      '<button type="button" class="app-big-btn blue sm" id="btn-ges-hear">🔊 こたえを きく</button>' +
+      '<button type="button" class="app-big-btn primary f-again-btn" id="btn-ges-again">🔁 もういっかい</button>';
+  }else if(gesPhase === 'correct'){
+    stage.classList.add('app-hidden');
+    actions.innerHTML =
+      '<p class="f-correct-msg">🎉 せいかい! <b>' + (currentGes ? currentGes.word : '') + '</b></p>' +
+      '<button type="button" class="app-big-btn primary f-again-btn" id="btn-ges-again">🔁 もういっかい</button>';
+  }
+}
+$('ges-actions').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  if(b.id === 'btn-ges-start'){ sfx('tap'); startPrepCountdown(); }
+  else if(b.id === 'btn-ges-reroll'){ sfx('tap'); startRoulette(); }
+  else if(b.id === 'btn-ges-correct'){ onGesCorrect(e); }
+  else if(b.id === 'btn-ges-hear'){ sfx('tap'); if(currentGes) say("I'm " + currentGes.word + "!"); }
+  else if(b.id === 'btn-ges-again'){ sfx('tap'); startRoulette(); }
+});
+$('btn-ges-roll').addEventListener('click', function(){ sfx('tap'); startRoulette(); });
+
+/* ============================================================
+   6. ヘッダー / モードせんたく
+   ============================================================ */
+$('mode-flip').addEventListener('click', function(){ sfx('tap'); buildFlip(); show('scr-flip'); });
+$('mode-pair').addEventListener('click', function(){
+  sfx('tap'); pairTurn = 'A'; updateTurnChip(); buildPairEmos(); resetPairFlow(); show('scr-pair');
+});
+$('mode-gesture').addEventListener('click', function(){ sfx('tap'); resetGesture(); show('scr-gesture'); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); show('scr-mode'); });
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  try{
+    AppUI.help(
+      '<p>Let\'s Try! 1 Unit 2「<b>How are you?</b> / <b>I\'m happy.</b>」の きもちの ことばに 慣れ親しむ アプリです。' +
+      'アプリは <b>子どもの かわりに 話しません</b>。英語の おてほんは 🔊 ボタンを おした ときだけ ながれます。</p>' +
+      '<h4 style="margin:14px 0 4px;font-size:1rem">🃏 カードめくり</h4>' +
+      '<ul>' +
+      '<li>カードを タップすると めくれるよ。もういちど タップで もどるよ</li>' +
+      '<li>絵と ことばの みぎ上の 🔊 で、お手本の 発音が 聞けるよ</li>' +
+      '</ul>' +
+      '<h4 style="margin:14px 0 4px;font-size:1rem">🗣️ ペアれんしゅう</h4>' +
+      '<ul>' +
+      '<li>「How are you?」を 聞いたら、いまの ほんとうの きもちの カードを えらぼう</li>' +
+      '<li>絵が 出たら <b>じぶんの こえで</b> "I\'m happy." のように 言おう(アプリは 言ってくれないよ)</li>' +
+      '<li>つたわったら、聞いた人が「つたわった! ⭕」を おす → 「🔄 こうたい」で 交代しよう</li>' +
+      '</ul>' +
+      '<h4 style="margin:14px 0 4px;font-size:1rem">💃 ジェスチャーあてっこ</h4>' +
+      '<ul>' +
+      '<li>「🎲 きもちを きめる」で お題を ルーレットで きめるよ</li>' +
+      '<li>「▶️ スタート」で 3びょうの じゅんび、そのあと こえを出さず ジェスチャーで あらわそう</li>' +
+      '<li>まわりの 友だちが わかったら「😲 せいかい!」。「🔁 もういっかい」で つぎの おだいへ</li>' +
+      '<li>10この きもちが ぜんぶ 出るまで、おなじ おだいは くりかえし 出ないよ</li>' +
+      '</ul>' +
+      '<div style="background:#fffbe8;border:2px dashed var(--yellow);border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8">' +
+      '💡 先生向け: 決まった 答えを 言わせるより、その日の 本当の 気持ちを 選ばせることを 大切に してください。</div>',
+      { title: '❓ このアプリの つかいかた' }
+    );
+  }catch(e){}
 });
 
-// ============================================================
-// ナビゲーション
-// ============================================================
-document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
-  const m = c.dataset.mode;
-  if(m === "flip"){ buildFlip(); show("scr-flip"); }
-  else if(m === "pair"){ buildPair(); show("scr-pair"); speak("How are you?"); }
-  else{ show("scr-gesture"); }
-}));
-$("btn-home").addEventListener("click", () => {
-  clearInterval(gesTimer); speechSynthesis.cancel(); show("scr-mode");
-});
+/* ============================================================
+   7. 初期化
+   ============================================================ */
+updateTurnChip();
+resetGesture();
+show('scr-mode');
 
-show("scr-mode");
-</script>
-
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>気持ちをあらわすことばに慣れ親しみ、今日のほんとうの気持ちを伝え合うアプリです。</p><h4>あそびかた</h4><ol><li>「カードめくり」で 気持ちのことばを聞いて、まねして言おう</li><li>「ペアれんしゅう」で How are you? と聞き合いっこ。<b>ほんとうの気持ち</b>でこたえよう</li><li>「ジェスチャーあてっこ」は、からだで気持ちをあらわして、ペアの人があてるゲームだよ</li></ol><div class="ah-tip">💡 先生向け:決まった答えを言わせるより、その日の本当の気持ちを選ばせることを大切にしてください。</div>
-  </div>
-</div>
-<script>
-(function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
 })();
 </script>
+
 </body>
 </html>

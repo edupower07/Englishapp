@@ -2,422 +2,806 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>すうじかくれんぼゲーム | 小学校外国語アプリポータル</title>
+<meta name="description" content="How many? / What's missing? で 1〜20の数字に親しむ 小学校3年生向け外国語活動アプリ。画面いっぱいに動きまわる絵を数える「いくつクイズ」、3Dフリップで数字を隠す「ミッシングナンバー」(こうはく戦つき)。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#ffa502; --primary-dark:#e08e00; --teal:#00cec9; --pink:#ff7675; --blue:#74b9ff; --green:#2ed573;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞: nq- (いくつクイズ) / nm- (ミッシングナンバー) / seg- (共通せってい行)
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ height:100%; }
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  margin:0; display:flex; flex-direction:column; min-height:100vh;
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+h1,h2,h3,p{ margin:0; }
+main{ flex:1; display:flex; flex-direction:column; min-height:0; width:100%; }
 
-.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
-.mode-card{
-  width:260px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
-  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
-}
-.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--teal)} .mode-card.m2{border-color:var(--pink)}
-.mode-card .mi{font-size:3rem}
-.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
-.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
-.range-row{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;align-items:center}
-.range-row .lbl{font-weight:800;color:var(--sub);font-size:.9rem}
-.range-btn{
-  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 22px;font-family:inherit;
-  font-weight:800;font-size:.95rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
-}
-.range-btn.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.mw{ max-width:1000px; margin:0 auto; width:100%; padding:16px 16px 40px; }
+.step-title{ text-align:center; font-size:clamp(1.1rem,3vw,1.35rem); font-weight:800; margin:4px 0 6px; }
+.step-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.85rem; margin-bottom:8px; line-height:1.7; }
+.tip{ max-width:640px; margin:18px auto 0; text-align:center; font-size:.8rem; color:#9c7b1f; font-weight:700; line-height:1.8; background:#fffbe8; border:3px dashed var(--yellow); border-radius:16px; padding:10px 16px; }
+.foot-note{ max-width:640px; margin:22px auto 0; text-align:center; color:#b2bec3; font-size:.72rem; font-weight:700; line-height:1.8; }
 
-/* ミッシングナンバー */
-.num-board{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:560px;margin:0 auto}
-.num-cell{
-  aspect-ratio:1;background:#fff;border-radius:16px;box-shadow:var(--shadow);border:4px solid #ffeacc;
-  font-family:'Fredoka One',cursive;font-size:2rem;display:flex;align-items:center;justify-content:center;
-  color:var(--ink);cursor:pointer;transition:.15s;
+/* ---------- 共通: せってい行(範囲・枚数などの切り替え) ---------- */
+.seg-row{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center; margin:10px 0; }
+.seg-row .seg-lbl{ font-weight:800; color:var(--sub); font-size:.85rem; }
+.seg-btn{
+  border:3px solid #e6ecf2; background:#fff; border-radius:50px; padding:9px 20px; font-family:inherit;
+  font-weight:800; font-size:.9rem; cursor:pointer; min-height:48px; color:var(--sub); transition:.18s;
 }
-.num-cell.hidden-num{background:linear-gradient(135deg,#ffa502,#ffc048);color:#fff;font-size:2.2rem}
-.num-cell.revealed{background:var(--green);border-color:var(--green);color:#fff;animation:pop .45s}
-@keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-.actions{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
-}
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.teal{background:var(--teal)}
-.big-btn.gray{background:#b2bec3;color:#2d3436}
+.seg-btn:hover{ border-color:var(--primary); color:var(--ink); }
+.seg-btn.on{ background:var(--primary); border-color:var(--primary); color:#fff; }
+#nm-team-toggle.on{ background:var(--pink); border-color:var(--pink); }
 
-/* いくつクイズ */
-.count-hud{display:flex;justify-content:space-between;max-width:620px;margin:0 auto 10px;font-weight:800;color:var(--sub);gap:8px;flex-wrap:wrap}
-.count-q{
-  max-width:620px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:14px;text-align:center;
-  border:5px solid var(--pink);
+/* ================= いくつクイズ ================= */
+/* #scr-count 自体を flex にしないと、子の #nq-play の flex:1(画面いっぱい化)が効かない */
+#scr-count{ flex:1; display:flex; flex-direction:column; min-height:0; width:100%; padding:10px 12px 12px; }
+#nq-level{ max-width:900px; margin:0 auto; width:100%; padding-bottom:16px; }
+.nq-level-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-top:16px; }
+.nq-level-card{
+  background:#fff; border-radius:var(--app-radius-lg); border:5px solid #e6ecf2; box-shadow:var(--shadow);
+  padding:22px 16px; text-align:center; cursor:pointer; transition:.2s; min-height:190px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; font-family:inherit;
 }
-.count-ask{font-size:1.3rem;font-weight:800;color:var(--pink);cursor:pointer}
-.count-field{
-  min-height:170px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;
-  font-size:2rem;padding:10px;
+.nq-level-card:hover{ transform:translateY(-5px); box-shadow:var(--shadow-hover); }
+.nq-level-card .lv-ico{ font-size:3rem; line-height:1; }
+.nq-level-card .lv-name{ font-size:1.15rem; font-weight:800; color:var(--ink); }
+.nq-level-card .lv-desc{ font-size:.8rem; color:var(--sub); font-weight:700; line-height:1.7; }
+.nq-level-card.lv1{ border-color:var(--blue); } .nq-level-card.lv2{ border-color:var(--g3); } .nq-level-card.lv3{ border-color:var(--pink); }
+
+#nq-play{ flex:1; display:flex; flex-direction:column; min-height:0; gap:8px; width:100%; }
+.nq-hud{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; padding:6px 6px 0; }
+.nq-hud-top{ margin-left:auto; }
+.nq-ask-bar{
+  display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:#fff;
+  border-radius:20px; box-shadow:var(--shadow); padding:10px 16px; border:4px solid var(--pink);
 }
-.count-field span{animation:pop .4s}
-.count-timer{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--primary)}
-.num-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;max-width:620px;margin:12px auto 0}
-.num-opt{
-  aspect-ratio:1;border-radius:14px;background:#fff;border:4px solid #e6ecf2;box-shadow:var(--shadow);
-  font-family:'Fredoka One',cursive;font-size:1.5rem;cursor:pointer;transition:.15s;color:var(--ink);min-height:52px;
+.nq-ask{ font-size:clamp(1.3rem,3.6vw,2rem); font-weight:800; color:var(--pink); text-align:center; font-family:var(--app-font-display); }
+.nq-say-btn{
+  flex:0 0 auto; width:52px; height:52px; border-radius:50%; border:none; background:var(--blue); color:#fff;
+  font-size:1.3rem; cursor:pointer; box-shadow:var(--shadow); min-height:44px; min-width:44px; transition:.18s;
 }
-.num-opt:hover{border-color:var(--pink);transform:translateY(-2px)}
-.num-opt.ok{background:var(--green);color:#fff;border-color:var(--green);animation:pop .4s}
-.num-opt.ng{animation:shake .35s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
-.msg{text-align:center;font-size:1.2rem;font-weight:800;min-height:36px;margin-top:10px}
-.msg.ok{color:var(--green)} .msg.ng{color:var(--pink)}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+.nq-say-btn:hover{ transform:translateY(-2px) scale(1.05); }
+
+.nq-field{
+  flex:1 1 auto; min-height:220px; position:relative; overflow:hidden; border-radius:26px;
+  background:linear-gradient(180deg,#eaf7ff,#e4fff3); border:5px solid #fff;
+  box-shadow:var(--shadow-hover);
+}
+.nq-field::before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.55;
+  background-image:radial-gradient(rgba(255,255,255,.85) 2px,transparent 2px); background-size:34px 34px;
+}
+.nq-item{
+  position:absolute; left:0; top:0; display:flex; align-items:center; justify-content:center;
+  pointer-events:none; filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));
+}
+.nq-item img{ width:100%; height:100%; object-fit:contain; }
+.app-card-emoji{ display:flex; align-items:center; justify-content:center; width:100%; height:100%; line-height:1; }
+
+.nq-opts{ display:grid; grid-template-columns:repeat(auto-fill,minmax(76px,1fr)); gap:10px; padding:2px 4px; }
+.nq-opt{
+  min-height:76px; border-radius:18px; background:#fff; border:4px solid #e6ecf2; box-shadow:var(--shadow);
+  cursor:pointer; transition:.15s; color:var(--ink);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 4px;
+}
+.nq-opt:hover{ border-color:var(--pink); transform:translateY(-2px); }
+.nq-opt .nq-opt-num{ font-family:var(--app-font-display); font-size:1.6rem; line-height:1; }
+.nq-opt .nq-opt-en{ font-family:var(--app-font); font-size:.62rem; font-weight:800; color:var(--sub); letter-spacing:.02em; line-height:1; }
+.nq-opt.ok{ background:var(--green); color:#fff; border-color:var(--green); }
+.nq-opt.ok .nq-opt-en{ color:#eafff5; }
+.nq-opt.ng{ background:#fff0ef; border-color:var(--pink); }
+.nq-msg{ text-align:center; font-size:1.1rem; font-weight:800; min-height:30px; padding:0 6px; }
+.nq-msg.ok{ color:#0a9b6a; } .nq-msg.ng{ color:var(--pink); }
+.nq-result-actions{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:6px 0; }
+
+/* ================= ミッシングナンバー ================= */
+#scr-missing{ padding:16px 16px 44px; }
+.nm-wrap{ max-width:900px; margin:0 auto; }
+
+.nm-team-bar{ display:none; flex-direction:column; gap:8px; align-items:center; margin:10px auto 16px; max-width:580px; }
+.nm-team-bar.show{ display:flex; }
+.nm-team-chips{ display:flex; width:100%; gap:10px; align-items:center; justify-content:center; }
+.nm-team-chip{
+  flex:0 0 auto; font-weight:800; font-size:.95rem; padding:8px 16px; border-radius:50px;
+  display:inline-flex; align-items:center; gap:6px; box-shadow:var(--shadow);
+}
+.nm-team-chip.red{ background:#ffecec; color:#d63031; border:3px solid #ff4757; }
+.nm-team-chip.white{ background:#f4f6f8; color:#2d3436; border:3px solid #b2bec3; }
+.nm-bar-track{ flex:1; height:18px; border-radius:50px; overflow:hidden; display:flex; box-shadow:inset 0 2px 4px rgba(0,0,0,.15); min-width:100px; }
+.nm-bar-red{ background:#ff4757; height:100%; transition:width .35s ease; }
+.nm-bar-white{ background:#dfe6ec; height:100%; transition:width .35s ease; }
+.nm-lead{ font-weight:800; font-size:.85rem; color:var(--sub); }
+.nm-turn{ font-weight:800; font-size:.92rem; padding:8px 20px; border-radius:50px; box-shadow:var(--shadow); transition:.2s; }
+.nm-turn.red{ background:#ff4757; color:#fff; }
+.nm-turn.white{ background:#fff; color:#2d3436; border:3px solid #b2bec3; }
+
+.nm-board{ display:grid; grid-template-columns:repeat(auto-fill,minmax(64px,1fr)); gap:10px; max-width:640px; margin:14px auto; }
+.nm-cell{ aspect-ratio:1; perspective:800px; border-radius:16px; cursor:pointer; }
+.nm-cell .app-flip-inner{
+  position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d;
+}
+.nm-cell.flipped .app-flip-inner{ transform:rotateY(180deg); }
+.nm-cell .app-flip-front, .nm-cell .app-flip-back{
+  position:absolute; inset:0; backface-visibility:hidden; display:flex; align-items:center; justify-content:center;
+  border-radius:16px; font-family:var(--app-font-display);
+}
+.nm-cell .app-flip-front{ background:#fff; border:4px solid #ffeacc; color:var(--ink); font-size:clamp(1.2rem,3vw,1.8rem); }
+.nm-cell .app-flip-back{ background:linear-gradient(135deg,#ffa502,#ffc048); border:4px solid #ffa502; color:#fff; font-size:1.7rem; transform:rotateY(180deg); }
+.nm-cell.found .app-flip-front{ background:var(--green); border-color:var(--green); color:#fff; }
+
+.nm-status{ text-align:center; font-weight:800; font-size:1rem; margin:14px 0 10px; color:var(--sub); }
+.nm-keys{ display:grid; grid-template-columns:repeat(auto-fill,minmax(72px,1fr)); gap:8px; max-width:780px; margin:0 auto; }
+.nm-key{
+  min-height:72px; border-radius:16px; background:#fff; border:4px solid #e6ecf2; box-shadow:var(--shadow);
+  cursor:pointer; color:var(--ink); transition:.15s;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:4px 2px;
+}
+.nm-key .nm-key-num{ font-family:var(--app-font-display); font-size:1.25rem; line-height:1; }
+.nm-key .nm-key-en{ font-family:var(--app-font); font-size:.56rem; font-weight:800; color:var(--sub); line-height:1; }
+.nm-key:hover:not(:disabled){ border-color:var(--primary); transform:translateY(-2px); }
+.nm-key:disabled{ opacity:.32; cursor:default; }
+.nm-key.ok{ background:var(--green); border-color:var(--green); color:#fff; }
+.nm-key.ok .nm-key-en{ color:#eafff5; }
+.nm-key.ng{ background:#fff0ef; border-color:var(--pink); }
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🔢 すうじかくれんぼゲーム <span class="u">3年生 かず</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🔢 すうじかくれんぼゲーム <span class="app-unit-badge" style="background:var(--g3)">3年生 かず</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- モード選択 -->
+  <!-- ============ モードせんたく ============ -->
   <section id="scr-mode">
-    <h2 class="step-title">あそびかたを えらんでね</h2>
-    <div class="mode-select">
-      <div class="mode-card m1" data-mode="missing">
-        <div class="mi">🙈</div>
-        <h2>ミッシングナンバー</h2>
-        <p>かくれた数字はなにかな?<br>英語で言ってから こたえあわせ!</p>
+    <div class="mw">
+      <h2 class="step-title">あそびかたを えらんでね</h2>
+      <p class="step-sub">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
+      <div class="app-mode-select">
+        <button type="button" class="app-mode-card pink" data-mode="count">
+          <span class="app-mode-icon">🐱</span>
+          <span class="app-mode-title">いくつクイズ</span>
+          <span class="app-mode-sub">How many cats?<br>うごきまわる絵を かぞえて こたえよう(3レベル)</span>
+        </button>
+        <button type="button" class="app-mode-card blue" data-mode="missing">
+          <span class="app-mode-icon">🙈</span>
+          <span class="app-mode-title">ミッシングナンバー</span>
+          <span class="app-mode-sub">かくれた数字は なにかな?<br>こうはく戦で とくてんを きそおう</span>
+        </button>
       </div>
-      <div class="mode-card m2" data-mode="count">
-        <div class="mi">🐱</div>
-        <h2>いくつクイズ</h2>
-        <p>How many cats?<br>時間内にかぞえてこたえよう(5もん)</p>
-      </div>
-    </div>
-    <div class="range-row">
-      <span class="lbl">つかう数字:</span>
-      <button class="range-btn" data-r="10">1〜10</button>
-      <button class="range-btn on" data-r="20">1〜20</button>
+      <p class="tip">💡 ミッシングナンバーは「こうはく戦」をONにすると、赤白 交互に こたえて とくてんを きそえるよ。</p>
+      <p class="foot-note">1〜20の数字に、ゲームを とおして なれしたしむ アプリです。</p>
     </div>
   </section>
 
-  <!-- ミッシングナンバー -->
-  <section id="scr-missing" class="hidden">
-    <h2 class="step-title">🙈 What's missing?</h2>
-    <p class="step-sub">かくれている数字を、みんなで英語で言ってみよう</p>
-    <div class="num-board" id="num-board"></div>
-    <div class="actions">
-      <button class="big-btn" id="btn-reveal">こたえあわせ!</button>
-      <button class="big-btn teal" id="btn-missing-next">つぎのもんだい 🎲</button>
+  <!-- ============ いくつクイズ ============ -->
+  <section id="scr-count" class="app-hidden">
+
+    <div id="nq-level">
+      <h2 class="step-title">🐱 いくつクイズ — レベルを えらんでね</h2>
+      <p class="step-sub">How many ~? うごきまわる絵を かぞえて こたえよう</p>
+      <div class="nq-level-grid" id="nq-level-grid"></div>
+    </div>
+
+    <div id="nq-play" class="app-hidden">
+      <div class="nq-hud app-hud">
+        <span class="app-hud-chip"><span id="nq-progress">だい1もん / 5もん</span></span>
+        <span class="app-hud-chip primary">⏱️ <b id="nq-timer-val">20</b></span>
+        <span class="app-hud-chip">⭐ <b id="nq-score">0</b></span>
+        <span class="app-hud-chip yellow" id="nq-combo" style="display:none">🔥 れんぞく 0</span>
+        <button type="button" class="app-nav-btn app-nav-ghost nq-hud-top" id="nq-changelv-top" style="min-height:40px;padding:6px 14px;font-size:.78rem">🎚 レベル</button>
+      </div>
+
+      <div class="nq-ask-bar">
+        <button type="button" class="nq-say-btn" id="nq-say" aria-label="きく" title="きく(自分から聞きたいときだけ)">🔊</button>
+        <div class="nq-ask" id="nq-ask">How many cats?</div>
+      </div>
+
+      <div class="nq-field" id="nq-field"></div>
+
+      <div class="nq-opts" id="nq-opts"></div>
+      <div class="nq-msg" id="nq-msg"></div>
     </div>
   </section>
 
-  <!-- いくつクイズ -->
-  <section id="scr-count" class="hidden">
-    <div class="count-hud">
-      <span id="c-progress">だい1もん / 5もん</span>
-      <span class="count-timer" id="c-timer">⏱ 20</span>
-      <span id="c-score">せいかい 0</span>
+  <!-- ============ ミッシングナンバー ============ -->
+  <section id="scr-missing" class="app-hidden">
+    <div class="nm-wrap">
+      <h2 class="step-title">🙈 What's missing?</h2>
+      <p class="step-sub">カードが パタッと めくれて 数字が かくれるよ。下のボタンから あてよう!</p>
+
+      <div class="seg-row" id="nm-setup">
+        <span class="seg-lbl">数字のはんい:</span>
+        <button type="button" class="seg-btn on" data-range="10">1〜10</button>
+        <button type="button" class="seg-btn" data-range="15">1〜15</button>
+        <button type="button" class="seg-btn" data-range="20">1〜20</button>
+      </div>
+      <div class="seg-row">
+        <span class="seg-lbl">かくす数:</span>
+        <button type="button" class="seg-btn" data-hide="1">1</button>
+        <button type="button" class="seg-btn" data-hide="2">2</button>
+        <button type="button" class="seg-btn on" data-hide="3">3</button>
+        <button type="button" class="seg-btn" data-hide="4">4</button>
+        <button type="button" class="seg-btn" data-hide="5">5</button>
+      </div>
+      <div class="seg-row">
+        <button type="button" class="seg-btn" id="nm-team-toggle">👥 こうはく戦 OFF</button>
+        <button type="button" class="app-big-btn sm outline" id="nm-reset-score" style="display:none">🔄 スコアリセット</button>
+      </div>
+
+      <div class="nm-team-bar" id="nm-team-bar">
+        <div class="nm-team-chips">
+          <span class="nm-team-chip red">🔴 あか <b id="nm-red-score">0</b></span>
+          <span class="nm-bar-track"><span class="nm-bar-red" id="nm-bar-red" style="width:50%"></span><span class="nm-bar-white" id="nm-bar-white" style="width:50%"></span></span>
+          <span class="nm-team-chip white">⚪ しろ <b id="nm-white-score">0</b></span>
+        </div>
+        <span class="nm-lead" id="nm-lead">同点!</span>
+        <span class="nm-turn red" id="nm-turn">👉 🔴 あかチームの ばん!</span>
+      </div>
+
+      <div class="app-hud" id="nm-solo-hud">
+        <span class="app-hud-chip primary">⭐ スコア <b id="nm-solo-score">0</b></span>
+        <span class="app-hud-chip yellow" id="nm-combo" style="display:none">🔥 れんぞく 0</span>
+      </div>
+
+      <div class="nm-board" id="nm-board"></div>
+
+      <p class="nm-status" id="nm-status">👀 よくみて...</p>
+
+      <div class="nm-keys" id="nm-keys"></div>
+
+      <div class="app-btn-row" style="margin-top:18px">
+        <button type="button" class="app-big-btn teal" id="nm-newround">🔀 あたらしいもんだい</button>
+      </div>
     </div>
-    <div class="count-q">
-      <div class="count-ask" id="c-ask">🔊 How many cats?</div>
-      <div class="count-field" id="c-field"></div>
-    </div>
-    <div class="num-opts" id="c-opts"></div>
-    <div class="msg" id="c-msg"></div>
   </section>
 
 </main>
 
-<footer>ミッシングナンバーは「口で言ってから、こたえあわせ」— 自動採点はしないよ。声に出すのがだいじ!</footer>
-
-<script>
-// ============================================================
-// データ(教師向け:ここを書きかえると内容を変更できます)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-const NUM_EN = ["","one","two","three","four","five","six","seven","eight","nine","ten",
-  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
-// img は Picture Dictionary の絵カード(読み込めないときは絵文字で表示)
-const COUNT_ITEMS = [
-  { en:"cats",     ja:"ねこ",     img:"cat.jpg",    emoji:"🐱" },
-  { en:"dogs",     ja:"いぬ",     img:"dog.jpg",    emoji:"🐶" },
-  { en:"rabbits",  ja:"うさぎ",   img:"rabbit.jpg", emoji:"🐰" },
-  { en:"birds",    ja:"とり",     img:"bird.jpg",   emoji:"🐦" },
-  { en:"apples",   ja:"りんご",   img:"apple.jpg",  emoji:"🍎" },
-  { en:"bananas",  ja:"バナナ",   img:"banana.jpg", emoji:"🍌" },
-  { en:"stars",    ja:"ほし",     img:"star.jpg",   emoji:"⭐" },
-  { en:"balls",    ja:"ボール",   img:"ball.jpg",   emoji:"⚽" },
-  { en:"pencils",  ja:"えんぴつ", img:"pencil.jpg", emoji:"✏️" },
-  { en:"fish",     ja:"さかな",   img:"fish.jpg",   emoji:"🐟" },
-];
-const COUNT_QUESTIONS = 5;
-const COUNT_SECONDS = 20;   // かぞえる時間(秒)
-const MISSING_MIN = 1, MISSING_MAX = 3; // かくす数
-
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.8){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakQueue(lines, rate = 0.8){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
-}
-
-// ============================================================
-// 状態
-// ============================================================
-let rangeMax = 20;
-let missing = [];        // かくれている数字
-let revealed = false;
-let cq = { idx:0, score:0, answer:0, item:null, lock:false, timer:null, left:0 };
-const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-mode","scr-missing","scr-count"].forEach(s => $(s).classList.toggle("hidden", s !== id));
-}
-function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
-document.querySelectorAll(".range-btn").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".range-btn").forEach(x => x.classList.remove("on"));
-  b.classList.add("on"); rangeMax = +b.dataset.r;
-}));
-
-// ============================================================
-// ミッシングナンバー
-// ============================================================
-function newMissing(){
-  revealed = false;
-  const count = MISSING_MIN + Math.floor(Math.random() * (MISSING_MAX - MISSING_MIN + 1));
-  const all = Array.from({length: rangeMax}, (_,i) => i+1);
-  missing = shuffle(all).slice(0, count).sort((a,b) => a-b);
-  $("num-board").style.gridTemplateColumns = rangeMax === 10 ? "repeat(5,1fr)" : "repeat(5,1fr)";
-  $("num-board").innerHTML = all.map(n =>
-    `<div class="num-cell ${missing.includes(n) ? "hidden-num" : ""}" data-n="${n}">${missing.includes(n) ? "?" : n}</div>`).join("");
-  $("btn-reveal").disabled = false;
-  speak("What's missing?");
-}
-$("num-board").addEventListener("click", e => {
-  const cell = e.target.closest(".num-cell"); if(!cell) return;
-  const n = +cell.dataset.n;
-  if(!cell.classList.contains("hidden-num") || revealed) speak(NUM_EN[n]);
-});
-$("btn-reveal").addEventListener("click", () => {
-  if(revealed) return;
-  revealed = true;
-  missing.forEach(n => {
-    const cell = document.querySelector(`.num-cell[data-n="${n}"]`);
-    cell.textContent = n;
-    cell.classList.remove("hidden-num");
-    cell.classList.add("revealed");
-  });
-  speakQueue(missing.map(n => NUM_EN[n]));
-});
-$("btn-missing-next").addEventListener("click", newMissing);
-
-// ============================================================
-// いくつクイズ
-// ============================================================
-function startCount(){
-  cq = { idx:0, score:0, answer:0, item:null, lock:false, timer:null, left:0 };
-  show("scr-count");
-  drawCountQ();
-}
-function drawCountQ(){
-  clearInterval(cq.timer);
-  cq.lock = false;
-  cq.item = COUNT_ITEMS[Math.floor(Math.random() * COUNT_ITEMS.length)];
-  cq.answer = 1 + Math.floor(Math.random() * rangeMax);
-  $("c-progress").textContent = `だい${cq.idx+1}もん / ${COUNT_QUESTIONS}もん`;
-  $("c-score").textContent = `せいかい ${cq.score}`;
-  $("c-ask").textContent = `🔊 How many ${cq.item.en}?`;
-  $("c-field").innerHTML = Array.from({length: cq.answer}, () =>
-    cq.item.img
-      ? `<span><img src="${IMG_BASE + encodeURIComponent(cq.item.img)}" alt="${cq.item.en}"
-          style="width:52px;height:52px;object-fit:contain;border-radius:8px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.12)"
-          onerror="this.outerHTML='${cq.item.emoji}'"></span>`
-      : `<span>${cq.item.emoji}</span>`).join("");
-  // 選択肢: 正解ふくむ 6つ
-  const opts = new Set([cq.answer]);
-  while(opts.size < 6){
-    const v = Math.max(1, Math.min(rangeMax, cq.answer + Math.floor(Math.random()*7) - 3));
-    opts.add(v);
-  }
-  $("c-opts").innerHTML = shuffle([...opts]).map(n =>
-    `<button class="num-opt" data-n="${n}">${n}</button>`).join("");
-  $("c-msg").textContent = ""; $("c-msg").className = "msg";
-  cq.left = COUNT_SECONDS;
-  $("c-timer").textContent = `⏱ ${cq.left}`;
-  cq.timer = setInterval(() => {
-    cq.left--;
-    $("c-timer").textContent = `⏱ ${cq.left}`;
-    if(cq.left <= 0){
-      clearInterval(cq.timer);
-      if(!cq.lock){ cq.lock = true; showCountAnswer(false, true); }
-    }
-  }, 1000);
-  speak(`How many ${cq.item.en}?`);
-}
-$("c-ask").addEventListener("click", () => { if(cq.item) speak(`How many ${cq.item.en}?`); });
-$("c-opts").addEventListener("click", e => {
-  const el = e.target.closest(".num-opt"); if(!el || cq.lock) return;
-  if(+el.dataset.n === cq.answer){
-    cq.lock = true; cq.score++;
-    clearInterval(cq.timer);
-    el.classList.add("ok");
-    showCountAnswer(true, false);
-  }else{
-    el.classList.add("ng");
-    setTimeout(() => el.classList.remove("ng"), 380);
-  }
-});
-function showCountAnswer(ok, timeup){
-  $("c-msg").textContent = ok
-    ? `⭕ ${NUM_EN[cq.answer]}(${cq.answer})!`
-    : `⏰ タイムアップ!こたえは ${NUM_EN[cq.answer]}(${cq.answer})`;
-  $("c-msg").className = "msg " + (ok ? "ok" : "ng");
-  $("c-score").textContent = `せいかい ${cq.score}`;
-  speak(ok ? `Yes! ${NUM_EN[cq.answer]} ${cq.item.en}!` : `Time's up! ${NUM_EN[cq.answer]} ${cq.item.en}.`);
-  setTimeout(() => {
-    cq.idx++;
-    if(cq.idx >= COUNT_QUESTIONS){
-      $("c-ask").textContent = cq.score === COUNT_QUESTIONS ? "🏆 パーフェクト!" : "🎉 おつかれさま!";
-      $("c-field").innerHTML = `<span style="font-size:3rem">${cq.score === COUNT_QUESTIONS ? "🏆" : "🎉"}</span>`;
-      $("c-opts").innerHTML = ""; $("c-msg").textContent = `${COUNT_QUESTIONS}もん中 ${cq.score}もん せいかい!`;
-      $("c-msg").className = "msg ok";
-      $("c-timer").textContent = "";
-      speak(cq.score === COUNT_QUESTIONS ? "Perfect!" : "Good job!");
-    }else drawCountQ();
-  }, 1800);
-}
-
-// ============================================================
-// ナビゲーション
-// ============================================================
-document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
-  if(c.dataset.mode === "missing"){ show("scr-missing"); newMissing(); }
-  else startCount();
-}));
-$("btn-home").addEventListener("click", () => {
-  clearInterval(cq.timer); speechSynthesis.cancel(); show("scr-mode");
-});
-
-show("scr-mode");
-</script>
-
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>1〜20の数字に、ゲームをとおして慣れ親しむアプリです。</p><h4>あそびかた</h4><ol><li>「ミッシングナンバー」:かくれた数字を見つけて、英語で言ってみよう</li><li>「いくつクイズ」:絵カードのかずを こえに出して かぞえてこたえよう</li></ol><div class="ah-tip">💡 先生向け:こたえる前に one, two, three... と声に出してかぞえるのがポイントです。電子黒板でクラス全体でも使えます。</div>
-  </div>
-</div>
+<script src="../shared/app-ui.js"></script>
 <script>
 (function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+'use strict';
+
+/* ============================================================
+   0. 小さなヘルパー(AppUI が無くても落ちないように)
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(name, arg){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[name]) AppUI.sfx[name](arg); }catch(e){} }
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function starsAt(x,y){ try{ if(window.AppUI && AppUI.stars) AppUI.stars(x,y); }catch(e){} }
+function celebrateFn(o){ try{ if(window.AppUI && AppUI.celebrate) AppUI.celebrate(o); }catch(e){} }
+function hideCelebrateFn(){ try{ if(window.AppUI && AppUI.hideCelebrate) AppUI.hideCelebrate(); }catch(e){} }
+function helpFn(html, opts){ try{ if(window.AppUI && AppUI.help) AppUI.help(html, opts); }catch(e){} }
+function shuffleArr(a){
+  try{ if(window.AppUI && AppUI.shuffle) return AppUI.shuffle(a); }catch(e){}
+  var b = a.slice();
+  for(var i=b.length-1;i>0;i--){ var j = Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; }
+  return b;
+}
+function pickOne(a){
+  try{ if(window.AppUI && AppUI.pick) return AppUI.pick(a); }catch(e){}
+  return a[Math.floor(Math.random()*a.length)];
+}
+function cardImgEl(img, emoji){
+  try{ if(window.AppUI && AppUI.cardImg) return AppUI.cardImg(img, emoji); }catch(e){}
+  var s = document.createElement('span'); s.className = 'app-card-emoji'; s.textContent = emoji || '❓'; return s;
+}
+function countdownFn(el, sec, onEnd){
+  try{ if(window.AppUI && AppUI.countdown) return AppUI.countdown(el, sec, onEnd); }catch(e){}
+  return { stop:function(){} };
+}
+
+/* ============================================================
+   1. データ(先生向け: ここを書きかえると内容を変更できます)
+   ============================================================ */
+var NUM_EN = ["","one","two","three","four","five","six","seven","eight","nine","ten",
+  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
+var COUNT_ITEMS = [
+  { en:"cats",    img:"cat.jpg",    emoji:"🐱" },
+  { en:"dogs",    img:"dog.jpg",    emoji:"🐶" },
+  { en:"rabbits", img:"rabbit.jpg", emoji:"🐰" },
+  { en:"birds",   img:"bird.jpg",   emoji:"🐦" },
+  { en:"apples",  img:"apple.jpg",  emoji:"🍎" },
+  { en:"bananas", img:"banana.jpg", emoji:"🍌" },
+  { en:"stars",   img:"star.jpg",   emoji:"⭐" },
+  { en:"balls",   img:"ball.jpg",   emoji:"⚽" },
+  { en:"pencils", img:"pencil.jpg", emoji:"✏️" },
+  { en:"fish",    img:"fish.jpg",   emoji:"🐟" }
+];
+var LEVELS = [
+  { id:1, label:'レベル1', ico:'🐢', desc:'じっと〜ゆっくり うごくよ<br>数字は 1〜10', range:10, speed:10,  timeSec:26, cls:'lv1' },
+  { id:2, label:'レベル2', ico:'🚶', desc:'ふつうの はやさで うごくよ<br>数字は 1〜15', range:15, speed:55,  timeSec:20, cls:'lv2' },
+  { id:3, label:'レベル3', ico:'🐇', desc:'はやく うごきまわるよ!<br>数字は 1〜20', range:20, speed:115, timeSec:15, cls:'lv3' }
+];
+var COUNT_QUESTIONS = 5;
+
+/* ============================================================
+   2. 画面切りかえ
+   ============================================================ */
+function showScreen(id){
+  ['scr-mode','scr-count','scr-missing'].forEach(function(s){
+    $(s).classList.toggle('app-hidden', s !== id);
+  });
+}
+
+/* ============================================================
+   3. いくつクイズ — うごくフィールド(requestAnimationFrame)
+   ============================================================ */
+var floaters = [];       /* {el,x,y,vx,vy,size} */
+var fieldRAF = null;
+var fieldLastT = null;
+var fieldBounds = { w:0, h:0 };
+
+function stopField(){
+  if(fieldRAF){ cancelAnimationFrame(fieldRAF); fieldRAF = null; }
+  floaters = [];
+  fieldLastT = null;
+}
+function refreshFieldBounds(){
+  var f = $('nq-field');
+  fieldBounds.w = f.clientWidth;
+  fieldBounds.h = f.clientHeight;
+}
+function randomFieldPos(size, placed){
+  var w = Math.max(size, fieldBounds.w), h = Math.max(size, fieldBounds.h);
+  for(var t=0;t<14;t++){
+    var x = Math.random() * Math.max(1, (w - size));
+    var y = Math.random() * Math.max(1, (h - size));
+    var ok = true;
+    for(var j=0;j<placed.length;j++){
+      var dx = placed[j].x - x, dy = placed[j].y - y;
+      if(Math.sqrt(dx*dx + dy*dy) < size * 0.72){ ok = false; break; }
+    }
+    if(ok) return { x:x, y:y };
+  }
+  return { x:Math.random()*Math.max(1,(w-size)), y:Math.random()*Math.max(1,(h-size)) };
+}
+function fieldTick(t){
+  if(fieldLastT === null) fieldLastT = t;
+  var dt = Math.min(0.05, (t - fieldLastT) / 1000);
+  fieldLastT = t;
+  var w = fieldBounds.w, h = fieldBounds.h;
+  for(var i=0;i<floaters.length;i++){
+    var p = floaters[i];
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    if(p.x < 0){ p.x = 0; p.vx = -p.vx; }
+    else if(p.x > w - p.size){ p.x = Math.max(0, w - p.size); p.vx = -p.vx; }
+    if(p.y < 0){ p.y = 0; p.vy = -p.vy; }
+    else if(p.y > h - p.size){ p.y = Math.max(0, h - p.size); p.vy = -p.vy; }
+    p.el.style.transform = 'translate(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px)';
+  }
+  fieldRAF = requestAnimationFrame(fieldTick);
+}
+/* count 個の item.emoji/img を フィールドに配置し、ゆっくり動かす。
+   #nq-field .nq-item の数 = 正解の数 になる(採点はこのDOM数と一致) */
+function generateField(count, item, speed){
+  var field = $('nq-field');
+  stopField();
+  field.innerHTML = '';
+  refreshFieldBounds();
+  var size = count <= 6 ? 76 : count <= 10 ? 62 : count <= 15 ? 50 : 40;
+  size = Math.max(26, Math.min(size, Math.floor(fieldBounds.h / 3.2) || size));
+  var placed = [];
+  for(var i=0;i<count;i++){
+    var el = document.createElement('div');
+    el.className = 'nq-item';
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.fontSize = Math.round(size * 0.62) + 'px';
+    el.setAttribute('aria-hidden', 'true');
+    el.appendChild(cardImgEl(item.img, item.emoji));
+    field.appendChild(el);
+    var pos = randomFieldPos(size, placed);
+    placed.push(pos);
+    var ang = Math.random() * Math.PI * 2;
+    var spd = speed * (0.6 + Math.random() * 0.8);
+    floaters.push({ el:el, x:pos.x, y:pos.y, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, size:size });
+    el.style.transform = 'translate(' + pos.x.toFixed(1) + 'px,' + pos.y.toFixed(1) + 'px)';
+  }
+  if(speed > 0 && count > 0){ fieldLastT = null; fieldRAF = requestAnimationFrame(fieldTick); }
+}
+window.addEventListener('resize', function(){
+  if(!$('nq-play').classList.contains('app-hidden')) refreshFieldBounds();
+});
+
+/* ============================================================
+   4. いくつクイズ — 出題ロジック
+   ============================================================ */
+var cq = { level:null, idx:0, score:0, combo:0, answer:0, item:null, lock:false, timerHandle:null };
+
+function buildLevelCards(){
+  $('nq-level-grid').innerHTML = LEVELS.map(function(lv){
+    return '<button type="button" class="nq-level-card ' + lv.cls + '" data-lv="' + lv.id + '">' +
+      '<span class="lv-ico">' + lv.ico + '</span>' +
+      '<span class="lv-name">' + lv.label + '</span>' +
+      '<span class="lv-desc">' + lv.desc + '</span></button>';
+  }).join('');
+}
+function backToLevelSelect(){
+  stopField();
+  if(cq.timerHandle) cq.timerHandle.stop();
+  $('nq-play').classList.add('app-hidden');
+  $('nq-level').classList.remove('app-hidden');
+}
+function startCountLevel(lv){
+  cq.level = lv; cq.idx = 0; cq.score = 0; cq.combo = 0;
+  $('nq-level').classList.add('app-hidden');
+  $('nq-play').classList.remove('app-hidden');
+  drawCountQuestion();
+}
+function updateCountHud(){
+  $('nq-progress').textContent = 'だい' + (cq.idx + 1) + 'もん / ' + COUNT_QUESTIONS + 'もん';
+  $('nq-score').textContent = cq.score;
+  var combo = $('nq-combo');
+  if(cq.combo >= 2){ combo.style.display = ''; combo.textContent = '🔥 れんぞく ' + cq.combo; }
+  else{ combo.style.display = 'none'; }
+}
+function renderCountOptions(){
+  var opts = new Set([cq.answer]);
+  var guard = 0;
+  while(opts.size < 6 && guard < 60){
+    guard++;
+    var v = Math.max(1, Math.min(cq.level.range, cq.answer + Math.floor(Math.random()*7) - 3));
+    opts.add(v);
+  }
+  var arr = shuffleArr(Array.from(opts));
+  $('nq-opts').innerHTML = arr.map(function(n){
+    return '<button type="button" class="nq-opt" data-n="' + n + '">' +
+      '<span class="nq-opt-num">' + n + '</span><span class="nq-opt-en">' + NUM_EN[n] + '</span></button>';
+  }).join('');
+}
+function markCorrectOption(){
+  var b = $('nq-opts').querySelector('.nq-opt[data-n="' + cq.answer + '"]');
+  if(b) b.classList.add('ok');
+}
+function showCountMsg(ok, timeup){
+  var msg = $('nq-msg');
+  if(ok){ msg.textContent = '⭕ ' + NUM_EN[cq.answer] + ' (' + cq.answer + ')!'; msg.className = 'nq-msg ok'; }
+  else{ msg.textContent = '⏰ タイムアップ! こたえは ' + NUM_EN[cq.answer] + ' (' + cq.answer + ')'; msg.className = 'nq-msg ng'; }
+}
+function drawCountQuestion(){
+  cq.lock = false;
+  cq.item = pickOne(COUNT_ITEMS);
+  cq.answer = 1 + Math.floor(Math.random() * cq.level.range);
+  updateCountHud();
+  $('nq-ask').textContent = 'How many ' + cq.item.en + '?';
+  $('nq-msg').textContent = ''; $('nq-msg').className = 'nq-msg';
+  generateField(cq.answer, cq.item, cq.level.speed);
+  renderCountOptions();
+  if(cq.timerHandle) cq.timerHandle.stop();
+  $('nq-timer-val').textContent = cq.level.timeSec;
+  cq.timerHandle = countdownFn($('nq-timer-val'), cq.level.timeSec, function(){
+    if(cq.lock) return;
+    cq.lock = true;
+    sfx('wrong');
+    markCorrectOption();
+    cq.combo = 0;
+    updateCountHud();
+    showCountMsg(false, true);
+    setTimeout(advanceCount, 1700);
+  });
+}
+function handleCountCorrect(btn){
+  cq.lock = true;
+  if(cq.timerHandle) cq.timerHandle.stop();
+  btn.classList.add('ok');
+  btn.classList.add('app-anim-pop');
+  sfx('correct');
+  var r = btn.getBoundingClientRect();
+  starsAt(r.left + r.width/2, r.top + r.height/2);
+  cq.score++; cq.combo++;
+  updateCountHud();
+  showCountMsg(true, false);
+  setTimeout(advanceCount, 1500);
+}
+function handleCountWrong(btn){
+  btn.classList.add('ng'); btn.classList.add('app-anim-shake');
+  sfx('wrong');
+  setTimeout(function(){ btn.classList.remove('ng'); btn.classList.remove('app-anim-shake'); }, 450);
+  cq.combo = 0;
+  updateCountHud();
+}
+function advanceCount(){
+  cq.idx++;
+  if(cq.idx >= COUNT_QUESTIONS) finishCountRound();
+  else drawCountQuestion();
+}
+function renderResultActions(){
+  $('nq-opts').innerHTML =
+    '<div class="nq-result-actions">' +
+    '<button type="button" class="app-big-btn primary" id="nq-retry">🔁 もういちど</button>' +
+    '<button type="button" class="app-big-btn blue" id="nq-changelv2">🎚 レベルをかえる</button>' +
+    '</div>';
+  $('nq-retry').addEventListener('click', function(){ sfx('tap'); startCountLevel(cq.level); });
+  $('nq-changelv2').addEventListener('click', function(){ sfx('tap'); backToLevelSelect(); });
+}
+function finishCountRound(){
+  stopField();
+  if(cq.timerHandle) cq.timerHandle.stop();
+  var perfect = cq.score === COUNT_QUESTIONS;
+  $('nq-field').innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:4rem">' + (perfect ? '🏆' : '🎉') + '</div>';
+  $('nq-ask').textContent = perfect ? 'Perfect!' : 'Good job!';
+  $('nq-timer-val').textContent = '--';
+  $('nq-msg').textContent = COUNT_QUESTIONS + 'もんちゅう ' + cq.score + 'もん せいかい!';
+  $('nq-msg').className = 'nq-msg ok';
+  renderResultActions();
+  celebrateFn({
+    title: perfect ? '🏆 パーフェクト!' : 'よくできました!',
+    sub: COUNT_QUESTIONS + 'もんちゅう ' + cq.score + 'もん せいかい!',
+    icon: perfect ? '🏆' : '🎉',
+    autoHideMs: 2200
+  });
+}
+
+$('nq-level-grid').addEventListener('click', function(e){
+  var b = e.target.closest('.nq-level-card'); if(!b) return;
+  var id = parseInt(b.getAttribute('data-lv'), 10);
+  var lv = LEVELS.filter(function(l){ return l.id === id; })[0];
+  if(!lv) return;
+  sfx('tap');
+  startCountLevel(lv);
+});
+$('nq-opts').addEventListener('click', function(e){
+  var b = e.target.closest('.nq-opt'); if(!b || cq.lock) return;
+  var n = parseInt(b.getAttribute('data-n'), 10);
+  if(n === cq.answer) handleCountCorrect(b);
+  else handleCountWrong(b);
+});
+$('nq-say').addEventListener('click', function(){ if(cq.item) say('How many ' + cq.item.en + '?'); });
+$('nq-changelv-top').addEventListener('click', function(){ sfx('tap'); backToLevelSelect(); });
+
+/* ============================================================
+   5. ミッシングナンバー
+   ============================================================ */
+var nmRange = 10;
+var nmHideCount = 3;
+var nmTeamMode = false;
+var nmCurrentTeam = 'red';
+var nmScore = { red:0, white:0 };
+var nmSolo = 0;
+var nmCombo = 0;
+var nmHidden = [];
+var nmFound = [];
+var nmReady = false;
+var nmRoundId = 0;
+
+function buildMissingBoard(){
+  var cells = '';
+  for(var n=1;n<=nmRange;n++){
+    cells +=
+      '<div class="nm-cell" data-n="' + n + '">' +
+        '<div class="app-flip-inner">' +
+          '<div class="app-flip-front">' + n + '</div>' +
+          '<div class="app-flip-back">❓</div>' +
+        '</div></div>';
+  }
+  $('nm-board').innerHTML = cells;
+}
+function buildMissingKeys(){
+  var html = '';
+  for(var n=1;n<=nmRange;n++){
+    html += '<button type="button" class="nm-key" data-n="' + n + '">' +
+      '<span class="nm-key-num">' + n + '</span><span class="nm-key-en">' + NUM_EN[n] + '</span></button>';
+  }
+  $('nm-keys').innerHTML = html;
+}
+function setKeysEnabled(v){
+  var keys = $('nm-keys').querySelectorAll('.nm-key');
+  for(var i=0;i<keys.length;i++){ if(!keys[i].classList.contains('ok')) keys[i].disabled = !v; }
+}
+function toggleTeam(){
+  nmCurrentTeam = (nmCurrentTeam === 'red') ? 'white' : 'red';
+  updateTurnUI();
+}
+function updateTurnUI(){
+  var t = $('nm-turn'); if(!t) return;
+  t.textContent = nmCurrentTeam === 'red' ? '👉 🔴 あかチームの ばん!' : '👉 ⚪ しろチームの ばん!';
+  t.className = 'nm-turn ' + nmCurrentTeam;
+}
+function updateNmHud(){
+  $('nm-team-bar').classList.toggle('show', nmTeamMode);
+  $('nm-solo-hud').classList.toggle('app-hidden', nmTeamMode);
+  $('nm-reset-score').style.display = nmTeamMode ? '' : 'none';
+  if(nmTeamMode){
+    $('nm-red-score').textContent = nmScore.red;
+    $('nm-white-score').textContent = nmScore.white;
+    var total = nmScore.red + nmScore.white;
+    var redPct = total ? Math.round(nmScore.red / total * 100) : 50;
+    $('nm-bar-red').style.width = redPct + '%';
+    $('nm-bar-white').style.width = (100 - redPct) + '%';
+    var diff = nmScore.red - nmScore.white;
+    $('nm-lead').textContent = diff === 0 ? '同点!' : (diff > 0 ? '🔴 あか +' + diff + ' リード' : '⚪ しろ +' + (-diff) + ' リード');
+    updateTurnUI();
+  }else{
+    $('nm-solo-score').textContent = nmSolo;
+  }
+  var combo = $('nm-combo');
+  if(nmCombo >= 2){ combo.style.display = ''; combo.textContent = '🔥 れんぞく ' + nmCombo; }
+  else{ combo.style.display = 'none'; }
+}
+function newMissingRound(){
+  nmRoundId++;
+  var myRound = nmRoundId;
+  nmReady = false;
+  nmFound = [];
+  nmCombo = 0;
+  var pool = []; for(var i=1;i<=nmRange;i++) pool.push(i);
+  var hideN = Math.min(nmHideCount, nmRange);
+  nmHidden = shuffleArr(pool).slice(0, hideN).sort(function(a,b){ return a - b; });
+  buildMissingBoard();
+  buildMissingKeys();
+  setKeysEnabled(false);
+  $('nm-status').textContent = '👀 よくみて... ばんごうが かくれるよ';
+  if(nmTeamMode) nmCurrentTeam = 'red';
+  updateNmHud();
+  nmHidden.forEach(function(n, i){
+    setTimeout(function(){
+      if(myRound !== nmRoundId) return;
+      var cell = $('nm-board').querySelector('.nm-cell[data-n="' + n + '"]');
+      if(cell){ cell.classList.add('flipped'); sfx('pop'); }
+      if(i === nmHidden.length - 1){
+        setTimeout(function(){
+          if(myRound !== nmRoundId) return;
+          nmReady = true;
+          setKeysEnabled(true);
+          $('nm-status').textContent = '🔎 かくれた数字を あてよう!';
+        }, 550);
+      }
+    }, 350 + i * 260);
+  });
+}
+function missingRoundComplete(){
+  nmReady = false;
+  setKeysEnabled(false);
+  $('nm-status').textContent = '🎉 ぜんぶ みつけた!';
+  var sub;
+  if(nmTeamMode){
+    if(nmScore.red === nmScore.white) sub = '🔴 あか ' + nmScore.red + ' - ' + nmScore.white + ' しろ ⚪ どうてん!';
+    else sub = '🔴 あか ' + nmScore.red + ' - ' + nmScore.white + ' しろ ⚪ (' + (nmScore.red > nmScore.white ? '🔴あかリード' : '⚪しろリード') + ')';
+  }else{
+    sub = 'スコア ' + nmSolo;
+  }
+  celebrateFn({ title:'🎉 ぜんぶ みつけた!', sub:sub, icon:'🎉', autoHideMs:2200 });
+}
+$('nm-keys').addEventListener('click', function(e){
+  var b = e.target.closest('.nm-key'); if(!b || !nmReady || b.disabled) return;
+  var n = parseInt(b.getAttribute('data-n'), 10);
+  if(nmHidden.indexOf(n) !== -1 && nmFound.indexOf(n) === -1){
+    nmFound.push(n);
+    b.disabled = true; b.classList.add('ok');
+    var cell = $('nm-board').querySelector('.nm-cell[data-n="' + n + '"]');
+    if(cell){
+      cell.classList.remove('flipped');
+      cell.classList.add('found');
+      cell.classList.add('app-anim-pop');
+      setTimeout(function(){ cell.classList.remove('app-anim-pop'); }, 500);
+    }
+    sfx('correct');
+    var r = b.getBoundingClientRect();
+    starsAt(r.left + r.width/2, r.top + r.height/2);
+    nmCombo++;
+    if(nmTeamMode) nmScore[nmCurrentTeam]++; else nmSolo++;
+    updateNmHud();
+    if(nmFound.length >= nmHidden.length){ missingRoundComplete(); return; }
+    if(nmTeamMode) toggleTeam();
+  }else{
+    b.classList.add('ng'); b.classList.add('app-anim-shake');
+    sfx('wrong');
+    setTimeout(function(){ b.classList.remove('ng'); b.classList.remove('app-anim-shake'); }, 450);
+    nmCombo = 0;
+    updateNmHud();
+    if(nmTeamMode) toggleTeam();
+  }
+});
+$('nm-board').addEventListener('click', function(e){
+  var cell = e.target.closest('.nm-cell'); if(!cell) return;
+  if(cell.classList.contains('flipped')) return;
+  var n = parseInt(cell.getAttribute('data-n'), 10);
+  say(NUM_EN[n]);
+});
+document.querySelectorAll('#nm-setup [data-range]').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#nm-setup [data-range]').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    nmRange = parseInt(b.getAttribute('data-range'), 10);
+    sfx('tap');
+    newMissingRound();
+  });
+});
+document.querySelectorAll('.seg-row [data-hide]').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.seg-row [data-hide]').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    nmHideCount = parseInt(b.getAttribute('data-hide'), 10);
+    sfx('tap');
+    newMissingRound();
+  });
+});
+$('nm-team-toggle').addEventListener('click', function(){
+  nmTeamMode = !nmTeamMode;
+  $('nm-team-toggle').textContent = nmTeamMode ? '👥 こうはく戦 ON' : '👥 こうはく戦 OFF';
+  $('nm-team-toggle').classList.toggle('on', nmTeamMode);
+  nmScore = { red:0, white:0 }; nmCurrentTeam = 'red';
+  sfx('tap');
+  updateNmHud();
+  newMissingRound();
+});
+$('nm-reset-score').addEventListener('click', function(){
+  nmScore = { red:0, white:0 }; nmCurrentTeam = 'red';
+  sfx('tap');
+  updateNmHud();
+});
+$('nm-newround').addEventListener('click', function(){ sfx('tap'); newMissingRound(); });
+
+/* ============================================================
+   6. モードせんたく / ヘッダーナビ / ヘルプ
+   ============================================================ */
+function cleanupCount(){ stopField(); if(cq.timerHandle) cq.timerHandle.stop(); hideCelebrateFn(); }
+document.querySelectorAll('.app-mode-card').forEach(function(c){
+  c.addEventListener('click', function(){
+    sfx('tap');
+    var mode = c.getAttribute('data-mode');
+    if(mode === 'missing'){
+      cleanupCount();
+      showScreen('scr-missing');
+      newMissingRound();
+    }else{
+      showScreen('scr-count');
+      backToLevelSelect();
+    }
+  });
+});
+$('btn-home').addEventListener('click', function(){
+  sfx('tap');
+  cleanupCount();
+  showScreen('scr-mode');
+});
+$('btn-help').addEventListener('click', function(){
+  helpFn(
+    '<p>1〜20の数字に、ゲームを とおして なれしたしむ アプリです。</p>' +
+    '<h4 style="margin:12px 0 4px;font-weight:800">🐱 いくつクイズ</h4>' +
+    '<ul>' +
+    '<li>レベルを えらぶと、うごく はやさと 数字の はんいが かわります。</li>' +
+    '<li>フィールドの中を うごきまわる絵を かぞえて、こたえの数字を タップしよう。</li>' +
+    '</ul>' +
+    '<h4 style="margin:12px 0 4px;font-weight:800">🙈 ミッシングナンバー</h4>' +
+    '<ul>' +
+    '<li>カードが パタッと めくれて、数字が かくれます。</li>' +
+    '<li>かくれた数字だと おもう ばんごうを 下の ボタンから えらぼう。</li>' +
+    '<li>「こうはく戦」を ONにすると、赤白 交互に こたえて とくてんを きそいます。</li>' +
+    '</ul>' +
+    '<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;margin-top:10px;font-weight:700;font-size:.85rem;line-height:1.8">' +
+    '💡 🔊ボタンは じぶんが 聞きたいときだけ おそう。アプリは かってに しゃべらないよ。</div>',
+    { title: 'すうじかくれんぼゲーム つかいかた' }
+  );
+});
+
+/* ============================================================
+   7. しょきか
+   ============================================================ */
+buildLevelCards();
+showScreen('scr-mode');
+
 })();
 </script>
 </body>
 </html>
+

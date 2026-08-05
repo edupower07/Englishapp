@@ -221,13 +221,13 @@ footer{ text-align:center; padding:18px; color:#b2bec3; font-size:.75rem; font-w
     <div class="c-shop-roles">
       <div class="c-role cust">
         <h4>🙋 おきゃくさん</h4>
-        <button type="button" class="c-line" data-say="A red star, please."><span>🔊</span><span>A red ○○, please.<br><span class="c-line-ja">あかい ○○を ください</span></span></button>
-        <button type="button" class="c-line" data-say="Thank you."><span>🔊</span><span>Thank you.<br><span class="c-line-ja">ありがとう</span></span></button>
+        <button type="button" class="c-line" data-say="A red star, please."><span>🔊</span><span>A red ○○, please.</span></button>
+        <button type="button" class="c-line" data-say="Thank you."><span>🔊</span><span>Thank you.</span></button>
       </div>
       <div class="c-role shop">
         <h4>🧑‍🍳 おみせのひと</h4>
-        <button type="button" class="c-line" data-say="Hello. What do you want?"><span>🔊</span><span>Hello. What do you want?<br><span class="c-line-ja">こんにちは。なにが ほしいですか?</span></span></button>
-        <button type="button" class="c-line" data-say="Here you are."><span>🔊</span><span>Here you are.<br><span class="c-line-ja">はい、どうぞ</span></span></button>
+        <button type="button" class="c-line" data-say="Hello. What do you want?"><span>🔊</span><span>Hello. What do you want?</span></button>
+        <button type="button" class="c-line" data-say="Here you are."><span>🔊</span><span>Here you are.</span></button>
       </div>
     </div>
 
@@ -760,14 +760,14 @@ function renderPalette(){
     }else{
       purchased.forEach(function(it, i){
         html += '<button type="button" class="c-shape-btn bought" data-bought="' + i + '" title="' + esc(it.shape) + '">' +
-                shapeIcon(it.shape, it.color, 46) + '<span class="c-shape-ja">' + esc(SH[it.shape].ja) + '</span></button>';
+                shapeIcon(it.shape, it.color, 46) + '<span class="c-shape-ja">' + esc(SH[it.shape].en) + '</span></button>';
       });
     }
     $('pal-note').textContent = 'タップすると カードに おけるよ(おいたら たなから なくなるよ)';
   }else{
     SHAPES.forEach(function(s){
       html += '<button type="button" class="c-shape-btn" data-shape="' + s.key + '" title="' + esc(s.en) + '">' +
-              shapeIcon(s.key, cur.color, 46) + '<span class="c-shape-ja">' + esc(s.ja) + '</span></button>';
+              shapeIcon(s.key, cur.color, 46) + '<span class="c-shape-ja">' + esc(s.en) + '</span></button>';
     });
     $('pal-note').textContent = 'タップすると いま えらんでいる いろで カードに おけるよ';
   }
@@ -785,7 +785,7 @@ function renderPalette(){
   $('pal-colors').innerHTML = COLORS.map(function(c){
     return '<button type="button" class="c-swatch' + (c.hex === cur.color ? ' on' : '') + '" data-color="' + c.hex +
            '" style="background:' + c.hex + (c.en === 'white' ? ';border-color:#cfd8e0' : '') + '" title="' + c.en + '" aria-label="' + c.en +
-           '"><span class="c-sw-ja">' + c.ja + '</span></button>';
+           '"><span class="c-sw-ja">' + c.en + '</span></button>';
   }).join('');
 
   /* カードの色 */
@@ -876,7 +876,7 @@ function renderShop(){
 
   $('memo').innerHTML = memo.map(function(m,i){
     return '<button type="button" class="c-memo-item' + (m.done ? ' done' : '') + '" data-memo="' + i + '">' +
-           shapeIcon(m.shape, m.color, 36) + '<span>' + esc(COL[m.color].ja + 'の' + SH[m.shape].ja) + '</span></button>';
+           shapeIcon(m.shape, m.color, 36) + '<span>' + esc(COL[m.color].en + ' ' + SH[m.shape].en) + '</span></button>';
   }).join('');
 
   var tg = $('tray-grid');
@@ -952,7 +952,7 @@ function showBubble(){
   if(old && old.parentNode) old.parentNode.removeChild(old);
   var b = document.createElement('div');
   b.className = 'c-bubble';
-  b.innerHTML = '<span>🔊</span><span>はい、どうぞ — <b>Here you are.</b></span>';
+  b.innerHTML = '<span>🔊</span><span><b>Here you are.</b></span>';
   b.addEventListener('click', function(){ say('Here you are.'); });
   document.body.appendChild(b);
   clearTimeout(bubbleTimer);

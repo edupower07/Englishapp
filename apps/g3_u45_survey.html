@@ -505,7 +505,7 @@ footer.sv-foot{ text-align:center; color:#b2bec3; font-size:.75rem; font-weight:
       label.textContent = item.en;
       var sub = document.createElement('div');
       sub.className = 'app-card-sub';
-      sub.textContent = item.ja + (c.total ? '(' + c.total + 'にん)' : '');
+      sub.textContent = c.total ? c.total + 'にんに きいたよ' : '';
       card.appendChild(imgWrap); card.appendChild(label); card.appendChild(sub);
       card.addEventListener('click', function(){
         AppUI.sfx.tap();
@@ -523,7 +523,7 @@ footer.sv-foot{ text-align:center; color:#b2bec3; font-size:.75rem; font-weight:
     v.innerHTML = '';
     v.appendChild(visualOf(iItem));
     $('i-question').textContent = 'Do you like ' + iItem.en + '?';
-    $('i-question-ja').textContent = '(' + iItem.ja + 'は すき?)';
+    $('i-question-ja').textContent = '';
     $('i-flash').textContent = '';
     updateAskCounters();
     buildStrip();
@@ -709,14 +709,11 @@ footer.sv-foot{ text-align:center; color:#b2bec3; font-size:.75rem; font-weight:
       var en = document.createElement('div');
       en.className = 'sv-tile-en';
       en.textContent = item.en;
-      var ja = document.createElement('div');
-      ja.className = 'sv-tile-ja';
-      ja.textContent = item.ja;
       var cnt = document.createElement('div');
       cnt.className = 'sv-tile-count';
       cnt.dataset.count = item.en;
       cnt.textContent = cCount(item.en);
-      tile.appendChild(im); tile.appendChild(en); tile.appendChild(ja); tile.appendChild(cnt);
+      tile.appendChild(im); tile.appendChild(en); tile.appendChild(cnt);
       tile.addEventListener('click', function(){ bumpTile(item, tile, +1); });
 
       var minus = document.createElement('button');
@@ -876,13 +873,13 @@ footer.sv-foot{ text-align:center; color:#b2bec3; font-size:.75rem; font-weight:
         pods[rank].classList.add('on');
         if(rank === 1){
           $('rank-drum').classList.add('app-hidden');
-          $('rank-sub').textContent = '1いは ' + rows[0].item.en + '! (' + rows[0].item.ja + ')';
+          $('rank-sub').textContent = '1いは ' + rows[0].item.en + '!';
           say.textContent = 'We like ' + rows[0].item.en + '!';
           say.classList.remove('app-hidden');
           AppUI.confetti({ durationMs:2600 });
           AppUI.celebrate({
             title: '1い は ' + rows[0].item.en + '!',
-            sub: rows[0].item.ja + ' が ' + rows[0].n + 'にん で いちばん にんき!',
+            sub: rows[0].n + 'にん で いちばん にんき!',
             icon: '🥇',
             autoHideMs: 2600
           });
