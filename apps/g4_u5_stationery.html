@@ -2,442 +2,1206 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>文房具ショップごっこ | 小学校外国語アプリポータル</title>
+<meta name="description" content="Let's Try! 2 Unit 5「Do you have a pen?」おきゃくさんが口でたずね、てんいんさんが棚からカゴへドラッグする文房具ショップごっこ 小学校4年生向けアプリ。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は st-
+
+   ★重要★ カゴの中の 文房具は AppUI.cardArt(...).square.tight.cutout を使い、
+   乗算合成(mix-blend-mode:multiply)で 白地を すかして「絵だけ」を のせている。
+   乗算合成は「いちばん近い スタッキングコンテキスト」までしか ブレンドできないため、
+   カゴ〜文房具の あいだの 要素に transform / opacity / filter を つけてはいけない。
+   ・位置は left / top / width(%)だけで うごかす(transform を使わない)
+   ・かたむきは <img> 自身に rotate をかける(ブレンド対象の要素そのものならOK)
+   ・カゴの背景は明るい色にすること(暗いと絵が沈む)
+   ============================================================ */
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  margin:0; min-height:100vh;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+main{ max-width:1300px; margin:0 auto; padding:14px 14px 70px; }
 
-/* モード選択 */
-.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
-.mode-card{
-  width:260px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
-  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
-}
-.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)}
-.mode-card .mi{font-size:3rem}
-.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
-.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+.st-title{ text-align:center; font-size:clamp(1.05rem,2.6vw,1.5rem); font-weight:800; margin:8px 0 2px; }
+.st-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.85rem; margin-bottom:12px; line-height:1.7; }
+.st-hint{ text-align:center; font-weight:800; color:var(--sub); font-size:.78rem; margin-top:10px; line-height:1.8; }
 
-/* お店の棚 */
-.shelf{
-  background:linear-gradient(180deg,#a97142,#8a5a33);border-radius:22px;padding:16px;box-shadow:var(--shadow);
-}
-.shelf-title{color:#fff;font-weight:800;text-align:center;margin-bottom:10px;font-family:'Fredoka One',cursive;letter-spacing:2px}
-.shelf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px}
-.item-card{
-  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
-  transition:.15s;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:118px;justify-content:center;
-}
-.item-card:hover{transform:translateY(-3px) scale(1.04)}
-.item-card .iimg{width:62px;height:62px;display:flex;align-items:center;justify-content:center}
-.item-card .iimg img{max-width:100%;max-height:100%;object-fit:contain}
-.item-card .iemoji{font-size:2.4rem;line-height:1}
-.item-card .ilabel{font-weight:800;font-size:.76rem;line-height:1.25}
-.item-card .ilabel small{display:block;color:var(--sub);font-size:.66rem}
+/* ---------- レイアウト ---------- */
+.st-work{ display:flex; gap:18px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+.st-left{ flex:1 1 380px; min-width:290px; max-width:480px; display:flex; flex-direction:column; gap:12px; }
+.st-right{ flex:1 1 460px; min-width:290px; display:flex; flex-direction:column; gap:12px; }
+.st-panel{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; }
+.st-panel h3{ font-size:.98rem; font-weight:800; margin:0 0 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.st-note{ font-size:.74rem; color:var(--sub); font-weight:700; line-height:1.7; margin:8px 0 0; }
+.st-role .st-note{ font-size:.72rem; color:var(--sub); font-weight:700; line-height:1.55; }
 
-/* マイセットのトレー */
-.tray{
-  margin-top:14px;background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:12px 16px;
-  border:4px dashed var(--primary);
+/* ---------- カゴ(明るい色にすること:乗算合成のため) ---------- */
+.st-basket-wrap{ display:flex; justify-content:center; }
+.st-basket{
+  position:relative; width:min(100%,400px); aspect-ratio:1; border-radius:42px;
+  background:linear-gradient(160deg,#fffdf6 0%,#fff3da 55%,#f8e6bf 100%);
+  border:14px solid #d9a463;
+  box-shadow:0 16px 32px rgba(0,0,0,.14), inset 0 8px 20px rgba(255,255,255,.92), inset 0 -14px 24px rgba(180,120,50,.18);
+  overflow:hidden;
+  transition:border-color .2s, box-shadow .2s;
 }
-.tray-head{display:flex;justify-content:space-between;align-items:center;font-weight:800;flex-wrap:wrap;gap:6px}
-.tray-head .cnt{color:var(--primary-dark)}
-.tray-items{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;min-height:52px}
-.tray-chip{
-  background:#effdf5;border:3px solid var(--primary);border-radius:14px;padding:5px 10px;font-weight:800;
-  display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;min-height:44px;
-}
-.tray-chip:hover{background:#ffecec;border-color:var(--pink)}
-.tray-empty{color:var(--sub);font-weight:700;font-size:.82rem;display:flex;align-items:center}
+#shop-basket{ width:min(100%,360px); }
+.st-basket.ng{ border-color:#ffb3ab; box-shadow:0 16px 32px rgba(255,118,117,.28), inset 0 8px 22px rgba(255,255,255,.9); }
+.st-basket.ok{ border-color:#8ce6c0; }
+.st-layer{ position:absolute; inset:0; }
 
-.actions{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:14px 32px;font-family:inherit;font-weight:800;font-size:1.05rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:52px;transition:.2s;color:#fff;background:var(--primary);
+/* 文房具1つぶん。transform は ぜったいに つけない(乗算合成がこわれる) */
+.st-piece{
+  position:absolute; line-height:0; cursor:pointer;
+  transition:left .34s cubic-bezier(.22,.61,.36,1),
+             top .52s cubic-bezier(.34,1.56,.64,1),
+             width .34s cubic-bezier(.34,1.56,.64,1);
 }
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.gray{background:#b2bec3;color:#2d3436}
-.big-btn.blue{background:var(--blue)}
-.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+.st-empty{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+  color:#c79a52; font-weight:800; font-size:.92rem; line-height:1.9; padding:0 14%; pointer-events:none;
+}
+.st-msg{ text-align:center; font-weight:800; font-size:.9rem; color:var(--sub); min-height:1.5em; }
+.st-msg.warn{ color:var(--pink); }
 
-/* 完成カード */
-.set-card{
-  max-width:600px;margin:10px auto;background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);
-  overflow:hidden;border:5px solid var(--primary);
+/* ---------- 文房具パレット(棚。大きなタイル) ---------- */
+.st-shelf{ display:grid; grid-template-columns:repeat(auto-fill,minmax(152px,1fr)); gap:14px; }
+.st-tile{
+  position:relative; background:#fff; border:4px solid #eef2f6; border-radius:20px;
+  padding:14px 8px 10px; display:flex; flex-direction:column; align-items:center; gap:8px;
+  cursor:grab; box-shadow:var(--shadow); min-height:156px; font-family:inherit; color:var(--ink);
+  transition:transform .16s, border-color .16s, box-shadow .16s, background .16s, opacity .16s;
+  touch-action:none;
 }
-.set-head{background:linear-gradient(135deg,#2ed573,#7bed9f);color:#fff;text-align:center;padding:13px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.2rem}
-.set-body{padding:18px 22px}
-.set-icons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-size:2.2rem;margin-bottom:10px}
-.set-line{
-  font-size:1.2rem;font-weight:800;padding:8px 12px;border-radius:12px;cursor:pointer;transition:.15s;
-  display:flex;gap:8px;align-items:center;
+.st-tile:hover, .st-tile:focus-visible{ transform:translateY(-4px); border-color:var(--g4); box-shadow:var(--shadow-hover); outline:none; }
+.st-tile.st-dragging{ opacity:.32; }
+.st-tile.has{ border-color:var(--g4); background:#f2fdf7; }
+.st-tile.sold-out{ opacity:.42; filter:grayscale(65%); cursor:not-allowed; }
+.st-tile.sold-out:hover{ transform:none; box-shadow:var(--shadow); }
+.st-tile .st-timg{ width:100%; max-width:120px; }
+.st-tile .st-timg img{ width:100%; display:block; border-radius:8px; }
+.st-tile .st-timg .app-card-emoji{ font-size:3rem; display:block; text-align:center; }
+.st-tile .st-tword{ font-weight:800; font-size:1rem; line-height:1.2; text-align:center; }
+.st-tile .st-badge{
+  position:absolute; right:-8px; top:-8px; min-width:34px; height:34px; padding:0 8px; border-radius:50px;
+  background:var(--g4); color:#fff; font-weight:800; font-size:.9rem;
+  display:none; align-items:center; justify-content:center; box-shadow:var(--shadow);
 }
-.set-line:hover{background:#effdf5}
-.set-line .spk{font-size:.9rem}
-.set-foot{text-align:center;padding:0 20px 16px;color:var(--sub);font-size:.78rem;font-weight:700}
+.st-tile.has .st-badge{ display:flex; }
+.st-say{
+  width:42px; height:42px; min-width:42px; min-height:42px; border-radius:50%;
+  border:3px solid #eef2f6; background:#fff; cursor:pointer; font-size:1rem; font-family:inherit;
+  display:inline-flex; align-items:center; justify-content:center; transition:.16s; padding:0;
+}
+.st-say:hover{ border-color:var(--blue); background:#f2f8ff; }
+.st-tile .st-say{ position:absolute; left:6px; top:6px; }
+.st-stock{
+  position:absolute; left:-8px; bottom:-8px; width:36px; height:36px; min-width:36px; border-radius:50%;
+  border:3px solid #fff; background:#e9fbf1; cursor:pointer; font-size:1rem; font-family:inherit; padding:0;
+  display:inline-flex; align-items:center; justify-content:center; box-shadow:var(--shadow); transition:.16s;
+}
+.st-tile.sold-out .st-stock{ background:#ffecec; }
+.st-soldtag{
+  display:none; position:absolute; top:16px; left:-32px; width:130px; text-align:center;
+  background:var(--pink); color:#fff; font-weight:800; font-size:.68rem; padding:3px 0;
+  transform:rotate(-16deg); box-shadow:var(--shadow); letter-spacing:1px; z-index:2;
+}
+.st-tile.sold-out .st-soldtag{ display:block; }
 
-/* ペアワーク支援 */
-.pair-card{
-  max-width:480px;margin:10px auto;background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);
-  padding:26px;text-align:center;border:5px solid var(--blue);
+/* 棚からドラッグ中の「浮いているカード」(乗算合成は使わない=白背景のままでOK) */
+.st-ghost{
+  position:fixed; width:104px; height:104px; transform:translate(-50%,-50%); pointer-events:none; z-index:9999;
+  background:#fff; border-radius:22px; border:4px solid #fff; box-shadow:0 14px 28px rgba(0,0,0,.3); overflow:hidden;
 }
-.pair-visual{width:150px;height:150px;margin:0 auto;background:#f4f9ff;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.pair-visual img{width:100%;height:100%;object-fit:contain}
-.pair-visual .iemoji{font-size:4.5rem}
-.pair-q{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--blue);margin-top:12px;letter-spacing:1px;min-height:44px}
-.pair-sub{color:var(--sub);font-weight:700;font-size:.85rem;margin-top:4px}
-.phrase-row{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.phrase-btn{
-  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:9px 18px;font-family:inherit;
-  font-weight:800;font-size:.88rem;cursor:pointer;min-height:44px;color:var(--ink);transition:.2s;
+.st-ghost .app-card-art{ width:100%; }
+
+/* ---------- カゴに入れたもの一覧(チップ) ---------- */
+.st-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.st-chip{
+  display:inline-flex; align-items:center; gap:8px; background:#fff; border:3px solid #eef2f6;
+  border-radius:50px; padding:5px 8px 5px 5px; font-weight:800; font-size:.88rem; min-height:52px;
 }
-.phrase-btn:hover{border-color:var(--blue);color:var(--blue)}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+.st-chip-img{ width:40px; height:40px; border-radius:50%; overflow:hidden; background:#fffaf0; flex:0 0 40px; }
+.st-chip-x{
+  width:34px; height:34px; min-width:34px; border-radius:50%; border:none; background:#ffeceb; color:#d63031;
+  font-weight:800; cursor:pointer; font-family:inherit; font-size:.9rem; line-height:1;
+}
+.st-chip-x:hover{ background:#ffd9d5; }
+.st-empty-chip{ color:var(--sub); font-weight:800; font-size:.85rem; }
+
+/* ---------- お店やさん:役わり / お題カード ---------- */
+.st-roles{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+.st-role{ flex:1 1 300px; max-width:480px; background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:9px 12px; border:4px solid #e6ecf2; }
+.st-role.cust{ border-color:var(--pink); }
+.st-role.shop{ border-color:var(--blue); }
+.st-role h4{ margin:0 0 5px; font-size:.88rem; font-weight:800; display:flex; align-items:center; gap:6px; }
+.st-lines{ display:flex; gap:8px; flex-wrap:wrap; }
+.st-line{
+  display:inline-flex; align-items:center; gap:7px; background:#f7f9fb; border-radius:50px; padding:6px 14px;
+  font-weight:800; font-size:.85rem; min-height:46px; border:none; font-family:inherit; text-align:left; color:var(--ink);
+}
+button.st-line{ cursor:pointer; }
+button.st-line:hover{ background:#eef4f8; }
+.st-line.speech{ background:#fff5f6; }
+
+.st-order{ background:#fffbe8; border:5px dashed var(--yellow); border-radius:var(--app-radius); padding:10px 14px 12px; margin-bottom:12px; }
+.st-order-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.st-order-head h3{ margin:0; font-size:.95rem; font-weight:800; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.st-order-body{ margin-top:10px; }
+.st-order-card{ display:flex; gap:16px; align-items:center; justify-content:center; flex-wrap:wrap; text-align:center; }
+.st-oimg{ width:88px; height:88px; flex:0 0 88px; }
+.st-oimg img{ width:100%; display:block; border-radius:10px; }
+.st-oimg .app-card-emoji{ font-size:3.4rem; display:block; text-align:center; }
+.st-osentence-wrap{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; }
+.st-osentence{ font-family:var(--app-font-display); font-size:clamp(1.05rem,3vw,1.35rem); color:#8a5a13; letter-spacing:.3px; }
+.st-swatch{ width:24px; height:24px; border-radius:50%; display:inline-block; border:3px solid #fff; box-shadow:0 0 0 2px rgba(0,0,0,.15); vertical-align:middle; }
+.st-hidebox{
+  display:flex; flex-direction:row; align-items:center; justify-content:center; gap:12px;
+  min-height:66px; color:#b08d3a; font-weight:800; font-size:.95rem; text-align:left; line-height:1.8;
+}
+.st-hidebox .st-hideico{ font-size:2.6rem; line-height:1; }
+
+.st-judge{ background:#fff; border:5px solid var(--pink); border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; text-align:center; }
+.st-judge h3{ font-size:1rem; font-weight:800; margin:0 0 4px; }
+.st-judge .st-jsub{ font-size:.78rem; color:var(--sub); font-weight:700; margin-bottom:10px; line-height:1.7; }
+
+/* ---------- できあがり / きろく ---------- */
+.st-done-wrap{ max-width:1100px; margin:0 auto; }
+.st-ing-list{ display:flex; flex-direction:column; gap:8px; }
+.st-ing{ display:flex; align-items:center; gap:10px; background:#f7f9fb; border-radius:14px; padding:6px 10px; min-height:56px; }
+.st-ing-img{ width:44px; height:44px; flex:0 0 44px; border-radius:50%; overflow:hidden; background:#fff; }
+.st-ing-txt{ font-weight:800; font-size:1.02rem; flex:1; }
+
+.st-saved-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; }
+.st-saved{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:12px; border:4px solid #eef2f6; position:relative; }
+.st-saved:hover{ border-color:var(--g4); }
+.st-saved .st-basket{ width:100%; border-width:9px; }
+.st-saved .st-sdate{ font-size:.72rem; color:var(--sub); font-weight:700; margin-top:8px; }
+.st-saved .st-stxt{ font-size:.85rem; font-weight:800; line-height:1.7; margin-top:2px; }
+.st-saved .st-sdel{
+  position:absolute; right:-8px; top:-8px; width:38px; height:38px; border-radius:50%; border:none;
+  background:var(--pink); color:#fff; font-weight:800; cursor:pointer; font-family:inherit; font-size:.95rem; box-shadow:var(--shadow);
+}
+
+footer{ text-align:center; padding:18px; color:#b2bec3; font-size:.75rem; font-weight:700; }
+
+@media(max-width:560px){
+  .st-shelf{ grid-template-columns:repeat(auto-fill,minmax(128px,1fr)); gap:9px; }
+  .st-tile{ min-height:136px; padding:12px 6px 8px; }
+  .st-tile .st-tword{ font-size:.9rem; }
+  .st-basket, #shop-basket{ width:min(100%,320px); border-width:11px; }
+  .st-saved .st-basket{ width:100%; }
+  .st-oimg{ width:70px; height:70px; flex-basis:70px; }
+}
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>✏️ 文房具ショップごっこ <span class="u">4年生 文房具</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>✏️ 文房具ショップごっこ <span class="app-unit-badge" style="background:var(--g4)">4年 Unit 5</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- モード選択 -->
+  <!-- ============ モードせんたく ============ -->
   <section id="scr-mode">
-    <h2 class="step-title">あそびかたを えらんでね</h2>
-    <div class="mode-select">
-      <div class="mode-card m1" data-mode="shop">
-        <div class="mi">🛍️</div>
-        <h2>おすすめセットづくり</h2>
-        <p>お店で文房具をえらんで<br>じぶんだけのセットをつくろう</p>
+    <h2 class="st-title">なにを する?</h2>
+    <p class="st-sub">Do you have 〜? を つかって、文房具ショップで あそぼう</p>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card primary" id="mode-shop">
+        <span class="app-mode-icon">🏪</span>
+        <span class="app-mode-title">お店やさん</span>
+        <span class="app-mode-sub">2人ぐみ。おきゃくさんが 口で たずねる →<br>てんいんさんが 棚から カゴに いれる</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-make">
+        <span class="app-mode-icon">🎒</span>
+        <span class="app-mode-title">おすすめセットづくり</span>
+        <span class="app-mode-sub">すきな 文房具を えらんで<br>じぶんだけの セットを つくろう</span>
+      </button>
+      <button type="button" class="app-mode-card yellow" id="mode-saved">
+        <span class="app-mode-icon">📔</span>
+        <span class="app-mode-title">きろく</span>
+        <span class="app-mode-sub">まえに つくった セットを<br>見かえせるよ</span>
+      </button>
+    </div>
+    <p class="st-hint">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
+  </section>
+
+  <!-- ============ お店やさんモード ============ -->
+  <section id="scr-shop" class="app-hidden">
+    <h2 class="st-title">🏪 ぶんぼうぐショップ</h2>
+    <p class="st-sub">おきゃくさんが <b>口で</b> たずねる → てんいんさんが 棚から カゴへ ドラッグ(タップでもOK)→ できたら つたえよう</p>
+
+    <div class="st-roles">
+      <div class="st-role cust">
+        <h4>🙋 おきゃくさん(たずねる人)</h4>
+        <div class="st-lines">
+          <span class="st-line speech"><span>💬</span><span>Do you have a pen?</span></span>
+          <span class="st-line speech"><span>💬</span><span>Do you have two pencils?</span></span>
+          <span class="st-line speech"><span>💬</span><span>Thank you.</span></span>
+        </div>
+        <p class="st-note" style="margin:6px 0 0">お題カードを 見て、<b>じぶんの 口で</b> たずねよう(アプリは 言ってくれないよ)</p>
       </div>
-      <div class="mode-card m2" data-mode="pair">
-        <div class="mi">🗣️</div>
-        <h2>ペアワークおだいガチャ</h2>
-        <p>Do you have 〜? で<br>友だちに聞くお題がでるよ</p>
+      <div class="st-role shop">
+        <h4>🧑‍🍳 てんいんさん(いれる人)</h4>
+        <div class="st-lines">
+          <button type="button" class="st-line" data-say="Here you are."><span>🔊</span><span>Here you are.</span></button>
+          <button type="button" class="st-line" data-say="Sorry, I don't have it."><span>🔊</span><span>Sorry, I don't have it.</span></button>
+        </div>
+        <p class="st-note" style="margin:6px 0 0">聞いた 文房具を カゴに いれて、<b>じぶんの 口で</b> つたえよう</p>
+      </div>
+    </div>
+
+    <div class="st-order" id="order-box">
+      <div class="st-order-head">
+        <h3>🎴 お題カード
+          <span class="app-chip yellow" id="order-eye">おきゃくさんだけ 見よう</span>
+        </h3>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm outline" id="btn-eye">🙈 かくす</button>
+          <button type="button" class="app-big-btn sm yellow" id="btn-neworder">🎲 べつの お題を ひく</button>
+        </div>
+      </div>
+      <div class="st-order-body" id="order-body"></div>
+    </div>
+
+    <div class="st-work">
+      <div class="st-left">
+        <div class="st-basket-wrap">
+          <div class="st-basket" id="shop-basket">
+            <div class="st-empty" id="shop-empty">棚の 文房具を<br>ドラッグ(または タップ)して いれよう</div>
+            <div class="st-layer" id="shop-layer"></div>
+          </div>
+        </div>
+        <p class="st-msg" id="shop-msg"></p>
+        <div class="app-hud" style="margin:0">
+          <span class="app-hud-chip primary">🧺 カゴの中 <b id="shop-count">0</b></span>
+          <span class="app-hud-chip yellow">🏆 できた数 <b id="shop-score">0</b></span>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm outline" id="btn-sundo">↩️ ひとつ もどす</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-sclear">ぜんぶ もどす</button>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn blue" id="btn-serve">🤲 Here you are.(わたす)</button>
+          <button type="button" class="app-big-btn pink" id="btn-sorry">😢 Sorry, I don't have it.</button>
+        </div>
+
+        <div class="st-judge app-hidden" id="judge">
+          <h3>🙋 おきゃくさん、あってた?</h3>
+          <p class="st-jsub" id="judge-sub">お題カードと あっていたか、じぶんの目で たしかめてね</p>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn green" id="btn-ok">⭕ あってた!</button>
+            <button type="button" class="app-big-btn pink" id="btn-ng">🔁 ちがうよ</button>
+          </div>
+          <div class="app-btn-row app-hidden" id="next-row" style="margin-top:10px">
+            <button type="button" class="app-big-btn primary" id="btn-next">➡️ つぎの おきゃくさん</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="st-right">
+        <div class="st-panel">
+          <h3>🏪 たな <span class="app-chip g4">ドラッグ/タップで いれる</span></h3>
+          <div class="st-shelf" id="shop-pal"></div>
+          <p class="st-note">🔊は たんごの 言いかたヘルプ。たずねる文は アプリでは 言いません。左下の ✅/🚫 で 在庫を 切りかえられるよ。</p>
+        </div>
+        <div class="st-panel">
+          <h3>🧺 カゴの中</h3>
+          <div class="st-chips" id="shop-chips"></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- お店 -->
-  <section id="scr-shop" class="hidden">
-    <h2 class="step-title">🏪 おすすめ文房具セットをつくろう</h2>
-    <p class="step-sub">ほしいものをタップしてトレーに入れよう(<b id="limit-label">5</b>こまで・同じものもえらべるよ)</p>
-    <div class="shelf">
-      <div class="shelf-title">STATIONERY SHOP</div>
-      <div class="shelf-grid" id="shelf"></div>
-    </div>
-    <div class="tray">
-      <div class="tray-head">
-        <span>🧺 マイセット <span class="cnt" id="tray-cnt">0/5</span></span>
-        <span style="font-size:.75rem;color:var(--sub)">チップをタップすると もどせるよ</span>
+  <!-- ============ おすすめセットづくり ============ -->
+  <section id="scr-make" class="app-hidden">
+    <h2 class="st-title">🎒 じぶんの 文房具セットを つくろう</h2>
+    <p class="st-sub">文房具カードを タップ(または ドラッグ)すると セットに はいるよ</p>
+
+    <div class="st-work">
+      <div class="st-left">
+        <div class="st-basket-wrap">
+          <div class="st-basket" id="make-basket">
+            <div class="st-empty" id="make-empty">文房具カードを タップして<br>セットに いれよう</div>
+            <div class="st-layer" id="make-layer"></div>
+          </div>
+        </div>
+        <p class="st-msg" id="make-msg"></p>
+        <div class="app-hud" style="margin:0">
+          <span class="app-hud-chip primary">🎒 いれた数 <b id="make-count">0</b></span>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm outline" id="btn-undo">↩️ ひとつ もどす</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-clear">つくりなおす</button>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn pink" id="btn-done">できた! 🎉</button>
+        </div>
       </div>
-      <div class="tray-items" id="tray"></div>
-    </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-finish" disabled>セットかんせい!✨</button>
+
+      <div class="st-right">
+        <div class="st-panel">
+          <h3>✏️ 文房具 <span class="app-chip g4">タップで いれる</span></h3>
+          <div class="st-shelf" id="make-pal"></div>
+          <p class="st-note">🔊を おすと 言いかたが 聞けるよ(おしたときだけ 聞こえます)</p>
+        </div>
+        <div class="st-panel">
+          <h3>🎒 いれた 文房具</h3>
+          <div class="st-chips" id="make-chips"></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 完成 -->
-  <section id="scr-set" class="hidden">
-    <div class="set-card">
-      <div class="set-head">MY STATIONERY SET</div>
-      <div class="set-body">
-        <div class="set-icons" id="set-icons"></div>
-        <div id="set-lines"></div>
+  <!-- ============ できあがり(紹介画面) ============ -->
+  <section id="scr-done" class="app-hidden">
+    <h2 class="st-title">🎉 できあがり!</h2>
+    <p class="st-sub">じぶんの 文房具セットを しょうかいしよう</p>
+    <div class="st-done-wrap">
+      <div class="st-work">
+        <div class="st-left">
+          <div class="st-basket-wrap">
+            <div class="st-basket" id="done-basket"><div class="st-layer" id="done-layer"></div></div>
+          </div>
+        </div>
+        <div class="st-right">
+          <div class="st-panel">
+            <h3>🎒 My stationery set <span class="app-chip green" id="done-total">0</span></h3>
+            <div class="st-ing-list" id="done-list"></div>
+            <p class="st-note">🔊を おすと 言いかたが 聞けるよ。まずは じぶんで 言ってみよう。</p>
+          </div>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn blue" id="btn-say-done">🔊 This is my stationery set.</button>
+          </div>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn sm outline" id="btn-reedit">✏️ つづきを つくる</button>
+            <button type="button" class="app-big-btn sm green" id="btn-again">🆕 あたらしく つくる</button>
+            <button type="button" class="app-big-btn sm yellow" id="btn-to-saved">📔 きろくを 見る</button>
+          </div>
+          <p class="st-hint" id="save-note">💾 つくった セットは この タブレットに ほぞんされたよ</p>
+        </div>
       </div>
-      <div class="set-foot">文をタップすると1文ずつ読み上げます</div>
-    </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ(しょうかいれんしゅう)</button>
-      <button class="big-btn gray" id="btn-back-shop">えらびなおす</button>
     </div>
   </section>
 
-  <!-- ペアワーク -->
-  <section id="scr-pair" class="hidden">
-    <h2 class="step-title">🗣️ おだいガチャ</h2>
-    <p class="step-sub">出てきたお題で、となりの友だちに聞いてみよう</p>
-    <div class="pair-card">
-      <div class="pair-visual" id="pair-visual">❓</div>
-      <div class="pair-q" id="pair-q">ガチャをまわしてね!</div>
-      <div class="pair-sub" id="pair-sub"></div>
-      <div class="phrase-row">
-        <button class="phrase-btn" data-t="Yes, I do. I have a pen.">🙆 Yes, I do.</button>
-        <button class="phrase-btn" data-t="No, I don't.">🙅 No, I don't.</button>
-        <button class="phrase-btn" data-t="Here you are.">🤲 Here you are.</button>
-        <button class="phrase-btn" data-t="Thank you.">😊 Thank you.</button>
-      </div>
-    </div>
-    <div class="actions">
-      <button class="big-btn blue" id="btn-gacha">🎰 おだいガチャをまわす</button>
+  <!-- ============ きろく ============ -->
+  <section id="scr-saved" class="app-hidden">
+    <h2 class="st-title">📔 つくった セットの きろく</h2>
+    <p class="st-sub">この タブレットに ほぞんされた セットだよ(あたらしい じゅんに 12こまで)</p>
+    <div class="st-saved-grid" id="saved-grid"></div>
+    <div class="app-btn-row" style="margin-top:16px">
+      <button type="button" class="app-big-btn green" id="btn-saved-make">🎒 あたらしく つくる</button>
     </div>
   </section>
 
 </main>
 
-<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+<footer>Let's Try! 2 Unit 5 “Do you have a pen?” / おきゃくさんが 口で たずね、てんいんさんが カゴに いれる 文房具ショップごっこ</footer>
 
-<script>
-// ============================================================
-// データ(教師向け:ここを書きかえると内容を変更できます)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-const SET_LIMIT = 5; // セットに入れられる個数
-
-// plural: 2こ以上のときの形 / article: "a" か "" (scissorsなど)
-const STATIONERY = [
-  { en:"pen",         plural:"pens",          article:"a", ja:"ペン",           img:"pen.jpg",         emoji:"🖊️" },
-  { en:"pencil",      plural:"pencils",       article:"a", ja:"えんぴつ",       img:"pencil.jpg",      emoji:"✏️" },
-  { en:"eraser",      plural:"erasers",       article:"an",ja:"けしごむ",       img:"eraser.jpg",      emoji:"🧼" },
-  { en:"ruler",       plural:"rulers",        article:"a", ja:"じょうぎ",       img:"ruler.jpg",       emoji:"📏" },
-  { en:"notebook",    plural:"notebooks",     article:"a", ja:"ノート",         img:"notebook.jpg",    emoji:"📓" },
-  { en:"scissors",    plural:"scissors",      article:"",  ja:"はさみ",         img:"scissors.jpg",    emoji:"✂️" },
-  { en:"glue stick",  plural:"glue sticks",   article:"a", ja:"のり",           img:"glue.jpg",        emoji:"🧴" },
-  { en:"marker",      plural:"markers",       article:"a", ja:"マーカー",       img:"marker.jpg",      emoji:"🖍️" },
-  { en:"crayon",      plural:"crayons",       article:"a", ja:"クレヨン",       img:"crayon.jpg",      emoji:"🖍️" },
-  { en:"pencil case", plural:"pencil cases",  article:"a", ja:"ふでばこ",       img:"pencil case.jpg", emoji:"👝" },
-];
-const NUM_EN = ["","one","two","three","four","five","six"];
-
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
-}
-
-// ============================================================
-// 状態
-// ============================================================
-let tray = []; // STATIONERYのenを積む(重複可)
-const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-mode","scr-shop","scr-set","scr-pair"].forEach(s =>
-    $(s).classList.toggle("hidden", s !== id));
-}
-function itemOf(en){ return STATIONERY.find(s => s.en === en); }
-function itemVisual(item, cls="iimg"){
-  return `<div class="${cls}"><img src="${IMG_BASE + encodeURIComponent(item.img)}" alt="${item.en}"
-    onerror="this.outerHTML='<span class=&quot;iemoji&quot;>${item.emoji}</span>'"></div>`;
-}
-
-// ============================================================
-// お店
-// ============================================================
-function buildShelf(){
-  $("shelf").innerHTML = STATIONERY.map(s => `
-    <div class="item-card" data-en="${s.en}">
-      ${itemVisual(s)}
-      <div class="ilabel">${s.en}</div>
-    </div>`).join("");
-  $("limit-label").textContent = SET_LIMIT;
-}
-function renderTray(){
-  $("tray-cnt").textContent = `${tray.length}/${SET_LIMIT}`;
-  $("tray").innerHTML = tray.length === 0
-    ? `<span class="tray-empty">まだ からっぽ。お店から えらんでね</span>`
-    : tray.map((en,i) => {
-        const it = itemOf(en);
-        return `<span class="tray-chip" data-i="${i}">${it.emoji} ${it.en}</span>`;
-      }).join("");
-  $("btn-finish").disabled = tray.length === 0;
-}
-$("shelf").addEventListener("click", e => {
-  const el = e.target.closest(".item-card"); if(!el) return;
-  if(tray.length >= SET_LIMIT){
-    speak("Sorry! That's all.");
-    return;
-  }
-  const it = itemOf(el.dataset.en);
-  tray.push(it.en);
-  renderTray();
-  speak(it.article ? `${it.article} ${it.en}` : it.en);
-});
-$("tray").addEventListener("click", e => {
-  const el = e.target.closest(".tray-chip"); if(!el) return;
-  tray.splice(+el.dataset.i, 1);
-  renderTray();
-});
-
-// ============================================================
-// 完成カード
-// ============================================================
-function setLines(){
-  const counts = {};
-  tray.forEach(en => counts[en] = (counts[en] || 0) + 1);
-  const lines = ["This is my stationery set."];
-  Object.keys(counts).forEach(en => {
-    const it = itemOf(en), n = counts[en];
-    if(it.en === "scissors"){ lines.push(`I have scissors.`); }
-    else if(n === 1){ lines.push(`I have ${it.article} ${it.en}.`); }
-    else{ lines.push(`I have ${NUM_EN[n]} ${it.plural}.`); }
-  });
-  lines.push("Do you like it?");
-  return lines;
-}
-$("btn-finish").addEventListener("click", () => {
-  const lines = setLines();
-  $("set-icons").innerHTML = tray.map(en => `<span>${itemOf(en).emoji}</span>`).join("");
-  $("set-lines").innerHTML = lines.map((t,i) =>
-    `<div class="set-line" data-i="${i}"><span class="spk">🔊</span>${t}</div>`).join("");
-  show("scr-set");
-  speakQueue(lines);
-});
-$("set-lines").addEventListener("click", e => {
-  const el = e.target.closest(".set-line"); if(!el) return;
-  speak(setLines()[+el.dataset.i]);
-});
-$("btn-speak-all").addEventListener("click", () => speakQueue(setLines()));
-$("btn-back-shop").addEventListener("click", () => show("scr-shop"));
-
-// ============================================================
-// ペアワークおだいガチャ
-// ============================================================
-$("btn-gacha").addEventListener("click", () => {
-  const it = STATIONERY[Math.floor(Math.random() * STATIONERY.length)];
-  const q = it.en === "scissors" ? "Do you have scissors?" : `Do you have ${it.article} ${it.en}?`;
-  $("pair-visual").innerHTML = itemVisual(it).replace('class="iimg"','style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"');
-  $("pair-q").textContent = q;
-  $("pair-sub").textContent = `(${it.ja}を もっている?)となりの人に聞いてみよう`;
-  speak(q);
-});
-document.querySelectorAll(".phrase-btn").forEach(b =>
-  b.addEventListener("click", () => speak(b.dataset.t)));
-
-// ============================================================
-// ナビゲーション
-// ============================================================
-document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
-  if(c.dataset.mode === "shop"){ tray = []; renderTray(); show("scr-shop"); }
-  else show("scr-pair");
-}));
-$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
-
-buildShelf(); renderTray();
-show("scr-mode");
-</script>
-
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>文房具のことばをつかって、だれかのための文房具セットをつくるアプリです。</p><h4>あそびかた</h4><ol><li>「おすすめセットづくり」:だれのための セットか きめて、文房具をえらぼう</li><li>できたセットを Do you have 〜? / I have 〜. をつかって紹介してみよう</li><li>「ペアワークおだいガチャ」で、ペアトークのお題を引いて話そう</li></ol><div class="ah-tip">💡 先生向け:「相手のことを考えてえらぶ」のがこの活動の思考です。なぜそれを入れたのか、日本語で交流してもOK。</div>
-  </div>
-</div>
+<script src="../shared/app-ui.js"></script>
 <script>
 (function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+'use strict';
+
+/* ============================================================
+   0. 小さなヘルパー(AppUI が無くても落ちないように)
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(n, a){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](a); }catch(e){} }
+function say(t){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(t); }catch(e){} }
+function stars(x,y,o){ try{ if(window.AppUI && AppUI.stars) AppUI.stars(x,y,o); }catch(e){} }
+function celebrate(o){ try{ if(window.AppUI && AppUI.celebrate) AppUI.celebrate(o); }catch(e){} }
+function pick(a){ return (window.AppUI && AppUI.pick) ? AppUI.pick(a) : a[Math.floor(Math.random()*a.length)]; }
+function cardImg(f,e){ return (window.AppUI && AppUI.cardImg) ? AppUI.cardImg(f,e) : document.createElement('span'); }
+function cardArt(f,e){ return (window.AppUI && AppUI.cardArt) ? AppUI.cardArt(f,e) : document.createElement('span'); }
+
+/* ============================================================
+   1. データ(先生向け: ここを書きかえると 文房具を 変更できます)
+      img は Picture Dictionary の絵カードのファイル名
+      article: "a" / "an" / "" (scissors のように もともと複数形なもの)
+   ============================================================ */
+var STATIONERY = [
+  { id:'pen',         word:'pen',         plural:'pens',         article:'a',  img:'pen.jpg',         emoji:'🖊️' },
+  { id:'pencil',      word:'pencil',      plural:'pencils',      article:'a',  img:'pencil.jpg',      emoji:'✏️' },
+  { id:'eraser',      word:'eraser',      plural:'erasers',      article:'an', img:'eraser.jpg',      emoji:'🧼' },
+  { id:'ruler',       word:'ruler',       plural:'rulers',       article:'a',  img:'ruler.jpg',       emoji:'📏' },
+  { id:'notebook',    word:'notebook',    plural:'notebooks',    article:'a',  img:'notebook.jpg',    emoji:'📓' },
+  { id:'scissors',    word:'scissors',    plural:'scissors',     article:'',   img:'scissors.jpg',    emoji:'✂️' },
+  { id:'glue',        word:'glue stick',  plural:'glue sticks',  article:'a',  img:'glue.jpg',        emoji:'🧴' },
+  { id:'marker',      word:'marker',      plural:'markers',      article:'a',  img:'marker.jpg',      emoji:'🖍️' },
+  { id:'crayon',      word:'crayon',      plural:'crayons',      article:'a',  img:'crayon.jpg',      emoji:'🖍️' },
+  { id:'pencilcase',  word:'pencil case', plural:'pencil cases', article:'a',  img:'pencil case.jpg', emoji:'👝' }
+];
+var SBY = {};
+STATIONERY.forEach(function(it){ SBY[it.id] = it; });
+
+var COLORS = ['red','blue','yellow','green','purple','pink','black','orange'];
+var NUM = ['zero','one','two','three','four','five','six','seven','eight'];
+var MAX_ITEMS = 8;
+
+/* ============================================================
+   2. 文づくり
+   ============================================================ */
+/* 「I have two pencils.」のような紹介文で使う言いかたをつくる */
+function phraseFor(it, n){
+  if(it.word === 'scissors') return 'scissors';
+  if(n <= 1) return (it.article ? it.article + ' ' : '') + it.word;
+  return (NUM[n] || String(n)) + ' ' + it.plural;
+}
+function lineFor(it, n){ return 'I have ' + phraseFor(it, n) + '.'; }
+
+/* お題カード用の「Do you have 〜?」をつくる(plain / color / qty をランダムに) */
+function makeQuestion(){
+  var it = pick(STATIONERY);
+  var pool = (it.word === 'scissors') ? ['plain', 'color'] : ['plain', 'color', 'qty'];
+  var mode = pick(pool);
+  if(mode === 'qty'){
+    var n = 2 + Math.floor(Math.random() * 3); /* 2〜4 */
+    return { item:it, qty:n, color:null, text:'Do you have ' + (NUM[n] || n) + ' ' + it.plural + '?' };
+  }
+  if(mode === 'color'){
+    var c = pick(COLORS);
+    var art = it.article ? (/^[aeiou]/i.test(c) ? 'an ' : 'a ') : '';
+    return { item:it, qty:1, color:c, text:'Do you have ' + art + c + ' ' + it.word + '?' };
+  }
+  var art2 = it.article ? it.article + ' ' : '';
+  return { item:it, qty:1, color:null, text:'Do you have ' + art2 + it.word + '?' };
+}
+
+/* ============================================================
+   3. カゴ/棚(ステージ)
+      ★ transform を使わずに left/top/width(%) だけで もりつける
+   ============================================================ */
+function Stage(o){
+  this.basketEl = o.basketEl; this.layer = o.layer; this.emptyEl = o.emptyEl;
+  this.palEl = o.palEl; this.chipsEl = o.chipsEl; this.countEl = o.countEl; this.msgEl = o.msgEl;
+  this.withStock = !!o.withStock;
+  this.maxItems = o.maxItems || MAX_ITEMS;
+  this.items = [];       /* {uid, item, el, rot, jit, jx, jy} */
+  this.uid = 0;
+  this.stock = {};
+  var self = this;
+  if(this.withStock){ STATIONERY.forEach(function(it){ self.stock[it.id] = true; }); }
+  this.onChange = o.onChange || function(){};
+  if(this.palEl) this.buildPalette();
+  this.update();
+}
+Stage.prototype.isOut = function(id){ return this.withStock && this.stock[id] === false; };
+Stage.prototype.toggleStock = function(id){
+  if(!this.withStock) return;
+  this.stock[id] = (this.stock[id] === false) ? true : false;
+  this.refreshStockUI(id);
+};
+Stage.prototype.refreshStockUI = function(id){
+  if(!this.palEl) return;
+  var tile = this.palEl.querySelector('[data-id="' + id + '"]');
+  if(!tile) return;
+  var out = this.isOut(id);
+  tile.classList.toggle('sold-out', out);
+  var btn = tile.querySelector('.st-stock');
+  if(btn){
+    btn.textContent = out ? '🚫' : '✅';
+    btn.setAttribute('aria-label', (out ? '在庫ありに もどす' : 'うりきれに する'));
+  }
+};
+Stage.prototype.buildPalette = function(){
+  var self = this;
+  var frag = document.createDocumentFragment();
+  STATIONERY.forEach(function(it){
+    var tile = document.createElement('div');
+    tile.className = 'st-tile';
+    tile.setAttribute('role', 'button');
+    tile.tabIndex = 0;
+    tile.setAttribute('data-id', it.id);
+    tile.setAttribute('aria-label', it.word);
+
+    if(self.withStock){
+      var stockBtn = document.createElement('button');
+      stockBtn.type = 'button'; stockBtn.className = 'st-stock'; stockBtn.textContent = '✅';
+      stockBtn.setAttribute('aria-label', it.word + ' を うりきれに する');
+      stockBtn.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+      stockBtn.addEventListener('click', function(e){ e.stopPropagation(); sfx('tap'); self.toggleStock(it.id); });
+      tile.appendChild(stockBtn);
+
+      var tag = document.createElement('span');
+      tag.className = 'st-soldtag'; tag.textContent = 'うりきれ';
+      tile.appendChild(tag);
+    }
+
+    var badge = document.createElement('span');
+    badge.className = 'st-badge'; badge.textContent = '0';
+    tile.appendChild(badge);
+
+    var sayBtn = document.createElement('button');
+    sayBtn.type = 'button'; sayBtn.className = 'st-say'; sayBtn.textContent = '🔊';
+    sayBtn.setAttribute('aria-label', it.word + ' を 聞く');
+    sayBtn.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+    sayBtn.addEventListener('click', function(e){ e.stopPropagation(); sfx('tap'); say(it.word); });
+    tile.appendChild(sayBtn);
+
+    var box = document.createElement('div');
+    box.className = 'st-timg';
+    box.appendChild(cardImg(it.img, it.emoji));
+    tile.appendChild(box);
+
+    var w = document.createElement('div');
+    w.className = 'st-tword'; w.textContent = it.word;
+    tile.appendChild(w);
+
+    bindTileDrag(tile, it, self);
+    frag.appendChild(tile);
+  });
+  this.palEl.innerHTML = '';
+  this.palEl.appendChild(frag);
+};
+Stage.prototype.msg = function(t, warn){
+  if(!this.msgEl) return;
+  this.msgEl.textContent = t || '';
+  this.msgEl.classList.toggle('warn', !!warn);
+};
+Stage.prototype.add = function(item){
+  if(this.isOut(item.id)){
+    sfx('wrong');
+    this.msg('うりきれだよ。「Sorry, I don’t have it.」と つたえよう。', true);
+    return null;
+  }
+  if(this.items.length >= this.maxItems){
+    sfx('wrong');
+    this.msg('カゴが いっぱいだよ。ひとつ もどしてね。', true);
+    return null;
+  }
+  this.uid++;
+  var el = document.createElement('span');
+  el.className = 'st-piece';
+  el.setAttribute('data-uid', String(this.uid));
+  var rot = (Math.random() * 16 - 8);
+  el.style.setProperty('--art-rot', rot.toFixed(1) + 'deg');
+  var art = cardArt(item.img, item.emoji);
+  art.classList.add('square', 'tight', 'cutout');       /* ← 絵だけ(文字なし)で のせる */
+  el.appendChild(art);
+
+  var it2 = {
+    uid:this.uid, item:item, el:el, rot:rot,
+    jit:(Math.random()*0.5 - 0.25),
+    jx:(Math.random()*0.03 - 0.015),
+    jy:(Math.random()*0.03 - 0.015)
+  };
+  this.items.push(it2);
+
+  /* カゴの上から ぽとん、と おとす(top のトランジションだけで表現。
+     transform を使うと 乗算合成が こわれるため) */
+  var geo = this.geom(this.items.length - 1);
+  el.style.width = (geo.size*100).toFixed(2) + '%';
+  el.style.left = (geo.left*100).toFixed(2) + '%';
+  el.style.top = '-34%';
+  this.layer.appendChild(el);
+  void el.offsetWidth;
+  this.layout();
+  sfx('pop');
+
+  var self = this;
+  setTimeout(function(){
+    try{
+      var r = el.getBoundingClientRect();
+      if(r.width) stars(r.left + r.width/2, r.top + r.height/2, { count:6 });
+    }catch(e){}
+  }, 430);
+
+  this.msg(''); this.update();
+  return it2;
+};
+Stage.prototype.geom = function(i){
+  var n = this.items.length;
+  var size = (n <= 1) ? 0.40 : Math.max(0.215, 0.40 - (n-1)*0.0135);
+  var R = 0.30;
+  var a = i*2.39996 + (this.items[i] ? this.items[i].jit : 0);
+  var r = (n === 1) ? 0 : R*Math.sqrt(i/(n-1));
+  var cx = 0.5 + r*Math.cos(a) + (this.items[i] ? this.items[i].jx : 0);
+  var cy = 0.5 + r*Math.sin(a) + (this.items[i] ? this.items[i].jy : 0);
+  return { size:size, left:cx - size/2, top:cy - size/2 };
+};
+Stage.prototype.layout = function(){
+  for(var i=0;i<this.items.length;i++){
+    var g = this.geom(i), el = this.items[i].el;
+    el.style.width = (g.size*100).toFixed(2) + '%';
+    el.style.left = (g.left*100).toFixed(2) + '%';
+    el.style.top = (g.top*100).toFixed(2) + '%';
+  }
+};
+Stage.prototype.removeAt = function(i){
+  if(i < 0 || i >= this.items.length) return;
+  var it = this.items[i];
+  try{
+    var r = it.el.getBoundingClientRect();
+    if(r.width) stars(r.left + r.width/2, r.top + r.height/2, { count:5 });
+  }catch(e){}
+  if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+  this.items.splice(i,1);
+  this.layout(); this.update(); this.msg('');
+  sfx('tap');
+};
+Stage.prototype.removeUid = function(uid){
+  for(var i=0;i<this.items.length;i++){ if(this.items[i].uid === uid){ this.removeAt(i); return; } }
+};
+Stage.prototype.removeOneOf = function(id){
+  for(var i=this.items.length-1;i>=0;i--){ if(this.items[i].item.id === id){ this.removeAt(i); return; } }
+};
+Stage.prototype.undo = function(){
+  if(!this.items.length){ sfx('tap'); return; }
+  this.removeAt(this.items.length-1);
+};
+Stage.prototype.clear = function(){
+  while(this.items.length){
+    var it = this.items.pop();
+    if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+  }
+  this.update(); this.msg(''); sfx('tap');
+};
+Stage.prototype.counts = function(){
+  var m = {};
+  this.items.forEach(function(it){ m[it.item.id] = (m[it.item.id]||0) + 1; });
+  var out = [];
+  STATIONERY.forEach(function(it){ if(m[it.id]) out.push({ item:it, n:m[it.id] }); });
+  return out;
+};
+Stage.prototype.list = function(){
+  return this.items.map(function(it){ return it.item.id; });
+};
+Stage.prototype.update = function(){
+  var cs = this.counts();
+  if(this.emptyEl) this.emptyEl.style.display = this.items.length ? 'none' : '';
+  if(this.countEl) this.countEl.textContent = String(this.items.length);
+
+  if(this.palEl){
+    var m = {};
+    cs.forEach(function(c){ m[c.item.id] = c.n; });
+    var tiles = this.palEl.querySelectorAll('[data-id]');
+    for(var i=0;i<tiles.length;i++){
+      var id = tiles[i].getAttribute('data-id');
+      var n = m[id] || 0;
+      tiles[i].classList.toggle('has', n > 0);
+      var b = tiles[i].querySelector('.st-badge');
+      if(b) b.textContent = String(n);
+    }
+  }
+  if(this.chipsEl){
+    this.chipsEl.innerHTML = '';
+    if(!cs.length){
+      var e = document.createElement('span');
+      e.className = 'st-empty-chip';
+      e.textContent = 'まだ なにも 入っていないよ';
+      this.chipsEl.appendChild(e);
+    }else{
+      var self = this;
+      cs.forEach(function(c){
+        var chip = document.createElement('span');
+        chip.className = 'st-chip';
+        var im = document.createElement('span');
+        im.className = 'st-chip-img';
+        var a = cardArt(c.item.img, c.item.emoji); a.classList.add('square');
+        im.appendChild(a);
+        chip.appendChild(im);
+        var tx = document.createElement('span');
+        tx.textContent = c.item.word + (c.n > 1 ? ' × ' + c.n : '');
+        chip.appendChild(tx);
+        var x = document.createElement('button');
+        x.type = 'button'; x.className = 'st-chip-x'; x.textContent = '✕';
+        x.setAttribute('aria-label', c.item.word + ' を ひとつ もどす');
+        x.addEventListener('click', function(){ self.removeOneOf(c.item.id); });
+        chip.appendChild(x);
+        self.chipsEl.appendChild(chip);
+      });
+    }
+  }
+  this.onChange(this);
+};
+
+/* カゴの中の文房具を タップしたら もどす */
+function bindBasketTap(stage){
+  stage.layer.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('.st-piece') : null;
+    if(!el) return;
+    stage.removeUid(parseInt(el.getAttribute('data-uid'),10));
+  });
+}
+
+/* カゴの中身だけを 描く(できあがり画面・きろく用。操作はできない) */
+function paintBasket(layerEl, ids){
+  layerEl.innerHTML = '';
+  var n = ids.length;
+  var size = (n <= 1) ? 0.40 : Math.max(0.215, 0.40 - (n-1)*0.0135);
+  for(var i=0;i<n;i++){
+    var it = SBY[ids[i]];
+    if(!it) continue;
+    var a = i*2.39996, r = (n === 1) ? 0 : 0.30*Math.sqrt(i/(n-1));
+    var cx = 0.5 + r*Math.cos(a), cy = 0.5 + r*Math.sin(a);
+    var el = document.createElement('span');
+    el.className = 'st-piece';
+    el.style.cursor = 'default';
+    el.style.setProperty('--art-rot', (((i*37) % 15) - 7) + 'deg');
+    el.style.width = (size*100).toFixed(2) + '%';
+    el.style.left = ((cx - size/2)*100).toFixed(2) + '%';
+    el.style.top = ((cy - size/2)*100).toFixed(2) + '%';
+    var art = cardArt(it.img, it.emoji);
+    art.classList.add('square', 'tight', 'cutout');
+    el.appendChild(art);
+    layerEl.appendChild(el);
+  }
+}
+
+/* ============================================================
+   4. 棚からのドラッグ&ドロップ(マウス/タッチ共通の Pointer Events)
+      すこししか動かなければ「タップ」= すぐに いれる
+      基準より 動いたら「ドラッグ」= カゴの上で はなすと いれる
+   ============================================================ */
+function bindTileDrag(tile, item, stage){
+  var startX = 0, startY = 0, dragging = false, ghost = null;
+  function cleanupGhost(){
+    if(ghost){ if(ghost.parentNode) ghost.parentNode.removeChild(ghost); ghost = null; }
+    tile.classList.remove('st-dragging');
+  }
+  function onMove(ev){
+    var dx = ev.clientX - startX, dy = ev.clientY - startY;
+    if(!dragging && Math.hypot(dx, dy) > 12){
+      dragging = true;
+      tile.classList.add('st-dragging');
+      ghost = document.createElement('div');
+      ghost.className = 'st-ghost';
+      var art = cardArt(item.img, item.emoji); art.classList.add('square');
+      ghost.appendChild(art);
+      document.body.appendChild(ghost);
+    }
+    if(dragging && ghost){ ghost.style.left = ev.clientX + 'px'; ghost.style.top = ev.clientY + 'px'; }
+  }
+  function onUp(ev){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onCancel);
+    if(dragging){
+      var rect = stage.basketEl.getBoundingClientRect();
+      var pad = 32;
+      var inside = ev.clientX >= rect.left - pad && ev.clientX <= rect.right + pad &&
+                   ev.clientY >= rect.top - pad && ev.clientY <= rect.bottom + pad;
+      cleanupGhost();
+      if(inside) stage.add(item);
+      else sfx('tap');
+    }else{
+      cleanupGhost();
+      stage.add(item);
+    }
+  }
+  function onCancel(){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onCancel);
+    cleanupGhost();
+  }
+  /* <img> は既定で「ネイティブドラッグ」できてしまい、それが始まると
+     ブラウザが pointercancel を送って 自前の Pointer Events 追跡が
+     とちゅうで切れてしまう。tile 内では ネイティブドラッグを 完全に止める。 */
+  tile.setAttribute('draggable', 'false');
+  tile.addEventListener('dragstart', function(e){ e.preventDefault(); });
+  tile.querySelectorAll('img').forEach(function(im){ im.setAttribute('draggable','false'); });
+  tile.addEventListener('pointerdown', function(e){
+    if(e.button != null && e.button !== 0) return;
+    if(stage.isOut(item.id)){
+      sfx('wrong');
+      stage.msg('うりきれだよ。「Sorry, I don’t have it.」と つたえよう。', true);
+      return;
+    }
+    e.preventDefault();
+    startX = e.clientX; startY = e.clientY; dragging = false;
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onCancel);
+  });
+  tile.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    if(e.target !== tile) return; /* 内側の 🔊/在庫ボタンでの二重発火をふせぐ */
+    e.preventDefault();
+    if(stage.isOut(item.id)){ sfx('wrong'); stage.msg('うりきれだよ。', true); return; }
+    stage.add(item);
+  });
+}
+
+/* ============================================================
+   5. ステージの生成
+   ============================================================ */
+var makeStage = new Stage({
+  basketEl:$('make-basket'), layer:$('make-layer'), emptyEl:$('make-empty'),
+  palEl:$('make-pal'), chipsEl:$('make-chips'), countEl:$('make-count'), msgEl:$('make-msg'),
+  withStock:false, maxItems:8,
+  onChange:function(){ savedThis = false; }
+});
+var shopStage = new Stage({
+  basketEl:$('shop-basket'), layer:$('shop-layer'), emptyEl:$('shop-empty'),
+  palEl:$('shop-pal'), chipsEl:$('shop-chips'), countEl:$('shop-count'), msgEl:$('shop-msg'),
+  withStock:true, maxItems:8
+});
+bindBasketTap(makeStage);
+bindBasketTap(shopStage);
+
+$('btn-undo').addEventListener('click', function(){ makeStage.undo(); });
+$('btn-clear').addEventListener('click', function(){ makeStage.clear(); });
+$('btn-sundo').addEventListener('click', function(){ shopStage.undo(); resetJudge(); });
+$('btn-sclear').addEventListener('click', function(){ shopStage.clear(); resetJudge(); });
+
+/* ============================================================
+   6. できあがり画面 + ほぞん(localStorage)
+   ============================================================ */
+var SAVE_KEY = 'g4u5_stationery_sets';
+var savedThis = false;
+var store = (window.AppUI && AppUI.store) ? AppUI.store(SAVE_KEY) : {
+  get:function(d){ return d; }, set:function(){ return false; }, remove:function(){ return false; }
+};
+function loadSaved(){
+  var a = store.get([]);
+  return (a && a.length !== undefined) ? a : [];
+}
+function saveSet(ids){
+  if(!ids.length) return;
+  var a = loadSaved();
+  a.unshift({ id:Date.now(), at:new Date().toISOString(), list:ids });
+  if(a.length > 12) a = a.slice(0,12);
+  store.set(a);
+}
+function fmtDate(iso){
+  try{
+    var d = new Date(iso);
+    return (d.getMonth()+1) + 'がつ' + d.getDate() + 'にち ' +
+           ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+  }catch(e){ return ''; }
+}
+function setText(ids){
+  var m = {};
+  ids.forEach(function(id){ m[id] = (m[id]||0) + 1; });
+  var parts = [];
+  STATIONERY.forEach(function(it){ if(m[it.id]) parts.push(phraseFor(it, m[it.id])); });
+  return parts.join(', ');
+}
+
+function showDone(){
+  var ids = makeStage.list();
+  paintBasket($('done-layer'), ids);
+  var cs = makeStage.counts();
+  $('done-total').textContent = String(ids.length);
+
+  var wrap = $('done-list');
+  wrap.innerHTML = '';
+  if(!cs.length){
+    var p = document.createElement('div');
+    p.className = 'st-empty-chip';
+    p.textContent = '文房具が 入っていないよ。「つづきを つくる」から いれてみよう。';
+    wrap.appendChild(p);
+  }
+  cs.forEach(function(c){
+    var row = document.createElement('div');
+    row.className = 'st-ing';
+    var im = document.createElement('span');
+    im.className = 'st-ing-img';
+    var a = cardArt(c.item.img, c.item.emoji); a.classList.add('square');
+    im.appendChild(a);
+    row.appendChild(im);
+    var line = lineFor(c.item, c.n);
+    var tx = document.createElement('span');
+    tx.className = 'st-ing-txt';
+    tx.textContent = line;
+    row.appendChild(tx);
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'st-say'; b.style.position = 'static'; b.textContent = '🔊';
+    b.setAttribute('aria-label', line + ' を 聞く');
+    b.addEventListener('click', function(){ sfx('tap'); say(line); });
+    row.appendChild(b);
+    wrap.appendChild(row);
+  });
+
+  if(!savedThis && ids.length){
+    saveSet(ids);
+    savedThis = true;
+    $('save-note').textContent = '💾 つくった セットは この タブレットに ほぞんされたよ';
+  }else if(!ids.length){
+    $('save-note').textContent = '文房具を いれると ほぞんできるよ';
+  }
+}
+$('btn-done').addEventListener('click', function(){
+  if(!makeStage.items.length){
+    sfx('wrong');
+    makeStage.msg('文房具を いれてから おしてね。', true);
+    return;
+  }
+  go('done');
+  celebrate({ title:'セット かんせい!', sub:'なにが 入っているか つたえてみよう', icon:'🎒' });
+});
+$('btn-say-done').addEventListener('click', function(){ sfx('tap'); say('This is my stationery set.'); });
+$('btn-reedit').addEventListener('click', function(){ sfx('tap'); go('make'); });
+$('btn-again').addEventListener('click', function(){ sfx('tap'); makeStage.clear(); savedThis = false; go('make'); });
+$('btn-to-saved').addEventListener('click', function(){ sfx('tap'); go('saved'); });
+$('btn-saved-make').addEventListener('click', function(){ sfx('tap'); go('make'); });
+
+/* ============================================================
+   7. きろく画面
+   ============================================================ */
+function renderSaved(){
+  var a = loadSaved();
+  var grid = $('saved-grid');
+  grid.innerHTML = '';
+  if(!a.length){
+    var p = document.createElement('p');
+    p.className = 'st-hint';
+    p.textContent = 'まだ きろくが ないよ。「おすすめセットづくり」で セットを つくってみよう。';
+    grid.appendChild(p);
+    return;
+  }
+  a.forEach(function(rec){
+    var card = document.createElement('div');
+    card.className = 'st-saved';
+
+    var del = document.createElement('button');
+    del.type = 'button'; del.className = 'st-sdel'; del.textContent = '✕';
+    del.setAttribute('aria-label','この きろくを けす');
+    del.addEventListener('click', function(){
+      var list = loadSaved().filter(function(x){ return x.id !== rec.id; });
+      store.set(list); sfx('tap'); renderSaved();
+    });
+    card.appendChild(del);
+
+    var basket = document.createElement('div');
+    basket.className = 'st-basket';
+    var layer = document.createElement('div');
+    layer.className = 'st-layer';
+    basket.appendChild(layer);
+    card.appendChild(basket);
+    paintBasket(layer, rec.list || []);
+
+    var t = document.createElement('div');
+    t.className = 'st-stxt'; t.textContent = setText(rec.list || []);
+    card.appendChild(t);
+    var d = document.createElement('div');
+    d.className = 'st-sdate'; d.textContent = fmtDate(rec.at);
+    card.appendChild(d);
+
+    grid.appendChild(card);
+  });
+}
+
+/* ============================================================
+   8. お店やさんモード:お題カード・判定
+   ============================================================ */
+var order = null;
+var orderShown = true;
+var score = 0;
+
+function drawOrder(){
+  order = makeQuestion();
+  orderShown = true;
+  renderOrder();
+}
+function renderOrder(){
+  var body = $('order-body');
+  body.innerHTML = '';
+  if(!orderShown){
+    var h = document.createElement('div');
+    h.className = 'st-hidebox';
+    h.innerHTML = '<span class="st-hideico">🙈</span><span>お題カードは かくれています<br>おきゃくさんは 覚えて 口で たずねよう</span>';
+    body.appendChild(h);
+    $('btn-eye').textContent = '👀 見る';
+    $('order-eye').textContent = 'かくれています';
+    return;
+  }
+  $('btn-eye').textContent = '🙈 かくす';
+  $('order-eye').textContent = 'おきゃくさんだけ 見よう';
+  if(!order) return;
+  var card = document.createElement('div');
+  card.className = 'st-order-card';
+
+  var imgBox = document.createElement('div');
+  imgBox.className = 'st-oimg';
+  imgBox.appendChild(cardImg(order.item.img, order.item.emoji));
+  card.appendChild(imgBox);
+
+  var sentWrap = document.createElement('div');
+  sentWrap.className = 'st-osentence-wrap';
+  var sent = document.createElement('div');
+  sent.className = 'st-osentence';
+  sent.textContent = order.text;
+  sentWrap.appendChild(sent);
+  if(order.qty > 1){
+    var chip = document.createElement('span');
+    chip.className = 'app-chip pink'; chip.textContent = '×' + order.qty;
+    sentWrap.appendChild(chip);
+  }
+  if(order.color){
+    var sw = document.createElement('span');
+    sw.className = 'st-swatch'; sw.style.background = order.color; sw.title = order.color;
+    sentWrap.appendChild(sw);
+  }
+  card.appendChild(sentWrap);
+  body.appendChild(card);
+}
+function resetJudge(){
+  $('judge').classList.add('app-hidden');
+  $('next-row').classList.add('app-hidden');
+  $('btn-ok').disabled = false;
+  $('btn-ng').disabled = false;
+  $('shop-basket').classList.remove('ok','ng');
+}
+$('btn-eye').addEventListener('click', function(){
+  orderShown = !orderShown; sfx('tap'); renderOrder();
+});
+$('btn-neworder').addEventListener('click', function(){
+  sfx('tap'); shopStage.clear(); resetJudge(); drawOrder();
+  shopStage.msg('');
+});
+$('btn-serve').addEventListener('click', function(){
+  if(!shopStage.items.length){
+    sfx('wrong');
+    shopStage.msg('まだ なにも 入っていないよ。聞いた 文房具を カゴに いれてみよう。', true);
+    return;
+  }
+  sfx('tap');
+  $('judge').classList.remove('app-hidden');
+  $('next-row').classList.add('app-hidden');
+  $('btn-ok').disabled = false;
+  $('btn-ng').disabled = false;
+  $('judge-sub').textContent = 'てんいんさんは "Here you are." と つたえよう。おきゃくさんが たしかめてね。';
+  shopStage.msg('');
+  try{ $('judge').scrollIntoView({ block:'center', behavior:'smooth' }); }catch(e){}
+});
+$('btn-sorry').addEventListener('click', function(){
+  sfx('tap');
+  $('judge').classList.remove('app-hidden');
+  $('next-row').classList.add('app-hidden');
+  $('btn-ok').disabled = false;
+  $('btn-ng').disabled = false;
+  $('judge-sub').textContent = 'てんいんさんは "Sorry, I don’t have it." と つたえよう。おきゃくさんが たしかめてね。';
+  shopStage.msg('');
+  try{ $('judge').scrollIntoView({ block:'center', behavior:'smooth' }); }catch(e){}
+});
+$('btn-ok').addEventListener('click', function(){
+  if($('btn-ok').disabled) return;
+  $('btn-ok').disabled = true;
+  $('btn-ng').disabled = true;
+  score++;
+  $('shop-score').textContent = String(score);
+  $('shop-basket').classList.remove('ng');
+  $('shop-basket').classList.add('ok');
+  sfx('correct');
+  celebrate({ title:'せいこう!', sub:'"Thank you." と つたえて こうたいしよう', icon:'🎉' });
+  $('next-row').classList.remove('app-hidden');
+  $('judge-sub').textContent = 'お題カードを ひきなおして つづけよう。';
+});
+$('btn-ng').addEventListener('click', function(){
+  sfx('wrong');
+  $('shop-basket').classList.remove('ok');
+  $('shop-basket').classList.add('ng');
+  $('judge').classList.add('app-hidden');
+  shopStage.msg('もう いちど たずねてみよう。てんいんさんは なおそう。', true);
+  /* ゆらすのは メッセージだけ。カゴ本体を transform すると
+     乗算合成が こわれて 白い四角が 出てしまう。 */
+  var m = $('shop-msg');
+  m.classList.remove('app-anim-shake'); void m.offsetWidth; m.classList.add('app-anim-shake');
+  setTimeout(function(){ $('shop-basket').classList.remove('ng'); }, 900);
+});
+$('btn-next').addEventListener('click', function(){
+  sfx('tap'); shopStage.clear(); resetJudge(); drawOrder();
+});
+document.querySelectorAll('[data-say]').forEach(function(b){
+  b.addEventListener('click', function(){ sfx('tap'); say(b.getAttribute('data-say')); });
+});
+
+/* ============================================================
+   9. つかいかた
+   ============================================================ */
+var HELP =
+  '<p><b>✏️ Do you have 〜? を つかって、文房具ショップで あそぶ アプリだよ。</b></p>' +
+  '<p style="color:#e17055"><b>※ アプリは かってに 英語を しゃべりません。</b>🔊ボタンを おしたときだけ 聞こえます。たずねる文は じぶんの 口で 言おう。</p>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🏪 お店やさん(2人ぐみ・メインの あそび)</h4>' +
+  '<ul>' +
+  '<li>おきゃくさん…「🎴 お題カード」を見て、<b>じぶんの 口で</b> たずねる<br>' +
+  '<span style="color:#7f8c9b">(れい)Do you have a pen? / Do you have a red pencil? / Do you have two erasers?</span></li>' +
+  '<li>「🙈 かくす」を おすと てんいんさんに カードが 見えなくなるよ</li>' +
+  '<li>てんいんさん…聞いた 文房具を <b>棚から カゴへ ドラッグ</b>(タップでも 入れられるよ)</li>' +
+  '<li>入れおわったら 🤲「Here you are.」/ 在庫が なければ 😢「Sorry, I don’t have it.」</li>' +
+  '<li>棚の 左下の ✅/🚫 ボタンで、その 文房具を 「うりきれ」に できるよ</li>' +
+  '<li>おきゃくさんが「⭕ あってた!」か「🔁 ちがうよ」を えらぶ</li>' +
+  '</ul>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🎒 おすすめセットづくり</h4>' +
+  '<ul>' +
+  '<li>すきな 文房具を えらんで じぶんだけの セットを つくろう</li>' +
+  '<li>「できた!」で しょうかい画面。 I have 〜. の文を <b>じぶんで 言ってみよう</b>(🔊は 聞きたいときだけ)</li>' +
+  '<li>つくった セットは じどうで ほぞんされて、「きろく」で 見かえせるよ</li>' +
+  '</ul>' +
+  '<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">' +
+  '💡 <b>先生へ:</b> お題カードの英文は アプリが 読み上げません(言うのは 子どもです)。' +
+  '🔊は たんご・きまり文句の モデルとしてだけ つかってください。' +
+  'あっているか どうかは アプリではなく <b>おきゃくさん役の 子ども</b> が はんだんします。' +
+  '在庫の ✅/🚫 を つかうと、「うりきれで 買えない」という 場面も 練習できます。</div>';
+
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:'つかいかた' });
+});
+
+/* ============================================================
+   10. 画面きりかえ
+   ============================================================ */
+var SCREENS = { mode:'scr-mode', shop:'scr-shop', make:'scr-make', done:'scr-done', saved:'scr-saved' };
+var curScreen = 'mode';
+function go(name){
+  curScreen = name;
+  for(var k in SCREENS){
+    if(!Object.prototype.hasOwnProperty.call(SCREENS,k)) continue;
+    $(SCREENS[k]).classList.toggle('app-hidden', k !== name);
+  }
+  window.scrollTo(0,0);
+  if(name === 'done') showDone();
+  if(name === 'saved') renderSaved();
+  if(name === 'shop'){
+    if(!order) drawOrder();
+    shopStage.layout();
+  }
+  if(name === 'make') makeStage.layout();
+}
+$('mode-shop').addEventListener('click', function(){ sfx('tap'); go('shop'); });
+$('mode-make').addEventListener('click', function(){ sfx('tap'); go('make'); });
+$('mode-saved').addEventListener('click', function(){ sfx('tap'); go('saved'); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); go('mode'); });
+
+/* ============================================================
+   11. 初期化
+   ============================================================ */
+go('mode');
+
+/* テスト・デバッグ用の状態フック(授業では使いません) */
+window.__stationeryState = function(){
+  return {
+    screen: curScreen,
+    make: makeStage.list(),
+    shop: shopStage.list(),
+    order: order ? { text:order.text, qty:order.qty, itemId:order.item.id, color:order.color } : null,
+    orderShown: orderShown,
+    score: score,
+    saved: loadSaved().length,
+    stock: shopStage.stock
+  };
+};
 })();
 </script>
+
 </body>
 </html>

@@ -398,10 +398,14 @@ button, [role="button"], a.app-card, a.app-mode-card{
 
    ★ 注意(実際に踏んだ落とし穴):
      mix-blend-mode は「いちばん近い 合成グループ」の中でしか効かない。
-     祖先のどれかに transform / filter / opacity(<1) / will-change などが
-     あると そこで合成が切れ、白い四角が そのまま出てしまう。
-     器の中で ぽとん と落とす演出をしたいときは transform を使わず、
-     top/left のトランジションで動かすこと。
+     祖先のどれかに次のどれかがあると そこで合成が切れ、
+     白い四角が そのまま出てしまう。
+       - transform / filter / opacity(<1) / will-change
+       - isolation:isolate
+       - position が static 以外の要素に z-index を付けた場合  ← これも壊れる
+     器の中で ぽとん と落とす演出をしたいときは transform を使わず
+     top/left のトランジションで動かし、重ね順は DOM の並び順で決めること
+     (z-index を使わない)。傾けたいときは <img> 自身に --art-rot をかける。
    ★ 背景が明るい色のときに使うこと(暗い背景では絵が沈む)。 */
 .app-card-art.cutout > img{ mix-blend-mode:multiply; }
 
