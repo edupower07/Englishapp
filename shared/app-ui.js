@@ -353,6 +353,36 @@
     return img;
   }
 
+  /* 絵カードから「絵の部分だけ」を切り出して表示する。
+     Picture Dictionary の絵カードは全枚数 1040x720 で、
+     上から 544px(=75.6%)より下は 4本罫線+英単語のラベル帯になっている。
+     罫線の1本目が縁に見えないよう、少し内側の 536px で切る。
+     器に盛る・ピザにのせる など「食べ物そのもの」として置きたい場面では、
+     文字が入ったカードが入り込むと不自然なので、こちらを使う。
+     単語を読ませたい場面では従来どおり cardImg() を使う。 */
+  var ART_W = 1040, ART_H = 536;
+  function cardArt(imgFileName, emojiFallback) {
+    var box = document.createElement('span');
+    box.className = 'app-card-art';
+    if (!imgFileName) {
+      box.appendChild(cardImg(null, emojiFallback));
+      return box;
+    }
+    var img = document.createElement('img');
+    img.src = IMG_BASE + encodeURIComponent(imgFileName);
+    img.alt = imgFileName;
+    img.loading = 'lazy';
+    img.onerror = function () {
+      var span = document.createElement('span');
+      span.className = 'app-card-emoji';
+      span.textContent = emojiFallback || '❓';
+      box.innerHTML = '';
+      box.appendChild(span);
+    };
+    box.appendChild(img);
+    return box;
+  }
+
   /* ============================================================
      4. モーダル: 使い方 / 正解・クリア演出
      ============================================================ */
@@ -501,6 +531,9 @@
     speak: speak,
     speakSlow: speakSlow,
     cardImg: cardImg,
+    cardArt: cardArt,
+    ART_W: ART_W,
+    ART_H: ART_H,
     help: showHelp,
     hideHelp: hideHelp,
     celebrate: celebrate,

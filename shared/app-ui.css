@@ -368,3 +368,32 @@ button, [role="button"], a.app-card, a.app-mode-card{
   .app-mode-card{ min-height:170px; padding:16px 12px; }
   .app-mode-card .app-mode-icon{ font-size:3.2rem; }
 }
+
+/* ------------------------------------------------------------
+   絵カードの「絵だけ」表示
+   絵カードは 1040x720、上から544pxまでが絵、その下はラベル帯(罫線+英単語)。
+   器に盛る・のせる など、文字が入ると不自然な場面で使う。
+   ------------------------------------------------------------ */
+.app-card-art{
+  display:block; position:relative; overflow:hidden;
+  aspect-ratio:1040 / 536; width:100%;
+  line-height:0;
+}
+.app-card-art > img{ width:100%; height:auto; display:block; }
+.app-card-art > .app-card-emoji{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  line-height:1;
+}
+/* 絵だけを 正方形の枠いっぱいに(器の中に並べる など)。
+   絵の部分(1040x536)の高さが枠の高さと一致するよう 194.03% に拡大し、
+   左右のよはくは枠の外へ出す。 */
+.app-card-art.square{ aspect-ratio:1 / 1; }
+.app-card-art.square > img{
+  position:absolute; top:0; left:50%; width:194.03%; height:auto;
+  transform:translateX(-50%);
+}
+
+/* 絵カードは白背景なので、器や皿の上に置くと 白い四角が見えてしまう。
+   .cutout を足すと 乗算合成で 白が透けて 絵だけが乗っているように見える。
+   (背景が明るい色のときに使うこと。暗い背景では使わない) */
+.app-card-art.cutout > img{ mix-blend-mode:multiply; }
