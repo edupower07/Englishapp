@@ -2,378 +2,1130 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>まいにちのタイムライン日課 | 小学校外国語アプリポータル</title>
+<meta name="description" content="Let's Try! 2 Unit 9「This is my day.」1日の生活のことばで自分の発表をつくる小学校4年生向けアプリ。文をならべかえ・時こくやそえことばを足し・自分の声を録音して、絵本で発表できます。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は m-
+   ============================================================ */
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  margin:0; min-height:100vh;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+main{ max-width:1280px; margin:0 auto; padding:14px 14px 90px; }
 
-/* タイムライン */
-.timeline{
-  background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:12px;border:4px dashed var(--primary);
-  display:flex;gap:8px;flex-wrap:wrap;min-height:96px;align-items:center;
-}
-.tl-empty{color:var(--sub);font-weight:700;font-size:.85rem;margin:0 auto}
-.tl-chip{
-  background:#effdf5;border:3px solid var(--primary);border-radius:14px;padding:6px 8px;font-weight:800;
-  display:flex;flex-direction:column;align-items:center;cursor:pointer;font-size:.66rem;min-width:74px;gap:2px;
-  animation:pop .3s;
-}
-@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1)}}
-.tl-chip:hover{background:#ffecec;border-color:var(--pink)}
-.tl-chip .n{background:var(--primary);color:#fff;border-radius:50px;padding:1px 8px;font-size:.62rem}
-.tl-chip .e{font-size:1.5rem;line-height:1.1}
-.tl-arrow{color:var(--sub);font-weight:800}
+.m-title{ text-align:center; font-size:clamp(1.05rem,2.6vw,1.5rem); font-weight:800; margin:10px 0 2px; }
+.m-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.85rem; margin-bottom:12px; line-height:1.7; }
+.m-hint{ text-align:center; font-weight:800; color:var(--sub); font-size:.78rem; margin-top:8px; line-height:1.7; }
 
-/* カードプール */
-.pool-title{font-weight:800;text-align:center;margin:14px 0 8px;color:var(--sub);font-size:.9rem}
-.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
-.pcard{
-  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
-  border:4px solid transparent;transition:.15s;min-height:118px;display:flex;flex-direction:column;justify-content:center;gap:3px;
-}
-.pcard:hover{transform:translateY(-3px)}
-.pcard.used{opacity:.4}
-.pcard .pimg{width:54px;height:48px;margin:0 auto;display:flex;align-items:center;justify-content:center}
-.pcard .pimg img{max-width:100%;max-height:100%;object-fit:contain}
-.pcard .pemoji{font-size:2rem;line-height:1}
-.pcard .plabel{font-weight:800;font-size:.7rem;line-height:1.2}
-.pcard .plabel small{display:block;color:var(--sub);font-size:.6rem}
-.pcard .tod{position:absolute;font-size:.55rem}
-.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
-}
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.gray{background:#b2bec3;color:#2d3436}
-.big-btn.purple{background:var(--purple)}
-.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+/* ---------- 2らんレイアウト ---------- */
+.m-work{ display:grid; gap:16px; align-items:start; }
+@media(min-width:1060px){ .m-work{ grid-template-columns:minmax(0,1.04fr) minmax(0,1fr); } }
 
-/* 絵本 */
-.book-stage{max-width:560px;margin:0 auto;text-align:center}
-.book{
-  background:#fffdf5;border-radius:26px;box-shadow:var(--shadow-hover);border:5px solid var(--purple);
-  padding:24px;min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-  position:relative;overflow:hidden;
+.m-panel{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; }
+.m-panel-h{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-size:1rem; font-weight:800; margin:0 0 10px;
 }
-.page{animation:pagein .5s}
-@keyframes pagein{from{transform:translateX(60px) rotate(2deg);opacity:0}to{transform:none;opacity:1}}
-.book .bimg{width:180px;height:150px;display:flex;align-items:center;justify-content:center}
-.book .bimg img{max-width:100%;max-height:100%;object-fit:contain}
-.book .bemoji{font-size:5.5rem}
-.book .btext{font-family:'Fredoka One',cursive;font-size:1.7rem;color:#5f4b8b;cursor:pointer}
-.book .bja{color:var(--sub);font-weight:800;font-size:.9rem}
-.book .pageno{position:absolute;bottom:10px;right:18px;color:var(--sub);font-weight:800;font-size:.8rem}
-.book-nav{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
-/* 印刷用ストーリー一覧 */
-#print-list{display:none}
+.m-panel-h .m-note{ font-size:.72rem; color:var(--sub); font-weight:700; }
+
+/* ---------- じぶんの はっぴょう(ならべる リスト) ---------- */
+#list{ display:flex; flex-direction:column; gap:10px; }
+.m-row{
+  background:#fff; border:3px solid #e6ecf2; border-left:10px solid var(--g4); border-radius:18px;
+  padding:8px 10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  box-shadow:var(--shadow); transition:transform .15s ease; touch-action:pan-y;
+}
+.m-row.dragging{ transition:none; position:relative; z-index:5; box-shadow:var(--shadow-hover); border-color:var(--primary); background:#fff; }
+.m-row.dup{ background:#fffdf3; border-color:var(--yellow); border-left-color:var(--yellow); }
+.m-handle{
+  width:42px; min-height:60px; flex-shrink:0; border-radius:12px; background:#f4f7f9;
+  display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#adbcc6;
+  cursor:grab; touch-action:none; user-select:none;
+}
+.m-handle:hover{ background:#e9f7ef; color:var(--g4); }
+.m-handle:active{ cursor:grabbing; background:#d9f5e6; color:var(--g4); }
+.m-num{ font-family:var(--app-font-display); font-size:1.2rem; color:var(--g4); width:26px; text-align:center; flex-shrink:0; }
+.m-rowart{ width:96px; flex-shrink:0; border-radius:12px; overflow:hidden; background:#f7f9fb; line-height:0; }
+.m-rowart .app-card-emoji{ font-size:2.4rem; padding:10px 0; }
+.m-rowtext{ flex:1 1 210px; font-weight:800; font-size:1.1rem; line-height:1.35; min-width:0; word-break:break-word; }
+.m-rowbtns{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+.m-mini{
+  width:48px; height:48px; min-width:48px; min-height:48px; border-radius:50%; border:none;
+  background:#f1f3f6; color:#5b6b76; font-size:1.05rem; font-family:inherit; font-weight:800;
+  cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:.15s;
+}
+.m-mini:hover:not(:disabled){ background:#e2e8ec; transform:translateY(-2px); }
+.m-mini:disabled{ opacity:.3; cursor:default; }
+.m-mini.play{ background:#e0f7fa; color:#00838f; }
+.m-mini.rec{ background:#ffe9e9; color:#c0392b; }
+.m-mini.rec.recording{ background:#c0392b; color:#fff; animation:m-recpulse 1s infinite; }
+.m-mini.mine{ background:#e8f8ef; color:#1e8449; }
+.m-mini.minedel{ background:#f1f3f6; color:#9aa8b2; }
+.m-mini.edit{ background:#fff4de; color:#a86800; }
+.m-mini.del{ background:#ffe6e6; color:#d63031; }
+@keyframes m-recpulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(192,57,43,.5); } 50%{ box-shadow:0 0 0 9px rgba(192,57,43,0); } }
+
+.m-empty{
+  text-align:center; color:var(--sub); font-weight:800; font-size:.95rem; line-height:2;
+  border:4px dashed #dbe4ea; border-radius:20px; padding:26px 16px;
+}
+.m-dup{
+  display:none; font-weight:800; font-size:.9rem; color:#7a5c00; background:#fff8e1;
+  border:3px solid var(--yellow); border-radius:14px; padding:9px 14px; margin:0 0 10px; line-height:1.7;
+}
+.m-dup b{ font-family:var(--app-font-display); }
+.m-reorder{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  color:var(--sub); font-weight:800; font-size:.78rem; margin:0 0 10px; line-height:1.6;
+}
+
+/* ---------- カードプール ---------- */
+.m-tabs{ display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.m-tab{
+  flex:1 1 auto; min-height:52px; padding:8px 12px; border-radius:14px; border:3px solid #e6ecf2; background:#fff;
+  font-family:inherit; font-weight:800; font-size:.85rem; color:var(--sub); cursor:pointer; transition:.15s;
+}
+.m-tab:hover{ border-color:var(--g4); }
+.m-tab.on{ border-color:var(--g4); background:#e9fbf1; color:var(--ink); }
+.m-groups{ font-weight:800; font-size:.85rem; color:var(--sub); margin:12px 0 8px; display:flex; align-items:center; gap:8px; }
+.m-groups::after{ content:''; flex:1; height:3px; background:#eef2f5; border-radius:3px; }
+.m-pcard{
+  background:#fff; border:4px solid #e9eef2; border-radius:20px; box-shadow:var(--shadow);
+  padding:10px 8px 8px; cursor:pointer; font-family:inherit; color:var(--ink);
+  display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;
+  min-height:158px; position:relative; transition:transform .16s,box-shadow .16s,border-color .16s;
+}
+.m-pcard:hover{ transform:translateY(-4px); box-shadow:var(--shadow-hover); border-color:var(--g4); }
+.m-pcard:active{ transform:translateY(-1px) scale(.98); }
+.m-pcard-art{ width:100%; max-width:170px; border-radius:12px; overflow:hidden; background:#fbfdff; line-height:0; }
+.m-pcard-art .app-card-emoji{ font-size:3rem; padding:16px 0; }
+.m-pcard-en{ font-weight:800; font-size:.92rem; line-height:1.25; }
+.m-pcard-plus{
+  position:absolute; top:-10px; right:-10px; width:34px; height:34px; border-radius:50%;
+  background:var(--g4); color:#fff; font-weight:800; font-size:1.05rem;
+  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);
+}
+
+/* ---------- ぶんを つくる シート ---------- */
+.m-sheetback{
+  position:fixed; inset:0; background:rgba(45,52,54,.5); z-index:590;
+  opacity:0; pointer-events:none; transition:opacity .2s ease;
+}
+.m-sheetback.show{ opacity:1; pointer-events:auto; }
+.m-sheet{
+  position:fixed; left:0; right:0; bottom:0; z-index:600;
+  background:#fff; border-radius:26px 26px 0 0; border-top:6px solid var(--g4);
+  box-shadow:0 -10px 34px rgba(0,0,0,.22); max-height:88vh; overflow-y:auto;
+  padding:14px 14px 20px; transform:translateY(106%); visibility:hidden;
+  transition:transform .26s cubic-bezier(.22,.61,.36,1), visibility 0s linear .26s;
+}
+.m-sheet.show{ transform:translateY(0); visibility:visible; transition:transform .26s cubic-bezier(.22,.61,.36,1), visibility 0s; }
+.m-sheet-in{ max-width:960px; margin:0 auto; }
+.m-sheet-h{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.m-sheet-h .m-sheet-t{ font-weight:800; font-size:1rem; display:flex; align-items:center; gap:6px; }
+.m-prev{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  background:#f2fbf6; border:4px dashed var(--g4); border-radius:20px; padding:12px 14px; margin-bottom:12px;
+}
+.m-prev-art{ width:120px; flex-shrink:0; border-radius:12px; overflow:hidden; background:#fff; line-height:0; }
+.m-prev-art .app-card-emoji{ font-size:2.8rem; padding:14px 0; }
+.m-prev-txt{ flex:1 1 220px; font-size:clamp(1.15rem,3.4vw,1.55rem); font-weight:800; line-height:1.32; word-break:break-word; }
+.m-prev-txt .m-slot{ color:var(--g4); }
+.m-field{ margin-bottom:12px; }
+.m-field-t{ font-weight:800; font-size:.88rem; margin:0 0 6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.m-field-t small{ color:var(--sub); font-weight:700; font-size:.72rem; }
+.m-chiprow{ display:flex; flex-wrap:wrap; gap:7px; }
+.m-chip{
+  min-height:52px; min-width:62px; padding:8px 14px; border-radius:15px; border:3px solid #e6ecf2; background:#fff;
+  font-family:inherit; font-weight:800; font-size:1rem; color:#54646f; cursor:pointer; transition:.15s;
+}
+.m-chip:hover{ border-color:var(--g4); }
+.m-chip.none{ font-size:.86rem; color:var(--sub); }
+.m-chip.tail{ font-size:.95rem; font-family:var(--app-font-display); letter-spacing:.2px; }
+.m-chip.on{ background:var(--g4); border-color:var(--g4); color:#fff; }
+
+/* ---------- えほん(はっぴょう) ---------- */
+.m-book{
+  max-width:760px; margin:0 auto; background:#fffdf5; border:6px solid var(--purple); border-radius:28px;
+  box-shadow:var(--shadow-hover); padding:20px 18px 30px; text-align:center; position:relative; overflow:hidden;
+}
+.m-page{ animation:m-pagein .4s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes m-pagein{ from{ transform:translateX(48px); opacity:0; } to{ transform:none; opacity:1; } }
+.m-book-art{ width:min(100%,540px); margin:0 auto 14px; border-radius:16px; overflow:hidden; background:#fff; line-height:0; box-shadow:var(--shadow); }
+.m-book-art .app-card-emoji{ font-size:6rem; padding:26px 0; }
+.m-book-txt{
+  font-size:clamp(1.3rem,4.4vw,2.05rem); font-weight:800; color:#5f4b8b; line-height:1.35;
+  min-height:2.4em; display:flex; align-items:center; justify-content:center; word-break:break-word;
+}
+.m-pageno{ position:absolute; bottom:10px; right:18px; color:var(--sub); font-weight:800; font-size:.85rem; }
+.m-booknav{ display:flex; gap:12px; justify-content:center; align-items:center; margin-top:16px; flex-wrap:wrap; }
+.m-arrow{
+  width:78px; height:78px; min-width:78px; border-radius:50%; border:none; background:var(--purple); color:#fff;
+  font-size:1.8rem; cursor:pointer; box-shadow:var(--shadow); transition:.15s; font-family:inherit;
+}
+.m-arrow:hover:not(:disabled){ transform:translateY(-3px); box-shadow:var(--shadow-hover); }
+.m-arrow:disabled{ background:#dfe6ec; color:#aab6c0; cursor:default; box-shadow:none; }
+.m-voicerow{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+.app-big-btn.m-recording{ background:#c0392b !important; color:#fff; animation:m-recpulse 1s infinite; }
+
+footer{ text-align:center; padding:18px; color:#b2bec3; font-size:.75rem; font-weight:700; }
+
+/* ---------- いんさつ ---------- */
+#print-list{ display:none; }
 @media print{
-  header,main>*:not(#print-list),footer{display:none!important}
-  #print-list{display:block!important}
-  #print-list h2{margin-bottom:10px}
-  #print-list .pl-row{font-size:14pt;margin-bottom:6px;font-weight:700}
-  body{background:#fff}
+  .app-header, main > section, footer, .m-sheet, .m-sheetback{ display:none !important; }
+  #print-list{ display:block !important; }
+  #print-list h2{ margin-bottom:12px; font-size:20pt; }
+  #print-list .m-pl{ font-size:15pt; margin-bottom:8px; font-weight:700; }
+  body{ background:#fff; }
 }
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🌅 まいにちのタイムライン日課 <span class="u">4年生 1日の生活</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">つくりなおす</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🌅 まいにちのタイムライン日課 <span class="app-unit-badge" style="background:var(--g4)">4年 1日の生活</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- ならべる -->
-  <section id="scr-build">
-    <h2 class="step-title">🌅 「わたしの一日」をつくろう</h2>
-    <p class="step-sub">朝から夜のじゅんばんに、生活カードをタップしてならべよう(タイムラインのカードをタップするとけせるよ)</p>
-    <div class="timeline" id="timeline"></div>
-    <div class="pool-title">▼ 生活カード(🌅あさ 🏫ひる 🌙よる)</div>
-    <div class="pool" id="pool"></div>
-    <div class="actions">
-      <button class="big-btn purple" id="btn-book" disabled>絵本にする 📖</button>
+  <!-- ============ モードせんたく ============ -->
+  <section id="scr-mode">
+    <h2 class="m-title">なにを する?</h2>
+    <p class="m-sub">じぶんの 1日を 英語で はっぴょうする じゅんびを しよう</p>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card g4" id="mode-build">
+        <span class="app-mode-icon">✏️</span>
+        <span class="app-mode-title">ぶんを つくる・ならべる</span>
+        <span class="app-mode-sub">カードから ぶんを つくって、<br>⠿ドラッグや ▲▼で じゅんばんを かえよう</span>
+      </button>
+      <button type="button" class="app-mode-card purple" id="mode-book">
+        <span class="app-mode-icon">📖</span>
+        <span class="app-mode-title">えほんで はっぴょう</span>
+        <span class="app-mode-sub">1ページに 大きな え と ぶん。<br>じぶんの こえも ろくおんできるよ</span>
+      </button>
+    </div>
+    <p class="m-hint">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
+  </section>
+
+  <!-- ============ つくる・ならべる ============ -->
+  <section id="scr-build" class="app-hidden">
+    <h2 class="m-title">🌅 わたしの 1日を つくろう</h2>
+    <p class="m-sub">カードを タップ → <b>じこく</b>や <b>そえことば</b>を えらんで ついか → ⠿ドラッグ・▲▼で じゅんばんを かえよう</p>
+
+    <div class="m-work">
+
+      <!-- 左: じぶんの はっぴょう -->
+      <div class="m-panel">
+        <h3 class="m-panel-h">
+          📋 わたしの はっぴょう
+          <span class="app-chip g4" id="cnt">0</span>
+          <span class="m-note">ぶん</span>
+        </h3>
+        <div class="m-reorder">
+          <span>⠿ を よこに つかんで 上下に うごかすと じゅんばんが かわるよ(▲▼ でも かえられる)</span>
+        </div>
+        <div class="m-dup" id="dup-hint"></div>
+        <div id="list"></div>
+        <div class="m-empty" id="empty-msg">
+          まだ ぶんが ないよ<br>
+          <span style="font-size:.85rem">▶ の カードを タップして さいしょの ぶんを つくろう</span>
+        </div>
+        <div class="app-btn-row" style="margin-top:14px">
+          <button type="button" class="app-big-btn purple" id="btn-to-book" disabled>📖 えほんで はっぴょう</button>
+          <button type="button" class="app-big-btn gray sm" id="btn-reset">つくりなおす</button>
+        </div>
+      </div>
+
+      <!-- 右: カードプール -->
+      <div class="m-panel">
+        <h3 class="m-panel-h">🎴 ことばの カード <span class="m-note">タップすると ぶんが つくれるよ</span></h3>
+        <div class="m-tabs" id="tabs">
+          <button type="button" class="m-tab on" data-tab="🌅">🌅 あさ</button>
+          <button type="button" class="m-tab" data-tab="🏫">🏫 がっこう</button>
+          <button type="button" class="m-tab" data-tab="🌙">🌙 よる</button>
+          <button type="button" class="m-tab" data-tab="more">➕ もっと</button>
+        </div>
+        <div id="pool"></div>
+      </div>
+
     </div>
   </section>
 
-  <!-- 絵本 -->
-  <section id="scr-book" class="hidden">
-    <h2 class="step-title">📖 MY DAY(わたしの一日)</h2>
-    <p class="step-sub">ページをめくって、声に出して読んでみよう</p>
-    <div class="book-stage">
-      <div class="book" id="book"></div>
-      <div class="book-nav">
-        <button class="big-btn gray" id="btn-prev">◀ まえ</button>
-        <button class="big-btn" id="btn-auto">▶ じどうさいせい</button>
-        <button class="big-btn gray" id="btn-next">つぎ ▶</button>
-      </div>
-      <div class="actions">
-        <button class="big-btn" id="btn-print" style="background:var(--blue)">🖨️ はっぴょう原稿をいんさつ</button>
-        <button class="big-btn gray" id="btn-back">ならべなおす</button>
-      </div>
+  <!-- ============ えほん(はっぴょう) ============ -->
+  <section id="scr-book" class="app-hidden">
+    <h2 class="m-title">📖 MY DAY</h2>
+    <p class="m-sub">まず じぶんの 口で 言ってみよう → 🔊 おてほん で たしかめよう → 🎙 ろくおん して ▶ で きいてみよう</p>
+    <div class="m-book" id="book"></div>
+    <div class="m-booknav">
+      <button type="button" class="m-arrow" id="btn-prev" aria-label="まえのページ">◀</button>
+      <span class="app-hud-chip primary" id="page-chip">1 / 1</span>
+      <button type="button" class="m-arrow" id="btn-next" aria-label="つぎのページ">▶</button>
     </div>
+    <div class="m-voicerow">
+      <button type="button" class="app-big-btn blue sm" id="btn-book-say">🔊 おてほん</button>
+      <button type="button" class="app-big-btn pink sm" id="btn-book-rec">🎙 ろくおん</button>
+      <button type="button" class="app-big-btn green sm app-hidden" id="btn-book-mine">▶ じぶんの声</button>
+      <button type="button" class="app-big-btn gray sm app-hidden" id="btn-book-minedel">🚫 けす</button>
+    </div>
+    <div class="app-btn-row" style="margin-top:16px">
+      <button type="button" class="app-big-btn outline sm" id="btn-print">🖨️ はっぴょう原稿を いんさつ</button>
+      <button type="button" class="app-big-btn gray sm" id="btn-back">✏️ ならべなおす</button>
+    </div>
+    <p class="m-hint">ページを めくっても かってには 読み上げないよ。じぶんで 言ってから 🔊 を おそう。</p>
   </section>
 
-  <!-- 印刷用 -->
+  <!-- いんさつ用 -->
   <div id="print-list"></div>
 
 </main>
 
-<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+<footer>Let's Try! 2 Unit 9 “This is my day.” / Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
 
-<script>
-// ============================================================
-// データ(教師向け:ここを書きかえると生活カードを変更できます)
-// tod: 🌅あさ / 🏫ひる / 🌙よる(ならべるときの目安)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-
-const ACTIONS = [
-  { en:"I get up.",             ja:"おきる",           img:"get up.jpg",           emoji:"⏰", tod:"🌅" },
-  { en:"I wash my face.",       ja:"かおをあらう",     img:"wash my face.jpg",     emoji:"🧼", tod:"🌅" },
-  { en:"I eat breakfast.",      ja:"あさごはん",       img:"eat breakfast.jpg",    emoji:"🍞", tod:"🌅" },
-  { en:"I go to school.",       ja:"学校へいく",       img:"go to school.jpg",     emoji:"🎒", tod:"🌅" },
-  { en:"I study.",              ja:"べんきょうする",   img:"study.jpg",            emoji:"✏️", tod:"🏫" },
-  { en:"I eat lunch.",          ja:"ひるごはん",       img:"eat lunch.jpg",        emoji:"🍱", tod:"🏫" },
-  { en:"I play with my friends.", ja:"友だちとあそぶ", img:"play with my friends.jpg", emoji:"⚽", tod:"🏫" },
-  { en:"I go home.",            ja:"家にかえる",       img:"go home.jpg",          emoji:"🏠", tod:"🏫" },
-  { en:"I do my homework.",     ja:"しゅくだいをする", img:"do my homework.jpg",   emoji:"📖", tod:"🌙" },
-  { en:"I eat dinner.",         ja:"ばんごはん",       img:"eat dinner.jpg",       emoji:"🍛", tod:"🌙" },
-  { en:"I watch TV.",           ja:"テレビを見る",     img:"watch TV.jpg",         emoji:"📺", tod:"🌙" },
-  { en:"I take a bath.",        ja:"おふろに入る",     img:"take a bath.jpg",      emoji:"🛁", tod:"🌙" },
-  { en:"I go to bed.",          ja:"ねる",             img:"go to bed.jpg",        emoji:"🌙", tod:"🌙" },
-];
-
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-
-// ============================================================
-// 状態
-// ============================================================
-let seq = [];        // ACTIONS の index の列
-let page = 0;
-let autoTimer = null;
-const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-build","scr-book"].forEach(s => $(s).classList.toggle("hidden", s !== id));
-}
-function actVisual(a, imgCls, emojiCls){
-  return `<div class="${imgCls}"><img src="${IMG_BASE + encodeURIComponent(a.img)}" alt="${a.en}"
-    onerror="this.outerHTML='<span class=&quot;${emojiCls}&quot;>${a.emoji}</span>'"></div>`;
-}
-
-// ============================================================
-// ならべる
-// ============================================================
-function renderTimeline(){
-  $("timeline").innerHTML = seq.length === 0
-    ? `<span class="tl-empty">したのカードをタップして、じゅんばんにならべよう</span>`
-    : seq.map((ai,i) => {
-        const a = ACTIONS[ai];
-        return `${i>0 ? '<span class="tl-arrow">▶</span>' : ""}
-          <span class="tl-chip" data-i="${i}">
-            <span class="n">${i+1}</span><span class="e">${a.emoji}</span>
-          </span>`;
-      }).join("");
-  $("btn-book").disabled = seq.length < 2;
-}
-function renderPool(){
-  $("pool").innerHTML = ACTIONS.map((a,i) => `
-    <div class="pcard ${seq.includes(i) ? "used" : ""}" data-i="${i}">
-      ${actVisual(a, "pimg", "pemoji")}
-      <div class="plabel">${a.tod}<br>${a.en}</div>
-    </div>`).join("");
-}
-$("pool").addEventListener("click", e => {
-  const el = e.target.closest(".pcard"); if(!el) return;
-  const i = +el.dataset.i;
-  if(seq.includes(i)) return;
-  seq.push(i);
-  renderTimeline(); renderPool();
-  speak(ACTIONS[i].en);
-});
-$("timeline").addEventListener("click", e => {
-  const chip = e.target.closest(".tl-chip"); if(!chip) return;
-  seq.splice(+chip.dataset.i, 1);
-  renderTimeline(); renderPool();
-});
-
-// ============================================================
-// 絵本
-// ============================================================
-function renderPage(){
-  if(seq.length === 0) return;
-  page = Math.max(0, Math.min(page, seq.length - 1));
-  const a = ACTIONS[seq[page]];
-  $("book").innerHTML = `
-    <div class="page">
-      ${actVisual(a, "bimg", "bemoji")}
-      <div class="btext" data-t="${a.en}">🔊 ${a.en}</div>
-      
+<!-- ============ ぶんを つくる シート ============ -->
+<div class="m-sheetback" id="sheet-back"></div>
+<div class="m-sheet" id="sheet" role="dialog" aria-modal="true" aria-label="ぶんを つくる" style="display:none">
+  <div class="m-sheet-in">
+    <div class="m-sheet-h">
+      <span class="m-sheet-t"><span aria-hidden="true">✏️</span><span id="sheet-title">ぶんを つくる</span></span>
+      <button type="button" class="app-nav-btn app-nav-ghost" id="sheet-close">とじる</button>
     </div>
-    <span class="pageno">${page+1} / ${seq.length}</span>`;
-  speak(a.en);
-}
-$("book").addEventListener("click", e => {
-  const el = e.target.closest(".btext"); if(el) speak(el.dataset.t);
-});
-$("btn-book").addEventListener("click", () => {
-  page = 0;
-  buildPrintList();
-  show("scr-book");
-  renderPage();
-});
-$("btn-prev").addEventListener("click", () => { stopAuto(); page--; renderPage(); });
-$("btn-next").addEventListener("click", () => { stopAuto(); page++; renderPage(); });
-$("btn-auto").addEventListener("click", () => {
-  if(autoTimer){ stopAuto(); return; }
-  $("btn-auto").textContent = "⏸ とめる";
-  page = 0; renderPage();
-  autoTimer = setInterval(() => {
-    if(page >= seq.length - 1){ stopAuto(); return; }
-    page++; renderPage();
-  }, 2600);
-});
-function stopAuto(){
-  clearInterval(autoTimer); autoTimer = null;
-  $("btn-auto").textContent = "▶ じどうさいせい";
-}
-$("btn-back").addEventListener("click", () => { stopAuto(); show("scr-build"); });
 
-// ============================================================
-// 印刷
-// ============================================================
-function buildPrintList(){
-  $("print-list").innerHTML = `<h2>MY DAY(わたしの一日)</h2>` +
-    seq.map((ai,i) => `<div class="pl-row">${i+1}. ${ACTIONS[ai].emoji} ${ACTIONS[ai].en}(${ACTIONS[ai].ja})</div>`).join("");
-}
-$("btn-print").addEventListener("click", () => { buildPrintList(); window.print(); });
+    <div class="m-prev">
+      <span class="m-prev-art" id="prev-art"></span>
+      <span class="m-prev-txt" id="prev-txt">I get up.</span>
+      <button type="button" class="app-big-btn blue sm" id="prev-say">🔊 きく</button>
+    </div>
 
-// ============================================================
-// ナビゲーション
-// ============================================================
-$("btn-home").addEventListener("click", () => {
-  stopAuto(); speechSynthesis.cancel();
-  seq = []; renderTimeline(); renderPool();
-  show("scr-build");
-});
+    <div class="m-field">
+      <p class="m-field-t">⏰ じこく <small>— なんじに する?(つけなくても いいよ)</small></p>
+      <div class="m-chiprow" id="hour-row"></div>
+      <div class="m-chiprow" id="min-row" style="margin-top:7px"></div>
+    </div>
 
-renderTimeline(); renderPool();
-show("scr-build");
-</script>
+    <div class="m-field">
+      <p class="m-field-t">➕ そえことば <small>— くわしく できるよ(つけなくても いいよ)</small></p>
+      <div class="m-chiprow" id="tail-row"></div>
+    </div>
 
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>1日の生活のことばをつかって、「わたしの一日」の絵本をつくるアプリです。</p><h4>あそびかた</h4><ol><li>じぶんの一日にあわせて、生活カードをじゅんばんにならべよう</li><li>できた MY DAY を、1まいずつ英語で言いながら めくってみよう</li><li>友だちの一日と くらべてみよう。おなじ?ちがう?</li></ol><div class="ah-tip">💡 先生向け:「一番すきな時間はどこ?」と問うと、自分のことを伝えたい気持ちが生まれます。</div>
+    <div class="app-btn-row" style="margin-top:4px">
+      <button type="button" class="app-big-btn green" id="sheet-ok">✅ この ぶんを ついか</button>
+    </div>
   </div>
 </div>
+
+<script src="../shared/app-ui.js"></script>
 <script>
 (function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+'use strict';
+
+/* ============================================================
+   0. 小さなヘルパー(AppUI が無くても落ちないように)
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(name, arg){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[name]) AppUI.sfx[name](arg); }catch(e){} }
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function celebrate(o){ try{ if(window.AppUI && AppUI.celebrate) AppUI.celebrate(o); }catch(e){} }
+function stopSpeaking(){ try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){} }
+function artEl(img, emoji){
+  if(window.AppUI && AppUI.cardArt) return AppUI.cardArt(img, emoji);
+  var s = document.createElement('span');
+  s.className = 'app-card-emoji';
+  s.textContent = emoji || '❓';
+  return s;
+}
+
+/* ============================================================
+   1. データ(先生向け: ここを書きかえると カードを変更できます)
+   ------------------------------------------------------------
+   en    : 英文(ピリオドまで)
+   img   : Picture Dictionary の絵カードファイル名
+   emoji : 画像が出ないときのかわり
+   tod   : 🌅あさ / 🏫がっこう / 🌙よる(タブの ふりわけ)
+   tails : この文に つけてよい そえことば(文法・いみの 両方で 安全なものだけ)
+   ============================================================ */
+var CORE = [
+  { en:"I get up.",               img:"get up.jpg",               emoji:"⏰", tod:"🌅", tails:["every day"] },
+  { en:"I wash my face.",         img:"wash my face.jpg",         emoji:"🧼", tod:"🌅", tails:["every day"] },
+  { en:"I eat breakfast.",        img:"eat breakfast.jpg",        emoji:"🍞", tod:"🌅", tails:["with my family","every day"] },
+  { en:"I go to school.",         img:"go to school.jpg",         emoji:"🎒", tod:"🌅", tails:["with my friends","every day"] },
+  { en:"I study.",                img:"study.jpg",                emoji:"✏️", tod:"🏫", tails:["at school","every day"] },
+  { en:"I eat lunch.",            img:"eat lunch.jpg",            emoji:"🍱", tod:"🏫", tails:["at school","with my friends","every day"] },
+  { en:"I play with my friends.", img:"play with my friends.jpg", emoji:"⚽", tod:"🏫", tails:["at school","after school","every day"] },
+  { en:"I go home.",              img:"go home.jpg",              emoji:"🏠", tod:"🏫", tails:["with my friends","every day"] },
+  { en:"I do my homework.",       img:"do my homework.jpg",       emoji:"📖", tod:"🌙", tails:["at home","after school","every day"] },
+  { en:"I eat dinner.",           img:"eat dinner.jpg",           emoji:"🍛", tod:"🌙", tails:["with my family","every day"] },
+  { en:"I watch TV.",             img:"watch TV.jpg",             emoji:"📺", tod:"🌙", tails:["with my family","after dinner","every day"] },
+  { en:"I take a bath.",          img:"take a bath.jpg",          emoji:"🛁", tod:"🌙", tails:["after dinner","every day"] },
+  { en:"I go to bed.",            img:"go to bed.jpg",            emoji:"🌙", tod:"🌙", tails:["every day"] }
+];
+
+/* 「➕ もっと」タブ — 4年生の ほかの たんげんの 絵カードからも えらべる */
+var EXTRA = [
+  { title:"🧺 くらし・おてつだい", items:[
+    { en:"I brush my teeth.",       img:"brush my teeth.jpg",       emoji:"🪥", tails:["after breakfast","after dinner","every day"] },
+    { en:"I clean my room.",        img:"clean my room.jpg",        emoji:"🧹", tails:["with my family","every day"] },
+    { en:"I wash the dishes.",      img:"wash the dishes.jpg",      emoji:"🍽️", tails:["after dinner","every day"] },
+    { en:"I take out the garbage.", img:"take out the garbage.jpg", emoji:"🗑️", tails:["every day"] },
+    { en:"I walk the dog.",         img:"walk the dog.jpg",         emoji:"🐕", tails:["with my family","every day"] },
+    { en:"I read books.",           img:"read.jpg",                 emoji:"📚", tails:["at home","every day"] }
+  ]},
+  { title:"🎮 あそび(4年 Unit 2)", items:[
+    { en:"I play tag.",          img:"play tag.jpg",          emoji:"🏃", tails:["with my friends","at school","every day"] },
+    { en:"I play cards.",        img:"play cards.jpg",        emoji:"🃏", tails:["with my friends","with my family"] },
+    { en:"I play dodgeball.",    img:"play dodgeball.jpg",    emoji:"🤾", tails:["with my friends","at school"] },
+    { en:"I jump rope.",         img:"jump rope.jpg",         emoji:"🪢", tails:["with my friends","at school","every day"] },
+    { en:"I play soccer.",       img:"play soccer.jpg",       emoji:"⚽", tails:["with my friends","after school"] },
+    { en:"I play the piano.",    img:"play the piano.jpg",    emoji:"🎹", tails:["at home","every day"] },
+    { en:"I play the recorder.", img:"play the recorder.jpg", emoji:"🎵", tails:["at school","every day"] }
+  ]},
+  { title:"🏫 学校の ばしょ(4年 Unit 8)", items:[
+    { en:"I go to the library.",       img:"library.jpg",       emoji:"📚", tails:["at school","after school"] },
+    { en:"I go to the music room.",    img:"music room.jpg",    emoji:"🎼", tails:["at school"] },
+    { en:"I go to the gym.",           img:"gym.jpg",           emoji:"🏀", tails:["at school","after school"] },
+    { en:"I go to the science room.",  img:"science room.jpg",  emoji:"🔬", tails:["at school"] },
+    { en:"I go to the computer room.", img:"computer room.jpg", emoji:"💻", tails:["at school"] },
+    { en:"I go to the playground.",    img:"playground.jpg",    emoji:"🌳", tails:["at school","with my friends"] }
+  ]}
+];
+
+/* じこく(えらぶだけ。文には at 6:30 のように 入る) */
+var HOURS = [5,6,7,8,9,10,11,12,1,2,3,4];
+var MINS  = ["00","15","30","45"];
+
+/* ============================================================
+   2. 状態と ほぞん
+   ============================================================ */
+var LIST_KEY = 'g4_myday_list_v1';
+var list = [];          /* {id, base, img, emoji, time, tail, text, rec} */
+var curScreen = 'mode';
+var poolTab = '🌅';
+var page = 0;
+
+function newId(){ return 'md' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function loadList(){
+  try{
+    var raw = window.localStorage.getItem(LIST_KEY);
+    var a = raw ? JSON.parse(raw) : [];
+    if(!Array.isArray(a)) a = [];
+    a.forEach(function(s){ if(!s.id) s.id = newId(); });
+    return a;
+  }catch(e){ return []; }
+}
+function saveList(){
+  try{ window.localStorage.setItem(LIST_KEY, JSON.stringify(list)); }catch(e){}
+}
+
+/* 文の 組み立て: I get up + at 6:30 + every day + . */
+function buildText(base, time, tail){
+  return base + (time ? ' at ' + time : '') + (tail ? ' ' + tail : '') + '.';
+}
+function baseOf(en){ return String(en).replace(/\.\s*$/, ''); }
+
+/* ============================================================
+   3. じぶんの声(ろくおん)の ほぞん: IndexedDB
+   ------------------------------------------------------------
+   音声は localStorage には 入りきらないので IndexedDB に ためる。
+   ページを とじても のこる。
+   ============================================================ */
+var recDB = null;
+function openRecDB(){
+  return new Promise(function(res, rej){
+    if(recDB) return res(recDB);
+    if(!window.indexedDB) return rej(new Error('no indexedDB'));
+    var req = window.indexedDB.open('g4MydayRec', 1);
+    req.onupgradeneeded = function(){ req.result.createObjectStore('rec'); };
+    req.onsuccess = function(){ recDB = req.result; res(recDB); };
+    req.onerror = function(){ rej(req.error); };
+  });
+}
+function saveRec(id, blob){
+  return openRecDB().then(function(db){
+    return new Promise(function(res, rej){
+      var tx = db.transaction('rec', 'readwrite');
+      tx.objectStore('rec').put(blob, id);
+      tx.oncomplete = function(){ res(); };
+      tx.onerror = function(){ rej(tx.error); };
+    });
+  });
+}
+function loadRec(id){
+  return openRecDB().then(function(db){
+    return new Promise(function(res){
+      var tx = db.transaction('rec', 'readonly');
+      var r = tx.objectStore('rec').get(id);
+      r.onsuccess = function(){ res(r.result || null); };
+      r.onerror = function(){ res(null); };
+    });
+  }).catch(function(){ return null; });
+}
+function removeRec(id){
+  return openRecDB().then(function(db){
+    return new Promise(function(res){
+      var tx = db.transaction('rec', 'readwrite');
+      tx.objectStore('rec').delete(id);
+      tx.oncomplete = function(){ res(); };
+      tx.onerror = function(){ res(); };
+    });
+  }).catch(function(){});
+}
+
+var recorder = null, recChunks = [], recId = null;
+function isRecording(){ return !!(recorder && recorder.state === 'recording'); }
+
+function toggleRec(id){
+  if(isRecording()){ recorder.stop(); return Promise.resolve(); }
+  if(!navigator.mediaDevices || !window.MediaRecorder){
+    alert('この ブラウザでは ろくおん できません。');
+    return Promise.resolve();
+  }
+  stopSpeaking();
+  return navigator.mediaDevices.getUserMedia({ audio:true }).then(function(stream){
+    var mt = '';
+    if(window.MediaRecorder.isTypeSupported('audio/mp4')) mt = 'audio/mp4';
+    else if(window.MediaRecorder.isTypeSupported('audio/webm')) mt = 'audio/webm';
+    recorder = new MediaRecorder(stream, mt ? { mimeType:mt } : {});
+    recChunks = []; recId = id;
+    recorder.ondataavailable = function(e){ if(e.data && e.data.size > 0) recChunks.push(e.data); };
+    recorder.onstop = function(){
+      var blob = new Blob(recChunks, { type: mt || 'audio/webm' });
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      recorder = null; recId = null;
+      saveRec(id, blob).then(function(){
+        var s = findById(id);
+        if(s){ s.rec = 1; saveList(); }
+        sfx('pop');
+      }).catch(function(){
+        alert('ろくおんを ほぞん できませんでした。');
+      }).then(function(){
+        renderList(); renderBookVoice();
+      });
+    };
+    recorder.start();
+    renderList(); renderBookVoice();
+  }).catch(function(){
+    alert('マイクが つかえませんでした。ブラウザの きょかを かくにんしてね。');
+  });
+}
+function playMine(id){
+  return loadRec(id).then(function(blob){
+    if(!blob) return;
+    stopSpeaking();
+    var url = URL.createObjectURL(blob);
+    var a = new Audio(url);
+    a.onended = function(){ URL.revokeObjectURL(url); };
+    a.play().catch(function(){});
+  });
+}
+function clearMine(id){
+  return removeRec(id).then(function(){
+    var s = findById(id);
+    if(s){ delete s.rec; saveList(); }
+    renderList(); renderBookVoice();
+  });
+}
+function findById(id){
+  for(var i=0;i<list.length;i++){ if(list[i].id === id) return list[i]; }
+  return null;
+}
+
+/* ============================================================
+   4. リスト(じぶんの はっぴょう)の 表示
+   ============================================================ */
+function normText(t){ return String(t || '').replace(/\s+/g,' ').trim().toLowerCase(); }
+
+function renderList(){
+  var cont = $('list');
+  cont.innerHTML = '';
+  $('cnt').textContent = String(list.length);
+  $('empty-msg').classList.toggle('app-hidden', list.length > 0);
+  $('btn-to-book').disabled = (list.length === 0);
+
+  /* おなじ 文が 2かい いじょう あるかを しらべる */
+  var seen = {}, dupTexts = [];
+  list.forEach(function(s){
+    var k = normText(s.text);
+    seen[k] = (seen[k] || 0) + 1;
+    if(seen[k] === 2) dupTexts.push(s.text);
+  });
+  var dupBox = $('dup-hint');
+  if(dupTexts.length){
+    dupBox.innerHTML = '💡 おなじ ぶんが 2かい あるよ: ' + dupTexts.map(function(t){
+      return '<b>' + esc(t) + '</b>';
+    }).join('、');
+    dupBox.style.display = 'block';
+  }else{
+    dupBox.innerHTML = '';
+    dupBox.style.display = 'none';
+  }
+
+  list.forEach(function(s, i){
+    var row = document.createElement('div');
+    row.className = 'm-row';
+    row.dataset.idx = String(i);
+    if(seen[normText(s.text)] > 1) row.classList.add('dup');
+
+    var handle = document.createElement('div');
+    handle.className = 'm-handle';
+    handle.textContent = '⠿';
+    handle.title = 'ドラッグで じゅんばんを かえる';
+    handle.setAttribute('aria-label', 'ドラッグで じゅんばんを かえる');
+    handle.addEventListener('pointerdown', function(e){ startDrag(e, i); });
+
+    var num = document.createElement('div');
+    num.className = 'm-num';
+    num.textContent = String(i + 1);
+
+    var art = document.createElement('div');
+    art.className = 'm-rowart';
+    art.appendChild(artEl(s.img, s.emoji));
+
+    var text = document.createElement('div');
+    text.className = 'm-rowtext';
+    text.textContent = s.text;
+
+    var btns = document.createElement('div');
+    btns.className = 'm-rowbtns';
+    btns.appendChild(mini('play', '🔊', 'おてほんを きく', function(){ sfx('tap'); say(s.text); }));
+    var recBtn = mini('rec', (isRecording() && recId === s.id) ? '■' : '🎙',
+      'じぶんの声を ろくおんする', function(){ toggleRec(s.id); });
+    if(isRecording() && recId === s.id) recBtn.classList.add('recording');
+    btns.appendChild(recBtn);
+    if(s.rec){
+      btns.appendChild(mini('mine', '▶', 'じぶんの声を きく', function(){ playMine(s.id); }));
+      btns.appendChild(mini('minedel', '🚫', 'ろくおんを けす', function(){ sfx('tap'); clearMine(s.id); }));
+    }
+    btns.appendChild(mini('edit', '✏️', 'じこく・そえことばを かえる', function(){ sfx('tap'); openSheet(null, i); }));
+    var up = mini('up', '▲', 'ひとつ 上へ', function(){ moveItem(i, -1); });
+    if(i === 0) up.disabled = true;
+    var down = mini('down', '▼', 'ひとつ 下へ', function(){ moveItem(i, 1); });
+    if(i === list.length - 1) down.disabled = true;
+    btns.appendChild(up); btns.appendChild(down);
+    btns.appendChild(mini('del', '🗑', 'この ぶんを けす', function(){ deleteItem(i); }));
+
+    row.appendChild(handle);
+    row.appendChild(num);
+    row.appendChild(art);
+    row.appendChild(text);
+    row.appendChild(btns);
+    cont.appendChild(row);
+  });
+}
+function mini(cls, label, title, fn){
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'm-mini ' + cls;
+  b.textContent = label;
+  b.title = title;
+  b.setAttribute('aria-label', title);
+  b.addEventListener('click', fn);
+  return b;
+}
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function moveItem(i, dir){
+  var j = i + dir;
+  if(j < 0 || j >= list.length) return;
+  var t = list[i]; list[i] = list[j]; list[j] = t;
+  saveList(); renderList(); sfx('tap');
+}
+function deleteItem(i){
+  var gone = list.splice(i, 1)[0];
+  saveList();
+  if(gone && gone.id) removeRec(gone.id);   /* 文を けしたら ろくおんも けす */
+  renderList(); sfx('tap');
+}
+
+/* ---------- ⠿ ドラッグで じゅんばんを かえる(▲▼ も のこしてある) ---------- */
+var drag = null;
+function startDrag(e, i){
+  if(e.button !== undefined && e.button !== 0) return;
+  if(list.length < 2) return;
+  e.preventDefault();
+  var cont = $('list');
+  var rows = Array.prototype.slice.call(cont.children);
+  var row = rows[i];
+  if(!row) return;
+  var rects = rows.map(function(r){ return r.getBoundingClientRect(); });
+  drag = { from:i, to:i, startY:e.clientY, rows:rows, rects:rects, row:row,
+           step:rects[i].height + 10 };
+  row.classList.add('dragging');
+  try{ e.target.setPointerCapture(e.pointerId); }catch(err){}
+  window.addEventListener('pointermove', onDrag);
+  window.addEventListener('pointerup', endDrag, { once:true });
+  window.addEventListener('pointercancel', endDrag, { once:true });
+  sfx('tick');
+}
+function onDrag(e){
+  if(!drag) return;
+  var d = drag;
+  var dy = e.clientY - d.startY;
+  d.row.style.transform = 'translateY(' + dy + 'px)';
+  /* うごかしている 行の まん中が、どの 行を こえたかで いき先を きめる */
+  var cy = d.rects[d.from].top + d.rects[d.from].height / 2 + dy;
+  var to = d.from;
+  for(var k = 0; k < d.rects.length; k++){
+    if(k === d.from) continue;
+    var mid = d.rects[k].top + d.rects[k].height / 2;
+    if(k < d.from && cy < mid) to = Math.min(to, k);
+    if(k > d.from && cy > mid) to = Math.max(to, k);
+  }
+  if(to !== d.to){
+    d.to = to;
+    d.rows.forEach(function(r, idx){
+      if(idx === d.from) return;
+      var shift = 0;
+      if(d.from < to && idx > d.from && idx <= to) shift = -d.step;
+      else if(d.from > to && idx >= to && idx < d.from) shift = d.step;
+      r.style.transform = shift ? ('translateY(' + shift + 'px)') : '';
+    });
+  }
+}
+function endDrag(){
+  if(!drag) return;
+  var from = drag.from, to = drag.to;
+  window.removeEventListener('pointermove', onDrag);
+  drag.rows.forEach(function(r){ r.style.transform = ''; r.classList.remove('dragging'); });
+  drag = null;
+  if(from !== to){
+    var moved = list.splice(from, 1)[0];
+    list.splice(to, 0, moved);
+    saveList();
+    sfx('pop');
+  }
+  renderList();
+}
+
+/* ============================================================
+   5. カードプール
+   ============================================================ */
+function poolCard(c){
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'm-pcard';
+  b.setAttribute('aria-label', c.en + ' を ついかする');
+  var art = document.createElement('span');
+  art.className = 'm-pcard-art';
+  art.appendChild(artEl(c.img, c.emoji));
+  var en = document.createElement('span');
+  en.className = 'm-pcard-en';
+  en.textContent = c.en;
+  var plus = document.createElement('span');
+  plus.className = 'm-pcard-plus';
+  plus.textContent = '＋';
+  b.appendChild(art); b.appendChild(en); b.appendChild(plus);
+  /* タップしただけでは 読み上げない(🔊 を おしたときだけ) */
+  b.addEventListener('click', function(){ sfx('tap'); openSheet(c, -1); });
+  return b;
+}
+function newGrid(){
+  var g = document.createElement('div');
+  g.className = 'app-grid';
+  g.style.setProperty('--app-min-col', '168px');
+  return g;
+}
+function renderPool(){
+  var wrap = $('pool');
+  wrap.innerHTML = '';
+  if(poolTab === 'more'){
+    EXTRA.forEach(function(grp){
+      var h = document.createElement('div');
+      h.className = 'm-groups';
+      h.textContent = grp.title;
+      wrap.appendChild(h);
+      var g = newGrid();
+      grp.items.forEach(function(c){ g.appendChild(poolCard(c)); });
+      wrap.appendChild(g);
+    });
+  }else{
+    var g2 = newGrid();
+    CORE.filter(function(c){ return c.tod === poolTab; }).forEach(function(c){ g2.appendChild(poolCard(c)); });
+    wrap.appendChild(g2);
+  }
+}
+$('tabs').addEventListener('click', function(e){
+  var b = e.target.closest('.m-tab');
+  if(!b) return;
+  poolTab = b.getAttribute('data-tab');
+  var tabs = document.querySelectorAll('#tabs .m-tab');
+  for(var i=0;i<tabs.length;i++){ tabs[i].classList.toggle('on', tabs[i] === b); }
+  renderPool();
+  sfx('tap');
+});
+
+/* ============================================================
+   6. ぶんを つくる シート(じこく / そえことば)
+   ============================================================ */
+var sheet = { open:false, card:null, idx:-1, hour:null, min:'00', tail:null };
+
+function sheetTails(){
+  if(sheet.card && sheet.card.tails) return sheet.card.tails;
+  return ['every day'];
+}
+function sheetTime(){ return sheet.hour === null ? null : (sheet.hour + ':' + sheet.min); }
+function sheetText(){
+  if(!sheet.card) return '';
+  return buildText(baseOf(sheet.card.en), sheetTime(), sheet.tail);
+}
+function openSheet(card, idx){
+  if(idx >= 0){
+    /* 作った ぶんを なおす */
+    var s = list[idx];
+    if(!s) return;
+    sheet.card = { en:s.base + '.', img:s.img, emoji:s.emoji, tails:s.tails || ['every day'] };
+    sheet.idx = idx;
+    if(s.time){
+      var p = String(s.time).split(':');
+      sheet.hour = parseInt(p[0], 10);
+      sheet.min = p[1] || '00';
+    }else{
+      sheet.hour = null; sheet.min = '00';
+    }
+    sheet.tail = s.tail || null;
+    $('sheet-title').textContent = 'ぶんを なおす';
+    $('sheet-ok').textContent = '✅ なおす';
+  }else{
+    sheet.card = card;
+    sheet.idx = -1;
+    sheet.hour = null; sheet.min = '00'; sheet.tail = null;
+    $('sheet-title').textContent = 'ぶんを つくる';
+    $('sheet-ok').textContent = '✅ この ぶんを ついか';
+  }
+  sheet.open = true;
+  renderSheet();
+  var el = $('sheet');
+  clearTimeout(sheetHideTimer);
+  el.style.display = '';
+  void el.offsetWidth;              /* reflow してから すべりこませる */
+  el.classList.add('show');
+  $('sheet-back').classList.add('show');
+}
+var sheetHideTimer = null;
+function closeSheet(){
+  sheet.open = false;
+  var el = $('sheet');
+  el.classList.remove('show');
+  $('sheet-back').classList.remove('show');
+  clearTimeout(sheetHideTimer);
+  /* すべり終わってから DOM から すがたを けす(うしろの がめんに かぶらないように) */
+  sheetHideTimer = setTimeout(function(){ el.style.display = 'none'; }, 320);
+}
+function renderSheet(){
+  if(!sheet.card) return;
+  var artBox = $('prev-art');
+  artBox.innerHTML = '';
+  artBox.appendChild(artEl(sheet.card.img, sheet.card.emoji));
+  $('prev-txt').textContent = sheetText();
+
+  /* じこく: じ */
+  var hr = $('hour-row');
+  hr.innerHTML = '';
+  hr.appendChild(chip('じこく なし', sheet.hour === null, 'none', function(){
+    sheet.hour = null; sfx('tap'); renderSheet();
+  }));
+  HOURS.forEach(function(h){
+    hr.appendChild(chip(String(h), sheet.hour === h, '', function(){
+      sheet.hour = h; sfx('tap'); renderSheet();
+    }));
+  });
+  /* じこく: ふん(「じこく なし」のときは 出さない) */
+  var mr = $('min-row');
+  mr.innerHTML = '';
+  mr.style.display = (sheet.hour === null) ? 'none' : 'flex';
+  MINS.forEach(function(m){
+    mr.appendChild(chip(':' + m, sheet.min === m, '', function(){
+      sheet.min = m; sfx('tap'); renderSheet();
+    }));
+  });
+
+  /* そえことば */
+  var tr = $('tail-row');
+  tr.innerHTML = '';
+  tr.appendChild(chip('そえことば なし', sheet.tail === null, 'none', function(){
+    sheet.tail = null; sfx('tap'); renderSheet();
+  }));
+  sheetTails().forEach(function(t){
+    tr.appendChild(chip(t, sheet.tail === t, 'tail', function(){
+      sheet.tail = (sheet.tail === t) ? null : t;
+      sfx('tap'); renderSheet();
+    }));
+  });
+}
+function chip(label, on, extra, fn){
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'm-chip' + (extra ? ' ' + extra : '') + (on ? ' on' : '');
+  b.textContent = label;
+  b.addEventListener('click', fn);
+  return b;
+}
+$('sheet-close').addEventListener('click', function(){ sfx('tap'); closeSheet(); });
+$('sheet-back').addEventListener('click', function(){ closeSheet(); });
+$('prev-say').addEventListener('click', function(){ sfx('tap'); say(sheetText()); });
+$('sheet-ok').addEventListener('click', function(){
+  if(!sheet.card) return;
+  var time = sheetTime();
+  if(sheet.idx >= 0){
+    var s = list[sheet.idx];
+    s.time = time; s.tail = sheet.tail;
+    s.text = buildText(s.base, time, sheet.tail);
+  }else{
+    list.push({
+      id: newId(),
+      base: baseOf(sheet.card.en),
+      img: sheet.card.img,
+      emoji: sheet.card.emoji,
+      tails: sheet.card.tails || ['every day'],
+      time: time,
+      tail: sheet.tail,
+      text: sheetText()
+    });
+  }
+  saveList();
+  closeSheet();
+  renderList();
+  sfx('pop');
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && sheet.open) closeSheet();
+});
+
+/* ============================================================
+   7. えほん(はっぴょう)
+   ------------------------------------------------------------
+   ページを めくっただけでは 読み上げない。🔊 を おしたときだけ。
+   ============================================================ */
+function renderBook(){
+  var book = $('book');
+  if(!list.length){
+    book.innerHTML = '<div class="m-book-txt">まだ ぶんが ないよ</div>';
+    $('page-chip').textContent = '0 / 0';
+    $('btn-prev').disabled = true;
+    $('btn-next').disabled = true;
+    renderBookVoice();
+    return;
+  }
+  page = Math.max(0, Math.min(page, list.length - 1));
+  var s = list[page];
+  book.innerHTML = '';
+  var wrap = document.createElement('div');
+  wrap.className = 'm-page';
+  var art = document.createElement('div');
+  art.className = 'm-book-art';
+  art.appendChild(artEl(s.img, s.emoji));
+  var txt = document.createElement('div');
+  txt.className = 'm-book-txt';
+  txt.textContent = s.text;
+  wrap.appendChild(art); wrap.appendChild(txt);
+  book.appendChild(wrap);
+  var no = document.createElement('span');
+  no.className = 'm-pageno';
+  no.textContent = (page + 1) + ' / ' + list.length;
+  book.appendChild(no);
+
+  $('page-chip').textContent = (page + 1) + ' / ' + list.length;
+  $('btn-prev').disabled = (page === 0);
+  $('btn-next').disabled = (page === list.length - 1);
+  renderBookVoice();
+}
+function renderBookVoice(){
+  var s = list[page];
+  var recBtn = $('btn-book-rec');
+  var mineBtn = $('btn-book-mine');
+  var delBtn = $('btn-book-minedel');
+  var sayBtn = $('btn-book-say');
+  if(!s){
+    sayBtn.disabled = true; recBtn.disabled = true;
+    mineBtn.classList.add('app-hidden'); delBtn.classList.add('app-hidden');
+    return;
+  }
+  sayBtn.disabled = false; recBtn.disabled = false;
+  var on = isRecording() && recId === s.id;
+  recBtn.textContent = on ? '■ とめる' : '🎙 ろくおん';
+  recBtn.classList.toggle('m-recording', on);
+  mineBtn.classList.toggle('app-hidden', !s.rec);
+  delBtn.classList.toggle('app-hidden', !s.rec);
+}
+$('btn-prev').addEventListener('click', function(){ stopSpeaking(); sfx('tap'); page--; renderBook(); });
+$('btn-next').addEventListener('click', function(){ stopSpeaking(); sfx('tap'); page++; renderBook(); });
+$('btn-book-say').addEventListener('click', function(){
+  var s = list[page]; if(!s) return;
+  sfx('tap'); say(s.text);
+});
+$('btn-book-rec').addEventListener('click', function(){
+  var s = list[page]; if(!s) return;
+  toggleRec(s.id);
+});
+$('btn-book-mine').addEventListener('click', function(){
+  var s = list[page]; if(!s) return;
+  playMine(s.id);
+});
+$('btn-book-minedel').addEventListener('click', function(){
+  var s = list[page]; if(!s) return;
+  sfx('tap'); clearMine(s.id);
+});
+$('btn-back').addEventListener('click', function(){ sfx('tap'); go('build'); });
+
+/* ---------- いんさつ ---------- */
+function buildPrint(){
+  var html = '<h2>MY DAY</h2>';
+  list.forEach(function(s, i){
+    html += '<div class="m-pl">' + (i + 1) + '. ' + esc(s.text) + '</div>';
+  });
+  $('print-list').innerHTML = html;
+}
+$('btn-print').addEventListener('click', function(){
+  buildPrint();
+  try{ window.print(); }catch(e){}
+});
+
+/* ============================================================
+   8. つくりなおす(2かい おすと けす)
+   ============================================================ */
+var resetArmed = false, resetTimer = null;
+$('btn-reset').addEventListener('click', function(){
+  var b = $('btn-reset');
+  if(!resetArmed){
+    if(!list.length) return;
+    resetArmed = true;
+    b.textContent = 'ほんとうに けす?';
+    b.classList.remove('gray');
+    b.classList.add('pink');
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(disarmReset, 4000);
+    sfx('tap');
+    return;
+  }
+  disarmReset();
+  list.forEach(function(s){ if(s.id) removeRec(s.id); });
+  list = [];
+  saveList();
+  page = 0;
+  renderList();
+  sfx('tap');
+});
+function disarmReset(){
+  clearTimeout(resetTimer);
+  resetArmed = false;
+  var b = $('btn-reset');
+  b.textContent = 'つくりなおす';
+  b.classList.remove('pink');
+  b.classList.add('gray');
+}
+
+/* ============================================================
+   9. 画面きりかえ
+   ============================================================ */
+var SCREENS = { mode:'scr-mode', build:'scr-build', book:'scr-book' };
+function go(name){
+  curScreen = name;
+  disarmReset();
+  closeSheet();
+  stopSpeaking();          /* 画面を かえたら 読み上げは とめる(あたらしく しゃべりはしない) */
+  for(var k in SCREENS){
+    if(!Object.prototype.hasOwnProperty.call(SCREENS, k)) continue;
+    $(SCREENS[k]).classList.toggle('app-hidden', k !== name);
+  }
+  window.scrollTo(0, 0);
+  if(name === 'build'){ renderList(); renderPool(); }
+  if(name === 'book'){ page = Math.max(0, Math.min(page, Math.max(0, list.length - 1))); renderBook(); }
+}
+$('mode-build').addEventListener('click', function(){ sfx('tap'); go('build'); });
+$('mode-book').addEventListener('click', function(){ sfx('tap'); go('book'); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); go('mode'); });
+$('btn-to-book').addEventListener('click', function(){
+  if(!list.length) return;
+  page = 0;
+  buildPrint();
+  go('book');
+  celebrate({ title:'はっぴょうの じゅんび OK!', sub:'まず じぶんの 口で 言ってみよう', icon:'📖', sfx:false, autoHideMs:1600, confettiMs:1600 });
+});
+
+/* ============================================================
+   10. つかいかた
+   ============================================================ */
+var HELP =
+  '<p><b>🌅 じぶんの 1日を 英語で はっぴょうする アプリだよ。</b></p>' +
+  '<p style="color:#e17055"><b>※ アプリは かってに 英語を しゃべりません。</b>🔊ボタンを おしたときだけ 聞こえます。まず じぶんの 口で 言ってみよう。</p>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">✏️ ぶんを つくる・ならべる</h4>' +
+  '<ul>' +
+  '<li>右の カードを タップ → <b>じこく</b>(at 6:30)と <b>そえことば</b>(with my family など)を えらんで ついか</li>' +
+  '<li><b>⠿ を ドラッグ</b>すると じゅんばんが かわる。<b>▲▼</b> でも かえられる</li>' +
+  '<li><b>✏️</b> で じこく・そえことばを あとから なおせる。<b>🗑</b> で けせる</li>' +
+  '<li><b>➕ もっと</b>の タブには、あそび・学校の ばしょ・おてつだいの カードも あるよ</li>' +
+  '<li>おなじ ぶんが 2かい あると、上に おしらせが 出て その ぎょうに 色が つくよ</li>' +
+  '</ul>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🎙 じぶんの こえ</h4>' +
+  '<ul>' +
+  '<li><b>🎙</b> で ろくおん → もう1回 おすと とまる。<b>▶</b> で じぶんの こえが きける</li>' +
+  '<li><b>🚫</b> で ろくおんを けせる。ろくおんは ページを とじても のこるよ</li>' +
+  '</ul>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">📖 えほんで はっぴょう</h4>' +
+  '<ul>' +
+  '<li>1ページに 大きな え と ぶん。<b>◀ ▶</b> で めくる</li>' +
+  '<li>めくっても かってには 読み上げないよ。<b>じぶんで 言う → 🔊 おてほん → 🎙 ろくおん → ▶ きく</b>の じゅんが おすすめ</li>' +
+  '</ul>' +
+  '<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">' +
+  '💡 <b>先生へ:</b> このアプリは「カードを ならべて おわり」に しないことを ねらっています。' +
+  'じこく・そえことばで <b>じぶんだけの 文</b>に なるので、友だちの 発表と くらべる 場面を つくってください。' +
+  'ろくおんは 端末の IndexedDB に のこるので、前の 時間の 自分の 声と 聞きくらべる ふりかえりにも つかえます。' +
+  '</div>';
+
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:'つかいかた' });
+});
+
+/* ============================================================
+   11. しょきか
+   ============================================================ */
+list = loadList();
+renderList();
+renderPool();
+go('mode');
+
+/* ------------------------------------------------------------
+   テスト・デバッグ用のフック(授業では つかいません)
+   ------------------------------------------------------------ */
+window.__mydayState = function(){
+  return {
+    screen: curScreen,
+    page: page,
+    tab: poolTab,
+    sheet: sheet.open ? { text: sheetText(), hour: sheet.hour, min: sheet.min, tail: sheet.tail, idx: sheet.idx } : null,
+    dup: $('dup-hint').style.display === 'block' ? $('dup-hint').textContent : '',
+    list: list.map(function(s){
+      return { id:s.id, text:s.text, base:s.base, time:s.time || null, tail:s.tail || null, rec:s.rec ? 1 : 0 };
+    })
+  };
+};
+/* マイクの ない かんきょうで ろくおんUIを たしかめるため の フック */
+window.__mydayMarkRec = function(i, on){
+  var s = list[i];
+  if(!s) return false;
+  if(on) s.rec = 1; else delete s.rec;
+  saveList(); renderList(); renderBookVoice();
+  return true;
+};
 })();
 </script>
+
 </body>
 </html>

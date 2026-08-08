@@ -196,6 +196,26 @@
 
   <!-- ============ ログ ============ -->
   <section class="demo-sec">
+    <h2>🍓 AppUI.cardArt(絵カードの「絵だけ」)</h2>
+    <p style="color:#636e72;font-weight:bold;font-size:.9rem">
+      絵カードは 1040x720 で、下の4分の1が罫線+英単語のラベル帯。<br>
+      器に盛る・のせる など「食べ物そのもの」として置く場面では
+      <code>cardArt()</code>、単語を読ませる場面では <code>cardImg()</code> を使う。
+    </p>
+    <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+      <div><div style="font-size:.8rem;color:#888">cardImg(文字つき)</div>
+        <div id="art-a" style="width:170px"></div></div>
+      <div><div style="font-size:.8rem;color:#888">cardArt(絵だけ)</div>
+        <div id="art-b" style="width:170px"></div></div>
+      <div><div style="font-size:.8rem;color:#888">cardArt + .square.cutout</div>
+        <div id="art-c" style="width:170px"></div></div>
+      <div><div style="font-size:.8rem;color:#888">器に盛った例</div>
+        <div id="art-bowl" style="width:220px;height:220px;border-radius:50%;background:#fffdf0;
+             border:10px solid #8d5524;position:relative;overflow:hidden"></div></div>
+    </div>
+  </section>
+
+  <section class="demo-sec">
     <h2>📝 実行ログ(evaluate 検証用)</h2>
     <div id="log-box">ready.</div>
   </section>
@@ -376,6 +396,22 @@
     AppUI.sfx.pop();
     log('AppUI.store set score=' + score);
   });
+
+  (function () {
+    var a = AppUI.cardImg('apple.jpg', '🍎'); a.style.width = '170px';
+    document.getElementById('art-a').appendChild(a);
+    var b = AppUI.cardArt('apple.jpg', '🍎');
+    document.getElementById('art-b').appendChild(b);
+    var c = AppUI.cardArt('apple.jpg', '🍎'); c.classList.add('square', 'cutout');
+    document.getElementById('art-c').appendChild(c);
+    var bowl = document.getElementById('art-bowl');
+    [['apple.jpg', '🍎', 30, 60], ['strawberry.jpg', '🍓', 100, 40], ['banana.jpg', '🍌', 70, 110]]
+      .forEach(function (f) {
+        var e = AppUI.cardArt(f[0], f[1]); e.classList.add('square', 'cutout');
+        e.style.cssText += ';position:absolute;width:90px;left:' + f[2] + 'px;top:' + f[3] + 'px;';
+        bowl.appendChild(e);
+      });
+  })();
 
   log('demo.html initialized. AppUI keys: ' + Object.keys(AppUI).join(', '));
 })();
