@@ -2,462 +2,1049 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>オリジナルヨーグルトサラダをつくろう | 小学校外国語アプリポータル</title>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<meta name="description" content="Let's Try! 2 Unit 7「What do you want?」ほしいくだものを つたえあって、オリジナルの ヨーグルトサラダを つくる 小学校4年生向けアプリ。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#fffdec; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#ff8c00; --red:#ff6347; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は y-
+
+   ★重要★ うつわの中の くだものは AppUI.cardArt(...).square.cutout を使い、
+   乗算合成(mix-blend-mode:multiply)で 白地を すかして「絵だけ」を のせている。
+   乗算合成は「いちばん近い 祖先の スタッキングコンテキスト」までしか
+   ブレンドできないため、うつわ〜くだものの あいだの 要素に
+   transform / opacity / filter を つけてはいけない(白い四角が出る)。
+   ・位置は left / top / width(%)だけで うごかす(transform を使わない)
+   ・かたむきは <img> 自身に rotate をかける(ブレンド対象の要素そのものならOK)
+   ============================================================ */
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
-  min-height:100vh;touch-action:none;overflow:hidden;display:flex;flex-direction:column;
+  background:var(--bg);
+  background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  margin:0; min-height:100vh;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);z-index:50;gap:8px;flex-wrap:wrap;flex-shrink:0;
-}
-header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
+main{ max-width:1300px; margin:0 auto; padding:14px 14px 70px; }
 
-.subtitle{text-align:center;font-weight:800;color:var(--red);font-size:1.15rem;padding:6px 0 0;flex-shrink:0}
-.container{display:flex;gap:14px;width:100%;max-width:1100px;margin:0 auto;padding:10px 14px 14px;flex:1;min-height:0}
+.y-title{ text-align:center; font-size:clamp(1.05rem,2.6vw,1.5rem); font-weight:800; margin:8px 0 2px; }
+.y-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.85rem; margin-bottom:12px; line-height:1.7; }
+.y-hint{ text-align:center; font-weight:800; color:var(--sub); font-size:.78rem; margin-top:10px; line-height:1.8; }
 
-/* サイドバー */
-.sidebar{
-  width:230px;background:#fff;padding:12px;border-radius:22px;border:4px dashed #ffa07a;box-shadow:var(--shadow);
-  overflow-y:auto;display:flex;flex-direction:column;gap:8px;touch-action:pan-y;flex-shrink:0;
-}
-.sidebar h2{font-size:1.1rem;text-align:center;color:var(--primary);border-bottom:3px dotted #ffa07a;padding-bottom:8px;font-family:'Fredoka One',cursive;letter-spacing:1px}
-.fruit-item{
-  display:flex;align-items:center;background:#fffafa;border:3px solid #ffe4e1;border-radius:14px;padding:6px 8px;
-  cursor:grab;transition:.15s;user-select:none;-webkit-user-select:none;min-height:56px;
-}
-.fruit-item:active{transform:scale(.95);background:#ffe4e1}
-.fruit-icon{width:42px;height:42px;object-fit:contain;margin-right:10px;pointer-events:none}
-.fruit-name{font-size:1.02rem;font-weight:800;color:#555;pointer-events:none;line-height:1.1}
+/* ---------- レイアウト ---------- */
+.y-work{ display:flex; gap:18px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+.y-left{ flex:1 1 400px; min-width:300px; max-width:540px; display:flex; flex-direction:column; gap:12px; }
+.y-right{ flex:1 1 470px; min-width:300px; display:flex; flex-direction:column; gap:12px; }
+.y-panel{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; }
+.y-panel h3{ font-size:.98rem; font-weight:800; margin:0 0 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.y-panel .y-note{ font-size:.74rem; color:var(--sub); font-weight:700; line-height:1.7; margin:8px 0 0; }
+.y-role .y-note{ font-size:.72rem; color:var(--sub); font-weight:700; line-height:1.55; }
 
-/* メインエリア */
-.main-area{
-  flex:1;background:#fff;border-radius:22px;border:4px dashed #87ceeb;box-shadow:var(--shadow);
-  display:flex;flex-direction:column;align-items:center;padding:10px;position:relative;min-width:0;overflow:hidden;
+/* ---------- うつわ(明るい色にすること:乗算合成のため) ---------- */
+.y-bowl-wrap{ display:flex; justify-content:center; }
+.y-bowl{
+  position:relative; width:min(100%,470px); aspect-ratio:1; border-radius:50%;
+  background:radial-gradient(circle at 36% 27%, #ffffff 0%, #fffdf6 48%, #fdf3de 78%, #f8e9cd 100%);
+  border:15px solid #f7cf9b;
+  box-shadow:0 16px 32px rgba(0,0,0,.14), inset 0 8px 22px rgba(255,255,255,.95), inset 0 -14px 26px rgba(206,167,110,.22);
+  overflow:hidden;
+  transition:border-color .2s, box-shadow .2s;
 }
-#message{font-size:1.25rem;color:var(--red);font-weight:800;text-align:center;min-height:30px;flex-shrink:0}
-.count-box{width:100%;max-width:560px;background:#fff8dc;padding:6px 10px;border-radius:14px;border:2px dotted #deb887;text-align:center;flex-shrink:0}
-.count-title{font-size:.8rem;color:#8b4513;display:block;border-bottom:1px dashed #deb887;padding-bottom:2px;font-weight:800}
-#count-display{font-size:1.02rem;color:#333;font-weight:800;min-height:1.2rem}
+#shop-bowl{ width:min(100%,392px); }
+.y-bowl.ng{ border-color:#ffb3ab; box-shadow:0 16px 32px rgba(255,118,117,.28), inset 0 8px 22px rgba(255,255,255,.9); }
+.y-bowl.ok{ border-color:#8ce6c0; }
+.y-layer{ position:absolute; inset:0; }
 
-/* うつわ+ヨーグルト */
-.bowl-wrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0}
-.bowl{
-  width:min(460px, 100%, 58vh);aspect-ratio:1;background:radial-gradient(circle at 50% 50%, #8b4513, #a0522d 60%, #cd853f);
-  border-radius:50%;border:8px solid #5c3317;
-  box-shadow:inset 0 10px 20px rgba(0,0,0,.4), 0 15px 30px rgba(0,0,0,.3);
-  position:relative;overflow:hidden;display:flex;justify-content:center;align-items:center;flex-shrink:0;
+/* くだもの1つぶん。transform は ぜったいに つけない(乗算合成がこわれる) */
+.y-fruit{
+  position:absolute; line-height:0; cursor:pointer;
+  transition:left .34s cubic-bezier(.22,.61,.36,1),
+             top .52s cubic-bezier(.34,1.56,.64,1),
+             width .34s cubic-bezier(.34,1.56,.64,1);
 }
-.yogurt-base{
-  position:absolute;width:88%;height:86%;border-radius:45% 55% 40% 60% / 50% 60% 40% 50%;
-  background:radial-gradient(farthest-corner at 30% 30%, #ffffff 20%, #fffff0 60%, #eee8aa 100%);
-  box-shadow:inset 10px 10px 30px rgba(255,255,255,.8), inset -5px -5px 15px rgba(0,0,0,.05), 0 5px 15px rgba(0,0,0,.1);
-  z-index:0;pointer-events:none;
+/* 絵カード(1040x720)から 中央 480x480 あたりを切り出す。
+   共通CSSの .square より すこし内がわを切ることで、
+   かたむけても 下の ラベル帯(罫線)が 見えないようにしている。 */
+.y-empty{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+  color:#d3ad72; font-weight:800; font-size:.95rem; line-height:1.9; padding:0 16%; pointer-events:none;
 }
-.yogurt-base::after{
-  content:'';position:absolute;top:20%;left:20%;width:90px;height:55px;border-radius:50%;
-  background:rgba(255,255,255,.6);filter:blur(8px);transform:rotate(-45deg);
+.y-msg{ text-align:center; font-weight:800; font-size:.9rem; color:var(--sub); min-height:1.5em; }
+.y-msg.warn{ color:var(--pink); }
+
+/* ---------- くだものパレット(大きなカード) ---------- */
+.y-pal{ display:grid; grid-template-columns:repeat(auto-fill,minmax(146px,1fr)); gap:12px; }
+.y-fcard{
+  position:relative; background:#fff; border:4px solid #eef2f6; border-radius:20px;
+  padding:12px 8px 10px; display:flex; flex-direction:column; align-items:center; gap:6px;
+  cursor:pointer; box-shadow:var(--shadow); min-height:150px; font-family:inherit; color:var(--ink);
+  transition:transform .16s, border-color .16s, box-shadow .16s, background .16s;
 }
-.placed-fruit{
-  position:absolute;width:76px;height:76px;object-fit:contain;cursor:grab;
-  filter:drop-shadow(1px 3px 3px rgba(0,0,0,.3));z-index:10;touch-action:none;
+.y-fcard:hover, .y-fcard:focus-visible{ transform:translateY(-4px); border-color:var(--g4); box-shadow:var(--shadow-hover); outline:none; }
+.y-fcard:active{ transform:translateY(-1px) scale(.97); }
+.y-fcard.has{ border-color:var(--g4); background:#f2fdf7; }
+.y-fcard .y-fimg{ width:100%; max-width:120px; }
+.y-fcard .y-fimg img{ width:100%; display:block; border-radius:8px; }
+.y-fcard .y-fimg .app-card-emoji{ font-size:3rem; display:block; text-align:center; }
+.y-fcard .y-fword{ font-weight:800; font-size:1rem; line-height:1.2; text-align:center; }
+.y-fcard .y-fbadge{
+  position:absolute; left:-8px; top:-8px; min-width:36px; height:36px; padding:0 9px; border-radius:50px;
+  background:var(--g4); color:#fff; font-weight:800; font-size:.95rem;
+  display:none; align-items:center; justify-content:center; box-shadow:var(--shadow);
 }
-.placed-fruit:active{cursor:grabbing;opacity:.8}
-.drag-ghost{
-  position:fixed;width:60px;height:60px;opacity:.85;z-index:9999;pointer-events:none;
-  filter:drop-shadow(2px 2px 5px rgba(0,0,0,.3));object-fit:contain;
+.y-fcard.has .y-fbadge{ display:flex; }
+.y-say{
+  width:44px; height:44px; min-width:44px; min-height:44px; border-radius:50%;
+  border:3px solid #eef2f6; background:#fff; cursor:pointer; font-size:1.05rem; font-family:inherit;
+  display:inline-flex; align-items:center; justify-content:center; transition:.16s; padding:0;
+}
+.y-say:hover{ border-color:var(--blue); background:#f2f8ff; }
+.y-fcard .y-say{ position:absolute; right:6px; top:6px; }
+
+/* ---------- 入れたもの一覧(チップ) ---------- */
+.y-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.y-chip{
+  display:inline-flex; align-items:center; gap:8px; background:#fff; border:3px solid #eef2f6;
+  border-radius:50px; padding:5px 8px 5px 5px; font-weight:800; font-size:.88rem; min-height:52px;
+}
+.y-chip-img{ width:40px; height:40px; border-radius:50%; overflow:hidden; background:#fffaf0; flex:0 0 40px; }
+.y-chip-x{
+  width:34px; height:34px; min-width:34px; border-radius:50%; border:none; background:#ffeceb; color:#d63031;
+  font-weight:800; cursor:pointer; font-family:inherit; font-size:.9rem; line-height:1;
+}
+.y-chip-x:hover{ background:#ffd9d5; }
+.y-empty-chip{ color:var(--sub); font-weight:800; font-size:.85rem; }
+
+/* ---------- お店やさん ---------- */
+.y-roles{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+.y-role{ flex:1 1 300px; max-width:480px; background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:9px 12px; border:4px solid #e6ecf2; }
+.y-role.cust{ border-color:var(--pink); }
+.y-role.shop{ border-color:var(--blue); }
+.y-role h4{ margin:0 0 5px; font-size:.88rem; font-weight:800; display:flex; align-items:center; gap:6px; }
+.y-lines{ display:flex; gap:8px; flex-wrap:wrap; }
+.y-line{
+  display:inline-flex; align-items:center; gap:7px; background:#f7f9fb; border-radius:50px; padding:6px 14px;
+  font-weight:800; font-size:.85rem; min-height:46px; border:none; font-family:inherit; text-align:left; color:var(--ink);
+}
+button.y-line{ cursor:pointer; }
+button.y-line:hover{ background:#eef4f8; }
+.y-line.speech{ background:#fff5f6; }
+
+.y-order{ background:#fffbe8; border:5px dashed var(--yellow); border-radius:var(--app-radius); padding:8px 14px 10px; margin-bottom:12px; }
+.y-order h3{ font-size:.95rem; font-weight:800; margin:0 0 8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.y-order-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between; }
+.y-order-grid{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; flex:1 1 320px; }
+.y-ocard{ position:relative; width:106px; background:#fff; border:4px solid #f0e4c0; border-radius:18px; padding:8px 6px 6px; text-align:center; }
+.y-ocard img{ width:100%; display:block; border-radius:8px; }
+.y-ocard .app-card-emoji{ font-size:3rem; }
+.y-ocard .y-ow{ font-weight:800; font-size:.92rem; margin-top:4px; }
+.y-ocard .y-on{
+  position:absolute; right:-8px; top:-10px; min-width:42px; height:42px; padding:0 8px; border-radius:50px;
+  background:var(--pink); color:#fff; font-weight:800; font-size:1.05rem; display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--shadow);
+}
+.y-hidebox{
+  display:flex; flex-direction:row; align-items:center; justify-content:center; gap:12px;
+  min-height:66px; color:#b08d3a; font-weight:800; font-size:.95rem; text-align:left; line-height:1.8;
+}
+.y-hidebox .y-hideico{ font-size:2.6rem; line-height:1; }
+
+.y-judge{ background:#fff; border:5px solid var(--pink); border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; text-align:center; }
+.y-judge h3{ font-size:1rem; font-weight:800; margin:0 0 4px; }
+.y-judge .y-jsub{ font-size:.78rem; color:var(--sub); font-weight:700; margin-bottom:10px; line-height:1.7; }
+
+/* ---------- できあがり / きろく ---------- */
+.y-done-wrap{ max-width:1100px; margin:0 auto; }
+.y-ing-list{ display:flex; flex-direction:column; gap:8px; }
+.y-ing{ display:flex; align-items:center; gap:10px; background:#f7f9fb; border-radius:14px; padding:6px 10px; min-height:56px; }
+.y-ing-img{ width:44px; height:44px; flex:0 0 44px; border-radius:50%; overflow:hidden; background:#fff; }
+.y-ing-txt{ font-weight:800; font-size:1.02rem; flex:1; }
+
+.y-saved-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; }
+.y-saved{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:12px; border:4px solid #eef2f6; position:relative; }
+.y-saved:hover{ border-color:var(--g4); }
+.y-saved .y-bowl{ width:100%; border-width:9px; }
+.y-saved .y-sdate{ font-size:.72rem; color:var(--sub); font-weight:700; margin-top:8px; }
+.y-saved .y-stxt{ font-size:.85rem; font-weight:800; line-height:1.7; margin-top:2px; }
+.y-saved .y-sdel{
+  position:absolute; right:-8px; top:-8px; width:38px; height:38px; border-radius:50%; border:none;
+  background:var(--pink); color:#fff; font-weight:800; cursor:pointer; font-family:inherit; font-size:.95rem; box-shadow:var(--shadow);
 }
 
-/* ボタン */
-.controls{display:flex;gap:12px;flex-shrink:0;padding-top:8px;flex-wrap:wrap;justify-content:center}
-.big-btn{
-  border:none;border-radius:50px;padding:10px 22px;font-family:inherit;font-weight:800;font-size:.92rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:46px;transition:.2s;color:#fff;
-}
-.big-btn:active{transform:translateY(2px)}
-.btn-reset{background:linear-gradient(to bottom,#ff7f50,#ff4500)}
-.btn-save{background:linear-gradient(to bottom,#32cd32,#228b22)}
-.btn-ask{background:var(--blue)}
+footer{ text-align:center; padding:18px; color:#b2bec3; font-size:.75rem; font-weight:700; }
 
-/* 使い方モーダル */
-.help-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:flex;justify-content:center;align-items:center;padding:16px}
-.help-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);touch-action:pan-y}
-.help-box h3{font-size:1.1rem;font-weight:800;margin-bottom:10px;color:var(--primary)}
-.help-box h4{font-size:.92rem;font-weight:800;margin:12px 0 4px}
-.help-box p,.help-box li{font-size:.86rem;font-weight:600;line-height:1.9}
-.help-box ol,.help-box ul{padding-left:1.4em}
-.help-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72}
-.help-tip{background:#fffbe8;border:2px dashed var(--yellow);border-radius:12px;padding:8px 12px;font-size:.82rem;font-weight:700;margin-top:10px;line-height:1.8}
-
-.hidden{display:none!important}
-
-@media(max-width:680px){
-  .container{flex-direction:column}
-  .sidebar{width:100%;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;touch-action:pan-x}
-  .sidebar h2{display:none}
-  .fruit-item{flex-direction:column;min-width:76px;gap:2px}
-  .fruit-icon{margin:0}
-  .fruit-name{font-size:.68rem;text-align:center}
+@media(max-width:560px){
+  .y-pal{ grid-template-columns:repeat(auto-fill,minmax(126px,1fr)); gap:9px; }
+  .y-fcard{ min-height:132px; padding:10px 6px 8px; }
+  .y-fcard .y-fword{ font-size:.9rem; }
+  /* スマホでは うつわを 少し小さくして パレットを 早く見せる */
+  .y-bowl, #shop-bowl{ width:min(100%,320px); border-width:11px; }
+  .y-saved .y-bowl{ width:100%; }
+  .y-ocard{ width:100px; }
 }
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🍓 オリジナルヨーグルトサラダをつくろう <span class="u">4年生 ほしいもの</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-help" style="background:var(--blue)">❓ 使い方</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436">ポータルへ</a>
+<header class="app-header">
+  <h1>🍓 オリジナルヨーグルトサラダ <span class="app-unit-badge" style="background:var(--g4)">4年 Unit 7</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
-<div class="subtitle" id="subtitle">🔊 What do you want?</div>
+<main>
 
-<div class="container">
-  <div class="sidebar" id="fruitList"><h2>Fruits</h2></div>
-  <div class="main-area">
-    <div id="message">Choose a fruit!</div>
-    <div class="count-box">
-      <span class="count-title">オリジナルヨーグルトサラダの中身</span>
-      <span id="count-display">なし (None)</span>
+  <!-- ============ モードせんたく ============ -->
+  <section id="scr-mode">
+    <h2 class="y-title">なにを する?</h2>
+    <p class="y-sub">ほしい くだものを つたえあって、オリジナルの ヨーグルトサラダを つくろう</p>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card green" id="mode-make">
+        <span class="app-mode-icon">🍨</span>
+        <span class="app-mode-title">じぶんで つくる</span>
+        <span class="app-mode-sub">すきな くだものを えらんで<br>じぶんだけの サラダを つくろう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-shop">
+        <span class="app-mode-icon">🏪</span>
+        <span class="app-mode-title">お店やさん</span>
+        <span class="app-mode-sub">2人ぐみ。おきゃくさんが 口で ちゅうもん →<br>てんいんさんが うつわに いれる</span>
+      </button>
+      <button type="button" class="app-mode-card yellow" id="mode-saved">
+        <span class="app-mode-icon">📔</span>
+        <span class="app-mode-title">きろく</span>
+        <span class="app-mode-sub">まえに つくった サラダを<br>見かえせるよ</span>
+      </button>
     </div>
-    <div class="bowl-wrap"><div class="bowl" id="bowl"><div class="yogurt-base"></div></div></div>
-    <div class="controls">
-      <button class="big-btn btn-ask" id="btn-ask">🔊 What do you want?</button>
-      <button class="big-btn btn-reset" id="btn-reset">リセット (Clean up)</button>
-      <button class="big-btn btn-save" id="btn-save">📷 画像をほぞん</button>
+    <p class="y-hint">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
+  </section>
+
+  <!-- ============ じぶんでつくる ============ -->
+  <section id="scr-make" class="app-hidden">
+    <h2 class="y-title">🍨 じぶんの ヨーグルトサラダを つくろう</h2>
+    <p class="y-sub">くだものカードを タップすると うつわに はいるよ / うつわの くだものを タップすると もどせるよ</p>
+
+    <div class="y-work">
+      <div class="y-left">
+        <div class="y-bowl-wrap">
+          <div class="y-bowl" id="make-bowl">
+            <div class="y-empty" id="make-empty">くだものカードを タップして<br>ヨーグルトの 上に のせよう</div>
+            <div class="y-layer" id="make-layer"></div>
+          </div>
+        </div>
+        <p class="y-msg" id="make-msg"></p>
+        <div class="app-hud" style="margin:0">
+          <span class="app-hud-chip primary">🍒 いれた かず <b id="make-count">0</b></span>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm outline" id="btn-undo">↩️ ひとつ もどす</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-clear">つくりなおす</button>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn pink" id="btn-done">できた! 🎉</button>
+        </div>
+      </div>
+
+      <div class="y-right">
+        <div class="y-panel">
+          <h3>🍎 くだもの <span class="app-chip g4">タップで いれる</span></h3>
+          <div class="y-pal" id="make-pal"></div>
+          <p class="y-note">🔊を おすと 言いかたが 聞けるよ(おしたときだけ 聞こえます)</p>
+        </div>
+        <div class="y-panel">
+          <h3>🥣 いれた くだもの</h3>
+          <div class="y-chips" id="make-chips"></div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  </section>
 
-<!-- 使い方 -->
-<div class="help-modal hidden" id="help-modal">
-  <div class="help-box">
-    <button class="help-close" id="help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>ほしいくだものを聞いたり答えたりしながら、じぶんだけのヨーグルトサラダをつくるアプリです。</p>
-    <h4>あそびかた</h4>
-    <ol>
-      <li>左のリストから くだものを <b>ドラッグ</b>して、うつわに のせよう(のせると英語が聞けるよ)</li>
-      <li>うつわの中でも うごかせるよ。<b>2回タップ</b>すると とりのぞけるよ</li>
-      <li>できあがったら、中身を英語で言ってみよう(例:くだものの名前と数)</li>
-      <li>「画像をほぞん」で じぶんのサラダを のこせるよ</li>
-    </ol>
-    <h4>ペアでのつかいかた(おすすめ)</h4>
-    <ol>
-      <li>店員さん役とお客さん役にわかれる</li>
-      <li>店員さん役:<b>What do you want?</b> と聞く</li>
-      <li>お客さん役:ほしいものを英語でつたえる(見ないで言えるとすごい!)</li>
-      <li>店員さん役が聞き取って、そのくだものをうつわにのせる</li>
-      <li>できあがったら「これでよかった?」を英語でたしかめて、交代しよう</li>
-    </ol>
-    <div class="help-tip">💡 先生向け:くだものの言い方がわからないときは、リストのカードを1回タップすると発音が聞けます。文の言い方は決めつけず、子どもが自分のことばで伝えようとする姿を大切にしてください。</div>
-  </div>
-</div>
+  <!-- ============ お店やさんモード ============ -->
+  <section id="scr-shop" class="app-hidden">
+    <h2 class="y-title">🏪 ヨーグルトサラダやさん</h2>
+    <p class="y-sub">おきゃくさんが <b>口で</b> ちゅうもん → てんいんさんが くだものを いれる → できたら "Here you are."</p>
 
+    <div class="y-roles">
+      <div class="y-role cust">
+        <h4>🙋 おきゃくさん(ちゅうもんする人)</h4>
+        <div class="y-lines">
+          <span class="y-line speech"><span>💬</span><span>Strawberries, please.</span></span>
+          <span class="y-line speech"><span>💬</span><span>I want two apples.</span></span>
+        </div>
+        <p class="y-note" style="margin:6px 0 0">ちゅうもんカードを 見て、<b>じぶんの 口で</b> つたえよう(アプリは 言ってくれないよ)</p>
+      </div>
+      <div class="y-role shop">
+        <h4>🧑‍🍳 てんいんさん(いれる人)</h4>
+        <div class="y-lines">
+          <button type="button" class="y-line" data-say="What do you want?"><span>🔊</span><span>What do you want?</span></button>
+          <button type="button" class="y-line" data-say="Here you are."><span>🔊</span><span>Here you are.</span></button>
+        </div>
+        <p class="y-note" style="margin:6px 0 0">聞いた くだものを うつわに いれて、<b>じぶんの 口で</b> わたそう</p>
+      </div>
+    </div>
+
+    <div class="y-order" id="order-box">
+      <div class="y-order-head">
+        <h3 style="margin:0">🎴 ちゅうもんカード
+          <span class="app-chip yellow" id="order-eye">おきゃくさんだけ 見よう</span>
+        </h3>
+        <div class="y-order-grid" id="order-grid"></div>
+        <div class="app-btn-row" style="justify-content:flex-end">
+          <button type="button" class="app-big-btn sm outline" id="btn-eye">🙈 かくす</button>
+          <button type="button" class="app-big-btn sm yellow" id="btn-neworder">🎲 べつの カードを ひく</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="y-work">
+      <div class="y-left">
+        <div class="y-bowl-wrap">
+          <div class="y-bowl" id="shop-bowl">
+            <div class="y-empty" id="shop-empty">ちゅうもんを 聞いて<br>くだものを いれよう</div>
+            <div class="y-layer" id="shop-layer"></div>
+          </div>
+        </div>
+        <p class="y-msg" id="shop-msg"></p>
+        <div class="app-hud" style="margin:0">
+          <span class="app-hud-chip primary">🍒 いれた かず <b id="shop-count">0</b></span>
+          <span class="app-hud-chip yellow">🏆 できた かず <b id="shop-score">0</b></span>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm outline" id="btn-sundo">↩️ ひとつ もどす</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-sclear">ぜんぶ もどす</button>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn blue" id="btn-serve">🍽️ できた!(Here you are.)</button>
+        </div>
+
+        <div class="y-judge app-hidden" id="judge">
+          <h3>🙋 おきゃくさん、あってた?</h3>
+          <p class="y-jsub" id="judge-sub">ちゅうもんした とおりだったか、じぶんの目で たしかめてね</p>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn green" id="btn-ok">⭕ あってた!</button>
+            <button type="button" class="app-big-btn pink" id="btn-ng">🔁 ちがうよ</button>
+          </div>
+          <div class="app-btn-row app-hidden" id="next-row" style="margin-top:10px">
+            <button type="button" class="app-big-btn primary" id="btn-next">➡️ つぎの おきゃくさん</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="y-right">
+        <div class="y-panel">
+          <h3>🍎 くだもの <span class="app-chip g4">タップで いれる</span></h3>
+          <div class="y-pal" id="shop-pal"></div>
+          <p class="y-note">🔊は たんごの 言いかたヘルプ。ちゅうもんの 文は アプリでは 言いません。</p>
+        </div>
+        <div class="y-panel">
+          <h3>🥣 いれた くだもの</h3>
+          <div class="y-chips" id="shop-chips"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ できあがり(紹介画面) ============ -->
+  <section id="scr-done" class="app-hidden">
+    <h2 class="y-title">🎉 できあがり!</h2>
+    <p class="y-sub">じぶんの サラダを しょうかいしよう</p>
+    <div class="y-done-wrap">
+      <div class="y-work">
+        <div class="y-left">
+          <div class="y-bowl-wrap">
+            <div class="y-bowl" id="done-bowl"><div class="y-layer" id="done-layer"></div></div>
+          </div>
+        </div>
+        <div class="y-right">
+          <div class="y-panel">
+            <h3>🥣 In my yogurt salad <span class="app-chip green" id="done-total">0</span></h3>
+            <div class="y-ing-list" id="done-list"></div>
+            <p class="y-note">🔊を おすと 言いかたが 聞けるよ。まずは じぶんで 言ってみよう。</p>
+          </div>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn blue" id="btn-say-done">🔊 This is my yogurt salad.</button>
+          </div>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn sm outline" id="btn-reedit">✏️ つづきを つくる</button>
+            <button type="button" class="app-big-btn sm green" id="btn-again">🆕 あたらしく つくる</button>
+            <button type="button" class="app-big-btn sm yellow" id="btn-to-saved">📔 きろくを 見る</button>
+          </div>
+          <p class="y-hint" id="save-note">💾 つくった サラダは この タブレットに ほぞんされたよ</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ きろく ============ -->
+  <section id="scr-saved" class="app-hidden">
+    <h2 class="y-title">📔 つくった サラダの きろく</h2>
+    <p class="y-sub">この タブレットに ほぞんされた サラダだよ(あたらしい じゅんに 12こまで)</p>
+    <div class="y-saved-grid" id="saved-grid"></div>
+    <div class="app-btn-row" style="margin-top:16px">
+      <button type="button" class="app-big-btn green" id="btn-saved-make">🍨 あたらしく つくる</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>Let's Try! 2 Unit 7 “What do you want?” / ほしいものを つたえあって オリジナルの サラダを つくろう</footer>
+
+<script src="../shared/app-ui.js"></script>
 <script>
-// ============================================================
-// データ(教師向け:ここを書きかえると内容を変更できます)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-const FRUITS = [
-  { id:"apple",      name:"Apple",       img:"apple.jpg",         emoji:"🍎" },
-  { id:"orange",     name:"Orange",      img:"orange_fruit.jpg",  emoji:"🍊" },
-  { id:"grape",      name:"Grapes",      img:"grapes.jpg",        emoji:"🍇" },
-  { id:"banana",     name:"Banana",      img:"banana.jpg",        emoji:"🍌" },
-  { id:"watermelon", name:"Watermelon",  img:"watermelon.jpg",    emoji:"🍉" },
-  { id:"peach",      name:"Peach",       img:"peach.jpg",         emoji:"🍑" },
-  { id:"strawberry", name:"Strawberry",  img:"strawberry.jpg",    emoji:"🍓" },
-  { id:"cherry",     name:"Cherry",      img:"cherry.jpg",        emoji:"🍒" },
-  { id:"pineapple",  name:"Pineapple",   img:"pineapple.jpg",     emoji:"🍍" },
-  { id:"kiwi",       name:"Kiwi fruit",  img:"kiwi fruit.jpg",    emoji:"🥝" },
-  { id:"melon",      name:"Melon",       img:"melon.jpg",         emoji:"🍈" },
-  { id:"pear",       name:"Japanese pear", img:"Japanese pear.jpg", emoji:"🍐" },
+(function(){
+'use strict';
+
+/* ============================================================
+   0. 小さなヘルパー(AppUI が無くても落ちないように)
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(n, a){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](a); }catch(e){} }
+function say(t){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(t); }catch(e){} }
+function stars(x,y,o){ try{ if(window.AppUI && AppUI.stars) AppUI.stars(x,y,o); }catch(e){} }
+function celebrate(o){ try{ if(window.AppUI && AppUI.celebrate) AppUI.celebrate(o); }catch(e){} }
+function shuffle(a){
+  if(window.AppUI && AppUI.shuffle) return AppUI.shuffle(a);
+  var b = a.slice();
+  for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; }
+  return b;
+}
+function cardImg(f,e){ return (window.AppUI && AppUI.cardImg) ? AppUI.cardImg(f,e) : document.createElement('span'); }
+function cardArt(f,e){ return (window.AppUI && AppUI.cardArt) ? AppUI.cardArt(f,e) : document.createElement('span'); }
+
+/* ============================================================
+   1. データ(先生向け: ここを書きかえると くだものを 変更できます)
+      img は Picture Dictionary の絵カードのファイル名
+   ============================================================ */
+var FRUITS = [
+  { id:'apple',      word:'apple',         plural:'apples',         img:'apple.jpg',         emoji:'🍎' },
+  { id:'orange',     word:'orange',        plural:'oranges',        img:'orange_fruit.jpg',  emoji:'🍊' },
+  { id:'grapes',     word:'grapes',        plural:'grapes',         img:'grapes.jpg',        emoji:'🍇' },
+  { id:'banana',     word:'banana',        plural:'bananas',        img:'banana.jpg',        emoji:'🍌' },
+  { id:'watermelon', word:'watermelon',    plural:'watermelons',    img:'watermelon.jpg',    emoji:'🍉' },
+  { id:'peach',      word:'peach',         plural:'peaches',        img:'peach.jpg',         emoji:'🍑' },
+  { id:'strawberry', word:'strawberry',    plural:'strawberries',   img:'strawberry.jpg',    emoji:'🍓' },
+  { id:'cherry',     word:'cherry',        plural:'cherries',       img:'cherry.jpg',        emoji:'🍒' },
+  { id:'pineapple',  word:'pineapple',     plural:'pineapples',     img:'pineapple.jpg',     emoji:'🍍' },
+  { id:'kiwi',       word:'kiwi fruit',    plural:'kiwi fruits',    img:'kiwi fruit.jpg',    emoji:'🥝' },
+  { id:'melon',      word:'melon',         plural:'melons',         img:'melon.jpg',         emoji:'🍈' },
+  { id:'pear',       word:'Japanese pear', plural:'Japanese pears', img:'Japanese pear.jpg', emoji:'🍐' }
 ];
-const FRUIT_SIZE = 76; // うつわの上のくだものの大きさ(px)
+var FBY = {};
+FRUITS.forEach(function(f){ FBY[f.id] = f; });
 
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.9){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+var NUM = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen'];
+var MAX_ITEMS = 14;
+
+/* 「two apples」のような 言い方をつくる */
+function phrase(f, n){
+  var num = NUM[n] || String(n);
+  if(f.plural === f.word) return (n === 1) ? f.word : (num + ' ' + f.word);  /* grapes など */
+  return num + ' ' + (n === 1 ? f.word : f.plural);
 }
 
-// ============================================================
-// 状態
-// ============================================================
-const $ = id => document.getElementById(id);
-const bowl = $("bowl");
-let fruitCounts = {};
-FRUITS.forEach(f => fruitCounts[f.id] = 0);
-
-// 絵文字のSVGデータURI(絵カード画像が読めないときの代替)
-function emojiSrc(emoji){
-  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='55' font-size='80' text-anchor='middle' dominant-baseline='central'>${emoji}</text></svg>`);
+/* ============================================================
+   2. うつわ(ステージ)
+      ★ transform を使わずに left/top/width(%) だけで もりつける
+   ============================================================ */
+function Stage(o){
+  this.bowl = o.bowl; this.layer = o.layer; this.emptyEl = o.emptyEl;
+  this.palEl = o.palEl; this.chipsEl = o.chipsEl; this.countEl = o.countEl; this.msgEl = o.msgEl;
+  this.items = [];       /* {uid, f, el, jit, jx, jy, rot} */
+  this.uid = 0;
+  this.onChange = o.onChange || function(){};
+  if(this.palEl) this.buildPalette();
+  this.update();
 }
-function fruitImg(f, cls){
-  const img = document.createElement("img");
-  img.className = cls;
-  img.alt = f.name;
-  img.draggable = false;
-  img.onerror = () => { img.onerror = null; img.src = emojiSrc(f.emoji); };
-  img.src = IMG_BASE + encodeURIComponent(f.img);
-  return img;
-}
+Stage.prototype.buildPalette = function(){
+  var self = this;
+  var frag = document.createDocumentFragment();
+  FRUITS.forEach(function(f){
+    var card = document.createElement('div');
+    card.className = 'y-fcard';
+    card.setAttribute('role','button');
+    card.tabIndex = 0;
+    card.setAttribute('data-fid', f.id);
+    card.setAttribute('aria-label', f.word);
 
-function updateCounts(){
-  const parts = [];
-  for(const f of FRUITS){
-    if(fruitCounts[f.id] > 0) parts.push(`${f.name}: ${fruitCounts[f.id]}`);
-  }
-  $("count-display").textContent = parts.length === 0 ? "なし (None)" : parts.join(", ");
-}
+    var badge = document.createElement('span');
+    badge.className = 'y-fbadge'; badge.textContent = '0';
+    card.appendChild(badge);
 
-// ============================================================
-// サイドバー(ドラッグ/タッチで追加。タップで発音だけ確認)
-// ============================================================
-FRUITS.forEach(f => {
-  const div = document.createElement("div");
-  div.className = "fruit-item";
-  div.draggable = true;
-  div.appendChild(fruitImg(f, "fruit-icon"));
-  const span = document.createElement("span");
-  span.className = "fruit-name"; span.textContent = f.name;
-  div.appendChild(span);
+    var sayBtn = document.createElement('button');
+    sayBtn.type = 'button'; sayBtn.className = 'y-say'; sayBtn.textContent = '🔊';
+    sayBtn.setAttribute('aria-label', f.word + ' を 聞く');
+    card.appendChild(sayBtn);
 
-  // マウスドラッグ
-  div.addEventListener("dragstart", e => {
-    e.dataTransfer.setData("text/plain", JSON.stringify({ mode:"new", id: f.id }));
-    $("message").textContent = `${f.name}...`;
+    var box = document.createElement('div');
+    box.className = 'y-fimg';
+    box.appendChild(cardImg(f.img, f.emoji));
+    card.appendChild(box);
+
+    var w = document.createElement('div');
+    w.className = 'y-fword'; w.textContent = f.word;
+    card.appendChild(w);
+
+    frag.appendChild(card);
   });
-  // クリックで発音(ことばのヘルプ)
-  div.addEventListener("click", () => speak(f.name));
-  // タッチドラッグ
-  div.addEventListener("touchstart", e => {
+  this.palEl.innerHTML = '';
+  this.palEl.appendChild(frag);
+
+  this.palEl.addEventListener('click', function(e){
+    var sb = e.target.closest ? e.target.closest('.y-say') : null;
+    var card = e.target.closest ? e.target.closest('[data-fid]') : null;
+    if(!card) return;
+    var f = FBY[card.getAttribute('data-fid')];
+    if(!f) return;
+    if(sb){ sfx('tap'); say(f.word); return; }   /* 🔊 = おしたときだけ 読み上げ */
+    self.add(f);
+  });
+  this.palEl.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    var card = e.target.closest ? e.target.closest('[data-fid]') : null;
+    if(!card || (e.target.classList && e.target.classList.contains('y-say'))) return;
     e.preventDefault();
-    initTouchDragFromSidebar(e, f);
-  }, { passive:false });
-
-  $("fruitList").appendChild(div);
-});
-
-// ============================================================
-// うつわへのドロップ(マウス)
-// ============================================================
-bowl.addEventListener("dragover", e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
-bowl.addEventListener("drop", e => {
-  e.preventDefault();
-  let data;
-  try{ data = JSON.parse(e.dataTransfer.getData("text/plain")); }catch(err){ return; }
-  if(data.mode === "new"){
-    const f = FRUITS.find(x => x.id === data.id); if(!f) return;
-    addNewFruit(f, e.clientX, e.clientY);
-  }else if(data.mode === "move"){
-    const el = document.getElementById(data.elementId);
-    if(el) moveFruitInBowl(el, e.clientX, e.clientY, data.offsetX, data.offsetY);
-  }
-});
-
-function addNewFruit(f, clientX, clientY){
-  placeFruit(f, clientX, clientY);
-  fruitCounts[f.id]++;
-  updateCounts();
-  speak(f.name);
-  $("message").textContent = `${f.name}!`;
-}
-
-function placeFruit(f, clientX, clientY){
-  const img = fruitImg(f, "placed-fruit");
-  img.id = "fruit-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
-  img.draggable = true;
-
-  img.addEventListener("dragstart", e => {
-    e.stopPropagation();
-    const rect = img.getBoundingClientRect();
-    e.dataTransfer.setData("text/plain", JSON.stringify({
-      mode:"move", elementId: img.id, offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top
-    }));
+    var f = FBY[card.getAttribute('data-fid')];
+    if(f) self.add(f);
   });
-  img.addEventListener("touchstart", e => {
-    e.preventDefault(); e.stopPropagation();
-    initTouchMoveInBowl(e, img);
-  }, { passive:false });
-
-  const rect = bowl.getBoundingClientRect();
-  const limit = bowl.clientWidth - FRUIT_SIZE;
-  let x = Math.max(0, Math.min(clientX - rect.left - FRUIT_SIZE/2, limit));
-  let y = Math.max(0, Math.min(clientY - rect.top - FRUIT_SIZE/2, limit));
-  img.style.left = x + "px";
-  img.style.top = y + "px";
-  img.style.transform = `rotate(${Math.floor(Math.random()*360)}deg)`;
-
-  // ダブルクリック/ダブルタップでとりのぞく
-  const removeSelf = () => { img.remove(); fruitCounts[f.id]--; updateCounts(); };
-  img.addEventListener("dblclick", removeSelf);
-  let lastTap = 0;
-  img.addEventListener("touchend", e => {
-    const now = Date.now();
-    if(now - lastTap < 300 && now - lastTap > 0){ removeSelf(); e.preventDefault(); }
-    lastTap = now;
-  });
-
-  bowl.appendChild(img);
-}
-
-function moveFruitInBowl(el, clientX, clientY, offsetX, offsetY){
-  const rect = bowl.getBoundingClientRect();
-  const limit = bowl.clientWidth - FRUIT_SIZE;
-  el.style.left = Math.max(0, Math.min(clientX - rect.left - offsetX, limit)) + "px";
-  el.style.top  = Math.max(0, Math.min(clientY - rect.top  - offsetY, limit)) + "px";
-}
-
-// ============================================================
-// タッチ操作
-// ============================================================
-function initTouchDragFromSidebar(e, f){
-  const touch = e.touches[0];
-  const ghost = fruitImg(f, "drag-ghost");
-  ghost.style.left = (touch.clientX - 30) + "px";
-  ghost.style.top = (touch.clientY - 30) + "px";
-  document.body.appendChild(ghost);
-  $("message").textContent = `${f.name}...`;
-  let moved = false;
-
-  function onMove(ev){
-    moved = true;
-    const t = ev.touches[0];
-    ghost.style.left = (t.clientX - 30) + "px";
-    ghost.style.top = (t.clientY - 30) + "px";
+};
+Stage.prototype.msg = function(t, warn){
+  if(!this.msgEl) return;
+  this.msgEl.textContent = t || '';
+  this.msgEl.classList.toggle('warn', !!warn);
+};
+Stage.prototype.add = function(f){
+  if(this.items.length >= MAX_ITEMS){
+    sfx('wrong');
+    this.msg('うつわが いっぱいだよ。ひとつ もどしてね。', true);
+    return null;
   }
-  function onEnd(ev){
-    const t = ev.changedTouches[0];
-    ghost.style.display = "none";
-    const target = document.elementFromPoint(t.clientX, t.clientY);
-    if(target && (target.id === "bowl" || bowl.contains(target))){
-      addNewFruit(f, t.clientX, t.clientY);
-    }else if(!moved){
-      speak(f.name); // その場タップ=発音の確認
+  this.uid++;
+  var el = document.createElement('span');
+  el.className = 'y-fruit';
+  el.setAttribute('data-uid', String(this.uid));
+  var rot = (Math.random()*16 - 8);
+  el.style.setProperty('--art-rot', rot.toFixed(1) + 'deg');
+  var art = cardArt(f.img, f.emoji);
+  art.classList.add('square','tight','cutout');       /* ← 絵だけ(文字なし)で のせる */
+  el.appendChild(art);
+
+  var it = {
+    uid:this.uid, f:f, el:el, rot:rot,
+    jit:(Math.random()*0.5 - 0.25),
+    jx:(Math.random()*0.03 - 0.015),
+    jy:(Math.random()*0.03 - 0.015)
+  };
+  this.items.push(it);
+
+  /* うつわの上から ぽとん、と おとす(top のトランジションだけで表現。
+     transform を使うと 乗算合成が こわれるため) */
+  var geo = this.geom(this.items.length - 1);
+  el.style.width = (geo.size*100).toFixed(2) + '%';
+  el.style.left = (geo.left*100).toFixed(2) + '%';
+  el.style.top = '-34%';
+  this.layer.appendChild(el);
+  void el.offsetWidth;                       /* 反映させてから 目的地へ */
+  this.layout();
+  sfx('pop');
+
+  var self = this;
+  setTimeout(function(){
+    try{
+      var r = el.getBoundingClientRect();
+      if(r.width) stars(r.left + r.width/2, r.top + r.height/2, { count:6 });
+    }catch(e){}
+  }, 430);
+
+  this.msg(''); this.update();
+  return it;
+};
+Stage.prototype.geom = function(i){
+  var n = this.items.length;
+  var size = (n <= 1) ? 0.40 : Math.max(0.215, 0.40 - (n-1)*0.0135);
+  var R = 0.305;
+  var a = i*2.39996 + (this.items[i] ? this.items[i].jit : 0);
+  var r = (n === 1) ? 0 : R*Math.sqrt(i/(n-1));
+  var cx = 0.5 + r*Math.cos(a) + (this.items[i] ? this.items[i].jx : 0);
+  var cy = 0.5 + r*Math.sin(a) + (this.items[i] ? this.items[i].jy : 0);
+  return { size:size, left:cx - size/2, top:cy - size/2 };
+};
+Stage.prototype.layout = function(){
+  for(var i=0;i<this.items.length;i++){
+    var g = this.geom(i), el = this.items[i].el;
+    el.style.width = (g.size*100).toFixed(2) + '%';
+    el.style.left = (g.left*100).toFixed(2) + '%';
+    el.style.top = (g.top*100).toFixed(2) + '%';
+  }
+};
+Stage.prototype.removeAt = function(i){
+  if(i < 0 || i >= this.items.length) return;
+  var it = this.items[i];
+  try{
+    var r = it.el.getBoundingClientRect();
+    if(r.width) stars(r.left + r.width/2, r.top + r.height/2, { count:5 });
+  }catch(e){}
+  if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+  this.items.splice(i,1);
+  this.layout(); this.update(); this.msg('');
+  sfx('tap');
+};
+Stage.prototype.removeUid = function(uid){
+  for(var i=0;i<this.items.length;i++){ if(this.items[i].uid === uid){ this.removeAt(i); return; } }
+};
+Stage.prototype.removeOneOf = function(fid){
+  for(var i=this.items.length-1;i>=0;i--){ if(this.items[i].f.id === fid){ this.removeAt(i); return; } }
+};
+Stage.prototype.undo = function(){
+  if(!this.items.length){ sfx('tap'); return; }
+  this.removeAt(this.items.length-1);
+};
+Stage.prototype.clear = function(){
+  while(this.items.length){
+    var it = this.items.pop();
+    if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+  }
+  this.update(); this.msg(''); sfx('tap');
+};
+Stage.prototype.counts = function(){
+  var m = {};
+  this.items.forEach(function(it){ m[it.f.id] = (m[it.f.id]||0) + 1; });
+  var out = [];
+  FRUITS.forEach(function(f){ if(m[f.id]) out.push({ f:f, n:m[f.id] }); });
+  return out;
+};
+Stage.prototype.list = function(){
+  return this.items.map(function(it){ return it.f.id; });
+};
+Stage.prototype.update = function(){
+  var cs = this.counts();
+  if(this.emptyEl) this.emptyEl.style.display = this.items.length ? 'none' : '';
+  if(this.countEl) this.countEl.textContent = String(this.items.length);
+
+  if(this.palEl){
+    var m = {};
+    cs.forEach(function(c){ m[c.f.id] = c.n; });
+    var cards = this.palEl.querySelectorAll('[data-fid]');
+    for(var i=0;i<cards.length;i++){
+      var id = cards[i].getAttribute('data-fid');
+      var n = m[id] || 0;
+      cards[i].classList.toggle('has', n > 0);
+      var b = cards[i].querySelector('.y-fbadge');
+      if(b) b.textContent = String(n);
     }
-    ghost.remove();
-    document.removeEventListener("touchmove", onMove);
-    document.removeEventListener("touchend", onEnd);
   }
-  document.addEventListener("touchmove", onMove, { passive:false });
-  document.addEventListener("touchend", onEnd);
+  if(this.chipsEl){
+    this.chipsEl.innerHTML = '';
+    if(!cs.length){
+      var e = document.createElement('span');
+      e.className = 'y-empty-chip';
+      e.textContent = 'まだ なにも 入っていないよ';
+      this.chipsEl.appendChild(e);
+    }else{
+      var self = this;
+      cs.forEach(function(c){
+        var chip = document.createElement('span');
+        chip.className = 'y-chip';
+        var im = document.createElement('span');
+        im.className = 'y-chip-img';
+        var a = cardArt(c.f.img, c.f.emoji); a.classList.add('square');
+        im.appendChild(a);
+        chip.appendChild(im);
+        var tx = document.createElement('span');
+        tx.textContent = c.f.word + (c.n > 1 ? ' × ' + c.n : '');
+        chip.appendChild(tx);
+        var x = document.createElement('button');
+        x.type = 'button'; x.className = 'y-chip-x'; x.textContent = '✕';
+        x.setAttribute('aria-label', c.f.word + ' を ひとつ もどす');
+        x.addEventListener('click', function(){ self.removeOneOf(c.f.id); });
+        chip.appendChild(x);
+        self.chipsEl.appendChild(chip);
+      });
+    }
+  }
+  this.onChange(this);
+};
+
+/* うつわの中の くだものを タップしたら もどす */
+function bindBowlTap(stage){
+  stage.layer.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('.y-fruit') : null;
+    if(!el) return;
+    stage.removeUid(parseInt(el.getAttribute('data-uid'),10));
+  });
 }
 
-function initTouchMoveInBowl(e, el){
-  const touch = e.touches[0];
-  const rect = el.getBoundingClientRect();
-  const offsetX = touch.clientX - rect.left;
-  const offsetY = touch.clientY - rect.top;
-  el.style.opacity = ".8";
-
-  function onMove(ev){
-    const t = ev.touches[0];
-    moveFruitInBowl(el, t.clientX, t.clientY, offsetX, offsetY);
+/* うつわの中身だけを 描く(できあがり画面・きろく用。操作はできない) */
+function paintBowl(layerEl, ids){
+  layerEl.innerHTML = '';
+  var n = ids.length;
+  var size = (n <= 1) ? 0.40 : Math.max(0.215, 0.40 - (n-1)*0.0135);
+  for(var i=0;i<n;i++){
+    var f = FBY[ids[i]];
+    if(!f) continue;
+    var a = i*2.39996, r = (n === 1) ? 0 : 0.305*Math.sqrt(i/(n-1));
+    var cx = 0.5 + r*Math.cos(a), cy = 0.5 + r*Math.sin(a);
+    var el = document.createElement('span');
+    el.className = 'y-fruit';
+    el.style.cursor = 'default';
+    el.style.setProperty('--art-rot', (((i*37) % 15) - 7) + 'deg');
+    el.style.width = (size*100).toFixed(2) + '%';
+    el.style.left = ((cx - size/2)*100).toFixed(2) + '%';
+    el.style.top = ((cy - size/2)*100).toFixed(2) + '%';
+    var art = cardArt(f.img, f.emoji);
+    art.classList.add('square','tight','cutout');
+    el.appendChild(art);
+    layerEl.appendChild(el);
   }
-  function onEnd(){
-    el.style.opacity = "1";
-    document.removeEventListener("touchmove", onMove);
-    document.removeEventListener("touchend", onEnd);
-  }
-  document.addEventListener("touchmove", onMove, { passive:false });
-  document.addEventListener("touchend", onEnd);
 }
 
-// ============================================================
-// ボタン
-// ============================================================
-$("btn-ask").addEventListener("click", () => speak("What do you want?"));
-$("subtitle").addEventListener("click", () => speak("What do you want?"));
-$("btn-reset").addEventListener("click", () => {
-  bowl.querySelectorAll(".placed-fruit").forEach(el => el.remove());
-  FRUITS.forEach(f => fruitCounts[f.id] = 0);
-  updateCounts();
-  $("message").textContent = "Choose a fruit!";
+/* ============================================================
+   3. ステージの生成
+   ============================================================ */
+var makeStage = new Stage({
+  bowl:$('make-bowl'), layer:$('make-layer'), emptyEl:$('make-empty'),
+  palEl:$('make-pal'), chipsEl:$('make-chips'), countEl:$('make-count'), msgEl:$('make-msg'),
+  onChange:function(){ savedThis = false; }
 });
-$("btn-save").addEventListener("click", () => {
-  if(typeof html2canvas === "undefined"){
-    alert("画像ほぞん機能が読み込めませんでした(オフラインのときは使えません)");
+var shopStage = new Stage({
+  bowl:$('shop-bowl'), layer:$('shop-layer'), emptyEl:$('shop-empty'),
+  palEl:$('shop-pal'), chipsEl:$('shop-chips'), countEl:$('shop-count'), msgEl:$('shop-msg')
+});
+bindBowlTap(makeStage);
+bindBowlTap(shopStage);
+
+$('btn-undo').addEventListener('click', function(){ makeStage.undo(); });
+$('btn-clear').addEventListener('click', function(){ makeStage.clear(); });
+$('btn-sundo').addEventListener('click', function(){ shopStage.undo(); resetJudge(); });
+$('btn-sclear').addEventListener('click', function(){ shopStage.clear(); resetJudge(); });
+
+/* ============================================================
+   4. できあがり画面 + ほぞん(localStorage)
+   ============================================================ */
+var SAVE_KEY = 'g4u7b_yogurt_salads';
+var savedThis = false;
+var store = (window.AppUI && AppUI.store) ? AppUI.store(SAVE_KEY) : {
+  get:function(d){ return d; }, set:function(){ return false; }, remove:function(){ return false; }
+};
+function loadSaved(){
+  var a = store.get([]);
+  return (a && a.length !== undefined) ? a : [];
+}
+function saveSalad(ids){
+  if(!ids.length) return;
+  var a = loadSaved();
+  a.unshift({ id:Date.now(), at:new Date().toISOString(), list:ids });
+  if(a.length > 12) a = a.slice(0,12);
+  store.set(a);
+}
+function fmtDate(iso){
+  try{
+    var d = new Date(iso);
+    return (d.getMonth()+1) + 'がつ' + d.getDate() + 'にち ' +
+           ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+  }catch(e){ return ''; }
+}
+function saladText(ids){
+  var m = {};
+  ids.forEach(function(id){ m[id] = (m[id]||0) + 1; });
+  var parts = [];
+  FRUITS.forEach(function(f){ if(m[f.id]) parts.push(phrase(f, m[f.id])); });
+  return parts.join(', ');
+}
+
+function showDone(){
+  var ids = makeStage.list();
+  paintBowl($('done-layer'), ids);
+  var cs = makeStage.counts();
+  $('done-total').textContent = String(ids.length);
+
+  var wrap = $('done-list');
+  wrap.innerHTML = '';
+  if(!cs.length){
+    var p = document.createElement('div');
+    p.className = 'y-empty-chip';
+    p.textContent = 'くだものが 入っていないよ。「つづきを つくる」から いれてみよう。';
+    wrap.appendChild(p);
+  }
+  cs.forEach(function(c){
+    var row = document.createElement('div');
+    row.className = 'y-ing';
+    var im = document.createElement('span');
+    im.className = 'y-ing-img';
+    var a = cardArt(c.f.img, c.f.emoji); a.classList.add('square');
+    im.appendChild(a);
+    row.appendChild(im);
+    var tx = document.createElement('span');
+    tx.className = 'y-ing-txt';
+    tx.textContent = phrase(c.f, c.n);
+    row.appendChild(tx);
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'y-say'; b.textContent = '🔊';
+    b.setAttribute('aria-label', phrase(c.f, c.n) + ' を 聞く');
+    b.addEventListener('click', function(){ sfx('tap'); say(phrase(c.f, c.n)); });
+    row.appendChild(b);
+    wrap.appendChild(row);
+  });
+
+  if(!savedThis && ids.length){
+    saveSalad(ids);
+    savedThis = true;
+    $('save-note').textContent = '💾 つくった サラダは この タブレットに ほぞんされたよ';
+  }else if(!ids.length){
+    $('save-note').textContent = 'くだものを いれると ほぞんできるよ';
+  }
+}
+$('btn-done').addEventListener('click', function(){
+  if(!makeStage.items.length){
+    sfx('wrong');
+    makeStage.msg('くだものを いれてから おしてね。', true);
     return;
   }
-  html2canvas(bowl, { backgroundColor:null, scale:2, useCORS:true }).then(canvas => {
-    const link = document.createElement("a");
-    link.download = "my_yogurt_salad.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  }).catch(() => alert("画像のほぞんにしっぱいしました。"));
+  go('done');
+  celebrate({ title:'サラダ かんせい!', sub:'なにが 入っているか つたえてみよう', icon:'🍨' });
+});
+$('btn-say-done').addEventListener('click', function(){ sfx('tap'); say('This is my yogurt salad.'); });
+$('btn-reedit').addEventListener('click', function(){ sfx('tap'); go('make'); });
+$('btn-again').addEventListener('click', function(){ sfx('tap'); makeStage.clear(); savedThis = false; go('make'); });
+$('btn-to-saved').addEventListener('click', function(){ sfx('tap'); go('saved'); });
+$('btn-saved-make').addEventListener('click', function(){ sfx('tap'); go('make'); });
+
+/* ============================================================
+   5. きろく画面
+   ============================================================ */
+function renderSaved(){
+  var a = loadSaved();
+  var grid = $('saved-grid');
+  grid.innerHTML = '';
+  if(!a.length){
+    var p = document.createElement('p');
+    p.className = 'y-hint';
+    p.textContent = 'まだ きろくが ないよ。「じぶんで つくる」で サラダを つくってみよう。';
+    grid.appendChild(p);
+    return;
+  }
+  a.forEach(function(rec){
+    var card = document.createElement('div');
+    card.className = 'y-saved';
+
+    var del = document.createElement('button');
+    del.type = 'button'; del.className = 'y-sdel'; del.textContent = '✕';
+    del.setAttribute('aria-label','この きろくを けす');
+    del.addEventListener('click', function(){
+      var list = loadSaved().filter(function(x){ return x.id !== rec.id; });
+      store.set(list); sfx('tap'); renderSaved();
+    });
+    card.appendChild(del);
+
+    var bowl = document.createElement('div');
+    bowl.className = 'y-bowl';
+    var layer = document.createElement('div');
+    layer.className = 'y-layer';
+    bowl.appendChild(layer);
+    card.appendChild(bowl);
+    paintBowl(layer, rec.list || []);
+
+    var t = document.createElement('div');
+    t.className = 'y-stxt'; t.textContent = saladText(rec.list || []);
+    card.appendChild(t);
+    var d = document.createElement('div');
+    d.className = 'y-sdate'; d.textContent = fmtDate(rec.at);
+    card.appendChild(d);
+
+    grid.appendChild(card);
+  });
+}
+
+/* ============================================================
+   6. お店やさんモード
+   ============================================================ */
+var order = [];          /* [{id,n}] */
+var orderShown = true;
+var score = 0;
+
+function drawOrder(){
+  var pool = shuffle(FRUITS);
+  var kinds = 2 + Math.floor(Math.random()*2);   /* 2〜3しゅるい */
+  order = [];
+  for(var i=0;i<kinds;i++){
+    order.push({ id:pool[i].id, n:1 + Math.floor(Math.random()*3) });   /* 1〜3こ */
+  }
+  orderShown = true;
+  renderOrder();
+}
+function renderOrder(){
+  var grid = $('order-grid');
+  grid.innerHTML = '';
+  if(!orderShown){
+    var h = document.createElement('div');
+    h.className = 'y-hidebox';
+    h.innerHTML = '<span class="y-hideico">🙈</span><span>ちゅうもんカードは かくれています<br>おきゃくさんは 口で つたえよう</span>';
+    grid.appendChild(h);
+    $('btn-eye').textContent = '👀 見る';
+    $('order-eye').textContent = 'かくれています';
+    return;
+  }
+  $('btn-eye').textContent = '🙈 かくす';
+  $('order-eye').textContent = 'おきゃくさんだけ 見よう';
+  order.forEach(function(o){
+    var f = FBY[o.id];
+    if(!f) return;
+    var c = document.createElement('div');
+    c.className = 'y-ocard';
+    var n = document.createElement('span');
+    n.className = 'y-on'; n.textContent = '×' + o.n;
+    c.appendChild(n);
+    c.appendChild(cardImg(f.img, f.emoji));
+    var w = document.createElement('div');
+    w.className = 'y-ow'; w.textContent = f.word;
+    c.appendChild(w);
+    grid.appendChild(c);
+  });
+}
+function resetJudge(){
+  $('judge').classList.add('app-hidden');
+  $('next-row').classList.add('app-hidden');
+  $('btn-ok').disabled = false;
+  $('btn-ng').disabled = false;
+  $('shop-bowl').classList.remove('ok','ng');
+}
+$('btn-eye').addEventListener('click', function(){
+  orderShown = !orderShown; sfx('tap'); renderOrder();
+});
+$('btn-neworder').addEventListener('click', function(){
+  sfx('tap'); shopStage.clear(); resetJudge(); drawOrder();
+  shopStage.msg('');
+});
+$('btn-serve').addEventListener('click', function(){
+  if(!shopStage.items.length){
+    sfx('wrong');
+    shopStage.msg('まだ なにも 入っていないよ。ちゅうもんを 聞いて いれてみよう。', true);
+    return;
+  }
+  sfx('tap');
+  $('judge').classList.remove('app-hidden');
+  $('next-row').classList.add('app-hidden');
+  $('btn-ok').disabled = false;
+  $('btn-ng').disabled = false;
+  $('judge-sub').textContent = 'てんいんさんは "Here you are." と つたえよう。おきゃくさんが たしかめてね。';
+  shopStage.msg('');
+  try{ $('judge').scrollIntoView({ block:'center', behavior:'smooth' }); }catch(e){}
+});
+$('btn-ok').addEventListener('click', function(){
+  if($('btn-ok').disabled) return;
+  $('btn-ok').disabled = true;
+  $('btn-ng').disabled = true;
+  score++;
+  $('shop-score').textContent = String(score);
+  $('shop-bowl').classList.remove('ng');
+  $('shop-bowl').classList.add('ok');
+  orderShown = true; renderOrder();
+  sfx('correct');
+  celebrate({ title:'ちゅうもん どおり!', sub:'"Thank you." と つたえて こうたいしよう', icon:'🎉' });
+  $('next-row').classList.remove('app-hidden');
+  $('judge-sub').textContent = 'ちゅうもんカードを 出したよ。2人で たしかめてみよう。';
+});
+$('btn-ng').addEventListener('click', function(){
+  sfx('wrong');
+  $('shop-bowl').classList.remove('ok');
+  $('shop-bowl').classList.add('ng');
+  $('judge').classList.add('app-hidden');
+  shopStage.msg('おきゃくさん、もう いちど つたえてね。てんいんさんは なおそう。', true);
+  /* ゆらすのは メッセージだけ。うつわ本体を transform すると
+     乗算合成が こわれて 白い四角が 出てしまう。 */
+  var m = $('shop-msg');
+  m.classList.remove('app-anim-shake'); void m.offsetWidth; m.classList.add('app-anim-shake');
+  setTimeout(function(){ $('shop-bowl').classList.remove('ng'); }, 900);
+});
+$('btn-next').addEventListener('click', function(){
+  sfx('tap'); shopStage.clear(); resetJudge(); drawOrder();
+});
+document.querySelectorAll('[data-say]').forEach(function(b){
+  b.addEventListener('click', function(){ sfx('tap'); say(b.getAttribute('data-say')); });
 });
 
-// 使い方
-$("btn-help").addEventListener("click", () => $("help-modal").classList.remove("hidden"));
-$("help-close").addEventListener("click", () => $("help-modal").classList.add("hidden"));
-$("help-modal").addEventListener("click", e => { if(e.target === $("help-modal")) $("help-modal").classList.add("hidden"); });
+/* ============================================================
+   7. つかいかた
+   ============================================================ */
+var HELP =
+  '<p><b>🍓 ほしい くだものを つたえあって、オリジナルの ヨーグルトサラダを つくる アプリだよ。</b></p>' +
+  '<p style="color:#e17055"><b>※ アプリは かってに 英語を しゃべりません。</b>🔊ボタンを おしたときだけ 聞こえます。ことばは じぶんの 口で 言ってみよう。</p>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🍨 じぶんで つくる</h4>' +
+  '<ul>' +
+  '<li>くだものカードを タップ → うつわに ぽとん と 入るよ</li>' +
+  '<li>うつわの くだものを タップすると もどせる。「↩️ ひとつ もどす」でも OK</li>' +
+  '<li>おなじ くだものを 2回 タップすると 2こに なるよ(two apples)</li>' +
+  '<li>「できた!」を おすと しょうかい画面。ほぞんされて 「きろく」で 見かえせるよ</li>' +
+  '</ul>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🏪 お店やさん(2人ぐみ)</h4>' +
+  '<ul>' +
+  '<li>おきゃくさん…ちゅうもんカードを 見て、<b>じぶんの 口で</b> つたえる<br>' +
+  '<span style="color:#7f8c9b">(れい)Strawberries, please. / I want two apples.</span></li>' +
+  '<li>見おわったら「🙈 かくす」を おすと てんいんさんに 見えないよ</li>' +
+  '<li>てんいんさん…聞いた くだものを うつわに いれて <b>Here you are.</b></li>' +
+  '<li>おきゃくさんが「⭕ あってた!」か「🔁 ちがうよ」を えらぶ</li>' +
+  '</ul>' +
+  '<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">' +
+  '💡 <b>先生へ:</b> ちゅうもんの 文は アプリが 読み上げません(言うのは 子どもです)。' +
+  '🔊は たんご・ていねいな 言い方の モデルとしてだけ つかってください。' +
+  'あっているか どうかは アプリではなく <b>おきゃくさん役の 子ども</b> が はんだんします。' +
+  'つたわらなかったときこそ、言いなおしたり ゆびさしたり する 学びの チャンスです。</div>';
 
-updateCounts();
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:'つかいかた' });
+});
+
+/* ============================================================
+   8. 画面きりかえ
+   ============================================================ */
+var SCREENS = { mode:'scr-mode', make:'scr-make', shop:'scr-shop', done:'scr-done', saved:'scr-saved' };
+var curScreen = 'mode';
+function go(name){
+  curScreen = name;
+  for(var k in SCREENS){
+    if(!Object.prototype.hasOwnProperty.call(SCREENS,k)) continue;
+    $(SCREENS[k]).classList.toggle('app-hidden', k !== name);
+  }
+  window.scrollTo(0,0);
+  if(name === 'done') showDone();
+  if(name === 'saved') renderSaved();
+  if(name === 'shop'){
+    if(!order.length) drawOrder();
+    /* レイアウトが 変わっているので もりつけ位置を 計算しなおす */
+    shopStage.layout();
+  }
+  if(name === 'make') makeStage.layout();
+}
+$('mode-make').addEventListener('click', function(){ sfx('tap'); go('make'); });
+$('mode-shop').addEventListener('click', function(){ sfx('tap'); go('shop'); });
+$('mode-saved').addEventListener('click', function(){ sfx('tap'); go('saved'); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); go('mode'); });
+
+/* ============================================================
+   9. 初期化
+   ============================================================ */
+go('mode');
+
+/* テスト・デバッグ用の状態フック(授業では使いません) */
+window.__yogurtState = function(){
+  return {
+    screen: curScreen,
+    make: makeStage.list(),
+    shop: shopStage.list(),
+    order: order.slice(),
+    orderShown: orderShown,
+    score: score,
+    saved: loadSaved().length
+  };
+};
+})();
 </script>
+
 </body>
 </html>

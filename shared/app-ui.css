@@ -395,5 +395,25 @@ button, [role="button"], a.app-card, a.app-mode-card{
 
 /* 絵カードは白背景なので、器や皿の上に置くと 白い四角が見えてしまう。
    .cutout を足すと 乗算合成で 白が透けて 絵だけが乗っているように見える。
-   (背景が明るい色のときに使うこと。暗い背景では使わない) */
+
+   ★ 注意(実際に踏んだ落とし穴):
+     mix-blend-mode は「いちばん近い 合成グループ」の中でしか効かない。
+     祖先のどれかに transform / filter / opacity(<1) / will-change などが
+     あると そこで合成が切れ、白い四角が そのまま出てしまう。
+     器の中で ぽとん と落とす演出をしたいときは transform を使わず、
+     top/left のトランジションで動かすこと。
+   ★ 背景が明るい色のときに使うこと(暗い背景では絵が沈む)。 */
 .app-card-art.cutout > img{ mix-blend-mode:multiply; }
+
+/* .square をさらに内側で切り出すバリアント。
+   絵の中央 480px 角ぶんだけを見せるので、傾けても ラベル帯の罫線が覗かない。
+   器に盛る・皿にのせる など、少し回転させて置きたいときはこちら。
+     el.classList.add('square','tight','cutout');
+     el.style.setProperty('--art-rot', '-6deg');
+   ※ 回転は <img> 自身にかけている。.app-card-art(親)に transform を
+     かけると 上記のとおり cutout が壊れるので注意。 */
+.app-card-art.square.tight > img{
+  width:216.67%; top:-4.583%;
+  transform-origin:50% 36.39%;
+  transform:translateX(-50%) rotate(var(--art-rot, 0deg));
+}
