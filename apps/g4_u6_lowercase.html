@@ -2,504 +2,1455 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>アルファベット小文字タイピング&神経衰弱 | 小学校外国語アプリポータル</title>
+<meta name="description" content="小学校4年生 外国語活動。アルファベット小文字を、2〜4人対戦の神経衰弱・まぎらわしい文字チャレンジ・自分の名前づくり・タイピング練習の4つの遊びで身につけるアプリ。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は u6-
+   画面は 1画面固定レイアウト(g3_u9_animals.html と同じ型):
+   body を 100vh・overflow:hidden にし、各 .u6-screen だけが
+   内部で overflow-y:auto してスクロールする。神経衰弱の盤面だけは
+   自前でサイズ計算するため overflow:hidden のままにする。
+   ============================================================ */
+html,body{ height:100%; }
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  margin:0; min-height:100vh; height:100vh; overflow:hidden;
+  display:flex; flex-direction:column;
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:16px 0 4px;font-size:1.3rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:14px}
+main{ flex:1 1 auto; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
 
-.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
-.mode-card{
-  width:250px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
-  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
-}
-.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)} .mode-card.m3{border-color:var(--pink)}
-.mode-card .mi{font-size:3rem}
-.mode-card h2{font-size:1.12rem;font-weight:800;margin-top:8px}
-.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
-.size-row{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;align-items:center}
-.size-row .lbl{font-weight:800;color:var(--sub);font-size:.9rem}
-.size-btn{
-  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 20px;font-family:inherit;
-  font-weight:800;font-size:.95rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
-}
-.size-btn.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.u6-screen{ display:none; flex-direction:column; min-height:0; }
+.u6-screen.active{ display:flex; flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+#scr-mem-game.active{ overflow:hidden; }
 
-/* 神経衰弱 */
-.hud{
-  display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:50px;
-  box-shadow:var(--shadow);padding:8px 20px;margin-bottom:14px;font-weight:800;gap:10px;flex-wrap:wrap;
-}
-.mem-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));max-width:760px;margin:0 auto}
-.mcard{
-  aspect-ratio:3/4;border-radius:14px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .35s;
-}
-.mcard .face{
-  position:absolute;inset:0;border-radius:14px;display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka One',cursive;font-size:2.3rem;backface-visibility:hidden;box-shadow:var(--shadow);
-}
-.mcard .back{background:linear-gradient(135deg,#2ed573,#7bed9f);color:#fff;font-size:1.6rem}
-.mcard .front{background:#fff;transform:rotateY(180deg);border:4px solid #d8f5e3}
-.mcard.upper .front{color:var(--primary-dark)} .mcard.lower .front{color:#e17055}
-.mcard.open{transform:rotateY(180deg)}
-.mcard.got{opacity:.15;pointer-events:none}
-.mcard.hard .front::after{content:"★";position:absolute;top:4px;right:8px;font-size:.8rem;color:var(--yellow)}
+footer{ text-align:center; padding:6px; color:#b2bec3; font-size:.7rem; font-weight:700; flex:0 0 auto; }
 
-/* タイピング */
-.type-stage{max-width:640px;margin:0 auto;text-align:center}
-.type-target{
-  width:170px;height:170px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);
-  display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:6rem;color:var(--primary-dark);
-}
-.type-progress{font-weight:800;color:var(--sub);margin:10px 0}
-.kbd{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:10px}
-.kbd-row{display:flex;gap:6px;justify-content:center}
-.key{
-  width:min(8.6vw,52px);height:min(9vw,56px);border-radius:10px;background:#fff;border:3px solid #e0e8ef;
-  font-family:'Fredoka One',cursive;font-size:1.25rem;cursor:pointer;box-shadow:var(--shadow);transition:.1s;color:var(--ink);
-}
-.key:hover{border-color:var(--primary)}
-.key.hit{background:var(--primary);color:#fff;border-color:var(--primary)}
-.key.miss{background:var(--pink);color:#fff;border-color:var(--pink)}
+/* ---------- 見出し共通 ---------- */
+.u6-title{ text-align:center; font-size:clamp(1.1rem,3vw,1.5rem); font-weight:800; margin:8px 0 2px; }
+.u6-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.84rem; margin:0 0 4px; line-height:1.6; padding:0 10px; }
+.u6-label{ text-align:center; font-weight:800; font-size:.88rem; color:var(--sub); margin:10px 0 2px; }
+.u6-hint{ text-align:center; font-weight:800; color:var(--sub); font-size:.78rem; margin-top:10px; line-height:1.6; padding:0 12px; }
+.u6-wrap{ max-width:920px; margin:0 auto; padding:4px 14px 24px; width:100%; }
 
-/* まぎらわしい文字 */
-.conf-stage{max-width:560px;margin:0 auto;text-align:center}
-.conf-q{
-  width:190px;height:190px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);
-  display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:6rem;color:var(--blue);
-}
-.conf-ask{font-weight:800;color:var(--sub);margin:10px 0}
-.conf-opts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
-.conf-btn{
-  width:92px;height:100px;border-radius:18px;background:#fff;border:4px solid #e0e8ef;box-shadow:var(--shadow);
-  font-family:'Fredoka One',cursive;font-size:2.8rem;cursor:pointer;transition:.15s;color:#e17055;
-}
-.conf-btn:hover{transform:translateY(-3px);border-color:var(--pink)}
-.conf-btn.ok{background:var(--primary);color:#fff;border-color:var(--primary);animation:pop .4s}
-.conf-btn.ng{animation:shake .35s;border-color:var(--pink)}
-@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+/* ---------- モード選択(トップ) ---------- */
+.u6-mode-wrap{ max-width:960px; margin:0 auto; padding:6px 14px 24px; width:100%; }
 
-.result-box{max-width:440px;margin:20px auto;background:#fff;border-radius:24px;box-shadow:var(--shadow-hover);padding:24px;text-align:center;border:5px solid var(--primary)}
-.result-box .big{font-size:4rem;animation:pop .5s}
-.result-box h2{font-size:1.25rem;font-weight:800;margin-top:6px}
-.result-box p{color:var(--sub);font-weight:700;margin-top:6px}
-.actions{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
+/* ---------- 設定画面の共通トグル ---------- */
+.u6-toggle-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:6px 0 2px; }
+.u6-toggle{
+  font-family:inherit; font-weight:800; font-size:.92rem; color:var(--sub); background:#fff;
+  border:3px solid #e6ecf2; border-radius:50px; padding:9px 20px; min-height:52px; cursor:pointer; transition:.18s;
 }
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.teal{background:var(--blue)}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+.u6-toggle:hover{ border-color:var(--g4); transform:translateY(-2px); }
+.u6-toggle.on{ background:var(--g4); border-color:var(--g4); color:#fff; }
+.u6-toggle small{ display:block; font-size:.66rem; font-weight:700; opacity:.85; margin-top:1px; }
+.u6-start-row{ margin-top:16px; }
+
+/* ============================================================
+   神経衰弱(2〜4人対戦・3Dフリップ) — g3_u9_animals.html と同型
+   ============================================================ */
+.u6-turn-banner{
+  text-align:center; font-weight:800; font-size:clamp(1.15rem,3.2vw,1.6rem); padding:10px 18px; border-radius:20px;
+  margin:2px auto 0; max-width:640px; width:100%; color:#fff; background:var(--pink); box-shadow:var(--shadow); transition:background .25s;
+}
+.u6-turn-banner.p-pink{ background:var(--pink); }
+.u6-turn-banner.p-blue{ background:var(--blue); }
+.u6-turn-banner.p-yellow{ background:var(--yellow); color:#7a4a00; }
+.u6-turn-banner.p-purple{ background:var(--purple); }
+
+.u6-game-wrap{ flex:1 1 auto; display:flex; flex-direction:column; min-height:0; padding:8px 12px 10px; gap:6px; }
+.app-hud.u6-player-hud, .app-hud.u6-solo-hud{ margin:0; padding:6px 10px; }
+.app-hud .app-hud-chip.blue{ background:var(--blue); color:#fff; }
+.app-hud .app-hud-chip.purple{ background:var(--purple); color:#fff; }
+#mem-pchips{ display:inline-flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.u6-pchip{ transition:transform .2s, box-shadow .2s; }
+.u6-pchip.now{ transform:scale(1.15); outline:3px solid #2d3436; outline-offset:2px; }
+
+.u6-say-bar{ min-height:56px; display:flex; align-items:center; justify-content:center; max-width:920px; margin:0 auto; width:100%; }
+.u6-say-default{ font-weight:800; color:var(--sub); font-size:.9rem; text-align:center; }
+.u6-say-words{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%; }
+.u6-say-chip{
+  display:inline-flex; align-items:center; gap:10px; background:#fff; border:4px solid var(--g4); border-radius:26px;
+  padding:8px 22px; box-shadow:var(--shadow-hover); cursor:pointer; font-family:inherit;
+}
+.u6-say-chip .u6-say-letter{ font-family:var(--app-font-display); font-weight:400; font-size:clamp(1.4rem,4.4vw,2.1rem); color:var(--ink); line-height:1; }
+.u6-say-chip .u6-say-ico{ font-size:1.4rem; line-height:1; }
+
+.u6-grid{
+  flex:1 1 auto; display:grid; gap:12px; align-content:center; justify-content:center; overflow:auto; min-height:0; padding:2px;
+}
+.mcard{ position:relative; cursor:pointer; min-height:64px; }
+.mcard[aria-disabled="true"]{ cursor:default; }
+.mcard .app-flip-inner{ width:100%; height:100%; }
+.app-flip:not(.flipped) .app-flip-back{ pointer-events:none; }
+.app-flip.flipped .app-flip-front{ pointer-events:none; }
+
+.mcard-face{ width:100%; height:100%; border-radius:18px; box-shadow:var(--shadow); }
+.mcard-back{ background:linear-gradient(135deg,var(--g4),#7bed9f); color:#fff; font-size:clamp(1.6rem,6vw,2.6rem); font-weight:800; }
+.mcard-front{ background:#fff; border:4px solid #d8f5e3; }
+.mcard.upper .mcard-front{ background:#eafaf1; }
+.mcard.lower .mcard-front{ background:#fff6f2; }
+.mcard-letter{ font-family:var(--app-font-display); font-weight:400; font-size:clamp(1.8rem,8vw,3.4rem); line-height:1; color:var(--ink); }
+.mcard.upper .mcard-letter{ color:#1eae5b; }
+.mcard.lower .mcard-letter{ color:#e17055; }
+.mcard-say{
+  position:absolute; top:5px; right:5px; width:30px; height:30px; border-radius:50%; border:none;
+  background:rgba(255,255,255,.92); box-shadow:var(--shadow); font-size:.95rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; padding:0; z-index:2;
+}
+@keyframes u6-glow{ 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.4) saturate(1.3); } }
+.mcard.matched .mcard-face{ box-shadow:0 0 0 5px var(--yellow), 0 0 26px 8px rgba(253,203,110,.85); }
+.mcard.matched .app-flip-inner{ animation:u6-glow .45s ease 2; }
+.mcard.matched-fly{ pointer-events:none; }
+.mcard.matched-fly .app-flip-inner{
+  transition:transform .6s cubic-bezier(.4,0,1,1), opacity .55s ease;
+  transform:translateY(-70px) scale(.25) rotate(14deg); opacity:0;
+}
+
+.u6-result-wrap{ max-width:540px; margin:16px auto; padding:0 14px 40px; width:100%; }
+.u6-result-box{ background:#fff; border-radius:24px; box-shadow:var(--shadow-hover); padding:26px 22px; text-align:center; border:5px solid var(--g4); }
+.u6-result-emoji{ font-size:4rem; }
+.u6-result-title{ font-size:1.3rem; font-weight:800; margin-top:8px; }
+.u6-result-detail{ color:var(--sub); font-weight:700; margin-top:10px; line-height:1.8; }
+.u6-rank-list{ margin-top:16px; display:flex; flex-direction:column; gap:8px; }
+.u6-rank-row{ display:flex; align-items:center; gap:10px; background:#f7f9fb; border-radius:16px; padding:10px 16px; font-weight:800; }
+.u6-rank-row.top{ background:#fff8e1; border:3px solid var(--yellow); }
+.u6-rank-medal{ font-size:1.35rem; width:1.6em; text-align:center; }
+.u6-rank-label{ flex:1; text-align:left; }
+.u6-rank-score{ color:var(--sub); font-weight:800; }
+.u6-result-actions{ margin-top:20px; }
+.u6-best-banner{
+  background:#fffbe8; border:3px dashed var(--yellow); border-radius:16px; padding:8px 14px; margin-top:12px;
+  font-weight:800; font-size:.86rem; color:#7a4a00; line-height:1.7;
+}
+
+/* ============================================================
+   まぎらわしい文字チャレンジ
+   ============================================================ */
+.u6-conf-wrap{ flex:1 1 auto; display:flex; flex-direction:column; align-items:center; padding:8px 14px 20px; gap:10px; }
+.u6-conf-hud{ margin:0; }
+.u6-conf-hud .app-hud-chip.combo{ background:var(--purple); color:#fff; }
+.u6-conf-target{
+  width:min(58vw,220px); height:min(58vw,220px); border-radius:28px; background:#fff; box-shadow:var(--shadow-hover);
+  display:flex; align-items:center; justify-content:center; cursor:default; border:5px solid var(--blue);
+  transition:transform .15s; font-family:inherit; padding:0; appearance:none; -webkit-appearance:none;
+}
+.u6-conf-target.clickable{ cursor:pointer; }
+.u6-conf-target.clickable:hover{ transform:translateY(-3px); }
+.u6-conf-target .u6-conf-letter{ font-family:var(--app-font-display); font-weight:400; font-size:clamp(3.5rem,18vw,7rem); color:var(--blue); line-height:1; }
+.u6-conf-target .u6-conf-listen-ico{ font-size:clamp(3rem,16vw,5.5rem); line-height:1; }
+.u6-conf-ask{ font-weight:800; color:var(--ink); font-size:1rem; text-align:center; padding:0 10px; }
+.u6-conf-sub{ font-weight:700; color:var(--sub); font-size:.8rem; text-align:center; margin-top:-4px; }
+.u6-conf-opts{ display:grid; grid-template-columns:repeat(auto-fit,minmax(84px,1fr)); gap:14px; width:100%; max-width:460px; }
+.u6-conf-opt{
+  aspect-ratio:1; border-radius:20px; background:#fff; border:5px solid #e0e8ef; box-shadow:var(--shadow);
+  font-family:var(--app-font-display); font-weight:400; font-size:clamp(2rem,8vw,3.2rem); color:#e17055; cursor:pointer;
+  min-height:84px; transition:transform .15s,border-color .15s;
+}
+.u6-conf-opt:hover{ transform:translateY(-3px); border-color:var(--pink); }
+.u6-conf-opt.correct-glow{ border-color:var(--yellow); box-shadow:0 0 0 5px var(--yellow),0 0 24px 8px rgba(253,203,110,.8); animation:u6-glow .4s ease 2; }
+.u6-conf-opt.u6-flyaway{ transition:transform .5s cubic-bezier(.4,0,1,1),opacity .45s ease; transform:translateY(-90px) scale(.3) rotate(18deg); opacity:0; pointer-events:none; }
+@keyframes u6-tremble{
+  0%,100%{ transform:translate(0,0) rotate(0); }
+  10%{ transform:translate(-3px,1px) rotate(-3deg); }
+  20%{ transform:translate(3px,-1px) rotate(3deg); }
+  30%{ transform:translate(-4px,1px) rotate(-4deg); }
+  40%{ transform:translate(4px,-1px) rotate(4deg); }
+  50%{ transform:translate(-3px,1px) rotate(-3deg); }
+  60%{ transform:translate(3px,-1px) rotate(3deg); }
+  70%{ transform:translate(-2px,0) rotate(-2deg); }
+  80%{ transform:translate(2px,0) rotate(2deg); }
+  90%{ transform:translate(-1px,0) rotate(0); }
+}
+.u6-tremble{ animation:u6-tremble .48s ease; border-color:var(--pink) !important; }
+
+/* ============================================================
+   タイピング練習
+   ============================================================ */
+.u6-type-wrap{ flex:1 1 auto; display:flex; flex-direction:column; align-items:center; padding:8px 14px 18px; gap:10px; }
+.u6-type-target{
+  width:min(55vw,200px); height:min(55vw,200px); border-radius:26px; background:#fff; box-shadow:var(--shadow-hover);
+  display:flex; align-items:center; justify-content:center; border:5px solid var(--g4); position:relative;
+}
+.u6-type-target .u6-type-letter{ font-family:var(--app-font-display); font-weight:400; font-size:clamp(4rem,20vw,7.5rem); color:#1eae5b; line-height:1; }
+.u6-type-say{
+  position:absolute; bottom:-16px; right:-16px; width:44px; height:44px; border-radius:50%; border:none; background:var(--blue);
+  color:#fff; font-size:1.1rem; box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.u6-kbd{ display:flex; flex-direction:column; gap:7px; align-items:center; margin-top:6px; width:100%; }
+.u6-kbd-row{ display:flex; gap:6px; justify-content:center; }
+.u6-key{
+  width:min(9.4vw,58px); height:min(10.4vw,62px); border-radius:12px; background:#fff; border:3px solid #e0e8ef;
+  font-family:var(--app-font-display); font-weight:400; font-size:clamp(1.1rem,4vw,1.5rem); cursor:pointer; box-shadow:var(--shadow);
+  transition:.12s; color:var(--ink);
+}
+.u6-key:hover{ border-color:var(--g4); }
+.u6-key.hit{ background:var(--g4); color:#fff; border-color:var(--g4); }
+.u6-key.miss{ border-color:var(--pink); }
+
+/* ============================================================
+   自分の名前をつくる
+   ============================================================ */
+.u6-name-wrap{ max-width:820px; margin:0 auto; padding:4px 14px 24px; width:100%; }
+.u6-name-panel{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; margin-bottom:12px; }
+.u6-name-panel h3{ font-size:.95rem; font-weight:800; margin:0 0 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.u6-name-slot-row{
+  display:flex; flex-wrap:wrap; gap:8px; min-height:88px; background:#f7f9fb; border-radius:18px; padding:10px;
+  align-items:center; justify-content:flex-start;
+}
+.u6-name-slot-row.empty{ align-items:center; justify-content:center; }
+.u6-name-empty{ color:var(--sub); font-weight:800; font-size:.85rem; text-align:center; padding:10px; }
+.u6-ntile{
+  position:relative; width:64px; height:72px; border-radius:14px; background:#fff; border:4px solid var(--g4);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--shadow);
+  font-family:var(--app-font-display); font-weight:400; font-size:2rem; color:var(--ink); transition:transform .15s,box-shadow .15s;
+}
+.u6-ntile.sel{ border-color:var(--pink); transform:translateY(-4px) scale(1.06); box-shadow:var(--shadow-hover); }
+.u6-ntile .u6-ntile-x{
+  position:absolute; top:-9px; right:-9px; width:26px; height:26px; border-radius:50%; border:none; background:var(--pink);
+  color:#fff; font-weight:800; font-size:.75rem; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
+  box-shadow:var(--shadow);
+}
+.u6-pal{ display:grid; grid-template-columns:repeat(auto-fill,minmax(64px,1fr)); gap:10px; }
+.u6-ptile{
+  position:relative; aspect-ratio:1; border-radius:16px; background:#fff; border:4px solid #eef2f6; box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:64px;
+  font-family:var(--app-font-display); font-weight:400; font-size:clamp(1.4rem,5vw,1.9rem); color:var(--ink); transition:transform .15s,border-color .15s;
+}
+.u6-ptile:hover{ transform:translateY(-3px); border-color:var(--g4); }
+.u6-ptile .u6-ptile-say{
+  position:absolute; top:1px; right:1px; width:24px; height:24px; border-radius:50%; border:none; background:rgba(255,255,255,.9);
+  font-size:.68rem; display:flex; align-items:center; justify-content:center; padding:0; box-shadow:0 1px 3px rgba(0,0,0,.15);
+}
+.u6-name-msg{ text-align:center; font-weight:800; font-size:.85rem; color:var(--pink); min-height:1.4em; }
+
+.u6-nameplate{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; padding:16px; background:#fff; border-radius:var(--app-radius-lg); box-shadow:var(--shadow-hover); }
+.u6-nameplate .u6-ntile{ cursor:default; width:56px; height:64px; font-size:1.7rem; }
+.u6-nameplate .u6-ntile:nth-child(4n+1){ border-color:var(--g4); }
+.u6-nameplate .u6-ntile:nth-child(4n+2){ border-color:var(--blue); }
+.u6-nameplate .u6-ntile:nth-child(4n+3){ border-color:var(--pink); }
+.u6-nameplate .u6-ntile:nth-child(4n+4){ border-color:var(--yellow); }
+
+.u6-saved-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px; }
+.u6-saved{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:12px; border:4px solid #eef2f6; position:relative; }
+.u6-saved .u6-nameplate{ padding:8px; box-shadow:none; background:#f7f9fb; }
+.u6-saved .u6-nameplate .u6-ntile{ width:34px; height:40px; font-size:1.1rem; }
+.u6-saved-date{ font-size:.72rem; color:var(--sub); font-weight:700; margin-top:8px; text-align:center; }
+.u6-saved-del{
+  position:absolute; right:-8px; top:-8px; width:34px; height:34px; border-radius:50%; border:none;
+  background:var(--pink); color:#fff; font-weight:800; cursor:pointer; font-family:inherit; font-size:.9rem; box-shadow:var(--shadow);
+}
+
+@media(max-width:420px){
+  .u6-conf-opts{ grid-template-columns:repeat(2,1fr); max-width:280px; }
+  .u6-pal{ grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); }
+}
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🔡 小文字タイピング&神経衰弱 <span class="u">4年生 アルファベット小文字</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🔡 小文字タイピング&神経衰弱 <span class="app-unit-badge" style="background:var(--g4)">4年生 アルファベット小文字</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- モード選択 -->
-  <section id="scr-mode">
-    <h2 class="step-title">あそびかたを えらんでね</h2>
-    <div class="mode-select">
-      <div class="mode-card m1" data-mode="memory">
-        <div class="mi">🃏</div>
-        <h2>大文字・小文字 神経衰弱</h2>
-        <p>Aとaのペアをそろえよう<br>★マークはまちがえやすい上級文字</p>
+  <!-- ============ モードせんたく ============ -->
+  <section id="scr-mode" class="u6-screen active">
+    <div class="u6-mode-wrap">
+      <h2 class="u6-title">あそびかたを えらんでね</h2>
+      <p class="u6-sub">アルファベットの 小文字に なれよう</p>
+      <div class="app-mode-select">
+        <button type="button" class="app-mode-card primary" id="mode-memory">
+          <span class="app-mode-icon">🃏</span>
+          <span class="app-mode-title">大文字・小文字 神経衰弱</span>
+          <span class="app-mode-sub">2〜4人で たいせん<br>Aa のペアを そろえよう</span>
+        </button>
+        <button type="button" class="app-mode-card pink" id="mode-conf">
+          <span class="app-mode-icon">🌀</span>
+          <span class="app-mode-title">まぎらわしい文字チャレンジ</span>
+          <span class="app-mode-sub">b/d, p/q, i/l, n/h…<br>はやくち&コンボで きたえよう</span>
+        </button>
+        <button type="button" class="app-mode-card yellow" id="mode-name">
+          <span class="app-mode-icon">✏️</span>
+          <span class="app-mode-title">自分の名前をつくる</span>
+          <span class="app-mode-sub">小文字カードを ならべて<br>じぶんの名前(ローマ字)を つくろう</span>
+        </button>
+        <button type="button" class="app-mode-card blue" id="mode-type">
+          <span class="app-mode-icon">⌨️</span>
+          <span class="app-mode-title">タイピングれんしゅう</span>
+          <span class="app-mode-sub">出てきた小文字を<br>キーボードで さがそう</span>
+        </button>
       </div>
-      <div class="mode-card m2" data-mode="typing">
-        <div class="mi">⌨️</div>
-        <h2>タイピングれんしゅう</h2>
-        <p>出てきた小文字をキーボードで<br>タイプしよう(画面/実物どちらでも)</p>
+      <p class="u6-hint">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
+    </div>
+  </section>
+
+  <!-- ============ 神経衰弱: せってい ============ -->
+  <section id="scr-mem-setup" class="u6-screen">
+    <div class="u6-wrap">
+      <h2 class="u6-title">🃏 神経衰弱で あそぼう</h2>
+      <p class="u6-sub">大文字と小文字の ペアを 見つけよう。めくったら、じぶんで 声に出して 言ってみよう!</p>
+
+      <h3 class="u6-label">🃏 ペアの かず</h3>
+      <div class="u6-toggle-row" id="mem-size-row">
+        <button type="button" class="u6-toggle on" data-n="6">6ペア <small>(12まい)</small></button>
+        <button type="button" class="u6-toggle" data-n="8">8ペア <small>(16まい)</small></button>
+        <button type="button" class="u6-toggle" data-n="10">10ペア <small>(20まい)</small></button>
       </div>
-      <div class="mode-card m3" data-mode="conf">
-        <div class="mi">🌀</div>
-        <h2>まぎらわしい文字チャレンジ</h2>
-        <p>b と d、p と q…<br>にている文字を 見分けられるかな?</p>
+
+      <h3 class="u6-label">👥 なんにんで あそぶ?</h3>
+      <div class="u6-toggle-row" id="mem-player-row">
+        <button type="button" class="u6-toggle" data-p="1">👤 ひとり</button>
+        <button type="button" class="u6-toggle on" data-p="2">🔴🔵 ふたり</button>
+        <button type="button" class="u6-toggle" data-p="3">🔴🔵🟡 3にん</button>
+        <button type="button" class="u6-toggle" data-p="4">🔴🔵🟡🟣 4にん</button>
+      </div>
+
+      <div class="app-btn-row u6-start-row">
+        <button type="button" class="app-big-btn primary" id="btn-mem-start">🎮 スタート!</button>
+      </div>
+      <p class="u6-hint">めくったカードの 文字は、じぶんの口で 言ってみよう。</p>
+    </div>
+  </section>
+
+  <!-- ============ 神経衰弱: ゲーム ============ -->
+  <section id="scr-mem-game" class="u6-screen">
+    <div class="u6-game-wrap">
+      <div class="u6-turn-banner p-pink" id="mem-turn-banner">
+        <span id="mem-turn-icon">🔴</span> <span id="mem-turn-text">プレイヤー1の ばん!</span>
+      </div>
+      <div class="app-hud u6-player-hud" id="mem-player-hud">
+        <span class="app-hud-chip" id="mem-pairs-chip">🃏 のこり <b id="mem-pairs-left">6</b>ペア</span>
+        <span class="app-hud-chip yellow"><span aria-hidden="true">⏱️</span> <b id="mem-time">0</b>びょう</span>
+        <span id="mem-pchips"></span>
+      </div>
+      <div class="app-hud u6-solo-hud app-hidden" id="mem-solo-hud">
+        <span class="app-hud-chip primary">⭐ そろえた <b id="mem-solo-score">0</b> / <b id="mem-solo-total">6</b></span>
+        <span class="app-hud-chip">🔁 めくった <b id="mem-solo-tries">0</b>かい</span>
+        <span class="app-hud-chip yellow"><span aria-hidden="true">⏱️</span> <b id="mem-solo-time">0</b>びょう</span>
+      </div>
+
+      <div class="u6-say-bar" id="mem-say-bar">
+        <span class="u6-say-default" id="mem-say-default">🗣️ めくったひとが 言ってみよう!</span>
+        <div class="u6-say-words app-hidden" id="mem-say-words"></div>
+      </div>
+
+      <div class="u6-grid" id="mem-grid" role="group" aria-label="神経衰弱のカード"></div>
+    </div>
+  </section>
+
+  <!-- ============ 神経衰弱: 結果 ============ -->
+  <section id="scr-mem-result" class="u6-screen">
+    <div class="u6-result-wrap">
+      <div class="u6-result-box" id="mem-result-box"></div>
+      <div class="app-btn-row u6-result-actions">
+        <button type="button" class="app-big-btn primary" id="btn-mem-again">🔁 もういっかい!</button>
+        <button type="button" class="app-big-btn outline" id="btn-mem-setup2">⚙️ せっていをかえる</button>
       </div>
     </div>
-    <div class="size-row" id="size-row">
-      <span class="lbl">神経衰弱のまい数:</span>
-      <button class="size-btn" data-n="3">6まい</button>
-      <button class="size-btn on" data-n="6">12まい</button>
-      <button class="size-btn" data-n="10">20まい</button>
+  </section>
+
+  <!-- ============ まぎらわしい文字: せってい ============ -->
+  <section id="scr-conf-setup" class="u6-screen">
+    <div class="u6-wrap">
+      <h2 class="u6-title">🌀 まぎらわしい文字チャレンジ</h2>
+      <p class="u6-sub">b と d、p と q、i と l、n と h…にている文字を すばやく 見わけよう。タイムと コンボを きろくするよ!</p>
+
+      <h3 class="u6-label">❓ もんだいの かず</h3>
+      <div class="u6-toggle-row" id="conf-size-row">
+        <button type="button" class="u6-toggle" data-n="8">8もん</button>
+        <button type="button" class="u6-toggle on" data-n="12">12もん</button>
+        <button type="button" class="u6-toggle" data-n="16">16もん</button>
+      </div>
+
+      <div class="app-btn-row u6-start-row">
+        <button type="button" class="app-big-btn pink" id="btn-conf-start">⚡ スタート!</button>
+      </div>
+      <p class="u6-hint" id="conf-best-hint"></p>
     </div>
   </section>
 
-  <!-- 神経衰弱 -->
-  <section id="scr-memory" class="hidden">
-    <div class="hud">
-      <span id="mem-pairs">のこり 6ペア</span>
-      <span id="mem-tries">めくった回数 0</span>
-      <span id="mem-time">0びょう</span>
-    </div>
-    <div class="mem-grid" id="mem-grid"></div>
-  </section>
-
-  <!-- タイピング -->
-  <section id="scr-typing" class="hidden">
-    <div class="type-stage">
-      <div class="type-progress" id="type-progress">1 / 15</div>
-      <div class="type-target" id="type-target">a</div>
-      <div class="type-progress" id="type-hint">この文字をタイプしよう!</div>
-      <div class="kbd" id="kbd"></div>
+  <!-- ============ まぎらわしい文字: ゲーム ============ -->
+  <section id="scr-conf-game" class="u6-screen">
+    <div class="u6-conf-wrap">
+      <div class="app-hud u6-conf-hud">
+        <span class="app-hud-chip" id="conf-progress-chip">❓ <b id="conf-progress">1</b> / <b id="conf-total">12</b></span>
+        <span class="app-hud-chip yellow"><span aria-hidden="true">⏱️</span> <b id="conf-time">0.0</b>びょう</span>
+        <span class="app-hud-chip combo">🔥 コンボ <b id="conf-combo">0</b></span>
+      </div>
+      <button type="button" class="u6-conf-target" id="conf-target"></button>
+      <p class="u6-conf-ask" id="conf-ask">この文字の 小文字は どれ?</p>
+      <p class="u6-conf-sub" id="conf-sub"></p>
+      <div class="u6-conf-opts" id="conf-opts"></div>
     </div>
   </section>
 
-  <!-- まぎらわしい文字 -->
-  <section id="scr-conf" class="hidden">
-    <div class="conf-stage">
-      <div class="type-progress" id="conf-progress">1 / 10</div>
-      <div class="conf-q" id="conf-q">B</div>
-      <div class="conf-ask" id="conf-ask">この大文字の「小文字」はどれ?</div>
-      <div class="conf-opts" id="conf-opts"></div>
+  <!-- ============ まぎらわしい文字: 結果 ============ -->
+  <section id="scr-conf-result" class="u6-screen">
+    <div class="u6-result-wrap">
+      <div class="u6-result-box" id="conf-result-box"></div>
+      <div class="app-btn-row u6-result-actions">
+        <button type="button" class="app-big-btn pink" id="btn-conf-again">🔁 もういっかい!</button>
+        <button type="button" class="app-big-btn outline" id="btn-conf-setup2">⚙️ せっていをかえる</button>
+      </div>
     </div>
   </section>
 
-  <!-- 結果 -->
-  <section id="scr-result" class="hidden">
-    <div class="result-box">
-      <div class="big" id="res-emoji">🏆</div>
-      <h2 id="res-title"></h2>
-      <p id="res-detail"></p>
-      <div class="actions">
-        <button class="big-btn" id="btn-again">もういちど!</button>
-        <button class="big-btn teal" id="btn-home2">モードせんたく</button>
+  <!-- ============ タイピング: せってい ============ -->
+  <section id="scr-type-setup" class="u6-screen">
+    <div class="u6-wrap">
+      <h2 class="u6-title">⌨️ タイピングれんしゅう</h2>
+      <p class="u6-sub">出てきた小文字を キーボードで タイプしよう(画面のキー / 実物のキーボード どちらでもOK)</p>
+
+      <h3 class="u6-label">❓ もんだいの かず</h3>
+      <div class="u6-toggle-row" id="type-size-row">
+        <button type="button" class="u6-toggle" data-n="10">10問</button>
+        <button type="button" class="u6-toggle on" data-n="15">15問</button>
+        <button type="button" class="u6-toggle" data-n="20">20問</button>
+      </div>
+
+      <div class="app-btn-row u6-start-row">
+        <button type="button" class="app-big-btn blue" id="btn-type-start">⌨️ スタート!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ タイピング: ゲーム ============ -->
+  <section id="scr-type-game" class="u6-screen">
+    <div class="u6-type-wrap">
+      <div class="app-hud">
+        <span class="app-hud-chip" id="type-progress-chip">❓ <b id="type-progress">1</b> / <b id="type-total">15</b></span>
+        <span class="app-hud-chip yellow">✕ ミス <b id="type-miss">0</b></span>
+      </div>
+      <div class="u6-type-target" id="type-target">
+        <span class="u6-type-letter" id="type-letter">a</span>
+        <button type="button" class="u6-type-say" id="type-say" aria-label="文字の名前を聞く">🔊</button>
+      </div>
+      <p class="u6-conf-sub">この文字を タイプしよう</p>
+      <div class="u6-kbd" id="type-kbd"></div>
+    </div>
+  </section>
+
+  <!-- ============ タイピング: 結果 ============ -->
+  <section id="scr-type-result" class="u6-screen">
+    <div class="u6-result-wrap">
+      <div class="u6-result-box" id="type-result-box"></div>
+      <div class="app-btn-row u6-result-actions">
+        <button type="button" class="app-big-btn blue" id="btn-type-again">🔁 もういっかい!</button>
+        <button type="button" class="app-big-btn outline" id="btn-type-setup2">⚙️ せっていをかえる</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 自分の名前をつくる: つくる ============ -->
+  <section id="scr-name-make" class="u6-screen">
+    <div class="u6-name-wrap">
+      <h2 class="u6-title">✏️ 自分の名前(ローマ字)をつくろう</h2>
+      <p class="u6-sub">小文字カードを タップして ならべよう。タイルを タップすると えらべて、もう1回 タップすると 入れかわるよ。</p>
+
+      <div class="u6-name-panel">
+        <h3>🧩 いまの なまえ <span class="app-chip g4" id="name-count">0文字</span></h3>
+        <div class="u6-name-slot-row" id="name-slots"></div>
+        <p class="u6-name-msg" id="name-msg"></p>
+        <div class="app-btn-row" style="margin-top:10px">
+          <button type="button" class="app-big-btn sm outline" id="btn-name-undo">↩️ 1文字もどす</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-name-clear">ぜんぶ けす</button>
+          <button type="button" class="app-big-btn sm blue" id="btn-name-hear">🔊 なまえを聞く</button>
+        </div>
+      </div>
+
+      <div class="u6-name-panel">
+        <h3>🔤 小文字カード <span class="app-chip blue">タップで ついか</span></h3>
+        <div class="u6-pal" id="name-pal"></div>
+      </div>
+
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn yellow" id="btn-name-done">できた! 🎉</button>
+        <button type="button" class="app-big-btn sm outline" id="btn-name-saved">📔 きろくを見る</button>
+      </div>
+      <p class="u6-hint">キーボードの a〜z キーでも 文字を ついかできるよ(れい: yamada, tanaka)</p>
+    </div>
+  </section>
+
+  <!-- ============ 自分の名前をつくる: できあがり ============ -->
+  <section id="scr-name-done" class="u6-screen">
+    <div class="u6-name-wrap">
+      <h2 class="u6-title">🎉 できあがり!</h2>
+      <p class="u6-sub">じぶんの声で 名前を 言ってみよう!</p>
+      <div class="u6-nameplate" id="name-done-plate"></div>
+      <div class="app-btn-row" style="margin-top:16px">
+        <button type="button" class="app-big-btn sm blue" id="btn-name-done-hear">🔊 スペルを聞く</button>
+      </div>
+      <div class="app-btn-row" style="margin-top:12px">
+        <button type="button" class="app-big-btn sm outline" id="btn-name-edit">✏️ つづきをつくる</button>
+        <button type="button" class="app-big-btn sm green" id="btn-name-again">🆕 あたらしくつくる</button>
+        <button type="button" class="app-big-btn sm yellow" id="btn-name-to-saved">📔 きろくを見る</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 自分の名前をつくる: きろく ============ -->
+  <section id="scr-name-saved" class="u6-screen">
+    <div class="u6-name-wrap">
+      <h2 class="u6-title">📔 つくった名前の きろく</h2>
+      <p class="u6-sub">この タブレットに ほぞんされた 名前だよ(あたらしい じゅんに 12こまで)</p>
+      <div class="u6-saved-grid" id="name-saved-grid"></div>
+      <div class="app-btn-row" style="margin-top:16px">
+        <button type="button" class="app-big-btn green" id="btn-name-saved-make">✏️ あたらしくつくる</button>
       </div>
     </div>
   </section>
 
 </main>
 
-<footer>じっさいのキーボードでも入力できます</footer>
+<footer>4年生 アルファベット小文字 / めくった・つくった文字は、まず自分の声で言ってみよう</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
-// ============================================================
-// データ(教師向け:ここを書きかえると内容を変更できます)
-// ============================================================
-// まちがえやすい文字グループ(まぎらわしい文字チャレンジ・神経衰弱の★印に使用)
-const CONFUSABLE_GROUPS = [
-  ["b","d","p","q"],
-  ["m","n","h"],
-  ["u","v","w"],
-  ["i","l","j"],
-  ["a","o","e"],
-  ["f","t","r"],
+(function(){
+'use strict';
+
+/* ============================================================
+   0. ヘルパー
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(name, arg){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[name]) AppUI.sfx[name](arg); }catch(e){} }
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function stars(x,y,o){ try{ if(window.AppUI && AppUI.stars) AppUI.stars(x,y,o); }catch(e){} }
+function celebrate(o){ try{ if(window.AppUI && AppUI.celebrate) AppUI.celebrate(o); }catch(e){} }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function shuffleArr(a){
+  if(window.AppUI && AppUI.shuffle) return AppUI.shuffle(a);
+  var b = a.slice();
+  for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; }
+  return b;
+}
+function pick(a){ if(window.AppUI && AppUI.pick) return AppUI.pick(a); return a[Math.floor(Math.random()*a.length)]; }
+function debounce(fn, ms){ var t=null; return function(){ var args=arguments, ctx=this; clearTimeout(t); t=setTimeout(function(){ fn.apply(ctx,args); }, ms); }; }
+
+/* ============================================================
+   1. データ(教師向け: ここを書きかえると内容を変更できます)
+   ============================================================ */
+var ALL_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
+// まちがえやすい文字グループ(まぎらわしい文字チャレンジ・神経衰弱で使用)
+var CONFUSABLE_GROUPS = [
+  ["b","d","p","q"],   // 鏡文字(向きの まちがい)
+  ["n","h","m"],        // 突起の数の まちがい
+  ["i","l","j"],         // たてぼう系
+  ["u","v","w"],          // 曲線系
+  ["a","o","e"],           // 丸文字系
+  ["f","t"]                 // たてぼう+よこぼう
 ];
-const TYPING_COUNT = 15; // タイピングの出題数
-const CONF_COUNT = 10;   // まぎらわしい文字チャレンジの出題数
+var PLAYER_DEFS = [
+  { icon:'🔴', label:'プレイヤー1', cls:'pink' },
+  { icon:'🔵', label:'プレイヤー2', cls:'blue' },
+  { icon:'🟡', label:'プレイヤー3', cls:'yellow' },
+  { icon:'🟣', label:'プレイヤー4', cls:'purple' }
+];
+var KBD_ROWS = ["qwertyuiop","asdfghjkl","zxcvbnm"];
+var MAX_NAME_LEN = 14;
 
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.8){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+/* ============================================================
+   2. 画面切り替え
+   ============================================================ */
+var SCREENS = ['mode','mem-setup','mem-game','mem-result','conf-setup','conf-game','conf-result',
+  'type-setup','type-game','type-result','name-make','name-done','name-saved'];
+var curScreen = 'mode';
+function go(name){
+  stopAllTimers();
+  try{ speechSynthesis.cancel(); }catch(e){}
+  curScreen = name;
+  SCREENS.forEach(function(s){ $('scr-' + s).classList.toggle('active', s === name); });
+  var mainEl = document.querySelector('main');
+  if(mainEl) mainEl.scrollTop = 0;
+  if(name === 'mem-game') requestAnimationFrame(function(){ requestAnimationFrame(layoutMemGrid); });
+  if(name === 'name-saved') renderNameSaved();
+}
+function stopAllTimers(){
+  clearInterval(memState.timerId); memState.timerId = null;
+  clearInterval(confState.timerId); confState.timerId = null;
 }
 
-const ALL = "abcdefghijklmnopqrstuvwxyz".split("");
-const HARD = new Set(CONFUSABLE_GROUPS.flat());
-const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-mode","scr-memory","scr-typing","scr-conf","scr-result"].forEach(s =>
-    $(s).classList.toggle("hidden", s !== id));
-}
-function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
-let mode = null;
+/* ============================================================
+   3. 神経衰弱(2〜4人対戦・3Dフリップ)
+   ============================================================ */
+var memState = {
+  pairCount:6, playerCount:2, players:[], scores:[], turn:0, deck:[], totalPairs:0,
+  matchedPairs:0, flipped:[], lock:false, totalFlips:0, elapsedSec:0, timerId:null
+};
 
-// ============================================================
-// 神経衰弱
-// ============================================================
-let pairCount = 6, memOpen = [], memLock = false, memLeft = 0, memTries = 0, memTimer = null, memSec = 0;
-document.querySelectorAll(".size-btn").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".size-btn").forEach(x => x.classList.remove("on"));
-  b.classList.add("on"); pairCount = +b.dataset.n;
-}));
-function startMemory(){
-  mode = "memory";
-  const letters = shuffle(ALL).slice(0, pairCount);
-  const cards = shuffle(letters.flatMap(L => [
-    { letter:L, kind:"upper", disp:L.toUpperCase() },
-    { letter:L, kind:"lower", disp:L },
-  ]));
-  memOpen = []; memLock = false; memLeft = pairCount; memTries = 0; memSec = 0;
-  clearInterval(memTimer);
-  memTimer = setInterval(() => { memSec++; $("mem-time").textContent = `${memSec}びょう`; }, 1000);
-  $("mem-pairs").textContent = `のこり ${memLeft}ペア`;
-  $("mem-tries").textContent = "めくった回数 0";
-  $("mem-time").textContent = "0びょう";
-  $("mem-grid").innerHTML = cards.map((c,i) => `
-    <div class="mcard ${c.kind} ${HARD.has(c.letter) ? "hard" : ""}" data-i="${i}" data-letter="${c.letter}">
-      <div class="face back">?</div>
-      <div class="face front">${c.disp}</div>
-    </div>`).join("");
-  show("scr-memory");
-}
-$("mem-grid").addEventListener("click", e => {
-  const el = e.target.closest(".mcard");
-  if(!el || memLock || el.classList.contains("open") || el.classList.contains("got")) return;
-  el.classList.add("open");
-  memOpen.push(el);
-  if(memOpen.length === 2){
-    memLock = true; memTries++;
-    $("mem-tries").textContent = `めくった回数 ${memTries}`;
-    const [a,b] = memOpen;
-    if(a.dataset.letter === b.dataset.letter){
-      speak(a.dataset.letter);
-      setTimeout(() => {
-        a.classList.add("got"); b.classList.add("got");
-        memOpen = []; memLock = false;
-        memLeft--;
-        $("mem-pairs").textContent = `のこり ${memLeft}ペア`;
-        if(memLeft === 0){
-          clearInterval(memTimer);
-          showResult("🏆", "ぜんぶそろったね!", `${memSec}びょう / めくった回数 ${memTries}回`);
-          speak("Great job!");
-        }
-      }, 750);
-    }else{
-      setTimeout(() => {
-        a.classList.remove("open"); b.classList.remove("open");
-        memOpen = []; memLock = false;
-      }, 900);
-    }
-  }
+$('mem-size-row').addEventListener('click', function(e){
+  var b = e.target.closest('.u6-toggle'); if(!b) return;
+  document.querySelectorAll('#mem-size-row .u6-toggle').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on');
+  memState.pairCount = parseInt(b.getAttribute('data-n'), 10);
+  sfx('tap');
+});
+$('mem-player-row').addEventListener('click', function(e){
+  var b = e.target.closest('.u6-toggle'); if(!b) return;
+  document.querySelectorAll('#mem-player-row .u6-toggle').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on');
+  memState.playerCount = parseInt(b.getAttribute('data-p'), 10);
+  sfx('tap');
 });
 
-// ============================================================
-// タイピング
-// ============================================================
-const KBD_ROWS = ["qwertyuiop","asdfghjkl","zxcvbnm"];
-let typeSeq = [], typeIdx = 0, typeMiss = 0, typeStart = 0;
-function startTyping(){
-  mode = "typing";
-  typeSeq = shuffle(ALL).slice(0, TYPING_COUNT);
-  typeIdx = 0; typeMiss = 0; typeStart = Date.now();
-  $("kbd").innerHTML = KBD_ROWS.map(row =>
-    `<div class="kbd-row">${row.split("").map(k =>
-      `<button class="key" data-k="${k}">${k}</button>`).join("")}</div>`).join("");
-  show("scr-typing");
+function buildMemDeck(){
+  var letters = shuffleArr(ALL_LETTERS).slice(0, memState.pairCount);
+  var cards = [];
+  letters.forEach(function(L){
+    cards.push({ key:L, disp:L.toUpperCase(), kind:'upper' });
+    cards.push({ key:L, disp:L, kind:'lower' });
+  });
+  return shuffleArr(cards);
+}
+function makeMemCard(w, uid){
+  var card = document.createElement('div');
+  card.className = 'mcard app-flip ' + w.kind;
+  card.setAttribute('data-key', w.key);
+  card.setAttribute('data-uid', uid);
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label', 'カード');
+
+  var inner = document.createElement('div');
+  inner.className = 'app-flip-inner';
+
+  var front = document.createElement('div');
+  front.className = 'app-flip-front mcard-face mcard-back';
+  front.innerHTML = '<span aria-hidden="true">?</span>';
+
+  var back = document.createElement('div');
+  back.className = 'app-flip-back mcard-face mcard-front';
+  var letterEl = document.createElement('span');
+  letterEl.className = 'mcard-letter';
+  letterEl.textContent = w.disp;
+  var sayBtn = document.createElement('button');
+  sayBtn.type = 'button';
+  sayBtn.className = 'mcard-say';
+  sayBtn.setAttribute('aria-label', 'きく: ' + w.disp);
+  sayBtn.textContent = '🔊';
+  back.appendChild(letterEl);
+  back.appendChild(sayBtn);
+
+  inner.appendChild(front);
+  inner.appendChild(back);
+  card.appendChild(inner);
+  return card;
+}
+function renderMemGrid(){
+  var gridEl = $('mem-grid');
+  gridEl.innerHTML = '';
+  gridEl.style.gridTemplateColumns = '';
+  gridEl.style.gridAutoRows = '';
+  memState.deck.forEach(function(w, i){ gridEl.appendChild(makeMemCard(w, i)); });
+}
+function layoutMemGrid(){
+  var gridEl = $('mem-grid');
+  if(!gridEl || !gridEl.children.length) return;
+  var rect = gridEl.getBoundingClientRect();
+  var w = rect.width, h = rect.height;
+  if(w <= 0 || h <= 0) return;
+  var n = gridEl.children.length;
+  var gap = 12;
+  var best = { cols: Math.max(1, Math.round(Math.sqrt(n))), size: 0 };
+  for(var cols = 1; cols <= n; cols++){
+    var rows = Math.ceil(n / cols);
+    var cw = (w - gap * (cols - 1)) / cols;
+    var chFromW = cw * 4 / 3;
+    var size;
+    if(chFromW * rows + gap * (rows - 1) <= h){
+      size = cw;
+    }else{
+      var chH = (h - gap * (rows - 1)) / rows;
+      var cwFromH = chH * 3 / 4;
+      size = Math.min(cwFromH, cw);
+    }
+    if(size > best.size){ best = { cols: cols, size: size }; }
+  }
+  var size = Math.max(72, best.size);
+  gridEl.style.gridTemplateColumns = 'repeat(' + best.cols + ', ' + size.toFixed(1) + 'px)';
+  gridEl.style.gridAutoRows = (size * 4 / 3).toFixed(1) + 'px';
+}
+window.addEventListener('resize', debounce(function(){
+  if(curScreen === 'mem-game') layoutMemGrid();
+}, 150));
+
+function startMemGame(){
+  memState.players = PLAYER_DEFS.slice(0, memState.playerCount);
+  memState.scores = new Array(memState.playerCount).fill(0);
+  memState.turn = 0;
+  memState.deck = buildMemDeck();
+  memState.totalPairs = memState.deck.length / 2;
+  memState.matchedPairs = 0;
+  memState.flipped = [];
+  memState.lock = false;
+  memState.totalFlips = 0;
+
+  renderMemGrid();
+  clearMemSayBar();
+  $('mem-solo-hud').classList.toggle('app-hidden', memState.playerCount !== 1);
+  $('mem-player-hud').classList.toggle('app-hidden', memState.playerCount === 1);
+  $('mem-turn-banner').classList.toggle('app-hidden', memState.playerCount === 1);
+  $('mem-solo-total').textContent = memState.totalPairs;
+  $('mem-solo-score').textContent = 0;
+  $('mem-solo-tries').textContent = 0;
+  renderMemHud();
+  updateMemTurnBanner();
+  startMemTimer();
+  go('mem-game');
+}
+function renderMemHud(){
+  $('mem-pairs-left').textContent = memState.totalPairs - memState.matchedPairs;
+  var html = '';
+  memState.players.forEach(function(p, i){
+    html += '<span class="app-hud-chip u6-pchip ' + p.cls + (i === memState.turn ? ' now' : '') + '">' +
+            p.icon + ' ' + esc(p.label) + ' <b>' + memState.scores[i] + '</b></span>';
+  });
+  $('mem-pchips').innerHTML = html;
+}
+function updateMemTurnBanner(){
+  if(memState.playerCount === 1) return;
+  var p = memState.players[memState.turn];
+  var banner = $('mem-turn-banner');
+  banner.className = 'u6-turn-banner p-' + p.cls;
+  $('mem-turn-icon').textContent = p.icon;
+  $('mem-turn-text').textContent = p.label + 'の ばん!';
+  banner.classList.remove('app-anim-pop');
+  void banner.offsetWidth;
+  banner.classList.add('app-anim-pop');
+}
+function startMemTimer(){
+  memState.elapsedSec = 0;
+  $('mem-solo-time').textContent = 0;
+  $('mem-time').textContent = 0;
+  clearInterval(memState.timerId);
+  memState.timerId = setInterval(function(){
+    memState.elapsedSec++;
+    $('mem-solo-time').textContent = memState.elapsedSec;
+    $('mem-time').textContent = memState.elapsedSec;
+  }, 1000);
+}
+function clearMemSayBar(){
+  $('mem-say-default').classList.remove('app-hidden');
+  $('mem-say-words').classList.add('app-hidden');
+  $('mem-say-words').innerHTML = '';
+}
+function updateMemSayBar(){
+  if(!memState.flipped.length){ clearMemSayBar(); return; }
+  $('mem-say-default').classList.add('app-hidden');
+  var wordsEl = $('mem-say-words');
+  wordsEl.classList.remove('app-hidden');
+  wordsEl.innerHTML = '';
+  memState.flipped.forEach(function(card){
+    var disp = card.querySelector('.mcard-letter').textContent;
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'u6-say-chip';
+    chip.setAttribute('data-say', card.getAttribute('data-key'));
+    chip.innerHTML = '<span class="u6-say-letter">' + esc(disp) + '</span><span class="u6-say-ico">🔊</span>';
+    wordsEl.appendChild(chip);
+  });
+}
+$('mem-say-words').addEventListener('click', function(e){
+  var chip = e.target.closest('[data-say]'); if(!chip) return;
+  say(chip.getAttribute('data-say'));
+});
+function attemptMemFlip(card){
+  if(memState.lock) return;
+  if(card.classList.contains('flipped')) return;
+  if(card.classList.contains('matched')) return;
+  if(memState.flipped.length >= 2) return;
+
+  card.classList.add('flipped');
+  sfx('pop');
+  memState.flipped.push(card);
+  updateMemSayBar();
+
+  if(memState.flipped.length === 2){
+    memState.lock = true;
+    memState.totalFlips++;
+    $('mem-solo-tries').textContent = memState.totalFlips;
+    var a = memState.flipped[0], b = memState.flipped[1];
+    if(a.getAttribute('data-key') === b.getAttribute('data-key')){
+      setTimeout(function(){ resolveMemMatch(a, b); }, 550);
+    }else{
+      setTimeout(function(){ resolveMemMismatch(a, b); }, 950);
+    }
+  }
+}
+function resolveMemMatch(a, b){
+  sfx('correct');
+  [a, b].forEach(function(card){
+    card.classList.add('matched');
+    var r = card.getBoundingClientRect();
+    stars(r.left + r.width / 2, r.top + r.height / 2);
+    setTimeout(function(){ card.classList.add('matched-fly'); }, 480);
+  });
+  memState.scores[memState.turn]++;
+  memState.matchedPairs++;
+  memState.flipped = [];
+  memState.lock = false;
+  clearMemSayBar();
+  $('mem-solo-score').textContent = memState.matchedPairs;
+  renderMemHud();
+  if(memState.matchedPairs >= memState.totalPairs){
+    setTimeout(finishMemGame, 900);
+  }
+}
+function resolveMemMismatch(a, b){
+  sfx('wrong');
+  a.classList.remove('flipped');
+  b.classList.remove('flipped');
+  memState.flipped = [];
+  memState.lock = false;
+  clearMemSayBar();
+  if(memState.playerCount > 1){
+    memState.turn = (memState.turn + 1) % memState.playerCount;
+    updateMemTurnBanner();
+  }
+  renderMemHud();
+}
+var memGridEl = $('mem-grid');
+memGridEl.addEventListener('click', function(e){
+  var sayBtn = e.target.closest('.mcard-say');
+  if(sayBtn){
+    e.stopPropagation();
+    var c = sayBtn.closest('.mcard');
+    if(c) say(c.getAttribute('data-key'));
+    return;
+  }
+  var card = e.target.closest('.mcard');
+  if(!card) return;
+  attemptMemFlip(card);
+});
+memGridEl.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter' && e.key !== ' ') return;
+  var card = e.target.closest('.mcard');
+  if(!card) return;
+  e.preventDefault();
+  attemptMemFlip(card);
+});
+function computeMemRanking(){
+  var arr = memState.players.map(function(p, i){
+    return { icon:p.icon, label:p.label, cls:p.cls, score: memState.scores[i] };
+  });
+  arr.sort(function(x, y){ return y.score - x.score; });
+  var rank = 1;
+  arr.forEach(function(p, i){
+    if(i > 0 && arr[i - 1].score > p.score) rank = i + 1;
+    p.rank = rank;
+  });
+  return arr;
+}
+function medalFor(rank){ return rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '🎖️'; }
+function memResultHTML(){
+  if(memState.playerCount === 1){
+    return '<div class="u6-result-emoji">🏆</div>' +
+      '<h2 class="u6-result-title">ぜんぶ そろったね!</h2>' +
+      '<p class="u6-result-detail">めくった かいすう: ' + memState.totalFlips + 'かい<br>かかった じかん: ' + memState.elapsedSec + 'びょう</p>';
+  }
+  var ranking = computeMemRanking();
+  var winners = ranking.filter(function(p){ return p.rank === 1; });
+  var title = winners.length > 1
+    ? winners.map(function(w){ return w.label; }).join('・') + ' どうてん ゆうしょう!'
+    : winners[0].label + ' の かち!';
+  var rows = ranking.map(function(p){
+    return '<div class="u6-rank-row' + (p.rank === 1 ? ' top' : '') + '">' +
+      '<span class="u6-rank-medal">' + medalFor(p.rank) + '</span>' +
+      '<span>' + p.icon + '</span>' +
+      '<span class="u6-rank-label">' + esc(p.label) + '</span>' +
+      '<span class="u6-rank-score">' + p.score + 'ペア</span></div>';
+  }).join('');
+  return '<div class="u6-result-emoji">🏆</div>' +
+    '<h2 class="u6-result-title">' + esc(title) + '</h2>' +
+    '<div class="u6-rank-list">' + rows + '</div>';
+}
+function finishMemGame(){
+  clearInterval(memState.timerId);
+  memState.lock = true;
+  $('mem-result-box').innerHTML = memResultHTML();
+  go('mem-result');
+  sfx('drumroll', 1000);
+  setTimeout(function(){
+    var title, sub;
+    if(memState.playerCount === 1){
+      title = 'よくできました!'; sub = 'ぜんぶの ペアを そろえたね!';
+    }else{
+      var ranking = computeMemRanking();
+      var winners = ranking.filter(function(p){ return p.rank === 1; });
+      title = winners.length > 1
+        ? winners.map(function(w){ return w.label; }).join('・') + ' どうてん!'
+        : winners[0].label + ' の かち!';
+      sub = 'たくさん こえに出して 言えたかな?';
+    }
+    celebrate({ title: title, sub: sub, icon: '🏆', autoHideMs: 2200 });
+  }, 1100);
+}
+$('btn-mem-start').addEventListener('click', function(){ sfx('tap'); startMemGame(); });
+$('btn-mem-again').addEventListener('click', function(){ sfx('tap'); startMemGame(); });
+$('btn-mem-setup2').addEventListener('click', function(){ sfx('tap'); go('mem-setup'); });
+
+/* ============================================================
+   4. まぎらわしい文字チャレンジ(タイム計測+自己ベスト+コンボ)
+   ============================================================ */
+var CONF_STORE_KEY = 'g4u6_confusable_best';
+var confStore = (window.AppUI && AppUI.store) ? AppUI.store(CONF_STORE_KEY) :
+  { get:function(d){ return d; }, set:function(){ return false; } };
+function loadConfBest(){
+  var d = confStore.get({ combo:0, times:{} });
+  if(!d || typeof d !== 'object') d = { combo:0, times:{} };
+  if(!d.times) d.times = {};
+  return d;
+}
+var confState = {
+  total:12, idx:0, combo:0, maxCombo:0, mistakes:0, startTime:0, timerId:null,
+  elapsedMs:0, seq:[], locked:false
+};
+$('conf-size-row').addEventListener('click', function(e){
+  var b = e.target.closest('.u6-toggle'); if(!b) return;
+  document.querySelectorAll('#conf-size-row .u6-toggle').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on');
+  confState.total = parseInt(b.getAttribute('data-n'), 10);
+  sfx('tap');
+  updateConfBestHint();
+});
+function updateConfBestHint(){
+  var rec = loadConfBest();
+  var t = rec.times[String(confState.total)];
+  var parts = [];
+  if(t != null) parts.push('🏆 ' + confState.total + 'もんの 自己ベスト(ノーミス): ' + t.toFixed(1) + 'びょう');
+  if(rec.combo) parts.push('🔥 さいこうコンボ: ' + rec.combo + 'れんぞく');
+  $('conf-best-hint').textContent = parts.length ? parts.join(' / ') : 'まずは 1回 チャレンジしてみよう!';
+}
+updateConfBestHint();
+
+function nextConfLetter(prevAnswer){
+  var group, answer, tries = 0;
+  do{
+    group = pick(CONFUSABLE_GROUPS);
+    answer = pick(group);
+    tries++;
+  }while(answer === prevAnswer && tries < 8);
+  var kind = Math.random() < 0.5 ? 'visual' : 'listen';
+  return { group:group, answer:answer, kind:kind };
+}
+function buildConfSeq(n){
+  var seq = [];
+  var prev = null;
+  for(var i=0;i<n;i++){
+    var q = nextConfLetter(prev);
+    prev = q.answer;
+    seq.push(q);
+  }
+  return seq;
+}
+function confOptionsFor(q){
+  var opts = shuffleArr(q.group.slice());
+  var tries = 0;
+  while(opts.length < 4 && tries < 40){
+    var extra = pick(ALL_LETTERS);
+    if(opts.indexOf(extra) === -1) opts.push(extra);
+    tries++;
+  }
+  opts = opts.slice(0, 4);
+  if(opts.indexOf(q.answer) === -1) opts[0] = q.answer;   // 念のための保険(通常は必ず含まれる)
+  return shuffleArr(opts);
+}
+function startConfGame(){
+  confState.idx = 0; confState.combo = 0; confState.maxCombo = 0; confState.mistakes = 0;
+  confState.locked = false;
+  confState.seq = buildConfSeq(confState.total);
+  confState.startTime = Date.now();
+  $('conf-total').textContent = confState.total;
+  $('conf-combo').textContent = '0';
+  $('conf-time').textContent = '0.0';
+  clearInterval(confState.timerId);
+  confState.timerId = setInterval(function(){
+    var sec = (Date.now() - confState.startTime) / 1000;
+    $('conf-time').textContent = sec.toFixed(1);
+  }, 100);
+  go('conf-game');
+  renderConfQuestion();
+}
+function renderConfQuestion(){
+  confState.locked = false;
+  var q = confState.seq[confState.idx];
+  $('conf-progress').textContent = confState.idx + 1;
+  var targetEl = $('conf-target');
+  targetEl.innerHTML = '';
+  if(q.kind === 'visual'){
+    var letterEl = document.createElement('span');
+    letterEl.className = 'u6-conf-letter';
+    letterEl.textContent = q.answer.toUpperCase();
+    targetEl.appendChild(letterEl);
+    targetEl.setAttribute('aria-label', '大文字 ' + q.answer.toUpperCase());
+    targetEl.classList.remove('clickable');
+    $('conf-ask').textContent = 'この文字の 小文字は どれ?';
+    $('conf-sub').textContent = '';
+    targetEl.onclick = null;
+  }else{
+    var ico = document.createElement('span');
+    ico.className = 'u6-conf-listen-ico';
+    ico.textContent = '🔊';
+    targetEl.appendChild(ico);
+    targetEl.setAttribute('aria-label', '文字を聞く');
+    targetEl.classList.add('clickable');
+    $('conf-ask').textContent = '🔊を おして、聞こえた文字の 小文字を さがそう';
+    $('conf-sub').textContent = '何回でも 聞きなおせるよ';
+    targetEl.onclick = function(){ sfx('tap'); say(q.answer); };
+  }
+  var optsEl = $('conf-opts');
+  optsEl.innerHTML = '';
+  confOptionsFor(q).forEach(function(letter){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'u6-conf-opt';
+    b.textContent = letter;
+    b.setAttribute('data-letter', letter);
+    b.setAttribute('aria-label', '小文字 ' + letter);
+    optsEl.appendChild(b);
+  });
+}
+$('conf-opts').addEventListener('click', function(e){
+  var b = e.target.closest('.u6-conf-opt'); if(!b || confState.locked) return;
+  var q = confState.seq[confState.idx];
+  var chosen = b.getAttribute('data-letter');
+  if(chosen === q.answer){
+    confState.locked = true;
+    confState.combo++;
+    if(confState.combo > confState.maxCombo) confState.maxCombo = confState.combo;
+    $('conf-combo').textContent = confState.combo;
+    sfx('correct');
+    var r = b.getBoundingClientRect();
+    stars(r.left + r.width/2, r.top + r.height/2);
+    b.classList.add('correct-glow');
+    setTimeout(function(){ b.classList.add('u6-flyaway'); }, 260);
+    setTimeout(function(){
+      confState.idx++;
+      if(confState.idx >= confState.seq.length) finishConfGame();
+      else renderConfQuestion();
+    }, 260 + 480);
+  }else{
+    confState.combo = 0;
+    confState.mistakes++;
+    $('conf-combo').textContent = '0';
+    sfx('wrong');
+    b.classList.remove('u6-tremble'); void b.offsetWidth; b.classList.add('u6-tremble');
+    setTimeout(function(){ b.classList.remove('u6-tremble'); }, 500);
+  }
+});
+function finishConfGame(){
+  clearInterval(confState.timerId);
+  var finalSec = (Date.now() - confState.startTime) / 1000;
+  var rec = loadConfBest();
+  var timeKey = String(confState.total);
+  var prevTime = rec.times[timeKey];
+  var isNewTime = confState.mistakes === 0 && (prevTime == null || finalSec < prevTime);
+  var isNewCombo = confState.maxCombo > (rec.combo || 0);
+  if(isNewTime) rec.times[timeKey] = finalSec;
+  if(isNewCombo) rec.combo = confState.maxCombo;
+  if(isNewTime || isNewCombo) confStore.set(rec);
+
+  var html = '<div class="u6-result-emoji">' + (confState.mistakes === 0 ? '⚡' : '🎉') + '</div>' +
+    '<h2 class="u6-result-title">' + confState.seq.length + 'もん クリア!</h2>' +
+    '<p class="u6-result-detail">タイム: ' + finalSec.toFixed(1) + 'びょう<br>' +
+    'おてつき: ' + confState.mistakes + 'かい / さいこうコンボ: ' + confState.maxCombo + 'れんぞく</p>';
+  if(isNewTime || isNewCombo){
+    html += '<div class="u6-best-banner">🏆 ' +
+      (isNewTime ? '自己ベストタイム 更新!(ノーミス) ' : '') +
+      (isNewCombo ? 'さいこうコンボ 更新!' : '') + '</div>';
+  }else if(prevTime != null){
+    html += '<div class="u6-best-banner">📌 ' + confState.total + 'もんの 自己ベスト(ノーミス): ' + prevTime.toFixed(1) + 'びょう</div>';
+  }
+  $('conf-result-box').innerHTML = html;
+  go('conf-result');
+  updateConfBestHint();
+  sfx((isNewTime || isNewCombo) ? 'fanfare' : 'drumroll');
+  setTimeout(function(){
+    celebrate({
+      title: (isNewTime || isNewCombo) ? '自己ベスト 更新!' : 'クリア おめでとう!',
+      sub: 'にている文字も よく見えるようになったね',
+      icon: (isNewTime || isNewCombo) ? '🏆' : '🎉',
+      autoHideMs: 2200
+    });
+  }, 300);
+}
+$('btn-conf-start').addEventListener('click', function(){ sfx('tap'); startConfGame(); });
+$('btn-conf-again').addEventListener('click', function(){ sfx('tap'); startConfGame(); });
+$('btn-conf-setup2').addEventListener('click', function(){ sfx('tap'); go('conf-setup'); });
+
+/* ============================================================
+   5. タイピングれんしゅう
+   ============================================================ */
+var typeState = { seq:[], idx:0, total:15, miss:0, startTime:0 };
+$('type-size-row').addEventListener('click', function(e){
+  var b = e.target.closest('.u6-toggle'); if(!b) return;
+  document.querySelectorAll('#type-size-row .u6-toggle').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on');
+  typeState.total = parseInt(b.getAttribute('data-n'), 10);
+  sfx('tap');
+});
+function startTypeGame(){
+  typeState.seq = shuffleArr(ALL_LETTERS);
+  while(typeState.seq.length < typeState.total) typeState.seq = typeState.seq.concat(shuffleArr(ALL_LETTERS));
+  typeState.seq = typeState.seq.slice(0, typeState.total);
+  typeState.idx = 0; typeState.miss = 0; typeState.startTime = Date.now();
+  $('type-total').textContent = typeState.total;
+  $('type-miss').textContent = 0;
+  $('type-kbd').innerHTML = KBD_ROWS.map(function(row){
+    return '<div class="u6-kbd-row">' + row.split('').map(function(k){
+      return '<button type="button" class="u6-key" data-k="' + k + '">' + k + '</button>';
+    }).join('') + '</div>';
+  }).join('');
+  go('type-game');
   showTypeTarget();
 }
 function showTypeTarget(){
-  $("type-progress").textContent = `${typeIdx+1} / ${typeSeq.length}`;
-  $("type-target").textContent = typeSeq[typeIdx];
-  speak(typeSeq[typeIdx]);
+  $('type-progress').textContent = typeState.idx + 1;
+  $('type-letter').textContent = typeState.seq[typeState.idx];
 }
-function pressKey(k, el){
-  if(mode !== "typing") return;
-  const want = typeSeq[typeIdx];
-  const keyEl = el || document.querySelector(`.key[data-k="${k}"]`);
+function pressTypeKey(k, el){
+  if(curScreen !== 'type-game') return;
+  var want = typeState.seq[typeState.idx];
+  var keyEl = el || document.querySelector('.u6-key[data-k="' + k + '"]');
   if(k === want){
-    if(keyEl){ keyEl.classList.add("hit"); setTimeout(() => keyEl.classList.remove("hit"), 250); }
-    typeIdx++;
-    if(typeIdx >= typeSeq.length){
-      const sec = ((Date.now() - typeStart) / 1000).toFixed(1);
-      showResult("⌨️", "タイピングクリア!", `${sec}びょう / ミス ${typeMiss}回`);
-      speak("Perfect!");
-    }else showTypeTarget();
+    if(keyEl){ keyEl.classList.add('hit'); setTimeout(function(){ keyEl.classList.remove('hit'); }, 260); }
+    sfx('correct');
+    var card = $('type-target');
+    card.classList.remove('app-anim-pop'); void card.offsetWidth; card.classList.add('app-anim-pop');
+    var r = card.getBoundingClientRect();
+    stars(r.left + r.width/2, r.top + r.height/2);
+    typeState.idx++;
+    if(typeState.idx >= typeState.seq.length){
+      setTimeout(finishTypeGame, 350);
+    }else{
+      showTypeTarget();
+    }
   }else{
-    typeMiss++;
-    if(keyEl){ keyEl.classList.add("miss"); setTimeout(() => keyEl.classList.remove("miss"), 250); }
+    typeState.miss++;
+    $('type-miss').textContent = typeState.miss;
+    sfx('wrong');
+    if(keyEl){
+      keyEl.classList.remove('u6-tremble'); void keyEl.offsetWidth;
+      keyEl.classList.add('miss','u6-tremble');
+      setTimeout(function(){ keyEl.classList.remove('miss','u6-tremble'); }, 400);
+    }
   }
 }
-$("kbd").addEventListener("click", e => {
-  const el = e.target.closest(".key"); if(!el) return;
-  pressKey(el.dataset.k, el);
+$('type-kbd').addEventListener('click', function(e){
+  var el = e.target.closest('.u6-key'); if(!el) return;
+  pressTypeKey(el.getAttribute('data-k'), el);
 });
-document.addEventListener("keydown", e => {
-  if(mode === "typing" && /^[a-z]$/.test(e.key)) pressKey(e.key, null);
+document.addEventListener('keydown', function(e){
+  if(curScreen === 'type-game' && /^[a-z]$/.test(e.key)) pressTypeKey(e.key, null);
 });
+$('type-say').addEventListener('click', function(){ sfx('tap'); say(typeState.seq[typeState.idx]); });
+function finishTypeGame(){
+  var sec = ((Date.now() - typeState.startTime) / 1000).toFixed(1);
+  $('type-result-box').innerHTML =
+    '<div class="u6-result-emoji">⌨️</div>' +
+    '<h2 class="u6-result-title">タイピング クリア!</h2>' +
+    '<p class="u6-result-detail">タイム: ' + sec + 'びょう<br>ミス: ' + typeState.miss + 'かい</p>';
+  go('type-result');
+  sfx('fanfare');
+  setTimeout(function(){ celebrate({ title:'よくできました!', sub:'キーボードにも 少し なれたかな?', icon:'⌨️', autoHideMs:2200 }); }, 250);
+}
+$('btn-type-start').addEventListener('click', function(){ sfx('tap'); startTypeGame(); });
+$('btn-type-again').addEventListener('click', function(){ sfx('tap'); startTypeGame(); });
+$('btn-type-setup2').addEventListener('click', function(){ sfx('tap'); go('type-setup'); });
 
-// ============================================================
-// まぎらわしい文字チャレンジ
-// ============================================================
-let confSeq = [], confIdx = 0, confScore = 0, confLock = false;
-function startConf(){
-  mode = "conf";
-  const qs = [];
-  for(let i=0; i<CONF_COUNT; i++){
-    const g = CONFUSABLE_GROUPS[i % CONFUSABLE_GROUPS.length];
-    qs.push({ group:g, answer:g[Math.floor(Math.random()*g.length)] });
-  }
-  confSeq = shuffle(qs); confIdx = 0; confScore = 0;
-  show("scr-conf");
-  showConfQ();
+/* ============================================================
+   6. 自分の名前をつくる
+   ============================================================ */
+var NAME_SAVE_KEY = 'g4u6_names';
+var nameStore = (window.AppUI && AppUI.store) ? AppUI.store(NAME_SAVE_KEY) :
+  { get:function(d){ return d; }, set:function(){ return false; } };
+var nameState = { letters:[], uid:0, selected:null };
+
+function renderNamePalette(){
+  var pal = $('name-pal');
+  var frag = document.createDocumentFragment();
+  ALL_LETTERS.forEach(function(L){
+    var t = document.createElement('button');
+    t.type = 'button';
+    t.className = 'u6-ptile';
+    t.setAttribute('data-letter', L);
+    t.setAttribute('aria-label', L + ' を追加');
+    t.textContent = L;
+    var say = document.createElement('button');
+    say.type = 'button';
+    say.className = 'u6-ptile-say';
+    say.setAttribute('aria-label', L + ' を聞く');
+    say.textContent = '🔊';
+    t.appendChild(say);
+    frag.appendChild(t);
+  });
+  pal.innerHTML = '';
+  pal.appendChild(frag);
 }
-function showConfQ(){
-  confLock = false;
-  const q = confSeq[confIdx];
-  $("conf-progress").textContent = `${confIdx+1} / ${confSeq.length}`;
-  $("conf-q").textContent = q.answer.toUpperCase();
-  // 選択肢: 同じグループの文字(たりなければ他の文字を足して4つに)
-  let opts = [...q.group];
-  while(opts.length < 4){
-    const extra = ALL[Math.floor(Math.random()*ALL.length)];
-    if(!opts.includes(extra)) opts.push(extra);
-  }
-  $("conf-opts").innerHTML = shuffle(opts).map(o =>
-    `<button class="conf-btn" data-o="${o}">${o}</button>`).join("");
-  speak(q.answer);
+renderNamePalette();
+$('name-pal').addEventListener('click', function(e){
+  var sayBtn = e.target.closest('.u6-ptile-say');
+  var tile = e.target.closest('.u6-ptile');
+  if(!tile) return;
+  var L = tile.getAttribute('data-letter');
+  if(sayBtn){ e.stopPropagation(); sfx('tap'); say(L); return; }
+  addNameLetter(L);
+});
+function nameMsg(t){
+  $('name-msg').textContent = t || '';
 }
-$("conf-opts").addEventListener("click", e => {
-  const el = e.target.closest(".conf-btn"); if(!el || confLock) return;
-  const q = confSeq[confIdx];
-  if(el.dataset.o === q.answer){
-    confLock = true; confScore++;
-    el.classList.add("ok");
-    speak(q.answer);
-    setTimeout(() => {
-      confIdx++;
-      if(confIdx >= confSeq.length){
-        showResult(confScore === confSeq.length ? "🏆" : "🎉",
-          `${confSeq.length}もん中 ${confScore}もん せいかい!`,
-          "にている文字は 形をよく見てみよう(bのおなかは右、dは左!)");
-        speak(confScore === confSeq.length ? "Perfect!" : "Good job!");
-      }else showConfQ();
-    }, 1000);
+function addNameLetter(L){
+  if(nameState.letters.length >= MAX_NAME_LEN){
+    sfx('wrong');
+    nameMsg('名前は ' + MAX_NAME_LEN + '文字までだよ');
+    return;
+  }
+  nameState.uid++;
+  nameState.letters.push({ uid:nameState.uid, letter:L });
+  nameMsg('');
+  sfx('pop');
+  renderNameSlots();
+}
+function renderNameSlots(){
+  var row = $('name-slots');
+  row.classList.toggle('empty', nameState.letters.length === 0);
+  row.innerHTML = '';
+  if(!nameState.letters.length){
+    var e = document.createElement('div');
+    e.className = 'u6-name-empty';
+    e.textContent = '下の 小文字カードを タップして 名前を つくろう';
+    row.appendChild(e);
   }else{
-    el.classList.add("ng");
-    setTimeout(() => el.classList.remove("ng"), 380);
+    nameState.letters.forEach(function(item){
+      var tile = document.createElement('div');
+      tile.className = 'u6-ntile' + (nameState.selected === item.uid ? ' sel' : '');
+      tile.setAttribute('data-uid', item.uid);
+      tile.textContent = item.letter;
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'u6-ntile-x';
+      x.textContent = '✕';
+      x.setAttribute('aria-label', '1文字けす');
+      x.setAttribute('data-uid', item.uid);
+      tile.appendChild(x);
+      row.appendChild(tile);
+    });
   }
-});
-
-// ============================================================
-// 結果・ナビゲーション
-// ============================================================
-function showResult(emoji, title, detail){
-  $("res-emoji").textContent = emoji;
-  $("res-title").textContent = title;
-  $("res-detail").textContent = detail;
-  show("scr-result");
+  $('name-count').textContent = nameState.letters.length + '文字';
 }
-document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
-  const m = c.dataset.mode;
-  if(m === "memory") startMemory();
-  else if(m === "typing") startTyping();
-  else startConf();
-}));
-function goHome(){ mode = null; clearInterval(memTimer); speechSynthesis.cancel(); show("scr-mode"); }
-$("btn-home").addEventListener("click", goHome);
-$("btn-home2").addEventListener("click", goHome);
-$("btn-again").addEventListener("click", () => {
-  if(mode === "memory") startMemory();
-  else if(mode === "typing") startTyping();
-  else if(mode === "conf") startConf();
+function indexOfUid(uid){
+  for(var i=0;i<nameState.letters.length;i++){ if(nameState.letters[i].uid === uid) return i; }
+  return -1;
+}
+$('name-slots').addEventListener('click', function(e){
+  var xBtn = e.target.closest('.u6-ntile-x');
+  if(xBtn){
+    var uid = parseInt(xBtn.getAttribute('data-uid'), 10);
+    var idx = indexOfUid(uid);
+    if(idx >= 0) nameState.letters.splice(idx, 1);
+    if(nameState.selected === uid) nameState.selected = null;
+    sfx('tap');
+    renderNameSlots();
+    return;
+  }
+  var tile = e.target.closest('.u6-ntile');
+  if(!tile) return;
+  var uid2 = parseInt(tile.getAttribute('data-uid'), 10);
+  if(nameState.selected === null){
+    nameState.selected = uid2;
+  }else if(nameState.selected === uid2){
+    nameState.selected = null;
+  }else{
+    var i = indexOfUid(nameState.selected), j = indexOfUid(uid2);
+    if(i >= 0 && j >= 0){
+      var tmp = nameState.letters[i];
+      nameState.letters[i] = nameState.letters[j];
+      nameState.letters[j] = tmp;
+    }
+    nameState.selected = null;
+    sfx('pop');
+  }
+  renderNameSlots();
+});
+$('btn-name-undo').addEventListener('click', function(){
+  if(!nameState.letters.length){ sfx('tap'); return; }
+  nameState.letters.pop();
+  nameState.selected = null;
+  sfx('tap');
+  renderNameSlots();
+});
+$('btn-name-clear').addEventListener('click', function(){
+  nameState.letters = []; nameState.selected = null;
+  sfx('tap'); nameMsg('');
+  renderNameSlots();
+});
+$('btn-name-hear').addEventListener('click', function(){
+  sfx('tap');
+  if(!nameState.letters.length){ nameMsg('まだ 文字が ないよ'); return; }
+  say(nameState.letters.map(function(x){ return x.letter; }).join(', '));
+});
+document.addEventListener('keydown', function(e){
+  if(curScreen !== 'name-make') return;
+  if(/^[a-z]$/.test(e.key)) addNameLetter(e.key);
+  else if(e.key === 'Backspace'){ e.preventDefault(); $('btn-name-undo').click(); }
 });
 
-show("scr-mode");
-</script>
+function loadNameSaved(){
+  var a = nameStore.get([]);
+  return (a && a.length !== undefined) ? a : [];
+}
+function saveName(letters){
+  if(!letters.length) return;
+  var a = loadNameSaved();
+  a.unshift({ id:Date.now(), at:new Date().toISOString(), letters:letters });
+  if(a.length > 12) a = a.slice(0,12);
+  nameStore.set(a);
+}
+function fmtDate(iso){
+  try{
+    var d = new Date(iso);
+    return (d.getMonth()+1) + 'がつ' + d.getDate() + 'にち ' +
+      ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+  }catch(e){ return ''; }
+}
+function renderPlate(el, letters){
+  el.innerHTML = '';
+  letters.forEach(function(L){
+    var tile = document.createElement('div');
+    tile.className = 'u6-ntile';
+    tile.textContent = L;
+    el.appendChild(tile);
+  });
+}
+var nameSavedThisRound = false;
+$('btn-name-done').addEventListener('click', function(){
+  if(!nameState.letters.length){
+    sfx('wrong');
+    nameMsg('文字を ならべてから おしてね');
+    return;
+  }
+  var letters = nameState.letters.map(function(x){ return x.letter; });
+  renderPlate($('name-done-plate'), letters);
+  if(!nameSavedThisRound){ saveName(letters); nameSavedThisRound = true; }
+  go('name-done');
+  celebrate({ title:'名前が できたね!', sub:'じぶんの声で 言ってみよう', icon:'🎉' });
+});
+$('btn-name-done-hear').addEventListener('click', function(){
+  sfx('tap');
+  say(nameState.letters.map(function(x){ return x.letter; }).join(', '));
+});
+$('btn-name-edit').addEventListener('click', function(){ sfx('tap'); go('name-make'); });
+$('btn-name-again').addEventListener('click', function(){
+  sfx('tap'); nameState.letters = []; nameState.selected = null; nameSavedThisRound = false;
+  nameMsg(''); renderNameSlots(); go('name-make');
+});
+$('btn-name-to-saved').addEventListener('click', function(){ sfx('tap'); go('name-saved'); });
+$('btn-name-saved').addEventListener('click', function(){ sfx('tap'); go('name-saved'); });
+$('btn-name-saved-make').addEventListener('click', function(){ sfx('tap'); go('name-make'); });
 
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>アルファベット小文字に、3つのゲームで慣れ親しむアプリです。</p><h4>あそびかた</h4><ol><li>「大文字・小文字 神経衰弱」:大文字と小文字のペアをそろえよう(めくったら声に出す!)</li><li>「タイピングれんしゅう」:聞こえた文字をキーボードでさがそう</li><li>「まぎらわしい文字チャレンジ」:b と d など にている文字を 見分けよう</li></ol><div class="ah-tip">💡 先生向け:タイピングはローマ字入力の素地にもなります。すきま時間の個別練習にどうぞ。</div>
-  </div>
-</div>
-<script>
-(function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+function renderNameSaved(){
+  var a = loadNameSaved();
+  var grid = $('name-saved-grid');
+  grid.innerHTML = '';
+  if(!a.length){
+    var p = document.createElement('p');
+    p.className = 'u6-hint';
+    p.textContent = 'まだ きろくが ないよ。「自分の名前をつくる」で 作ってみよう。';
+    grid.appendChild(p);
+    return;
+  }
+  a.forEach(function(rec){
+    var card = document.createElement('div');
+    card.className = 'u6-saved';
+    var del = document.createElement('button');
+    del.type = 'button'; del.className = 'u6-saved-del'; del.textContent = '✕';
+    del.setAttribute('aria-label', 'この きろくを けす');
+    del.addEventListener('click', function(){
+      var list = loadNameSaved().filter(function(x){ return x.id !== rec.id; });
+      nameStore.set(list); sfx('tap'); renderNameSaved();
+    });
+    card.appendChild(del);
+    var plate = document.createElement('div');
+    plate.className = 'u6-nameplate';
+    renderPlate(plate, rec.letters || []);
+    card.appendChild(plate);
+    var d = document.createElement('div');
+    d.className = 'u6-saved-date';
+    d.textContent = fmtDate(rec.at);
+    card.appendChild(d);
+    grid.appendChild(card);
+  });
+}
+renderNameSlots();
+
+/* ============================================================
+   7. モード選択 / ナビゲーション
+   ============================================================ */
+$('mode-memory').addEventListener('click', function(){ sfx('tap'); go('mem-setup'); });
+$('mode-conf').addEventListener('click', function(){ sfx('tap'); go('conf-setup'); });
+$('mode-name').addEventListener('click', function(){ sfx('tap'); go('name-make'); });
+$('mode-type').addEventListener('click', function(){ sfx('tap'); go('type-setup'); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); go('mode'); });
+
+/* ============================================================
+   8. 使い方モーダル
+   ============================================================ */
+var HELP_HTML =
+  '<p>アルファベットの 小文字に、4つの あそびで なれしたしむ アプリだよ。</p>' +
+  '<h4 style="margin:10px 0 4px;font-weight:800">🃏 大文字・小文字 神経衰弱</h4>' +
+  '<ul><li>2〜4人で じゅんばんに カードを 2まい めくる</li>' +
+  '<li>大文字と小文字の ペア(例: B と b)が そろったら 1点!めくったひとが 声に出して 言ってみよう</li></ul>' +
+  '<h4 style="margin:10px 0 4px;font-weight:800">🌀 まぎらわしい文字チャレンジ</h4>' +
+  '<ul><li>b/d, p/q, i/l, n/h など にている文字を すばやく 見分けよう</li>' +
+  '<li>🔊が出たら おして 文字の音を聞いてから さがそう</li>' +
+  '<li>タイムと 連続正解コンボを きろく。自己ベストは この端末に ほぞんされるよ</li></ul>' +
+  '<h4 style="margin:10px 0 4px;font-weight:800">✏️ 自分の名前をつくる</h4>' +
+  '<ul><li>小文字カードを タップして 名前(ローマ字)を ならべよう</li>' +
+  '<li>タイルを タップ→べつのタイルを タップで 入れかえ。✕で 1文字けせる</li>' +
+  '<li>アプリは 名前を 勝手に 読み上げません。できたら 自分の声で 言ってみよう</li></ul>' +
+  '<h4 style="margin:10px 0 4px;font-weight:800">⌨️ タイピングれんしゅう</h4>' +
+  '<ul><li>出てきた小文字を キーボード(画面 / 実物)で タイプしよう</li></ul>' +
+  '<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:10px;font-size:.85rem;line-height:1.8">' +
+  '💡 先生へ: アプリは 単語や名前を 自動では 読み上げません。🔊は 発音モデルの 確認用です。声に出すのは 子ども自身、が この教材の設計方針です。</div>';
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  if(window.AppUI && AppUI.help) AppUI.help(HELP_HTML, { title:'つかいかた' });
+});
+
+/* ============================================================
+   9. テスト・デバッグ用フック(授業では使いません)
+   ============================================================ */
+window.__u6State = function(){
+  return {
+    screen: curScreen,
+    mem: { pairCount:memState.pairCount, playerCount:memState.playerCount, turn:memState.turn,
+      scores:memState.scores.slice(), matchedPairs:memState.matchedPairs, totalPairs:memState.totalPairs },
+    conf: { total:confState.total, idx:confState.idx, combo:confState.combo, maxCombo:confState.maxCombo, mistakes:confState.mistakes },
+    type: { total:typeState.total, idx:typeState.idx, miss:typeState.miss },
+    name: { letters: nameState.letters.map(function(x){ return x.letter; }) }
+  };
+};
+
+go('mode');
 })();
 </script>
+
 </body>
 </html>

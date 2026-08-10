@@ -2,194 +2,399 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>なんじなにをする?時計アプリ | 小学校外国語アプリポータル</title>
+<meta name="description" content="What time is it? じぶんで とけいの はりを うごかして、じこくと せいかつを むすびつける 小学校4年生向けアプリ。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --purple:#a29bfe;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は ck-
+
+   ★重要★ 「わたしの1日時計」モードの とけいの まわりの カードは
+   AppUI.cardArt(...).square.cutout を使い、乗算合成(mix-blend-mode:multiply)
+   で 白地を すかして「絵だけ」を のせている。
+   乗算合成は「いちばん近い 祖先の スタッキングコンテキスト」までしか
+   ブレンドできないため、この絵は とけいの はり(transformで回転)とは
+   ちがう親要素(.ck-ringwrap の直接の子)に 置いている。はりを回す
+   svg 自体には この絵を 入れないこと。
+   ・位置は left / top / width(%) だけで うごかす(transform を使わない)
+   ============================================================ */
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  margin:0; min-height:100vh;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-group{display:flex;gap:8px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:900px;margin:0 auto;padding:16px}
+main{ max-width:1200px; margin:0 auto; padding:14px 14px 70px; }
 
-/* mode select */
-.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:30px}
-.mode-card{
-  width:260px;background:#fff;border-radius:24px;padding:26px 20px;text-align:center;cursor:pointer;
-  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
-}
-.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.free{border-color:var(--blue)} .mode-card.quiz{border-color:var(--pink)}
-.mode-card .mi{font-size:3.4rem}
-.mode-card h2{font-size:1.2rem;font-weight:800;margin-top:8px}
-.mode-card p{font-size:.82rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+.ck-title{ text-align:center; font-size:clamp(1.05rem,2.6vw,1.5rem); font-weight:800; margin:8px 0 2px; }
+.ck-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.85rem; margin-bottom:14px; line-height:1.7; }
+.ck-hint{ text-align:center; font-weight:700; color:var(--sub); font-size:.8rem; margin:8px 0; line-height:1.8; }
 
-/* layout */
-.play-area{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;align-items:flex-start;margin-top:10px}
-.clock-box{background:#fff;border-radius:28px;padding:18px;box-shadow:var(--shadow);text-align:center}
-svg#clock{touch-action:none;display:block}
-.side-box{width:300px;display:flex;flex-direction:column;gap:14px}
+/* ---------- レイアウト ---------- */
+.ck-work{ display:flex; gap:20px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+.ck-clockpane{ flex:1 1 380px; min-width:280px; max-width:460px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+.ck-cardpane{ flex:1 1 340px; min-width:280px; max-width:440px; display:flex; flex-direction:column; gap:12px; }
 
-/* am/pm */
-.ampm{display:flex;justify-content:center;gap:10px;margin-top:10px}
-.ampm button{
-  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 22px;font-family:inherit;
-  font-weight:800;font-size:1rem;cursor:pointer;min-height:44px;color:var(--sub);transition:.2s;
-}
-.ampm button.on.am{background:var(--yellow);border-color:var(--yellow);color:#7a4a00}
-.ampm button.on.pm{background:var(--purple);border-color:var(--purple);color:#fff}
+.ck-clockwrap{ width:min(100%,420px); margin:0 auto; }
+.ck-teamclock{ width:min(100%,300px); margin:0 auto; }
+.ck-svg{ width:100%; height:auto; aspect-ratio:1; display:block; touch-action:none; }
 
-/* time display */
-.time-line{font-family:'Fredoka One',cursive;font-size:1.7rem;color:var(--primary-dark);margin-top:10px;letter-spacing:1px}
-.speak-btn{
-  background:var(--blue);color:#fff;border:none;border-radius:50px;padding:12px 24px;font-family:inherit;
-  font-weight:800;font-size:1rem;cursor:pointer;box-shadow:var(--shadow);transition:.2s;min-height:48px;margin-top:10px;
+.ck-ampm{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.ck-ampmbtn{
+  border:3px solid #e6ecf2; background:#fff; border-radius:50px; padding:9px 22px; font-family:inherit;
+  font-weight:800; font-size:1rem; cursor:pointer; min-height:52px; color:var(--sub); transition:.2s;
 }
-.speak-btn:hover{transform:translateY(-2px);background:#0984e3}
+.ck-ampmbtn.on.am{ background:var(--yellow); border-color:var(--yellow); color:#7a4a00; }
+.ck-ampmbtn.on.pm{ background:var(--purple); border-color:var(--purple); color:#fff; }
 
-/* activity card */
-.act-card{
-  background:#fff;border-radius:24px;box-shadow:var(--shadow);overflow:hidden;text-align:center;
-  border:5px solid var(--yellow);min-height:250px;display:flex;flex-direction:column;
-}
-.act-img-wrap{height:190px;background:#fdf6e3;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.act-img-wrap img{width:100%;height:100%;object-fit:contain}
-.act-emoji{font-size:5rem}
-.act-label{padding:12px;font-weight:800;font-size:1.15rem}
-.act-label small{display:block;color:var(--sub);font-size:.78rem;margin-top:2px}
+.ck-steprow{ display:flex; gap:10px; justify-content:center; }
+.ck-stepbtn{ min-width:64px; min-height:56px; font-size:1rem; }
 
-/* quiz */
-.quiz-bar{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:50px;box-shadow:var(--shadow);padding:8px 20px;margin-bottom:14px;font-weight:800}
-.quiz-bar .score{color:var(--primary-dark)}
-.check-btn{
-  background:var(--pink);color:#fff;border:none;border-radius:50px;padding:14px 30px;font-family:inherit;
-  font-weight:800;font-size:1.1rem;cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;width:100%;
+.ck-digital{ font-family:var(--app-font-display); font-size:2rem; color:#1eae5b; text-align:center; letter-spacing:1px; }
+
+/* ---------- 絵カード表示(自由モード・クイズ) ---------- */
+.ck-qcard{
+  background:#fff; border-radius:var(--app-radius-lg); box-shadow:var(--shadow);
+  border:5px solid var(--yellow); min-height:240px; padding:16px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center;
 }
-.check-btn:hover{transform:translateY(-2px)}
-.check-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
-.feedback{
-  text-align:center;font-size:1.5rem;font-weight:800;min-height:44px;margin-top:6px;
-  animation:pop .4s;
+.ck-actimg{
+  width:100%; max-width:280px; aspect-ratio:1040/760; border-radius:16px; overflow:hidden;
+  background:#fdf6e3; display:flex; align-items:center; justify-content:center;
 }
-.feedback.ok{color:var(--primary-dark)} .feedback.ng{color:var(--pink)}
-@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1)}}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
-@media(max-width:680px){ .side-box{width:100%} }
+.ck-actimg img{ width:100%; height:100%; object-fit:contain; }
+.ck-actimg .app-card-emoji{ font-size:4.6rem; }
+.ck-actphrase{ font-family:var(--app-font-display); font-size:1.25rem; color:var(--ink); line-height:1.5; }
+.ck-resulttext{ font-weight:800; font-size:1.15rem; color:var(--ink); line-height:1.6; }
+.ck-mystery{
+  width:120px; height:120px; border-radius:50%; background:#eaf6ff; display:flex; align-items:center;
+  justify-content:center; font-size:3.2rem; box-shadow:inset 0 0 0 4px #bfe3ff;
+}
+.ck-resulticon{ font-size:4.4rem; line-height:1; }
+
+/* ---------- こたえあわせボタン・フィードバック ---------- */
+.ck-feedback{ text-align:center; font-size:1.35rem; font-weight:800; min-height:40px; }
+.ck-feedback.ok{ color:#1eae5b; }
+.ck-feedback.ng{ color:var(--pink); }
+
+/* ---------- わたしの1日時計:リング ---------- */
+.ck-ringwrap{ position:relative; width:min(100%,480px); aspect-ratio:1; margin:6px auto; }
+.ck-ringface{ position:absolute; top:27%; left:27%; width:46%; height:46%; }
+.ck-slot{
+  position:absolute; width:22%; height:22%; border-radius:50%; overflow:hidden; padding:0;
+  background:#fff; border:4px dashed #d8e2ea; box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-family:inherit;
+  transition:border-color .15s, background .15s;
+}
+.ck-slot:hover, .ck-slot:focus-visible{ border-color:var(--primary); outline:none; }
+.ck-slot.filled{ border:4px solid var(--g4); background:#f2fdf7; }
+.ck-slot.selected{ outline:4px solid var(--blue); outline-offset:2px; }
+.ck-slot-badge{
+  position:absolute; top:2px; left:50%; transform:translateX(-50%); font-size:.62rem; font-weight:800;
+  background:rgba(255,255,255,.9); color:var(--sub); border-radius:8px; padding:0 5px; line-height:1.5;
+  pointer-events:none;
+}
+.ck-slot-plus{ font-size:1.4rem; color:#c3cfd9; font-weight:800; pointer-events:none; }
+
+.ck-editing-tag{ text-align:center; font-weight:800; font-size:.85rem; color:var(--sub); }
+
+/* ---------- せいかつカードのパレット ---------- */
+.ck-pal{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
+.ck-pcard{
+  position:relative; background:#fff; border:4px solid #eef2f6; border-radius:20px;
+  padding:12px 8px 10px; display:flex; flex-direction:column; align-items:center; gap:6px;
+  cursor:pointer; box-shadow:var(--shadow); min-height:150px; font-family:inherit; color:var(--ink);
+  transition:transform .16s, border-color .16s, box-shadow .16s, background .16s;
+}
+.ck-pcard:hover, .ck-pcard:focus-visible{ transform:translateY(-4px); border-color:var(--g4); box-shadow:var(--shadow-hover); outline:none; }
+.ck-pcard:active{ transform:translateY(-1px) scale(.97); }
+.ck-pcard.held{ border-color:var(--blue); background:#f2f8ff; box-shadow:0 0 0 4px rgba(116,185,255,.35); }
+.ck-pimg{ width:100%; max-width:110px; }
+.ck-pword{ font-weight:800; font-size:.9rem; line-height:1.25; text-align:center; }
+.ck-say{
+  width:40px; height:40px; min-width:40px; min-height:40px; border-radius:50%;
+  border:3px solid #eef2f6; background:#fff; cursor:pointer; font-size:1rem; font-family:inherit;
+  display:inline-flex; align-items:center; justify-content:center; transition:.16s; padding:0; flex:none;
+}
+.ck-say:hover{ border-color:var(--blue); background:#f2f8ff; }
+.ck-pcard .ck-say{ position:absolute; right:6px; top:6px; }
+
+/* ---------- じょうほうパネル / しょうかいの行 ---------- */
+.ck-info{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; min-height:64px; }
+.ck-inforow, .ck-introrow{ display:flex; align-items:center; gap:12px; }
+.ck-introrow{ background:#f7f9fb; border-radius:14px; padding:8px 10px; margin-bottom:8px; min-height:64px; }
+.ck-infoimg{ width:64px; height:64px; flex:0 0 64px; border-radius:50%; overflow:hidden; background:#fff; box-shadow:var(--shadow); }
+.ck-infotxt{ flex:1; text-align:left; }
+.ck-infotime{ font-family:var(--app-font-display); font-size:1.05rem; color:#1eae5b; }
+.ck-infosentence{ font-weight:800; font-size:1rem; margin-top:2px; }
+
+/* ---------- きろく ---------- */
+.ck-saved-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
+.ck-savedcard{ position:relative; background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:12px; border:4px solid #eef2f6; }
+.ck-savedcard:hover{ border-color:var(--g4); }
+.ck-savedrow{ display:flex; flex-wrap:wrap; gap:6px; }
+.ck-savedchip{ position:relative; width:52px; height:52px; border-radius:50%; overflow:hidden; background:#fff; box-shadow:var(--shadow); }
+.ck-savedtime{
+  position:absolute; bottom:-2px; right:-2px; background:#2d3436; color:#fff; font-size:.6rem; font-weight:800;
+  border-radius:8px; padding:0 4px; line-height:1.4;
+}
+.ck-saveddate{ font-size:.72rem; color:var(--sub); font-weight:700; margin-top:8px; }
+.ck-del{
+  position:absolute; right:-8px; top:-8px; width:36px; height:36px; border-radius:50%; border:none;
+  background:var(--pink); color:#fff; font-weight:800; cursor:pointer; font-family:inherit; font-size:.9rem; box-shadow:var(--shadow);
+}
+
+/* ---------- こうはくせん ---------- */
+.ck-scoreboard{ display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+.ck-scorechip{ font-weight:800; font-size:1.1rem; padding:10px 20px; border-radius:50px; box-shadow:var(--shadow); min-height:52px; display:inline-flex; align-items:center; gap:6px; }
+.ck-scorechip.red{ background:#ffe3e1; color:#c0392b; }
+.ck-scorechip.white{ background:#f4f6f8; color:#2d3436; border:3px solid #dfe6ec; }
+.ck-target{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:10px 22px; text-align:center; min-width:180px; }
+.ck-target-time{ font-family:var(--app-font-display); font-size:1.8rem; color:var(--ink); }
+.ck-target-sub{ font-weight:800; color:var(--sub); font-size:.85rem; margin-top:2px; }
+
+.ck-battlework{ display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:14px; }
+.ck-teamcol{ flex:1 1 280px; max-width:330px; background:#fff; border-radius:var(--app-radius-lg); box-shadow:var(--shadow); padding:14px; display:flex; flex-direction:column; align-items:center; gap:10px; border:5px solid #eef2f6; }
+.ck-teamcol.red{ border-color:#ffb3ab; }
+.ck-teamcol.white{ border-color:#dfe6ec; }
+.ck-teamcol h3{ margin:0; font-size:1rem; font-weight:800; }
+.ck-msg{ text-align:center; font-weight:800; color:var(--sub); min-height:1.6em; margin-top:10px; }
+
+footer{ text-align:center; padding:18px; color:#b2bec3; font-size:.75rem; font-weight:700; }
+
+@media(max-width:560px){
+  .ck-pal{ grid-template-columns:repeat(auto-fill,minmax(122px,1fr)); gap:9px; }
+  .ck-pcard{ min-height:132px; padding:10px 6px 8px; }
+  .ck-digital{ font-size:1.6rem; }
+  .ck-actphrase{ font-size:1.08rem; }
+  .ck-target-time{ font-size:1.5rem; }
+}
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🕐 なんじなにをする?時計アプリ <span class="u">4年生 時こく</span></h1>
-  <div class="nav-group">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
-    <button class="nav-btn" id="btn-reset">リセット</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🕐 なんじなにをする?時計アプリ <span class="app-unit-badge" style="background:var(--g4)">4年 Unit 4</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- モード選択 -->
-  <section id="scr-mode" class="mode-select">
-    <div class="mode-card free" data-mode="free">
-      <div class="mi">🕰️</div>
-      <h2>とけいをうごかす</h2>
-      <p>はりをうごかして、その時こくに<br>なにをするか見てみよう</p>
+  <!-- ============ モードせんたく ============ -->
+  <section id="scr-mode">
+    <h2 class="ck-title">なにを する?</h2>
+    <p class="ck-sub">とけいの はりを うごかして、じこくと せいかつを むすびつけよう</p>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card green" id="mode-free">
+        <span class="app-mode-icon">🕰️</span>
+        <span class="app-mode-title">とけいを うごかす</span>
+        <span class="app-mode-sub">はりを ドラッグして<br>なんじに なにを するか 見てみよう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-myday">
+        <span class="app-mode-icon">🌅</span>
+        <span class="app-mode-title">わたしの1日時計</span>
+        <span class="app-mode-sub">せいかつカードを とけいの<br>まわりに おいて 1日を つくろう</span>
+      </button>
+      <button type="button" class="app-mode-card blue" id="mode-battle">
+        <span class="app-mode-icon">⚔️</span>
+        <span class="app-mode-title">こうはくせん</span>
+        <span class="app-mode-sub">出た じこくに はやく<br>とけいを あわせよう(2チーム)</span>
+      </button>
+      <button type="button" class="app-mode-card purple" id="mode-quiz">
+        <span class="app-mode-icon">❓</span>
+        <span class="app-mode-title">クイズ</span>
+        <span class="app-mode-sub">見て・きいて とけいを あわせる<br>クイズに ちょうせん</span>
+      </button>
+      <button type="button" class="app-mode-card yellow" id="mode-saved">
+        <span class="app-mode-icon">📔</span>
+        <span class="app-mode-title">きろく</span>
+        <span class="app-mode-sub">つくった 1日時計を<br>見かえせるよ</span>
+      </button>
     </div>
-    <div class="mode-card quiz" data-mode="quiz">
-      <div class="mi">❓</div>
-      <h2>クイズモード</h2>
-      <p>えを見て、なんじかかんがえて<br>とけいをあわせよう(5もん)</p>
+    <p class="ck-hint">🔊は じぶんが 聞きたいときだけ おそう。アプリは かってに しゃべらないよ。</p>
+  </section>
+
+  <!-- ============ とけいを うごかす(自由モード) ============ -->
+  <section id="scr-free" class="app-hidden">
+    <h2 class="ck-title">🕰️ とけいを うごかそう</h2>
+    <p class="ck-sub">はりを ドラッグ、すうじを タップ、◀▶ ボタンで じこくを かえてみよう</p>
+    <div class="ck-work">
+      <div class="ck-clockpane">
+        <div class="ck-clockwrap"><svg class="ck-svg" id="free-svg"></svg></div>
+        <div class="ck-ampm">
+          <button type="button" class="ck-ampmbtn am" id="free-am">☀️ AM ごぜん</button>
+          <button type="button" class="ck-ampmbtn pm" id="free-pm">🌙 PM ごご</button>
+        </div>
+        <div class="ck-steprow">
+          <button type="button" class="app-big-btn sm outline ck-stepbtn" id="free-prev">◀ 1じかん</button>
+          <button type="button" class="app-big-btn sm outline ck-stepbtn" id="free-next">1じかん ▶</button>
+        </div>
+      </div>
+      <div class="ck-cardpane">
+        <div class="ck-digital" id="free-digital">8:00 AM</div>
+        <div class="ck-qcard">
+          <div class="ck-actimg" id="free-actimg"></div>
+          <div class="ck-actphrase" id="free-actphrase"></div>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn blue" id="free-say">🔊 きいてみる</button>
+        </div>
+        <p class="ck-hint">🔊は じぶんが ききたいときに おそう。まずは じぶんの 口で 言ってみよう!</p>
+      </div>
     </div>
   </section>
 
-  <!-- プレイ画面 -->
-  <section id="scr-play" class="hidden">
-    <div class="quiz-bar hidden" id="quiz-bar">
-      <span id="quiz-progress">だい1もん</span>
-      <span class="score">せいかい <span id="quiz-score">0</span></span>
-    </div>
-
-    <div class="play-area">
-      <div class="clock-box">
-        <svg id="clock" width="320" height="320" viewBox="0 0 320 320"></svg>
-        <div class="ampm">
-          <button class="am" id="btn-am">☀️ ごぜん AM</button>
-          <button class="pm" id="btn-pm">🌙 ごご PM</button>
+  <!-- ============ わたしの1日時計(つくる) ============ -->
+  <section id="scr-myday" class="app-hidden">
+    <h2 class="ck-title">🌅 わたしの1日時計を つくろう</h2>
+    <p class="ck-sub">したの カードを タップして えらび、とけいの まわりの ○を タップして おこう</p>
+    <div class="ck-work">
+      <div class="ck-clockpane">
+        <p class="ck-editing-tag" id="myday-editing-tag">☀️ あさ・ひる(AM)を へんしゅうちゅう</p>
+        <div class="ck-ampm">
+          <button type="button" class="ck-ampmbtn am" id="myday-am">☀️ AM</button>
+          <button type="button" class="ck-ampmbtn pm" id="myday-pm">🌙 PM</button>
         </div>
-        <div class="time-line" id="time-line">It's 8 o'clock.</div>
-        <button class="speak-btn" id="btn-speak">🔊 What time is it?</button>
+        <div class="ck-ringwrap" id="myday-ringwrap">
+          <div class="ck-ringface"><svg class="ck-svg" id="myday-svg"></svg></div>
+        </div>
+        <div class="ck-info" id="myday-info"></div>
+        <p class="ck-hint app-hidden" id="myday-msg">せいかつカードを 1まい えらんでから、とけいの まわりを タップしてね。</p>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm yellow" id="myday-fill">🎁 サンプルを入れる</button>
+          <button type="button" class="app-big-btn sm gray" id="myday-clear">ぜんぶ けす</button>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn pink" id="myday-done">できた! 🎉</button>
+        </div>
       </div>
-
-      <div class="side-box">
-        <div class="act-card" id="act-card">
-          <div class="act-img-wrap" id="act-img"></div>
-          <div class="act-label" id="act-label"></div>
+      <div class="ck-cardpane">
+        <div class="y-panel-like">
+          <h3 style="font-size:.98rem;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            🍽️ せいかつカード <span class="app-chip g4">タップで えらぶ</span>
+          </h3>
+          <div class="ck-pal" id="myday-pal"></div>
         </div>
-        <button class="check-btn hidden" id="btn-check">こたえあわせ!</button>
-        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ わたしの1日時計(しょうかい) ============ -->
+  <section id="scr-myday-intro" class="app-hidden">
+    <h2 class="ck-title">🎉 わたしの1日時計 かんせい!</h2>
+    <p class="ck-sub">じぶんの 1日を じぶんの 口で しょうかいしよう(れい:I get up at 6:00.)</p>
+    <div style="max-width:640px;margin:0 auto">
+      <div class="app-hud" style="margin:0 0 10px">
+        <span class="app-hud-chip primary">📋 カードの かず <b id="intro-total">0</b></span>
+      </div>
+      <div id="intro-list"></div>
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn blue" id="intro-say-all">🔊 ぜんぶ きいてみる</button>
+      </div>
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn sm outline" id="btn-intro-edit">✏️ つづきを つくる</button>
+        <button type="button" class="app-big-btn sm green" id="btn-intro-new">🆕 あたらしく つくる</button>
+        <button type="button" class="app-big-btn sm yellow" id="btn-intro-saved">📔 きろくを 見る</button>
+      </div>
+      <p class="ck-hint">💾 つくった 1日時計は この タブレットに ほぞんされたよ</p>
+    </div>
+  </section>
+
+  <!-- ============ きろく ============ -->
+  <section id="scr-myday-saved" class="app-hidden">
+    <h2 class="ck-title">📔 わたしの1日時計の きろく</h2>
+    <p class="ck-sub">この タブレットに ほぞんされた 1日時計だよ(あたらしい じゅんに 12こまで)</p>
+    <div class="ck-saved-grid" id="saved-grid"></div>
+    <div class="app-btn-row" style="margin-top:16px">
+      <button type="button" class="app-big-btn green" id="btn-saved-new">🌅 あたらしく つくる</button>
+    </div>
+  </section>
+
+  <!-- ============ こうはくせん ============ -->
+  <section id="scr-battle" class="app-hidden">
+    <h2 class="ck-title">⚔️ こうはくせん</h2>
+    <p class="ck-sub">出た じこくに、はやく とけいを あわせられるのは どっちの チーム?</p>
+    <div class="ck-scoreboard">
+      <span class="ck-scorechip red">🔴 あか <b id="battle-score-red">0</b></span>
+      <div class="ck-target">
+        <div class="ck-target-time" id="battle-target-time">7:00 AM</div>
+        <div class="ck-target-sub" id="battle-target-sub">Breakfast Time</div>
+      </div>
+      <span class="ck-scorechip white">⚪ しろ <b id="battle-score-white">0</b></span>
+    </div>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn sm blue" id="battle-say">🔊 きいてみる</button>
+      <button type="button" class="app-big-btn sm outline" id="battle-next">🎲 つぎの もんだい</button>
+      <button type="button" class="app-big-btn sm gray" id="battle-reset">スコアを リセット</button>
+    </div>
+    <div class="ck-battlework">
+      <div class="ck-teamcol red">
+        <h3>🔴 あかチーム</h3>
+        <div class="ck-teamclock"><svg class="ck-svg" id="battle-red-svg"></svg></div>
+        <div class="ck-ampm">
+          <button type="button" class="ck-ampmbtn am" id="battle-red-am">☀️AM</button>
+          <button type="button" class="ck-ampmbtn pm" id="battle-red-pm">🌙PM</button>
+        </div>
+        <button type="button" class="app-big-btn pink block" id="battle-red-go">🔴 あかチーム できた!</button>
+      </div>
+      <div class="ck-teamcol white">
+        <h3>⚪ しろチーム</h3>
+        <div class="ck-teamclock"><svg class="ck-svg" id="battle-white-svg"></svg></div>
+        <div class="ck-ampm">
+          <button type="button" class="ck-ampmbtn am" id="battle-white-am">☀️AM</button>
+          <button type="button" class="ck-ampmbtn pm" id="battle-white-pm">🌙PM</button>
+        </div>
+        <button type="button" class="app-big-btn outline block" id="battle-white-go">⚪ しろチーム できた!</button>
+      </div>
+    </div>
+    <p class="ck-msg" id="battle-msg"></p>
+  </section>
+
+  <!-- ============ クイズ:もんすうせんたく ============ -->
+  <section id="scr-quiz-setup" class="app-hidden">
+    <h2 class="ck-title">❓ クイズに ちょうせん</h2>
+    <p class="ck-sub">なんもん とく?</p>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn primary" id="quiz-pick-5" style="min-height:96px;min-width:150px;font-size:1.3rem">5もん</button>
+      <button type="button" class="app-big-btn purple" id="quiz-pick-8" style="min-height:96px;min-width:150px;font-size:1.3rem">8もん</button>
+    </div>
+  </section>
+
+  <!-- ============ クイズ:プレイ ============ -->
+  <section id="scr-quiz" class="app-hidden">
+    <div class="app-hud">
+      <span class="app-hud-chip primary">だい <b id="quiz-idx">1</b> もん / <b id="quiz-total">5</b></span>
+      <span class="app-hud-chip yellow">せいかい <b id="quiz-score">0</b></span>
+    </div>
+    <div class="ck-work">
+      <div class="ck-clockpane">
+        <div class="ck-clockwrap"><svg class="ck-svg" id="quiz-svg"></svg></div>
+        <div class="ck-ampm">
+          <button type="button" class="ck-ampmbtn am" id="quiz-am">☀️ AM</button>
+          <button type="button" class="ck-ampmbtn pm" id="quiz-pm">🌙 PM</button>
+        </div>
+        <div class="ck-steprow">
+          <button type="button" class="app-big-btn sm outline ck-stepbtn" id="quiz-prev">◀ 1じかん</button>
+          <button type="button" class="app-big-btn sm outline ck-stepbtn" id="quiz-next">1じかん ▶</button>
+        </div>
+      </div>
+      <div class="ck-cardpane">
+        <div class="ck-qcard" id="quiz-qcard"></div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn blue app-hidden" id="quiz-listen-btn">🔊 きいて みよう</button>
+        </div>
+        <button type="button" class="app-big-btn pink block" id="quiz-check">とけいを あわせたら おす!</button>
+        <div class="ck-feedback" id="quiz-feedback"></div>
       </div>
     </div>
   </section>
@@ -198,269 +403,804 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
 
-<script>
-// ============================================================
-// データ(教師向け:ここを書きかえると内容を変更できます)
-// ============================================================
-// 絵カード画像の場所(Picture Dictionary の公開URL)
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-
-// 数字の英語よみ
-const NUM_EN = ["","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve"];
-
-// 時こく → 生活の場面(hour は 1〜12、ampm は "AM" / "PM")
-// img は Picture Dictionary の画像ファイル名、emoji は画像が出ないときの代わり
-const SCHEDULE = [
-  { hour:6,  ampm:"AM", label:"Wake-up Time",   ja:"おきるじかん",     phrase:"It's wake-up time.",   img:"wake up time.jpg",     emoji:"⏰" },
-  { hour:7,  ampm:"AM", label:"Breakfast Time", ja:"あさごはん",       phrase:"It's breakfast time.", img:"breakfast time.jpg",   emoji:"🍞" },
-  { hour:8,  ampm:"AM", label:"School Time",    ja:"がっこうへいく",   phrase:"It's school time.",    img:"go to school.jpg",     emoji:"🎒" },
-  { hour:10, ampm:"AM", label:"Study Time",     ja:"べんきょう",       phrase:"It's study time.",     img:"study.jpg",            emoji:"✏️" },
-  { hour:12, ampm:"PM", label:"Lunch Time",     ja:"ひるごはん",       phrase:"It's lunch time.",     img:"lunch time.jpg",       emoji:"🍱" },
-  { hour:3,  ampm:"PM", label:"Snack Time",     ja:"おやつ",           phrase:"It's snack time.",     img:"snack time.jpg",       emoji:"🍩" },
-  { hour:4,  ampm:"PM", label:"Play Time",      ja:"あそぶじかん",     phrase:"It's play time.",      img:"play with my friends.jpg", emoji:"⚽" },
-  { hour:5,  ampm:"PM", label:"Homework Time",  ja:"しゅくだい",       phrase:"It's homework time.",  img:"do my homework.jpg",   emoji:"📖" },
-  { hour:6,  ampm:"PM", label:"Dinner Time",    ja:"ばんごはん",       phrase:"It's dinner time.",    img:"dinner time.jpg",      emoji:"🍛" },
-  { hour:7,  ampm:"PM", label:"TV Time",        ja:"テレビのじかん",   phrase:"It's TV time.",        img:"watch TV.jpg",         emoji:"📺" },
-  { hour:8,  ampm:"PM", label:"Bath Time",      ja:"おふろ",           phrase:"It's bath time.",      img:"bath time.jpg",        emoji:"🛁" },
-  { hour:9,  ampm:"PM", label:"Bed Time",       ja:"ねるじかん",       phrase:"It's bed time.",       img:"bed time.jpg",         emoji:"🌙" },
-];
-const QUIZ_COUNT = 5; // クイズの問題数
-
-// ============================================================
-// 音声(Web Speech API)
-// ============================================================
-function speak(text, opt = {}){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = opt.rate || 0.85;
-    speechSynthesis.speak(u);
-  }catch(e){ /* 非対応環境では無音のまま動作を続ける */ }
-}
-
-// ============================================================
-// 状態
-// ============================================================
-let state = {
-  mode: null,          // "free" | "quiz"
-  hour: 8, ampm: "AM",
-  quiz: { list: [], idx: 0, score: 0, answered: false },
-};
-
-// ============================================================
-// SVG時計
-// ============================================================
-const svg = document.getElementById("clock");
-const C = 160, R = 140;
-function buildClock(){
-  let s = `<circle cx="${C}" cy="${C}" r="${R+12}" fill="#fff" stroke="#2ed573" stroke-width="10"/>`;
-  s += `<circle cx="${C}" cy="${C}" r="${R}" fill="#f8fffb"/>`;
-  for(let h=1; h<=12; h++){
-    const a = (h/12)*Math.PI*2 - Math.PI/2;
-    const x = C + Math.cos(a)*(R-24), y = C + Math.sin(a)*(R-24);
-    s += `<g class="num" data-h="${h}" style="cursor:pointer">
-      <circle cx="${x}" cy="${y}" r="22" fill="transparent"/>
-      <text x="${x}" y="${y+9}" text-anchor="middle" font-size="26" font-weight="800"
-        font-family="'M PLUS Rounded 1c',sans-serif" fill="#2d3436">${h}</text></g>`;
-    // 目もり
-    const tx1 = C + Math.cos(a)*(R-6), ty1 = C + Math.sin(a)*(R-6);
-    const tx2 = C + Math.cos(a)*(R-1), ty2 = C + Math.sin(a)*(R-1);
-    s += `<line x1="${tx1}" y1="${ty1}" x2="${tx2}" y2="${ty2}" stroke="#b2bec3" stroke-width="3"/>`;
-  }
-  // 分針(12固定)・時針・中心
-  s += `<line id="min-hand" x1="${C}" y1="${C}" x2="${C}" y2="${C-R+34}" stroke="#b2bec3" stroke-width="7" stroke-linecap="round"/>`;
-  s += `<line id="hour-hand" x1="${C}" y1="${C}" x2="${C}" y2="${C-72}" stroke="#ff7675" stroke-width="11" stroke-linecap="round" style="cursor:grab"/>`;
-  s += `<circle cx="${C}" cy="${C}" r="10" fill="#2d3436"/>`;
-  svg.innerHTML = s;
-}
-function drawHour(){
-  const a = (state.hour/12)*Math.PI*2 - Math.PI/2;
-  const hand = document.getElementById("hour-hand");
-  hand.setAttribute("x2", C + Math.cos(a)*72);
-  hand.setAttribute("y2", C + Math.sin(a)*72);
-}
-
-// ドラッグ&数字タップで時刻設定
-let dragging = false;
-function angleToHour(x, y){
-  const rect = svg.getBoundingClientRect();
-  const scale = 320 / rect.width;
-  const dx = (x - rect.left)*scale - C, dy = (y - rect.top)*scale - C;
-  let deg = Math.atan2(dy, dx) * 180/Math.PI + 90; // 12時=0度
-  if(deg < 0) deg += 360;
-  let h = Math.round(deg / 30); if(h === 0) h = 12;
-  return h;
-}
-svg.addEventListener("pointerdown", e => {
-  const num = e.target.closest(".num");
-  if(num){ setHour(+num.dataset.h); return; }
-  dragging = true; svg.setPointerCapture(e.pointerId);
-  setHour(angleToHour(e.clientX, e.clientY), true);
-});
-svg.addEventListener("pointermove", e => { if(dragging) setHour(angleToHour(e.clientX, e.clientY), true); });
-svg.addEventListener("pointerup", () => {
-  if(dragging && state.mode === "free") speakTime();
-  dragging = false;
-});
-
-function setHour(h, silent){
-  if(h === state.hour){ drawHour(); updateView(); return; }
-  state.hour = h; drawHour(); updateView();
-  if(!silent && state.mode === "free") speakTime();
-}
-function setAmpm(v){
-  state.ampm = v;
-  document.getElementById("btn-am").classList.toggle("on", v==="AM");
-  document.getElementById("btn-pm").classList.toggle("on", v==="PM");
-  updateView();
-}
-
-// ============================================================
-// 表示更新
-// ============================================================
-function findActivity(hour, ampm){
-  return SCHEDULE.find(s => s.hour === hour && s.ampm === ampm) || null;
-}
-function cardHTML(act){
-  if(!act) return { img:`<span class="act-emoji">🕐</span>`, label:`It's ${NUM_EN[state.hour]} o'clock.<small>なにをするじかんかな?</small>` };
-  const url = IMG_BASE + encodeURIComponent(act.img);
-  return {
-    img:`<img src="${url}" alt="${act.label}" onerror="this.outerHTML='<span class=&quot;act-emoji&quot;>${act.emoji}</span>'">`,
-    label:`${act.phrase}<small>${act.ja}</small>`
-  };
-}
-function updateView(){
-  document.getElementById("time-line").textContent = `It's ${state.hour} o'clock.`;
-  if(state.mode === "free"){
-    const act = findActivity(state.hour, state.ampm);
-    const c = cardHTML(act);
-    document.getElementById("act-img").innerHTML = c.img;
-    document.getElementById("act-label").innerHTML = c.label;
-  }
-}
-function speakTime(){
-  const act = findActivity(state.hour, state.ampm);
-  let t = `It's ${NUM_EN[state.hour]} o'clock.`;
-  if(act) t += " " + act.phrase;
-  speak(t);
-}
-
-// ============================================================
-// クイズモード
-// ============================================================
-function startQuiz(){
-  const shuffled = [...SCHEDULE].sort(() => Math.random() - .5);
-  state.quiz = { list: shuffled.slice(0, QUIZ_COUNT), idx: 0, score: 0, answered: false, done: false };
-  showQuizQuestion();
-}
-function showQuizQuestion(){
-  const q = state.quiz.list[state.quiz.idx];
-  state.quiz.answered = false;
-  document.getElementById("quiz-progress").textContent = `だい${state.quiz.idx+1}もん / ${state.quiz.list.length}もん`;
-  document.getElementById("quiz-score").textContent = state.quiz.score;
-  const c = cardHTML(q);
-  document.getElementById("act-img").innerHTML = c.img;
-  document.getElementById("act-label").innerHTML = `${q.label}<small>${q.ja} は なんじ?とけいをあわせよう</small>`;
-  document.getElementById("feedback").textContent = "";
-  const btn = document.getElementById("btn-check");
-  btn.disabled = false; btn.textContent = "こたえあわせ!";
-  setHour(12, true); setAmpm("AM"); drawHour();
-  speak("What time is it?");
-}
-function checkQuiz(){
-  const fb = document.getElementById("feedback");
-  const btn = document.getElementById("btn-check");
-  if(state.quiz.done){ startQuiz(); return; }
-  const q = state.quiz.list[state.quiz.idx];
-  if(!state.quiz.answered){
-    const ok = (state.hour === q.hour && state.ampm === q.ampm);
-    state.quiz.answered = true;
-    if(ok){
-      state.quiz.score++;
-      fb.textContent = "⭕ Great!"; fb.className = "feedback ok";
-      speak(`Yes! It's ${NUM_EN[q.hour]} o'clock. ${q.phrase}`);
-    }else{
-      fb.textContent = `❌ ${q.ampm === "AM" ? "ごぜん" : "ごご"} ${q.hour}じ だったよ`; fb.className = "feedback ng";
-      setHour(q.hour, true); setAmpm(q.ampm);
-      speak(`It's ${NUM_EN[q.hour]} o'clock. ${q.phrase}`);
-    }
-    document.getElementById("quiz-score").textContent = state.quiz.score;
-    btn.textContent = (state.quiz.idx < state.quiz.list.length-1) ? "つぎのもんだいへ ▶" : "けっかを見る 🎉";
-  }else{
-    state.quiz.idx++;
-    if(state.quiz.idx < state.quiz.list.length){ showQuizQuestion(); }
-    else{
-      const s = state.quiz.score, n = state.quiz.list.length;
-      document.getElementById("act-img").innerHTML = `<span class="act-emoji">${s===n?"🏆":s>=n*0.6?"🎉":"💪"}</span>`;
-      document.getElementById("act-label").innerHTML = `${n}もん中 ${s}もん せいかい!<small>もういちどあそぶには「こたえあわせ」をおしてね</small>`;
-      fb.textContent = ""; btn.textContent = "もういちど!";
-      state.quiz.done = true;
-      if(s===n) speak("Perfect! Great job!"); else speak("Good job!");
-    }
-  }
-}
-
-// ============================================================
-// 画面切り替え
-// ============================================================
-function showMode(mode){
-  state.mode = mode;
-  document.getElementById("scr-mode").classList.add("hidden");
-  document.getElementById("scr-play").classList.remove("hidden");
-  document.getElementById("quiz-bar").classList.toggle("hidden", mode !== "quiz");
-  document.getElementById("btn-check").classList.toggle("hidden", mode !== "quiz");
-  if(mode === "free"){ setHour(8, true); setAmpm("AM"); updateView(); }
-  else startQuiz();
-}
-function goHome(){
-  state.mode = null;
-  speechSynthesis.cancel();
-  document.getElementById("scr-play").classList.add("hidden");
-  document.getElementById("scr-mode").classList.remove("hidden");
-}
-
-document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => showMode(c.dataset.mode)));
-document.getElementById("btn-home").addEventListener("click", goHome);
-document.getElementById("btn-reset").addEventListener("click", () => { goHome(); });
-document.getElementById("btn-am").addEventListener("click", () => setAmpm("AM"));
-document.getElementById("btn-pm").addEventListener("click", () => setAmpm("PM"));
-document.getElementById("btn-speak").addEventListener("click", () => { speak("What time is it?"); setTimeout(speakTime, 1400); });
-document.getElementById("btn-check").addEventListener("click", checkQuiz);
-
-buildClock(); drawHour(); setAmpm("AM");
-</script>
-
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>時刻の言い方と「その時間になにをするか」に慣れ親しむアプリです。</p><h4>あそびかた</h4><ol><li>「とけいをうごかす」:はりをうごかして、What time is it? にこたえよう</li><li>その時こくに することをえらんで つたえよう</li><li>「クイズモード」で時刻のききとりに チャレンジ</li></ol><div class="ah-tip">💡 先生向け:「〇〇の時間だよ」と時計を見せて、子どもに時刻を言わせる使い方が効果的です。</div>
-  </div>
-</div>
+<script src="../shared/app-ui.js"></script>
 <script>
 (function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+'use strict';
+
+/* ============================================================
+   0. 小さなヘルパー(AppUI が無くても落ちないように)
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(n,a){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](a); }catch(e){} }
+function say(t){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(t); }catch(e){} }
+function starsAt(el, opt){
+  try{
+    if(!el || !window.AppUI || !AppUI.stars) return;
+    var r = el.getBoundingClientRect();
+    AppUI.stars(r.left + r.width/2, r.top + r.height/2, opt);
+  }catch(e){}
+}
+function celebrate(o){ try{ if(window.AppUI && AppUI.celebrate) return AppUI.celebrate(o); }catch(e){} }
+function shuffle(a){ return (window.AppUI && AppUI.shuffle) ? AppUI.shuffle(a) : a.slice(); }
+function pick(a){ return (window.AppUI && AppUI.pick) ? AppUI.pick(a) : a[(Math.random()*a.length)|0]; }
+function cardImg(f,e){ return (window.AppUI && AppUI.cardImg) ? AppUI.cardImg(f,e) : document.createElement('span'); }
+function cardArt(f,e){ return (window.AppUI && AppUI.cardArt) ? AppUI.cardArt(f,e) : document.createElement('span'); }
+function makeStore(key){
+  return (window.AppUI && AppUI.store) ? AppUI.store(key) : {
+    get:function(d){ return d; }, set:function(){ return false; }, remove:function(){ return false; }
+  };
+}
+
+/* ============================================================
+   1. データ(先生向け:ここを書きかえると 内容を変更できます)
+      hour は 1〜12、ampm は "AM" / "PM"、img は Picture Dictionary の
+      絵カードのファイル名。verb は「わたしの1日時計」で
+      "I ( verb ) at ( hour ):00." の文を つくるときに使う。
+   ============================================================ */
+var SCHEDULE = [
+  { id:'wake',      hour:6,  ampm:'AM', label:'Wake-up Time',   verb:'get up',               phrase:"It's wake-up time.",   img:'wake up time.jpg',         emoji:'⏰' },
+  { id:'breakfast', hour:7,  ampm:'AM', label:'Breakfast Time', verb:'eat breakfast',        phrase:"It's breakfast time.", img:'breakfast time.jpg',       emoji:'🍞' },
+  { id:'school',    hour:8,  ampm:'AM', label:'School Time',    verb:'go to school',         phrase:"It's school time.",    img:'go to school.jpg',         emoji:'🎒' },
+  { id:'study',     hour:10, ampm:'AM', label:'Study Time',     verb:'study',                phrase:"It's study time.",     img:'study.jpg',                emoji:'✏️' },
+  { id:'lunch',     hour:12, ampm:'PM', label:'Lunch Time',     verb:'eat lunch',            phrase:"It's lunch time.",     img:'lunch time.jpg',           emoji:'🍱' },
+  { id:'snack',     hour:3,  ampm:'PM', label:'Snack Time',     verb:'eat a snack',          phrase:"It's snack time.",     img:'snack time.jpg',           emoji:'🍩' },
+  { id:'play',      hour:4,  ampm:'PM', label:'Play Time',      verb:'play with my friends', phrase:"It's play time.",      img:'play with my friends.jpg', emoji:'⚽' },
+  { id:'homework',  hour:5,  ampm:'PM', label:'Homework Time',  verb:'do my homework',       phrase:"It's homework time.",  img:'do my homework.jpg',       emoji:'📖' },
+  { id:'dinner',    hour:6,  ampm:'PM', label:'Dinner Time',    verb:'eat dinner',           phrase:"It's dinner time.",    img:'dinner time.jpg',          emoji:'🍛' },
+  { id:'tv',        hour:7,  ampm:'PM', label:'TV Time',        verb:'watch TV',             phrase:"It's TV time.",        img:'watch TV.jpg',             emoji:'📺' },
+  { id:'bath',      hour:8,  ampm:'PM', label:'Bath Time',      verb:'take a bath',          phrase:"It's bath time.",      img:'bath time.jpg',            emoji:'🛁' },
+  { id:'bed',       hour:9,  ampm:'PM', label:'Bed Time',       verb:'go to bed',            phrase:"It's bed time.",       img:'bed time.jpg',             emoji:'🌙' }
+];
+var ACT_BY_ID = {};
+SCHEDULE.forEach(function(it){ ACT_BY_ID[it.id] = it; });
+
+var NUM_EN = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
+function hourWord(h){ return NUM_EN[h] || String(h); }
+function timeSentence(h){ return "It's " + hourWord(h) + " o'clock."; }
+function fullPhrase(item){ return timeSentence(item.hour) + ' ' + item.phrase; }
+function digital(h, ampm){ return h + ':00 ' + ampm; }
+function daySentence(item, hour){ return 'I ' + item.verb + ' at ' + (hour || item.hour) + ':00.'; }
+function findSchedule(hour, ampm){
+  for(var i=0;i<SCHEDULE.length;i++){ if(SCHEDULE[i].hour===hour && SCHEDULE[i].ampm===ampm) return SCHEDULE[i]; }
+  return null;
+}
+
+/* ============================================================
+   2. アナログ時計の部品(SVG)。じゆうモード・こうはくせん・クイズで
+      それぞれ 独立した インスタンスとして 使いまわす。
+      「わたしの1日時計」の カードは このSVGの 外(親がちがう要素)に
+      置くので、はりの transform とは 干渉しない。
+   ============================================================ */
+function buildClockFace(svg, opts){
+  opts = opts || {};
+  var C = 150, R = 128;
+  svg.setAttribute('viewBox', '0 0 300 300');
+  var html = '';
+  html += '<circle cx="'+C+'" cy="'+C+'" r="'+(R+12)+'" fill="#fff" stroke="'+(opts.ring||'#2ed573')+'" stroke-width="9"/>';
+  html += '<circle cx="'+C+'" cy="'+C+'" r="'+R+'" fill="'+(opts.face||'#f8fffb')+'"/>';
+  for(var h=1; h<=12; h++){
+    var a = (h/12)*Math.PI*2 - Math.PI/2;
+    var x = C + Math.cos(a)*(R-24), y = C + Math.sin(a)*(R-24);
+    html += '<g class="ck-num" data-h="'+h+'" style="cursor:pointer">'+
+      '<circle cx="'+x+'" cy="'+y+'" r="22" fill="transparent"/>'+
+      '<text x="'+x+'" y="'+(y+9)+'" text-anchor="middle" font-size="24" font-weight="800" '+
+      'font-family="\'M PLUS Rounded 1c\',sans-serif" fill="#2d3436">'+h+'</text></g>';
+    var tx1 = C + Math.cos(a)*(R-6), ty1 = C + Math.sin(a)*(R-6);
+    var tx2 = C + Math.cos(a)*(R-1), ty2 = C + Math.sin(a)*(R-1);
+    html += '<line x1="'+tx1+'" y1="'+ty1+'" x2="'+tx2+'" y2="'+ty2+'" stroke="#b2bec3" stroke-width="3"/>';
+  }
+  if(!opts.noHands){
+    html += '<line class="ck-minhand" x1="'+C+'" y1="'+C+'" x2="'+C+'" y2="'+(C-92)+'" stroke="#b2bec3" stroke-width="6" stroke-linecap="round"/>';
+    html += '<line class="ck-hourhand" x1="'+C+'" y1="'+C+'" x2="'+C+'" y2="'+(C-64)+'" stroke="'+(opts.hand||'#ff7675')+'" stroke-width="11" stroke-linecap="round" style="cursor:grab"/>';
+  }
+  html += '<circle cx="'+C+'" cy="'+C+'" r="9" fill="#2d3436"/>';
+  svg.innerHTML = html;
+  return { C:C, R:R };
+}
+
+function createClock(svg, opts){
+  opts = opts || {};
+  var geo = buildClockFace(svg, opts);
+  var C = geo.C;
+  var hourHand = svg.querySelector('.ck-hourhand');
+  var state = { hour: opts.hour || 12, ampm: opts.ampm || 'AM' };
+  var onChange = opts.onChange || function(){};
+
+  function draw(){
+    if(!hourHand) return;
+    var a = (state.hour/12)*Math.PI*2 - Math.PI/2;
+    hourHand.setAttribute('x2', C + Math.cos(a)*70);
+    hourHand.setAttribute('y2', C + Math.sin(a)*70);
+  }
+  function setHour(h, o){
+    o = o || {};
+    h = ((h - 1) % 12 + 12) % 12 + 1;
+    var changed = (h !== state.hour);
+    state.hour = h;
+    draw();
+    if(changed || o.force) onChange(state);
+  }
+  function setAmpm(v){
+    var changed = (v !== state.ampm);
+    state.ampm = v;
+    if(changed) onChange(state);
+  }
+  function angleToHour(clientX, clientY){
+    var rect = svg.getBoundingClientRect();
+    var scale = 300 / rect.width;
+    var dx = (clientX - rect.left)*scale - C, dy = (clientY - rect.top)*scale - C;
+    var deg = Math.atan2(dy, dx)*180/Math.PI + 90;
+    if(deg < 0) deg += 360;
+    var h = Math.round(deg/30); if(h === 0) h = 12;
+    return h;
+  }
+  var dragging = false;
+  svg.addEventListener('pointerdown', function(e){
+    var num = e.target.closest ? e.target.closest('.ck-num') : null;
+    if(num){ sfx('tap'); setHour(+num.getAttribute('data-h')); return; }
+    dragging = true;
+    try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+    setHour(angleToHour(e.clientX, e.clientY));
+  });
+  svg.addEventListener('pointermove', function(e){ if(dragging) setHour(angleToHour(e.clientX, e.clientY)); });
+  svg.addEventListener('pointerup', function(){ dragging = false; });
+  svg.addEventListener('pointercancel', function(){ dragging = false; });
+
+  draw();
+  return {
+    setHour: setHour, setAmpm: setAmpm,
+    getHour: function(){ return state.hour; },
+    getAmpm: function(){ return state.ampm; }
+  };
+}
+
+/* ============================================================
+   3. とけいを うごかす(自由モード)
+   ============================================================ */
+var freeClock = createClock($('free-svg'), {
+  hand:'#ff7675', ring:'#2ed573', hour:8, ampm:'AM',
+  onChange:function(){ sfx('tick'); renderFree(); }
+});
+function renderFree(){
+  var h = freeClock.getHour(), ap = freeClock.getAmpm();
+  $('free-digital').textContent = digital(h, ap);
+  $('free-am').classList.toggle('on', ap === 'AM');
+  $('free-pm').classList.toggle('on', ap === 'PM');
+  var item = findSchedule(h, ap);
+  var imgWrap = $('free-actimg');
+  imgWrap.innerHTML = '';
+  if(item){
+    imgWrap.appendChild(cardImg(item.img, item.emoji));
+    $('free-actphrase').textContent = item.phrase;
+  }else{
+    var span = document.createElement('span');
+    span.className = 'app-card-emoji';
+    span.textContent = '🕐';
+    imgWrap.appendChild(span);
+    $('free-actphrase').textContent = timeSentence(h);
+  }
+}
+$('free-am').addEventListener('click', function(){ sfx('tap'); freeClock.setAmpm('AM'); renderFree(); });
+$('free-pm').addEventListener('click', function(){ sfx('tap'); freeClock.setAmpm('PM'); renderFree(); });
+$('free-prev').addEventListener('click', function(){ sfx('tap'); freeClock.setHour(freeClock.getHour()-1, {force:true}); });
+$('free-next').addEventListener('click', function(){ sfx('tap'); freeClock.setHour(freeClock.getHour()+1, {force:true}); });
+$('free-say').addEventListener('click', function(){
+  var h = freeClock.getHour(), ap = freeClock.getAmpm();
+  var item = findSchedule(h, ap);
+  say(item ? (timeSentence(h) + ' ' + item.phrase) : timeSentence(h));
+});
+
+/* ============================================================
+   4. わたしの1日時計(つくる)
+   ============================================================ */
+var draftStore = makeStore('g4u4_clock_draft');
+var mydayStore = makeStore('g4u4_clock_myday_saved');
+
+function emptyPlan(){ return { AM:{}, PM:{} }; }
+function loadDraft(){
+  var d = draftStore.get(null);
+  if(d && d.AM && d.PM) return d;
+  return emptyPlan();
+}
+var mydayPlan = loadDraft();
+var mydayEditAmpm = 'AM';
+var mydayHeld = null;
+var mydaySelected = null;
+var mydaySavedFlag = false;
+var ringSlotEls = {};
+
+function saveDraft(){ draftStore.set(mydayPlan); }
+
+function buildMydayRing(){
+  buildClockFace($('myday-svg'), { noHands:true, ring:'#2ed573' });
+  var wrap = $('myday-ringwrap');
+  var RATIO = 0.37, SIZE = 0.22;
+  for(var h=1; h<=12; h++){
+    (function(h){
+      var a = (h/12)*Math.PI*2 - Math.PI/2;
+      var cx = 0.5 + Math.cos(a)*RATIO, cy = 0.5 + Math.sin(a)*RATIO;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ck-slot';
+      btn.style.left = ((cx - SIZE/2)*100).toFixed(2) + '%';
+      btn.style.top = ((cy - SIZE/2)*100).toFixed(2) + '%';
+      btn.style.width = (SIZE*100).toFixed(2) + '%';
+      btn.style.height = (SIZE*100).toFixed(2) + '%';
+      btn.setAttribute('data-h', String(h));
+      btn.addEventListener('click', function(){ onSlotClick(h); });
+      wrap.appendChild(btn);
+      ringSlotEls[h] = btn;
+    })(h);
+  }
+}
+function renderRing(){
+  for(var h=1; h<=12; h++){
+    var slot = ringSlotEls[h];
+    var actId = mydayPlan[mydayEditAmpm][h];
+    slot.innerHTML = '';
+    var badge = document.createElement('span');
+    badge.className = 'ck-slot-badge';
+    badge.textContent = String(h);
+    slot.appendChild(badge);
+    slot.classList.toggle('filled', !!actId);
+    slot.classList.toggle('selected', mydaySelected === h);
+    if(actId){
+      var item = ACT_BY_ID[actId];
+      var art = cardArt(item.img, item.emoji);
+      art.classList.add('square','cutout');
+      slot.appendChild(art);
+      slot.setAttribute('aria-label', digital(h, mydayEditAmpm) + ' ' + item.label);
+    }else{
+      var plus = document.createElement('span');
+      plus.className = 'ck-slot-plus';
+      plus.textContent = '+';
+      slot.appendChild(plus);
+      slot.setAttribute('aria-label', digital(h, mydayEditAmpm) + ' からっぽ');
+    }
+  }
+  $('myday-editing-tag').textContent = (mydayEditAmpm === 'AM')
+    ? '☀️ あさ・ひる(AM)を へんしゅうちゅう' : '🌙 ゆう・よる(PM)を へんしゅうちゅう';
+}
+function renderPalette(){
+  var wrap = $('myday-pal');
+  wrap.innerHTML = '';
+  SCHEDULE.forEach(function(item){
+    var card = document.createElement('div');
+    card.className = 'ck-pcard' + (mydayHeld === item.id ? ' held' : '');
+    card.setAttribute('role','button');
+    card.tabIndex = 0;
+    card.setAttribute('data-id', item.id);
+
+    var sayBtn = document.createElement('button');
+    sayBtn.type = 'button'; sayBtn.className = 'ck-say'; sayBtn.textContent = '🔊';
+    sayBtn.setAttribute('aria-label', item.label + ' を きく');
+    sayBtn.addEventListener('click', function(ev){ ev.stopPropagation(); sfx('tap'); say(item.phrase); });
+    card.appendChild(sayBtn);
+
+    var imgBox = document.createElement('div');
+    imgBox.className = 'ck-pimg';
+    var art = cardArt(item.img, item.emoji);
+    art.classList.add('square');
+    imgBox.appendChild(art);
+    card.appendChild(imgBox);
+
+    var word = document.createElement('div');
+    word.className = 'ck-pword';
+    word.textContent = item.label;
+    card.appendChild(word);
+
+    card.addEventListener('click', function(){
+      sfx('tap');
+      mydayHeld = (mydayHeld === item.id) ? null : item.id;
+      renderPalette();
+      $('myday-msg').classList.add('app-hidden');
+    });
+    wrap.appendChild(card);
+  });
+}
+function onSlotClick(h){
+  if(mydayHeld){
+    mydayPlan[mydayEditAmpm][h] = mydayHeld;
+    var placed = mydayHeld;
+    mydayHeld = null;
+    mydaySelected = h;
+    sfx('pop');
+    starsAt(ringSlotEls[h], { count:6 });
+    saveDraft();
+    renderRing(); renderPalette(); renderInfo();
+  }else{
+    sfx('tap');
+    mydaySelected = h;
+    renderRing(); renderInfo();
+  }
+}
+function renderInfo(){
+  var box = $('myday-info');
+  box.innerHTML = '';
+  if(mydaySelected == null){
+    var hint = document.createElement('p');
+    hint.className = 'ck-hint';
+    hint.style.margin = '0';
+    hint.textContent = 'とけいの まわりの ○を タップして、じぶんの1日を つくろう';
+    box.appendChild(hint);
+    return;
+  }
+  var h = mydaySelected, actId = mydayPlan[mydayEditAmpm][h];
+  if(!actId){
+    var hint2 = document.createElement('p');
+    hint2.className = 'ck-hint';
+    hint2.style.margin = '0';
+    hint2.textContent = digital(h, mydayEditAmpm) + ' … したの カードを えらんで、もう一ど ここを タップしよう';
+    box.appendChild(hint2);
+    return;
+  }
+  var item = ACT_BY_ID[actId];
+  var sentence = daySentence(item, h);
+  var row = document.createElement('div');
+  row.className = 'ck-inforow';
+  var imw = document.createElement('div'); imw.className = 'ck-infoimg';
+  var art = cardArt(item.img, item.emoji); art.classList.add('square');
+  imw.appendChild(art);
+  row.appendChild(imw);
+  var txt = document.createElement('div'); txt.className = 'ck-infotxt';
+  var t1 = document.createElement('div'); t1.className = 'ck-infotime'; t1.textContent = digital(h, mydayEditAmpm);
+  var t2 = document.createElement('div'); t2.className = 'ck-infosentence'; t2.textContent = sentence;
+  txt.appendChild(t1); txt.appendChild(t2);
+  row.appendChild(txt);
+  box.appendChild(row);
+
+  var btnrow = document.createElement('div'); btnrow.className = 'app-btn-row'; btnrow.style.marginTop = '10px';
+  var sayBtn = document.createElement('button');
+  sayBtn.type = 'button'; sayBtn.className = 'app-big-btn sm blue'; sayBtn.textContent = '🔊 きいてみる';
+  sayBtn.addEventListener('click', function(){ sfx('tap'); say(sentence); });
+  var rmBtn = document.createElement('button');
+  rmBtn.type = 'button'; rmBtn.className = 'app-big-btn sm outline'; rmBtn.textContent = '✕ はずす';
+  rmBtn.addEventListener('click', function(){
+    delete mydayPlan[mydayEditAmpm][h];
+    sfx('tap'); saveDraft();
+    renderRing(); renderInfo();
+  });
+  btnrow.appendChild(sayBtn); btnrow.appendChild(rmBtn);
+  box.appendChild(btnrow);
+}
+function setEditAmpm(v){
+  mydayEditAmpm = v; mydayHeld = null; mydaySelected = null;
+  $('myday-am').classList.toggle('on', v === 'AM');
+  $('myday-pm').classList.toggle('on', v === 'PM');
+  renderRing(); renderPalette(); renderInfo();
+}
+$('myday-am').addEventListener('click', function(){ sfx('tap'); setEditAmpm('AM'); });
+$('myday-pm').addEventListener('click', function(){ sfx('tap'); setEditAmpm('PM'); });
+$('myday-fill').addEventListener('click', function(){
+  SCHEDULE.forEach(function(item){ mydayPlan[item.ampm][item.hour] = item.id; });
+  sfx('pop'); saveDraft();
+  renderRing(); renderInfo();
+});
+$('myday-clear').addEventListener('click', function(){
+  mydayPlan = emptyPlan(); mydaySelected = null; mydayHeld = null;
+  sfx('tap'); saveDraft();
+  renderRing(); renderPalette(); renderInfo();
+});
+$('myday-done').addEventListener('click', function(){
+  var count = Object.keys(mydayPlan.AM).length + Object.keys(mydayPlan.PM).length;
+  if(count === 0){
+    sfx('wrong');
+    $('myday-msg').classList.remove('app-hidden');
+    return;
+  }
+  go('mydayIntro');
+});
+
+/* ---------- しょうかい画面 ---------- */
+function sortedList(plan){
+  var out = [];
+  ['AM','PM'].forEach(function(ap){
+    for(var h=1; h<=12; h++){
+      var actId = plan[ap][h];
+      if(actId) out.push({ hour:h, ampm:ap, actId:actId });
+    }
+  });
+  out.sort(function(a,b){
+    function key(x){ return (x.ampm==='AM') ? (x.hour===12?0:x.hour) : (x.hour===12?12:x.hour+12); }
+    return key(a) - key(b);
+  });
+  return out;
+}
+function renderIntro(){
+  var list = sortedList(mydayPlan);
+  $('intro-total').textContent = String(list.length);
+  var wrap = $('intro-list');
+  wrap.innerHTML = '';
+  if(!list.length){
+    var p = document.createElement('p');
+    p.className = 'ck-hint';
+    p.textContent = 'まだ なにも ないよ。「つづきを つくる」から カードを おいてみよう。';
+    wrap.appendChild(p);
+  }
+  list.forEach(function(row){
+    var item = ACT_BY_ID[row.actId];
+    var sentence = daySentence(item, row.hour);
+    var el = document.createElement('div'); el.className = 'ck-introrow';
+    var imw = document.createElement('div'); imw.className = 'ck-infoimg';
+    var art = cardArt(item.img, item.emoji); art.classList.add('square');
+    imw.appendChild(art); el.appendChild(imw);
+    var txt = document.createElement('div'); txt.className = 'ck-infotxt';
+    var t1 = document.createElement('div'); t1.className = 'ck-infotime'; t1.textContent = digital(row.hour, row.ampm);
+    var t2 = document.createElement('div'); t2.className = 'ck-infosentence'; t2.textContent = sentence;
+    txt.appendChild(t1); txt.appendChild(t2); el.appendChild(txt);
+    var sBtn = document.createElement('button');
+    sBtn.type = 'button'; sBtn.className = 'ck-say'; sBtn.textContent = '🔊';
+    sBtn.setAttribute('aria-label', sentence + ' を きく');
+    sBtn.addEventListener('click', function(){ sfx('tap'); say(sentence); });
+    el.appendChild(sBtn);
+    wrap.appendChild(el);
+  });
+  if(!mydaySavedFlag && list.length){
+    saveMyday(list);
+    mydaySavedFlag = true;
+  }
+}
+function saveMyday(list){
+  var arr = loadSavedMyday();
+  arr.unshift({ id:Date.now(), at:new Date().toISOString(), list:list });
+  if(arr.length > 12) arr = arr.slice(0,12);
+  mydayStore.set(arr);
+}
+function loadSavedMyday(){
+  var a = mydayStore.get([]);
+  return (a && a.length !== undefined) ? a : [];
+}
+$('intro-say-all').addEventListener('click', function(){
+  sfx('tap');
+  var list = sortedList(mydayPlan);
+  list.forEach(function(row, i){
+    var item = ACT_BY_ID[row.actId];
+    setTimeout(function(){ say(daySentence(item, row.hour)); }, i*1700);
+  });
+});
+$('btn-intro-edit').addEventListener('click', function(){ sfx('tap'); go('myday'); });
+$('btn-intro-new').addEventListener('click', function(){
+  sfx('tap'); mydayPlan = emptyPlan(); mydaySavedFlag = false; saveDraft(); go('myday');
+});
+$('btn-intro-saved').addEventListener('click', function(){ sfx('tap'); go('mydaySaved'); });
+
+/* ---------- きろく画面 ---------- */
+function fmtDate(iso){
+  try{
+    var d = new Date(iso);
+    return (d.getMonth()+1) + 'がつ' + d.getDate() + 'にち ' +
+      ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+  }catch(e){ return ''; }
+}
+function renderSavedMyday(){
+  var arr = loadSavedMyday();
+  var grid = $('saved-grid');
+  grid.innerHTML = '';
+  if(!arr.length){
+    var p = document.createElement('p');
+    p.className = 'ck-hint';
+    p.textContent = 'まだ きろくが ないよ。「わたしの1日時計」で つくってみよう。';
+    grid.appendChild(p);
+    return;
+  }
+  arr.forEach(function(rec){
+    var card = document.createElement('div'); card.className = 'ck-savedcard';
+    var del = document.createElement('button');
+    del.type = 'button'; del.className = 'ck-del'; del.textContent = '✕';
+    del.setAttribute('aria-label','この きろくを けす');
+    del.addEventListener('click', function(){
+      var left = loadSavedMyday().filter(function(x){ return x.id !== rec.id; });
+      mydayStore.set(left); sfx('tap'); renderSavedMyday();
+    });
+    card.appendChild(del);
+    var row = document.createElement('div'); row.className = 'ck-savedrow';
+    (rec.list || []).forEach(function(r){
+      var it = ACT_BY_ID[r.actId]; if(!it) return;
+      var chip = document.createElement('div'); chip.className = 'ck-savedchip';
+      var art = cardArt(it.img, it.emoji); art.classList.add('square');
+      chip.appendChild(art);
+      var tm = document.createElement('span'); tm.className = 'ck-savedtime'; tm.textContent = String(r.hour);
+      chip.appendChild(tm);
+      row.appendChild(chip);
+    });
+    card.appendChild(row);
+    var d = document.createElement('div'); d.className = 'ck-saveddate'; d.textContent = fmtDate(rec.at);
+    card.appendChild(d);
+    grid.appendChild(card);
+  });
+}
+$('btn-saved-new').addEventListener('click', function(){ sfx('tap'); go('myday'); });
+
+/* ============================================================
+   5. こうはくせん
+   ============================================================ */
+var battleScore = { red:0, white:0 };
+var battleTarget = null;
+var battleRoundOver = false;
+var redClock = createClock($('battle-red-svg'), { hand:'#ff4757', ring:'#ff7675', hour:12, ampm:'AM', onChange:function(){ sfx('tick'); } });
+var whiteClock = createClock($('battle-white-svg'), { hand:'#636e72', ring:'#b2bec3', hour:12, ampm:'AM', onChange:function(){ sfx('tick'); } });
+
+function newBattleRound(){
+  battleTarget = pick(SCHEDULE);
+  battleRoundOver = false;
+  redClock.setHour(12, {force:true}); redClock.setAmpm('AM');
+  whiteClock.setHour(12, {force:true}); whiteClock.setAmpm('AM');
+  $('battle-target-time').textContent = digital(battleTarget.hour, battleTarget.ampm);
+  $('battle-target-sub').textContent = battleTarget.label;
+  $('battle-msg').textContent = '';
+}
+function updateBattleScore(){
+  $('battle-score-red').textContent = String(battleScore.red);
+  $('battle-score-white').textContent = String(battleScore.white);
+}
+function shakeEl(el){
+  if(!el) return;
+  el.classList.remove('app-anim-shake');
+  void el.offsetWidth;
+  el.classList.add('app-anim-shake');
+}
+function checkTeam(color){
+  if(battleRoundOver || !battleTarget) return;
+  var clock = (color === 'red') ? redClock : whiteClock;
+  var ok = (clock.getHour() === battleTarget.hour && clock.getAmpm() === battleTarget.ampm);
+  if(ok){
+    battleRoundOver = true;
+    battleScore[color]++;
+    updateBattleScore();
+    sfx('correct');
+    celebrate({
+      title: (color === 'red' ? '🔴 あかチーム' : '⚪ しろチーム') + ' の かち!',
+      sub: digital(battleTarget.hour, battleTarget.ampm) + '  ' + battleTarget.label,
+      icon: color === 'red' ? '🔴' : '⚪'
+    });
+    $('battle-msg').textContent = '「🎲 つぎの もんだい」を おして つづけよう';
+  }else{
+    sfx('wrong');
+    var svgId = (color === 'red') ? 'battle-red-svg' : 'battle-white-svg';
+    var wrap = $(svgId).closest('.ck-teamclock');
+    shakeEl(wrap);
+    $('battle-msg').textContent = (color === 'red' ? 'あかチーム' : 'しろチーム') + '、もういちど あわせてみよう';
+  }
+}
+$('battle-red-am').addEventListener('click', function(){ sfx('tap'); redClock.setAmpm('AM'); });
+$('battle-red-pm').addEventListener('click', function(){ sfx('tap'); redClock.setAmpm('PM'); });
+$('battle-white-am').addEventListener('click', function(){ sfx('tap'); whiteClock.setAmpm('AM'); });
+$('battle-white-pm').addEventListener('click', function(){ sfx('tap'); whiteClock.setAmpm('PM'); });
+(function bindBattleAmpmVisual(){
+  function syncRed(){ $('battle-red-am').classList.toggle('on', redClock.getAmpm()==='AM'); $('battle-red-pm').classList.toggle('on', redClock.getAmpm()==='PM'); }
+  function syncWhite(){ $('battle-white-am').classList.toggle('on', whiteClock.getAmpm()==='AM'); $('battle-white-pm').classList.toggle('on', whiteClock.getAmpm()==='PM'); }
+  ['battle-red-am','battle-red-pm'].forEach(function(id){ $(id).addEventListener('click', syncRed); });
+  ['battle-white-am','battle-white-pm'].forEach(function(id){ $(id).addEventListener('click', syncWhite); });
+  syncRed(); syncWhite();
+})();
+$('battle-red-go').addEventListener('click', function(){ checkTeam('red'); });
+$('battle-white-go').addEventListener('click', function(){ checkTeam('white'); });
+$('battle-next').addEventListener('click', function(){ sfx('tap'); newBattleRound(); });
+$('battle-reset').addEventListener('click', function(){
+  sfx('tap'); battleScore = { red:0, white:0 }; updateBattleScore(); newBattleRound();
+});
+$('battle-say').addEventListener('click', function(){
+  if(!battleTarget) return;
+  say(timeSentence(battleTarget.hour) + ' ' + battleTarget.phrase);
+});
+
+/* ============================================================
+   6. クイズ
+   ============================================================ */
+var quizClock = createClock($('quiz-svg'), { hand:'#ff7675', ring:'#74b9ff', hour:12, ampm:'AM', onChange:function(){ sfx('tick'); renderQuizAmpm(); } });
+var quizState = null;
+
+$('quiz-pick-5').addEventListener('click', function(){ sfx('tap'); startQuiz(5); });
+$('quiz-pick-8').addEventListener('click', function(){ sfx('tap'); startQuiz(8); });
+
+function startQuiz(n){
+  var pool = shuffle(SCHEDULE).slice(0, n);
+  quizState = {
+    list: pool.map(function(item, i){ return { item:item, type:(i % 2 === 0 ? 'see' : 'listen'), answered:false }; }),
+    idx:0, score:0, streak:0
+  };
+  $('quiz-total').textContent = String(n);
+  go('quiz');
+  showQuizQuestion();
+}
+function renderQuizAmpm(){
+  $('quiz-am').classList.toggle('on', quizClock.getAmpm() === 'AM');
+  $('quiz-pm').classList.toggle('on', quizClock.getAmpm() === 'PM');
+}
+function showQuizQuestion(){
+  var q = quizState.list[quizState.idx];
+  $('quiz-idx').textContent = String(quizState.idx + 1);
+  $('quiz-score').textContent = String(quizState.score);
+  quizClock.setHour(12, {force:true}); quizClock.setAmpm('AM'); renderQuizAmpm();
+  $('quiz-feedback').textContent = '';
+  $('quiz-feedback').className = 'ck-feedback';
+  $('quiz-check').classList.remove('app-hidden');
+  $('quiz-check').textContent = 'とけいを あわせたら おす!';
+  renderQuestionCard(q);
+}
+function renderQuestionCard(q){
+  var wrap = $('quiz-qcard');
+  wrap.innerHTML = '';
+  if(q.type === 'see'){
+    var imw = document.createElement('div'); imw.className = 'ck-actimg';
+    imw.appendChild(cardImg(q.item.img, q.item.emoji));
+    wrap.appendChild(imw);
+    var ph = document.createElement('div'); ph.className = 'ck-actphrase'; ph.textContent = q.item.phrase;
+    wrap.appendChild(ph);
+    var hint = document.createElement('p'); hint.className = 'ck-hint'; hint.style.margin = '0';
+    hint.textContent = 'なんじかな? とけいを あわせよう';
+    wrap.appendChild(hint);
+    $('quiz-listen-btn').classList.add('app-hidden');
+  }else{
+    var mw = document.createElement('div'); mw.className = 'ck-mystery'; mw.textContent = '🔊';
+    wrap.appendChild(mw);
+    var hint2 = document.createElement('p'); hint2.className = 'ck-hint'; hint2.style.margin = '0';
+    hint2.textContent = '🔊を おして きいて、とけいを あわせよう';
+    wrap.appendChild(hint2);
+    $('quiz-listen-btn').classList.remove('app-hidden');
+    $('quiz-listen-btn').onclick = function(){ sfx('tap'); say(fullPhrase(q.item)); };
+  }
+}
+$('quiz-am').addEventListener('click', function(){ sfx('tap'); quizClock.setAmpm('AM'); renderQuizAmpm(); });
+$('quiz-pm').addEventListener('click', function(){ sfx('tap'); quizClock.setAmpm('PM'); renderQuizAmpm(); });
+$('quiz-prev').addEventListener('click', function(){ sfx('tap'); quizClock.setHour(quizClock.getHour()-1, {force:true}); });
+$('quiz-next').addEventListener('click', function(){ sfx('tap'); quizClock.setHour(quizClock.getHour()+1, {force:true}); });
+
+$('quiz-check').addEventListener('click', function(){
+  var q = quizState.list[quizState.idx];
+  if(q.answered){ advanceQuiz(); return; }
+  q.answered = true;
+  var ok = (quizClock.getHour() === q.item.hour && quizClock.getAmpm() === q.item.ampm);
+
+  if(q.type === 'listen'){
+    var wrap = $('quiz-qcard');
+    var mystery = wrap.querySelector('.ck-mystery');
+    if(mystery){
+      var imw = document.createElement('div'); imw.className = 'ck-actimg';
+      imw.appendChild(cardImg(q.item.img, q.item.emoji));
+      wrap.replaceChild(imw, mystery);
+      var ph = document.createElement('div'); ph.className = 'ck-actphrase'; ph.textContent = q.item.phrase;
+      wrap.insertBefore(ph, wrap.children[1] || null);
+    }
+  }
+
+  var fb = $('quiz-feedback');
+  var clockWrap = $('quiz-svg').closest('.ck-clockwrap');
+  if(ok){
+    quizState.score++; quizState.streak++;
+    sfx('correct');
+    starsAt($('quiz-svg'), { count:10 });
+    fb.textContent = (quizState.streak >= 2) ? ('⭕ Great! (れんぞく ' + quizState.streak + 'かい!)') : '⭕ Great!';
+    fb.className = 'ck-feedback ok app-anim-bounce';
+  }else{
+    quizState.streak = 0;
+    sfx('wrong');
+    shakeEl(clockWrap);
+    quizClock.setHour(q.item.hour, {force:true}); quizClock.setAmpm(q.item.ampm); renderQuizAmpm();
+    fb.textContent = '❌ ただしくは ' + digital(q.item.hour, q.item.ampm);
+    fb.className = 'ck-feedback ng';
+  }
+  $('quiz-score').textContent = String(quizState.score);
+  var isLast = (quizState.idx === quizState.list.length - 1);
+  $('quiz-check').textContent = isLast ? 'けっかを 見る 🎉' : 'つぎの もんだいへ ▶';
+});
+function advanceQuiz(){
+  quizState.idx++;
+  if(quizState.idx < quizState.list.length){ showQuizQuestion(); }
+  else{ showQuizResult(); }
+}
+function showQuizResult(){
+  var n = quizState.list.length, s = quizState.score;
+  var wrap = $('quiz-qcard');
+  wrap.innerHTML = '';
+  var icon = document.createElement('div'); icon.className = 'ck-resulticon';
+  icon.textContent = (s === n) ? '🏆' : (s >= n*0.6 ? '🎉' : '💪');
+  wrap.appendChild(icon);
+  var t = document.createElement('div'); t.className = 'ck-resulttext';
+  t.textContent = n + 'もんちゅう ' + s + 'もん せいかい!';
+  wrap.appendChild(t);
+  var btnrow = document.createElement('div'); btnrow.className = 'app-btn-row';
+  var again = document.createElement('button');
+  again.type = 'button'; again.className = 'app-big-btn primary'; again.textContent = '🔁 もう一ど (' + n + 'もん)';
+  again.addEventListener('click', function(){ sfx('tap'); startQuiz(n); });
+  var back = document.createElement('button');
+  back.type = 'button'; back.className = 'app-big-btn sm outline'; back.textContent = 'もんすうを えらびなおす';
+  back.addEventListener('click', function(){ sfx('tap'); go('quizSetup'); });
+  btnrow.appendChild(again); btnrow.appendChild(back);
+  wrap.appendChild(btnrow);
+  $('quiz-listen-btn').classList.add('app-hidden');
+  $('quiz-check').classList.add('app-hidden');
+  $('quiz-feedback').textContent = '';
+  celebrate({
+    title: (s === n) ? 'パーフェクト!' : (s >= n*0.6 ? 'よくできました!' : 'よくがんばったね!'),
+    sub: n + 'もんちゅう ' + s + 'もん せいかい',
+    icon: (s === n) ? '🏆' : '🎉'
+  });
+}
+
+/* ============================================================
+   7. つかいかた
+   ============================================================ */
+var HELP =
+  '<p><b>🕐 とけいの はりを うごかして、じこくと せいかつを むすびつける アプリだよ。</b></p>' +
+  '<p style="color:#e17055"><b>※ アプリは かってに 英語を しゃべりません。</b>🔊ボタンを おしたときだけ 聞こえます。ことばは じぶんの 口で 言ってみよう。</p>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🕰️ とけいを うごかす</h4>' +
+  '<ul>' +
+  '<li>はりを ドラッグ、すうじを タップ、◀▶ ボタンの どれでも じこくを かえられるよ</li>' +
+  '<li>AM(ごぜん)/PM(ごご)を きりかえると、おなじ すうじでも べつの せいかつの絵に なるよ</li>' +
+  '</ul>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🌅 わたしの1日時計</h4>' +
+  '<ul>' +
+  '<li>したの せいかつカードを タップして えらぶ(もう一ど タップで やめられる)</li>' +
+  '<li>とけいの まわりの ○を タップすると、そこに おける</li>' +
+  '<li>○を タップすると 中みが 見られる。🔊で 聞いたり、✕で はずしたり できるよ</li>' +
+  '<li>「できた!」で しょうかい画面。じぶんの 口で "I get up at 6:00." のように 言ってみよう</li>' +
+  '</ul>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">⚔️ こうはくせん(電子黒板・2チーム)</h4>' +
+  '<ul>' +
+  '<li>出た じこくを 見て、あか・しろ どちらが はやく とけいを あわせられるか きょうそう</li>' +
+  '<li>あわせたら じぶんの チームの「できた!」ボタンを おす。あっていたら とくてん!</li>' +
+  '</ul>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">❓ クイズ</h4>' +
+  '<ul>' +
+  '<li>5もん・8もんから えらべる</li>' +
+  '<li>「見て とけいを あわせる」もんと「🔊を おして きいて あわせる」もんが まざっているよ</li>' +
+  '</ul>' +
+  '<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">' +
+  '💡 <b>先生へ:</b> このアプリは 場面や 正誤にかかわらず 英語を 自動で 読み上げません。' +
+  '🔊は あくまで モデル発音の 確認用です。"What time is it?" "It\'s ~ o\'clock." のやり取りは ' +
+  '<b>子ども自身の 声</b>で 行わせてください。「こうはくせん」は 電子黒板に 映して クラス全体で 使うと もりあがります。</div>';
+
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:'つかいかた' });
+});
+
+/* ============================================================
+   8. 画面きりかえ
+   ============================================================ */
+var SCREENS = {
+  mode:'scr-mode', free:'scr-free', myday:'scr-myday', mydayIntro:'scr-myday-intro',
+  mydaySaved:'scr-myday-saved', battle:'scr-battle', quizSetup:'scr-quiz-setup', quiz:'scr-quiz'
+};
+var curScreen = 'mode';
+function go(name){
+  curScreen = name;
+  Object.keys(SCREENS).forEach(function(k){ $(SCREENS[k]).classList.toggle('app-hidden', k !== name); });
+  window.scrollTo(0,0);
+  if(name === 'free'){ renderFree(); }
+  if(name === 'myday'){ renderRing(); renderPalette(); renderInfo(); $('myday-msg').classList.add('app-hidden'); }
+  if(name === 'mydayIntro'){ renderIntro(); }
+  if(name === 'mydaySaved'){ renderSavedMyday(); }
+  if(name === 'battle'){ newBattleRound(); updateBattleScore(); }
+}
+$('mode-free').addEventListener('click', function(){ sfx('tap'); go('free'); });
+$('mode-myday').addEventListener('click', function(){ sfx('tap'); go('myday'); });
+$('mode-battle').addEventListener('click', function(){ sfx('tap'); go('battle'); });
+$('mode-quiz').addEventListener('click', function(){ sfx('tap'); go('quizSetup'); });
+$('mode-saved').addEventListener('click', function(){ sfx('tap'); go('mydaySaved'); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); go('mode'); });
+
+/* ============================================================
+   9. 初期化
+   ============================================================ */
+buildMydayRing();
+renderFree();
+go('mode');
+
+/* テスト・デバッグ用の状態フック(授業では使いません) */
+window.__clockState = function(){
+  return {
+    screen: curScreen,
+    free: { hour: freeClock.getHour(), ampm: freeClock.getAmpm() },
+    myday: { plan: mydayPlan, editAmpm: mydayEditAmpm, held: mydayHeld, selected: mydaySelected, saved: loadSavedMyday().length },
+    battle: { score: battleScore, target: battleTarget, red: { hour:redClock.getHour(), ampm:redClock.getAmpm() }, white: { hour:whiteClock.getHour(), ampm:whiteClock.getAmpm() } },
+    quiz: quizState
+  };
+};
 })();
 </script>
+
 </body>
 </html>

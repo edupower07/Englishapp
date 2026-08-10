@@ -2,435 +2,1370 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>オリジナルジュース・ピザ作り | 小学校外国語アプリポータル</title>
+<meta name="description" content="Let's Try! 2 Unit 7「What do you want?」ほしい材料を つたえあって、オリジナルの ジュースや ピザを つくる 小学校4年生向けアプリ。">
+
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
+
 <style>
-:root{
-  --bg:#f0f4f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#2ed573; --primary-dark:#1eae5b; --pink:#ff7675; --blue:#74b9ff; --yellow:#fdcb6e; --orange:#ff9f43;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
+/* ============================================================
+   このアプリ固有のスタイル(共通部品は ../shared/app-ui.css)
+   クラス接頭辞は j-
+
+   ★重要★ ミキサー/ピザの中の 材料は AppUI.cardArt(...).square.tight.cutout を
+   使い、乗算合成(mix-blend-mode:multiply)で 白地を すかして「絵だけ」を
+   のせている。乗算合成は「いちばん近い 祖先の スタッキングコンテキスト」
+   までしか ブレンドできないため、うつわ〜材料の あいだの 要素に
+   transform / opacity / filter を つけてはいけない(白い四角が出る)。
+   ・位置は left / top(%)だけで うごかす(.j-vessel や .j-layer に transform は禁止)
+   ・かたむき/ぐるぐる は <img> 自身に rotate をかける(ブレンド対象そのものはOK)
+   ・スワールの輪っか(.j-swirl-ring)や ゆげ(steam)は 材料の「祖先」ではない
+     ただの きょうだい要素なので、自由に transform してよい
+   ============================================================ */
 body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
+  background:var(--bg);
   background-image:radial-gradient(#ffffff 20%,transparent 20%),radial-gradient(#ffffff 20%,transparent 20%);
-  background-position:0 0,20px 20px;background-size:40px 40px;
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  background-position:0 0,20px 20px; background-size:40px 40px;
+  margin:0; min-height:100vh;
+  -webkit-user-select:none; user-select:none;
 }
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:960px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+main{ max-width:1300px; margin:0 auto; padding:14px 14px 70px; overflow-x:hidden; }
 
-.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
-.mode-card{
-  width:260px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
-  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
-}
-.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--orange)} .mode-card.m2{border-color:var(--pink)}
-.mode-card .mi{font-size:3rem}
-.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
-.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
+.j-title{ text-align:center; font-size:clamp(1.05rem,2.6vw,1.5rem); font-weight:800; margin:8px 0 2px; }
+.j-sub{ text-align:center; color:var(--sub); font-weight:700; font-size:.85rem; margin-bottom:12px; line-height:1.7; }
+.j-hint{ text-align:center; font-weight:800; color:var(--sub); font-size:.78rem; margin-top:10px; line-height:1.8; }
 
-/* つくる画面 */
-.make-wrap{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
-.stage-col{flex:1;min-width:300px;max-width:440px;text-align:center}
-.clerk{
-  background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:10px 16px;font-weight:800;margin-bottom:12px;
-  border:4px solid var(--yellow);cursor:pointer;font-size:.95rem;
-}
-.clerk small{display:block;color:var(--sub);font-size:.72rem}
-svg#stage{width:100%;height:auto;max-width:380px}
-.pick-col{width:340px}
-@media(max-width:720px){ .pick-col{width:100%} }
-.ing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
-.ing-card{
-  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
-  border:4px solid transparent;transition:.15s;min-height:108px;display:flex;flex-direction:column;justify-content:center;gap:3px;
-}
-.ing-card:hover{transform:translateY(-3px)}
-.ing-card.used{border-color:var(--orange);background:#fff7ec}
-.ing-card .nimg{width:50px;height:44px;margin:0 auto;display:flex;align-items:center;justify-content:center}
-.ing-card .nimg img{max-width:100%;max-height:100%;object-fit:contain}
-.ing-card .nemoji{font-size:1.9rem;line-height:1}
-.ing-card .nlabel{font-weight:800;font-size:.7rem;line-height:1.2}
-.ing-card .nlabel small{display:block;color:var(--sub);font-size:.6rem}
-.actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--orange);
-}
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.gray{background:#b2bec3;color:#2d3436}
-.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
-@keyframes shakemix{0%,100%{transform:rotate(0)}20%{transform:rotate(-6deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(6deg)}}
-.mixing{animation:shakemix .8s 2}
-@keyframes bake{0%{filter:brightness(1)}50%{filter:brightness(1.25) saturate(1.4)}100%{filter:brightness(1)}}
-.baking{animation:bake 1.6s 1}
+/* ---------- レイアウト ---------- */
+.j-work{ display:flex; gap:18px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+.j-left{ flex:1 1 400px; min-width:300px; max-width:540px; display:flex; flex-direction:column; gap:12px; }
+.j-right{ flex:1 1 470px; min-width:300px; display:flex; flex-direction:column; gap:12px; }
+.j-panel{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; }
+.j-panel h3{ font-size:.98rem; font-weight:800; margin:0 0 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.j-panel .j-note{ font-size:.74rem; color:var(--sub); font-weight:700; line-height:1.7; margin:8px 0 0; }
+.j-role .j-note{ font-size:.72rem; color:var(--sub); font-weight:700; line-height:1.55; }
 
-/* 発表カード */
-.present-card{
-  max-width:560px;margin:0 auto;background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);
-  border:5px solid var(--orange);overflow:hidden;
+/* ---------- つくるもの きりかえ(お店やさん画面) ---------- */
+.j-typerow{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
+.j-typebtn{
+  font-family:inherit; font-weight:800; font-size:.95rem; color:var(--ink);
+  padding:10px 22px; border-radius:50px; border:4px solid #e6ecf2; background:#fff; cursor:pointer;
+  min-height:52px; box-shadow:var(--shadow); transition:transform .16s,border-color .16s,background .16s;
 }
-.present-head{background:linear-gradient(135deg,#ff9f43,#feca57);color:#fff;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.15rem}
-.present-body{padding:18px 22px}
-.pr-line{font-size:1.1rem;font-weight:800;padding:7px 10px;border-radius:10px;cursor:pointer;display:flex;gap:8px;align-items:center}
-.pr-line:hover{background:#fff7ec}
-.pr-name{text-align:center;margin:6px 0}
-.pr-name input{
-  border:3px solid #ffe3bd;border-radius:14px;padding:10px 14px;font-family:inherit;font-weight:800;font-size:1.05rem;
-  text-align:center;width:min(300px,90%);
+.j-typebtn:hover{ transform:translateY(-2px); }
+.j-typebtn.on{ border-color:var(--g4); background:#f2fdf7; }
+
+/* ---------- うつわ(ミキサー/ピザ台。明るい色にすること:乗算合成のため) ---------- */
+.j-vessel-wrap{ display:flex; justify-content:center; }
+.j-vessel{
+  position:relative; width:min(100%,470px); aspect-ratio:1; border-radius:50%;
+  background:#fffef8; border:15px solid #dfe6ec;
+  box-shadow:0 16px 32px rgba(0,0,0,.14), inset 0 8px 22px rgba(255,255,255,.9), inset 0 -14px 26px rgba(0,0,0,.06);
+  overflow:hidden; transition:border-color .25s;
 }
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+.j-vessel.type-juice{ border-color:#8fd7e0; }
+.j-vessel.type-pizza{ border-color:#f0c27b; }
+#shop-vessel{ width:min(100%,392px); }
+
+.j-skin{ position:absolute; inset:0; display:none; }
+.j-vessel.type-juice .j-skin-juice{ display:block; }
+.j-vessel.type-pizza .j-skin-pizza{ display:block; }
+
+/* ジュース用の見た目(ミキサー) */
+.j-liquid{
+  position:absolute; inset:13%; border-radius:50%; background:#eef6fb;
+  transition:background-color .6s ease;
+  box-shadow:inset 0 8px 16px rgba(255,255,255,.75), inset 0 -12px 20px rgba(0,0,0,.07);
+}
+.j-swirl-ring{
+  position:absolute; inset:19%; border-radius:50%; border:4px dashed rgba(255,255,255,.85); opacity:0;
+}
+.j-vessel.mixing .j-swirl-ring{ opacity:.7; animation:j-spin .85s linear infinite; }
+.j-handle{
+  position:absolute; right:-8%; top:30%; width:16%; height:32%;
+  border:7px solid #cfe9ee; border-left:none; border-radius:0 60% 60% 0;
+}
+.j-spout{
+  position:absolute; left:37%; top:-3%; width:26%; height:9%;
+  background:#cfe9ee; border-radius:0 0 45% 45%;
+}
+
+/* ピザ用の見た目(生地・ソース・チーズ) */
+.j-crust{ position:absolute; inset:2%; border-radius:50%; background:#f3d9a4; transition:background-color 1.2s ease; }
+.j-sauce{ position:absolute; inset:9%; border-radius:50%; background:#e6664f; opacity:.85; }
+.j-cheese{
+  position:absolute; inset:13%; border-radius:50%; background:#fff3c4;
+  transition:background-color 1.2s ease, box-shadow 1.2s ease;
+}
+.j-vessel.baked .j-crust{ background:#c9822f; }
+.j-vessel.baked .j-cheese{ background:#ffd15c; box-shadow:inset 0 0 22px 9px rgba(255,170,30,.5); }
+
+/* 材料をのせる層(祖先に transform/filter/opacity/z-index を つけない。
+   ★ z-index を position 要素に つけるのも 新しい スタッキングコンテキストを
+   つくってしまい、乗算合成が うつわの中身(液体/チーズ)と ブレンドされずに
+   孤立してしまう(白い四角の 原因になる)。かさなり順は DOM の 順番だけで
+   きめる(skin → empty → layer の順に appendChild すれば layer が 自然に
+   いちばん上になる)。 */
+.j-layer{ position:absolute; inset:0; }
+.j-empty{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+  color:#98a6b5; font-weight:800; font-size:.9rem; line-height:1.9; padding:0 16%; pointer-events:none;
+}
+.j-msg{ text-align:center; font-weight:800; font-size:.9rem; color:var(--sub); min-height:1.5em; }
+.j-msg.warn{ color:var(--pink); }
+
+/* 材料 1つぶん。transform は ぜったいに つけない(乗算合成がこわれる) */
+.j-ing{
+  position:absolute; line-height:0; cursor:pointer;
+  transition:left .34s cubic-bezier(.22,.61,.36,1),
+             top .52s cubic-bezier(.34,1.56,.64,1),
+             width .34s cubic-bezier(.34,1.56,.64,1);
+}
+.j-ing.j-nolerp{ transition:none !important; }
+/* まぜているあいだ だけ、<img> 自身を ゆらす(乗算合成をこわさない) */
+.j-vessel.mixing .j-layer .app-card-art.square.tight > img{
+  animation:j-wobble .42s ease-in-out infinite;
+}
+@keyframes j-wobble{
+  0%,100%{ transform:translateX(-50%) rotate(calc(var(--art-rot,0deg) - 10deg)); }
+  50%{ transform:translateX(-50%) rotate(calc(var(--art-rot,0deg) + 10deg)); }
+}
+@keyframes j-spin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+
+/* ---------- 材料パレット(大きなカード) ---------- */
+.j-pal{ display:grid; grid-template-columns:repeat(auto-fill,minmax(146px,1fr)); gap:12px; }
+.j-icard{
+  position:relative; background:#fff; border:4px solid #eef2f6; border-radius:20px;
+  padding:12px 8px 10px; display:flex; flex-direction:column; align-items:center; gap:6px;
+  cursor:pointer; box-shadow:var(--shadow); min-height:150px; font-family:inherit; color:var(--ink);
+  transition:transform .16s, border-color .16s, box-shadow .16s, background .16s;
+}
+.j-icard:hover, .j-icard:focus-visible{ transform:translateY(-4px); border-color:var(--g4); box-shadow:var(--shadow-hover); outline:none; }
+.j-icard:active{ transform:translateY(-1px) scale(.97); }
+.j-icard.has{ border-color:var(--g4); background:#f2fdf7; }
+.j-icard .j-iimg{ width:100%; max-width:120px; }
+.j-icard .j-iimg img{ width:100%; display:block; border-radius:8px; }
+.j-icard .j-iimg .app-card-emoji{ font-size:3rem; display:block; text-align:center; }
+.j-icard .j-iword{ font-weight:800; font-size:1rem; line-height:1.2; text-align:center; }
+.j-icard .j-ibadge{
+  position:absolute; left:-8px; top:-8px; min-width:36px; height:36px; padding:0 9px; border-radius:50px;
+  background:var(--g4); color:#fff; font-weight:800; font-size:.95rem;
+  display:none; align-items:center; justify-content:center; box-shadow:var(--shadow);
+}
+.j-icard.has .j-ibadge{ display:flex; }
+.j-say{
+  width:44px; height:44px; min-width:44px; min-height:44px; border-radius:50%;
+  border:3px solid #eef2f6; background:#fff; cursor:pointer; font-size:1.05rem; font-family:inherit;
+  display:inline-flex; align-items:center; justify-content:center; transition:.16s; padding:0;
+}
+.j-say:hover{ border-color:var(--blue); background:#f2f8ff; }
+.j-icard .j-say{ position:absolute; right:6px; top:6px; }
+
+/* ---------- 入れたもの一覧(チップ) ---------- */
+.j-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.j-chip{
+  display:inline-flex; align-items:center; gap:8px; background:#fff; border:3px solid #eef2f6;
+  border-radius:50px; padding:5px 8px 5px 5px; font-weight:800; font-size:.88rem; min-height:52px;
+}
+.j-chip-img{ width:40px; height:40px; border-radius:50%; overflow:hidden; background:#fffaf0; flex:0 0 40px; }
+.j-chip-x{
+  width:34px; height:34px; min-width:34px; border-radius:50%; border:none; background:#ffeceb; color:#d63031;
+  font-weight:800; cursor:pointer; font-family:inherit; font-size:.9rem; line-height:1;
+}
+.j-chip-x:hover{ background:#ffd9d5; }
+.j-empty-chip{ color:var(--sub); font-weight:800; font-size:.85rem; }
+
+/* ---------- お店やさん ---------- */
+.j-roles{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+.j-role{ flex:1 1 300px; max-width:480px; background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:9px 12px; border:4px solid #e6ecf2; }
+.j-role.cust{ border-color:var(--pink); }
+.j-role.shop{ border-color:var(--blue); }
+.j-role h4{ margin:0 0 5px; font-size:.88rem; font-weight:800; display:flex; align-items:center; gap:6px; }
+.j-lines{ display:flex; gap:8px; flex-wrap:wrap; }
+.j-line{
+  display:inline-flex; align-items:center; gap:7px; background:#f7f9fb; border-radius:50px; padding:6px 14px;
+  font-weight:800; font-size:.85rem; min-height:46px; border:none; font-family:inherit; text-align:left; color:var(--ink);
+}
+button.j-line{ cursor:pointer; }
+button.j-line:hover{ background:#eef4f8; }
+.j-line.speech{ background:#fff5f6; }
+
+.j-order{ background:#fffbe8; border:5px dashed var(--yellow); border-radius:var(--app-radius); padding:8px 14px 10px; margin-bottom:12px; }
+.j-order h3{ font-size:.95rem; font-weight:800; margin:0 0 8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.j-order-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between; }
+.j-order-grid{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; flex:1 1 320px; }
+.j-ocard{ position:relative; width:106px; background:#fff; border:4px solid #f0e4c0; border-radius:18px; padding:8px 6px 6px; text-align:center; }
+.j-ocard img{ width:100%; display:block; border-radius:8px; }
+.j-ocard .app-card-emoji{ font-size:3rem; }
+.j-ocard .j-ow{ font-weight:800; font-size:.86rem; margin-top:4px; line-height:1.25; }
+.j-ocard .j-on{
+  position:absolute; right:-8px; top:-10px; min-width:42px; height:42px; padding:0 8px; border-radius:50px;
+  background:var(--pink); color:#fff; font-weight:800; font-size:1.05rem; display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--shadow);
+}
+.j-hidebox{
+  display:flex; flex-direction:row; align-items:center; justify-content:center; gap:12px;
+  min-height:66px; color:#b08d3a; font-weight:800; font-size:.95rem; text-align:left; line-height:1.8;
+}
+.j-hidebox .j-hideico{ font-size:2.6rem; line-height:1; }
+
+.j-judge{ background:#fff; border:5px solid var(--pink); border-radius:var(--app-radius); box-shadow:var(--shadow); padding:14px; text-align:center; }
+.j-judge h3{ font-size:1rem; font-weight:800; margin:0 0 4px; }
+.j-judge .j-jsub{ font-size:.78rem; color:var(--sub); font-weight:700; margin-bottom:10px; line-height:1.7; }
+
+/* ---------- できあがり / きろく ---------- */
+.j-done-wrap{ max-width:1100px; margin:0 auto; }
+.j-ing-list{ display:flex; flex-direction:column; gap:8px; }
+.j-ing-row{ display:flex; align-items:center; gap:10px; background:#f7f9fb; border-radius:14px; padding:6px 10px; min-height:56px; }
+.j-ing-img{ width:44px; height:44px; flex:0 0 44px; border-radius:50%; overflow:hidden; background:#fff; }
+.j-ing-txt{ font-weight:800; font-size:1.02rem; flex:1; }
+
+.j-saved-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; }
+.j-saved{ background:#fff; border-radius:var(--app-radius); box-shadow:var(--shadow); padding:12px; border:4px solid #eef2f6; position:relative; }
+.j-saved:hover{ border-color:var(--g4); }
+.j-saved .j-vessel{ width:100%; border-width:9px; }
+.j-saved .j-stype{
+  position:absolute; left:-8px; top:-8px; width:38px; height:38px; border-radius:50%; background:#fff;
+  box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+}
+.j-saved .j-sdate{ font-size:.72rem; color:var(--sub); font-weight:700; margin-top:8px; }
+.j-saved .j-stxt{ font-size:.85rem; font-weight:800; line-height:1.7; margin-top:2px; }
+.j-saved .j-sdel{
+  position:absolute; right:-8px; top:-8px; width:38px; height:38px; border-radius:50%; border:none;
+  background:var(--pink); color:#fff; font-weight:800; cursor:pointer; font-family:inherit; font-size:.95rem; box-shadow:var(--shadow);
+}
+
+footer{ text-align:center; padding:18px; color:#b2bec3; font-size:.75rem; font-weight:700; }
+
+@media(max-width:560px){
+  .j-pal{ grid-template-columns:repeat(auto-fill,minmax(126px,1fr)); gap:9px; }
+  .j-icard{ min-height:132px; padding:10px 6px 8px; }
+  .j-icard .j-iword{ font-size:.9rem; }
+  /* スマホでは うつわを 少し小さくして パレットを 早く見せる */
+  .j-vessel, #shop-vessel{ width:min(100%,320px); border-width:11px; }
+  .j-saved .j-vessel{ width:100%; }
+  .j-ocard{ width:100px; }
+}
 </style>
 </head>
-<body>
+<body class="app-ui-root">
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🍕 オリジナルジュース・ピザ作り <span class="u">4年生 たべもの</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🧃🍕 オリジナルジュース・ピザ作り <span class="app-unit-badge" style="background:var(--g4)">4年 Unit 7</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-help-btn" id="btn-help" aria-label="つかいかた">?</button>
+    <button type="button" class="app-nav-btn app-nav-ghost" id="btn-home">🏠 モードせんたく</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- モード選択 -->
+  <!-- ============ モードせんたく ============ -->
   <section id="scr-mode">
-    <h2 class="step-title">なにをつくる?</h2>
-    <div class="mode-select">
-      <div class="mode-card m1" data-mode="juice">
-        <div class="mi">🧃</div>
-        <h2>ミックスジュース作り</h2>
-        <p>すきなくだものをミキサーに入れて<br>オリジナルジュースをつくろう</p>
-      </div>
-      <div class="mode-card m2" data-mode="pizza">
-        <div class="mi">🍕</div>
-        <h2>オリジナルピザ作り</h2>
-        <p>すきなトッピングをのせて<br>じぶんだけのピザをやこう</p>
-      </div>
+    <h2 class="j-title">なにを する?</h2>
+    <p class="j-sub">ほしい材料を つたえあって、オリジナルの ジュースや ピザを つくろう</p>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card green" id="mode-juice">
+        <span class="app-mode-icon">🧃</span>
+        <span class="app-mode-title">ジュースを作る</span>
+        <span class="app-mode-sub">すきな くだものを ミキサーに入れて<br>オリジナルジュースを つくろう</span>
+      </button>
+      <button type="button" class="app-mode-card yellow" id="mode-pizza">
+        <span class="app-mode-icon">🍕</span>
+        <span class="app-mode-title">ピザを作る</span>
+        <span class="app-mode-sub">すきな トッピングを のせて<br>じぶんだけの ピザを やこう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-shop">
+        <span class="app-mode-icon">🏪</span>
+        <span class="app-mode-title">お店やさん</span>
+        <span class="app-mode-sub">2人ぐみ。おきゃくさんが 口で ちゅうもん →<br>てんいんさんが 材料を 入れる</span>
+      </button>
+      <button type="button" class="app-mode-card blue" id="mode-saved">
+        <span class="app-mode-icon">📔</span>
+        <span class="app-mode-title">きろく</span>
+        <span class="app-mode-sub">まえに つくった ジュース・ピザを<br>見かえせるよ</span>
+      </button>
     </div>
+    <p class="j-hint">🔊は じぶんが 聞きたいときだけ おしてね。アプリは かってに しゃべらないよ。</p>
   </section>
 
-  <!-- つくる -->
-  <section id="scr-make" class="hidden">
-    <h2 class="step-title" id="make-title">🧃 ミックスジュース作り</h2>
-    <p class="step-sub" id="make-sub">ざいりょうをタップすると入るよ(3〜5こくらいがおすすめ)</p>
-    <div class="make-wrap">
-      <div class="stage-col">
-        <div class="clerk" id="clerk">🧑‍🍳 What do you want?<small>(なにがほしい?)タップでもういちど聞けるよ</small></div>
-        <svg id="stage" viewBox="0 0 300 300"></svg>
+  <!-- ============ じぶんでつくる ============ -->
+  <section id="scr-make" class="app-hidden">
+    <h2 class="j-title" id="make-title">🧃 ミックスジュースを作ろう</h2>
+    <p class="j-sub" id="make-sub">材料カードを タップすると 入るよ</p>
+
+    <div class="j-work">
+      <div class="j-left">
+        <div class="j-vessel-wrap">
+          <div class="j-vessel" id="make-vessel"></div>
+        </div>
+        <p class="j-msg" id="make-msg"></p>
+        <div class="app-hud" style="margin:0">
+          <span class="app-hud-chip primary">🍒 いれた かず <b id="make-count">0</b></span>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm outline" id="btn-undo">↩️ ひとつ もどす</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-clear">つくりなおす</button>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn pink" id="btn-finish">できた! 🎉</button>
+        </div>
       </div>
-      <div class="pick-col">
-        <div class="ing-grid" id="ing-grid"></div>
-        <div class="actions">
-          <button class="big-btn" id="btn-finish" disabled>かんせいさせる!✨</button>
-          <button class="big-btn gray" id="btn-clear">やりなおす</button>
+
+      <div class="j-right">
+        <div class="j-panel">
+          <h3 id="make-pal-title">🍎 材料 <span class="app-chip g4">タップで いれる</span></h3>
+          <div class="j-pal" id="make-pal"></div>
+          <p class="j-note">🔊を おすと 言いかたが 聞けるよ(おしたときだけ 聞こえます)</p>
+        </div>
+        <div class="j-panel">
+          <h3>🥣 いれた 材料</h3>
+          <div class="j-chips" id="make-chips"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 発表カード -->
-  <section id="scr-present" class="hidden">
-    <h2 class="step-title">🎤 はっぴょうカード</h2>
-    <p class="step-sub">なまえをつけて、はっぴょうしてみよう</p>
-    <div class="present-card">
-      <div class="present-head" id="pr-head">MY ORIGINAL JUICE</div>
-      <div class="present-body">
-        <div class="pr-name"><input type="text" id="pr-name" placeholder="なまえをつけよう(れい:スーパーフルーツジュース)"></div>
-        <div id="pr-lines"></div>
+  <!-- ============ お店やさんモード ============ -->
+  <section id="scr-shop" class="app-hidden">
+    <h2 class="j-title">🏪 ジュース・ピザやさん</h2>
+    <p class="j-sub">おきゃくさんが <b>口で</b> ちゅうもん → てんいんさんが 材料を 入れる → できたら "Here you are."</p>
+
+    <div class="j-typerow">
+      <button type="button" class="j-typebtn on" id="shop-type-juice">🧃 ジュースやさん</button>
+      <button type="button" class="j-typebtn" id="shop-type-pizza">🍕 ピザやさん</button>
+    </div>
+
+    <div class="j-roles">
+      <div class="j-role cust">
+        <h4>🙋 おきゃくさん(ちゅうもんする人)</h4>
+        <div class="j-lines">
+          <span class="j-line speech"><span>💬</span><span>Two apples, please.</span></span>
+          <span class="j-line speech"><span>💬</span><span>I want cheese.</span></span>
+        </div>
+        <p class="j-note" style="margin:6px 0 0">ちゅうもんカードを 見て、<b>じぶんの 口で</b> つたえよう(アプリは 言ってくれないよ)</p>
+      </div>
+      <div class="j-role shop">
+        <h4>🧑‍🍳 てんいんさん(入れる人)</h4>
+        <div class="j-lines">
+          <button type="button" class="j-line" data-say="What do you want?"><span>🔊</span><span>What do you want?</span></button>
+          <button type="button" class="j-line" data-say="Here you are."><span>🔊</span><span>Here you are.</span></button>
+        </div>
+        <p class="j-note" style="margin:6px 0 0">聞いた 材料を 入れて、<b>じぶんの 口で</b> わたそう</p>
       </div>
     </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
-      <button class="big-btn gray" id="btn-back-make">つくりなおす</button>
+
+    <div class="j-order" id="order-box">
+      <div class="j-order-head">
+        <h3 style="margin:0">🎴 ちゅうもんカード
+          <span class="app-chip yellow" id="order-eye">おきゃくさんだけ 見よう</span>
+        </h3>
+        <div class="j-order-grid" id="order-grid"></div>
+        <div class="app-btn-row" style="justify-content:flex-end">
+          <button type="button" class="app-big-btn sm outline" id="btn-eye">🙈 かくす</button>
+          <button type="button" class="app-big-btn sm yellow" id="btn-neworder">🎲 べつの カードを ひく</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="j-work">
+      <div class="j-left">
+        <div class="j-vessel-wrap">
+          <div class="j-vessel" id="shop-vessel"></div>
+        </div>
+        <p class="j-msg" id="shop-msg"></p>
+        <div class="app-hud" style="margin:0">
+          <span class="app-hud-chip primary">🍒 いれた かず <b id="shop-count">0</b></span>
+          <span class="app-hud-chip yellow">🏆 できた かず <b id="shop-score">0</b></span>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm outline" id="btn-sundo">↩️ ひとつ もどす</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-sclear">ぜんぶ もどす</button>
+        </div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn blue" id="btn-serve">🍽️ できた!(Here you are.)</button>
+        </div>
+
+        <div class="j-judge app-hidden" id="judge">
+          <h3>🙋 おきゃくさん、あってた?</h3>
+          <p class="j-jsub" id="judge-sub">ちゅうもんした とおりだったか、じぶんの目で たしかめてね</p>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn green" id="btn-ok">⭕ あってた!</button>
+            <button type="button" class="app-big-btn pink" id="btn-ng">🔁 ちがうよ</button>
+          </div>
+          <div class="app-btn-row app-hidden" id="next-row" style="margin-top:10px">
+            <button type="button" class="app-big-btn primary" id="btn-next">➡️ つぎの おきゃくさん</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="j-right">
+        <div class="j-panel">
+          <h3 id="shop-pal-title">🍎 材料 <span class="app-chip g4">タップで いれる</span></h3>
+          <div class="j-pal" id="shop-pal"></div>
+          <p class="j-note">🔊は たんごの 言いかたヘルプ。ちゅうもんの 文は アプリでは 言いません。</p>
+        </div>
+        <div class="j-panel">
+          <h3>🥣 いれた 材料</h3>
+          <div class="j-chips" id="shop-chips"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ できあがり(紹介画面) ============ -->
+  <section id="scr-done" class="app-hidden">
+    <h2 class="j-title" id="done-title">🎉 できあがり!</h2>
+    <p class="j-sub">じぶんの さくひんを しょうかいしよう(文は じぶんで くみたてるよ)</p>
+    <div class="j-done-wrap">
+      <div class="j-work">
+        <div class="j-left">
+          <div class="j-vessel-wrap">
+            <div class="j-vessel" id="done-vessel"></div>
+          </div>
+        </div>
+        <div class="j-right">
+          <div class="j-panel">
+            <h3><span id="done-head-icon">🧃</span> 入っている もの <span class="app-chip green" id="done-total">0</span></h3>
+            <div class="j-ing-list" id="done-list"></div>
+            <p class="j-note">🔊を おすと 言いかたが 聞けるよ。まずは じぶんで 言ってみよう(例: I want two apples.)。</p>
+          </div>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn blue" id="btn-say-done">🔊 This is my original juice!</button>
+          </div>
+          <div class="app-btn-row">
+            <button type="button" class="app-big-btn sm outline" id="btn-reedit">✏️ つづきを つくる</button>
+            <button type="button" class="app-big-btn sm green" id="btn-again">🆕 あたらしく つくる</button>
+            <button type="button" class="app-big-btn sm yellow" id="btn-to-saved">📔 きろくを 見る</button>
+          </div>
+          <p class="j-hint" id="save-note">💾 つくった さくひんは この タブレットに ほぞんされたよ</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ きろく ============ -->
+  <section id="scr-saved" class="app-hidden">
+    <h2 class="j-title">📔 つくった さくひんの きろく</h2>
+    <p class="j-sub">この タブレットに ほぞんされた ジュース・ピザだよ(あたらしい じゅんに 12こまで)</p>
+    <div class="j-saved-grid" id="saved-grid"></div>
+    <div class="app-btn-row" style="margin-top:16px">
+      <button type="button" class="app-big-btn green" id="btn-saved-juice">🧃 あたらしく ジュースを作る</button>
+      <button type="button" class="app-big-btn yellow" id="btn-saved-pizza">🍕 あたらしく ピザを作る</button>
     </div>
   </section>
 
 </main>
 
-<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+<footer>Let's Try! 2 Unit 7 “What do you want?” / ほしい材料を つたえあって オリジナルの ジュース・ピザを つくろう</footer>
 
-<script>
-// ============================================================
-// データ(教師向け:ここを書きかえると材料を変更できます)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-
-const FRUITS = [
-  { en:"apples",       ja:"りんご",     img:"apple.jpg",        emoji:"🍎", color:"#ff6b6b" },
-  { en:"bananas",      ja:"バナナ",     img:"banana.jpg",       emoji:"🍌", color:"#ffd93d" },
-  { en:"oranges",      ja:"オレンジ",   img:"orange_fruit.jpg", emoji:"🍊", color:"#ff9f43" },
-  { en:"grapes",       ja:"ぶどう",     img:"grapes.jpg",       emoji:"🍇", color:"#a55eea" },
-  { en:"strawberries", ja:"いちご",     img:"strawberry.jpg",   emoji:"🍓", color:"#ff6b81" },
-  { en:"melons",       ja:"メロン",     img:"melon.jpg",        emoji:"🍈", color:"#7bed9f" },
-  { en:"peaches",      ja:"もも",       img:"peach.jpg",        emoji:"🍑", color:"#ffb8b8" },
-  { en:"pineapples",   ja:"パイナップル", img:"pineapple.jpg",  emoji:"🍍", color:"#feca57" },
-  { en:"kiwi fruits",  ja:"キウイ",     img:"kiwi fruit.jpg",   emoji:"🥝", color:"#6ab04c" },
-];
-const TOPPINGS = [
-  { en:"tomatoes",      ja:"トマト",       img:"tomato.jpg",       emoji:"🍅", color:"#ff6348" },
-  { en:"onions",        ja:"たまねぎ",     img:"onion.jpg",        emoji:"🧅", color:"#f7f1e3" },
-  { en:"green peppers", ja:"ピーマン",     img:"green pepper.jpg", emoji:"🫑", color:"#2ed573" },
-  { en:"mushrooms",     ja:"きのこ",       img:"mushroom.jpg",     emoji:"🍄", color:"#d1ccc0" },
-  { en:"corn",          ja:"とうもろこし", img:"corn.jpg",         emoji:"🌽", color:"#ffd32a" },
-  { en:"sausages",      ja:"ソーセージ",   img:"sausage.jpg",      emoji:"🌭", color:"#e17055" },
-  { en:"bacon",         ja:"ベーコン",     img:"bacon.jpg",        emoji:"🥓", color:"#e77f67" },
-  { en:"cheese",        ja:"チーズ",       img:"cheese.jpg",       emoji:"🧀", color:"#ffdd59" },
-];
-
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
-}
-
-// ============================================================
-// 状態
-// ============================================================
-let mode = "juice";       // juice | pizza
-let chosen = [];          // 材料(重複可)
-const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-mode","scr-make","scr-present"].forEach(s => $(s).classList.toggle("hidden", s !== id));
-}
-function pool(){ return mode === "juice" ? FRUITS : TOPPINGS; }
-function iOf(en){ return pool().find(x => x.en === en); }
-
-// ============================================================
-// ステージ描画(SVG)
-// ============================================================
-function juiceSVG(){
-  // ミキサー+中身(えらんだくだものの色をまぜる)
-  const colors = chosen.map(en => iOf(en).color);
-  const mixColor = colors.length ? avgColor(colors) : "#f0f0f0";
-  const fillH = Math.min(150, 30 + chosen.length * 24);
-  let fruitIcons = chosen.slice(0,8).map((en,i) => {
-    const x = 105 + (i % 4) * 25, y = 205 - Math.floor(i / 4) * 26 - fillH + 40;
-    return `<text x="${x}" y="${y}" font-size="20">${iOf(en).emoji}</text>`;
-  }).join("");
-  return `
-    <g id="mixer">
-      <rect x="90" y="60" width="120" height="160" rx="16" fill="#e8f4fd" stroke="#74b9ff" stroke-width="5"/>
-      <rect x="96" y="${216 - fillH}" width="108" height="${fillH}" rx="10" fill="${mixColor}" opacity="0.85"/>
-      ${fruitIcons}
-      <rect x="80" y="42" width="140" height="22" rx="10" fill="#576574"/>
-      <rect x="110" y="220" width="80" height="26" rx="8" fill="#576574"/>
-      <rect x="95" y="246" width="110" height="14" rx="7" fill="#8395a7"/>
-    </g>`;
-}
-function pizzaSVG(){
-  // 決まった14か所に順番にのせる(かたよらないように)
-  const SPOTS = [
-    [150,95],[205,125],[95,125],[150,150],[210,185],[90,185],[150,215],
-    [122,110],[178,110],[115,160],[185,160],[122,200],[178,200],[150,120],
-  ];
-  let tops = chosen.slice(0,14).map((en,i) => {
-    const [x,y] = SPOTS[i];
-    return `<text x="${x-12}" y="${y+9}" font-size="24">${iOf(en).emoji}</text>`;
-  }).join("");
-  return `
-    <g id="pizza">
-      <circle cx="150" cy="150" r="118" fill="#e5a663"/>
-      <circle cx="150" cy="150" r="100" fill="#f5c979"/>
-      <circle cx="150" cy="150" r="94" fill="#e74c3c" opacity="0.75"/>
-      <circle cx="150" cy="150" r="88" fill="#ffd979" opacity="0.9"/>
-      ${tops}
-    </g>`;
-}
-function avgColor(hexes){
-  let r=0,g=0,b=0;
-  hexes.forEach(h => {
-    r += parseInt(h.slice(1,3),16); g += parseInt(h.slice(3,5),16); b += parseInt(h.slice(5,7),16);
-  });
-  const n = hexes.length;
-  return `rgb(${Math.round(r/n)},${Math.round(g/n)},${Math.round(b/n)})`;
-}
-function renderStage(){
-  $("stage").innerHTML = mode === "juice" ? juiceSVG() : pizzaSVG();
-  $("btn-finish").disabled = chosen.length === 0;
-}
-
-// ============================================================
-// 材料選択
-// ============================================================
-function buildIngredients(){
-  $("ing-grid").innerHTML = pool().map(it => `
-    <div class="ing-card ${chosen.includes(it.en) ? "used" : ""}" data-en="${it.en}">
-      <div class="nimg"><img src="${IMG_BASE + encodeURIComponent(it.img)}" alt="${it.en}"
-        onerror="this.outerHTML='<span class=&quot;nemoji&quot;>${it.emoji}</span>'"></div>
-      <div class="nlabel">${it.en}</div>
-    </div>`).join("");
-}
-$("ing-grid").addEventListener("click", e => {
-  const el = e.target.closest(".ing-card"); if(!el) return;
-  const it = iOf(el.dataset.en);
-  chosen.push(it.en);
-  el.classList.add("used");
-  renderStage();
-  speak(`I want ${it.en}, please!`);
-});
-$("btn-clear").addEventListener("click", () => { chosen = []; buildIngredients(); renderStage(); });
-$("clerk").addEventListener("click", () => speak("What do you want?"));
-
-// ============================================================
-// 完成
-// ============================================================
-$("btn-finish").addEventListener("click", () => {
-  const g = document.querySelector(mode === "juice" ? "#mixer" : "#pizza");
-  if(g){
-    g.classList.add(mode === "juice" ? "mixing" : "baking");
-    speak(mode === "juice" ? "Mix, mix, mix!" : "Bake, bake, bake!");
-  }
-  setTimeout(showPresent, 1800);
-});
-function uniqueChosen(){ return [...new Set(chosen)]; }
-function presentLines(){
-  const items = uniqueChosen();
-  const list = items.length === 1 ? items[0]
-    : items.slice(0,-1).join(", ") + " and " + items[items.length-1];
-  return [
-    mode === "juice" ? "This is my original juice!" : "This is my original pizza!",
-    `I want ${list}, please.`,
-    "It's delicious!",
-  ];
-}
-function showPresent(){
-  $("pr-head").textContent = mode === "juice" ? "MY ORIGINAL JUICE" : "MY ORIGINAL PIZZA";
-  $("pr-lines").innerHTML = presentLines().map((t,i) =>
-    `<div class="pr-line" data-i="${i}">🔊 ${t}</div>`).join("");
-  show("scr-present");
-  speakQueue(presentLines());
-}
-$("pr-lines").addEventListener("click", e => {
-  const el = e.target.closest(".pr-line"); if(!el) return;
-  speak(presentLines()[+el.dataset.i]);
-});
-$("btn-speak-all").addEventListener("click", () => speakQueue(presentLines()));
-$("btn-back-make").addEventListener("click", () => show("scr-make"));
-
-// ============================================================
-// モード切替
-// ============================================================
-document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
-  mode = c.dataset.mode;
-  chosen = [];
-  $("make-title").textContent = mode === "juice" ? "🧃 ミックスジュース作り" : "🍕 オリジナルピザ作り";
-  $("make-sub").textContent = mode === "juice"
-    ? "くだものをタップするとミキサーに入るよ(3〜5こくらいがおすすめ)"
-    : "トッピングをタップするとピザにのるよ(すきなだけのせてOK)";
-  buildIngredients(); renderStage();
-  show("scr-make");
-  speak("What do you want?");
-}));
-$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
-
-show("scr-mode");
-</script>
-
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>What do you want? のやりとりで、オリジナルの一品をつくるアプリです。</p><h4>あそびかた</h4><ol><li>ジュースかピザか、つくるものをえらぶ</li><li>ざいりょうをえらぼう(タップすると英語が聞けるよ)</li><li>できあがったら「はっぴょうカード」で、なにを入れたか英語で紹介しよう</li></ol><div class="ah-tip">💡 先生向け:ペアで店員さん役・お客さん役に分かれ、注文されたとおりに作る遊び方もおすすめです。</div>
-  </div>
-</div>
+<script src="../shared/app-ui.js"></script>
 <script>
 (function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
+'use strict';
+
+/* ============================================================
+   0. 小さなヘルパー(AppUI が無くても落ちないように)
+   ============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+function sfx(n, a){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](a); }catch(e){} }
+function say(t){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(t); }catch(e){} }
+function starsAt(x,y,o){ try{ if(window.AppUI && AppUI.stars) AppUI.stars(x,y,o); }catch(e){} }
+function celebrate(o){ try{ if(window.AppUI && AppUI.celebrate) AppUI.celebrate(o); }catch(e){} }
+function shuffle(a){
+  if(window.AppUI && AppUI.shuffle) return AppUI.shuffle(a);
+  var b = a.slice();
+  for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; }
+  return b;
+}
+function cardImg(f,e){ return (window.AppUI && AppUI.cardImg) ? AppUI.cardImg(f,e) : document.createElement('span'); }
+function cardArt(f,e){ return (window.AppUI && AppUI.cardArt) ? AppUI.cardArt(f,e) : document.createElement('span'); }
+
+/* ============================================================
+   1. データ(先生向け: ここを書きかえると材料を変更できます)
+      img は Picture Dictionary の絵カードのファイル名
+      color はジュースの色まぜあわせに使う(ピザトッピングには不要)
+      countable:false の材料は 数を つけずに ことばにする(cheese など)
+   ============================================================ */
+var FRUITS = [
+  { id:'apple',      word:'apple',      plural:'apples',      img:'apple.jpg',        emoji:'🍎', color:'#ff6b6b', countable:true },
+  { id:'banana',     word:'banana',     plural:'bananas',     img:'banana.jpg',       emoji:'🍌', color:'#ffd93d', countable:true },
+  { id:'orange',     word:'orange',     plural:'oranges',     img:'orange_fruit.jpg', emoji:'🍊', color:'#ff9f43', countable:true },
+  { id:'grapes',     word:'grapes',     plural:'grapes',      img:'grapes.jpg',       emoji:'🍇', color:'#a55eea', countable:true },
+  { id:'strawberry', word:'strawberry', plural:'strawberries',img:'strawberry.jpg',   emoji:'🍓', color:'#ff6b81', countable:true },
+  { id:'melon',      word:'melon',      plural:'melons',      img:'melon.jpg',        emoji:'🍈', color:'#7bed9f', countable:true },
+  { id:'peach',      word:'peach',      plural:'peaches',     img:'peach.jpg',        emoji:'🍑', color:'#ffb8b8', countable:true },
+  { id:'pineapple',  word:'pineapple',  plural:'pineapples',  img:'pineapple.jpg',    emoji:'🍍', color:'#feca57', countable:true },
+  { id:'kiwi',       word:'kiwi fruit', plural:'kiwi fruits', img:'kiwi fruit.jpg',   emoji:'🥝', color:'#6ab04c', countable:true }
+];
+var TOPPINGS = [
+  { id:'tomato',   word:'tomato',       plural:'tomatoes',      img:'tomato.jpg',       emoji:'🍅', countable:true },
+  { id:'onion',    word:'onion',        plural:'onions',        img:'onion.jpg',        emoji:'🧅', countable:true },
+  { id:'pepper',   word:'green pepper', plural:'green peppers', img:'green pepper.jpg', emoji:'🫑', countable:true },
+  { id:'mushroom', word:'mushroom',     plural:'mushrooms',     img:'mushroom.jpg',     emoji:'🍄', countable:true },
+  { id:'corn',     word:'corn',         plural:'corn',          img:'corn.jpg',         emoji:'🌽', countable:false },
+  { id:'sausage',  word:'sausage',      plural:'sausages',      img:'sausage.jpg',      emoji:'🌭', countable:true },
+  { id:'bacon',    word:'bacon',        plural:'bacon',         img:'bacon.jpg',        emoji:'🥓', countable:false },
+  { id:'cheese',   word:'cheese',       plural:'cheese',        img:'cheese.jpg',       emoji:'🧀', countable:false }
+];
+function poolFor(type){ return type === 'pizza' ? TOPPINGS : FRUITS; }
+function byIdFor(type){
+  var m = {};
+  poolFor(type).forEach(function(f){ m[f.id] = f; });
+  return m;
+}
+
+var NUM = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen'];
+var MAX_ITEMS = 14;
+
+/* 「two apples」「cheese」のような 言い方をつくる */
+function phrase(f, n){
+  if(f.countable === false) return f.word;
+  var num = NUM[n] || String(n);
+  if(f.plural === f.word) return (n === 1) ? f.word : (num + ' ' + f.word);  /* grapes など */
+  return num + ' ' + (n === 1 ? f.word : f.plural);
+}
+
+function avgColor(hexes){
+  if(!hexes.length) return '#eef6fb';
+  var r=0,g=0,b=0;
+  hexes.forEach(function(h){
+    r += parseInt(h.slice(1,3),16); g += parseInt(h.slice(3,5),16); b += parseInt(h.slice(5,7),16);
+  });
+  var n = hexes.length;
+  return 'rgb(' + Math.round(r/n) + ',' + Math.round(g/n) + ',' + Math.round(b/n) + ')';
+}
+
+/* ============================================================
+   2. うつわ(ミキサー/ピザ台)の見た目の骨組み
+      ★ transform を使わずに left/top/width(%) だけで もりつける
+   ============================================================ */
+function renderVesselSkeleton(vesselEl){
+  vesselEl.innerHTML = '';
+  var skinJuice = document.createElement('div');
+  skinJuice.className = 'j-skin j-skin-juice';
+  skinJuice.innerHTML =
+    '<span class="j-handle"></span><span class="j-spout"></span>' +
+    '<span class="j-liquid"></span><span class="j-swirl-ring"></span>';
+  var skinPizza = document.createElement('div');
+  skinPizza.className = 'j-skin j-skin-pizza';
+  skinPizza.innerHTML = '<span class="j-crust"></span><span class="j-sauce"></span><span class="j-cheese"></span>';
+  var emptyEl = document.createElement('div');
+  emptyEl.className = 'j-empty';
+  var layer = document.createElement('div');
+  layer.className = 'j-layer';
+  vesselEl.appendChild(skinJuice);
+  vesselEl.appendChild(skinPizza);
+  vesselEl.appendChild(emptyEl);
+  vesselEl.appendChild(layer);
+  return {
+    vessel: vesselEl,
+    liquid: skinJuice.querySelector('.j-liquid'),
+    crust: skinPizza.querySelector('.j-crust'),
+    cheese: skinPizza.querySelector('.j-cheese'),
+    empty: emptyEl,
+    layer: layer
+  };
+}
+function setVesselType(refs, type){
+  refs.vessel.classList.toggle('type-juice', type !== 'pizza');
+  refs.vessel.classList.toggle('type-pizza', type === 'pizza');
+  refs.vessel.classList.remove('baked','mixing','baking');
+  refs.empty.textContent = (type === 'pizza')
+    ? 'トッピングカードを タップして ピザに のせよう'
+    : 'くだものカードを タップして ミキサーに 入れよう';
+}
+function updateLiquid(refs, stage){
+  var cs = stage.counts();
+  if(!cs.length){ refs.liquid.style.background = '#eef6fb'; return; }
+  var colors = [];
+  cs.forEach(function(c){ for(var i=0;i<c.n;i++) colors.push(c.f.color || '#eef6fb'); });
+  refs.liquid.style.background = avgColor(colors);
+}
+
+/* ============================================================
+   3. うつわ(ステージ)クラス。ジュース/ピザ どちらの プールにも使える
+   ============================================================ */
+function Stage(o){
+  this.refs = o.refs; this.layer = o.refs.layer; this.emptyEl = o.refs.empty;
+  this.palEl = o.palEl; this.chipsEl = o.chipsEl; this.countEl = o.countEl; this.msgEl = o.msgEl;
+  this.pool = o.pool; this.byId = {};
+  this.pool.forEach(function(f){ this.byId[f.id] = f; }, this);
+  this.items = [];       /* {uid, f, el, jit, jx, jy, rot} */
+  this.uid = 0;
+  this.onChange = o.onChange || function(){};
+  if(this.palEl){ this.renderPalette(); this.bindPaletteEvents(); }
+  this.update();
+}
+Stage.prototype.renderPalette = function(){
+  var frag = document.createDocumentFragment();
+  this.pool.forEach(function(f){
+    var card = document.createElement('div');
+    card.className = 'j-icard';
+    card.setAttribute('role','button');
+    card.tabIndex = 0;
+    card.setAttribute('data-fid', f.id);
+    card.setAttribute('aria-label', f.word);
+
+    var badge = document.createElement('span');
+    badge.className = 'j-ibadge'; badge.textContent = '0';
+    card.appendChild(badge);
+
+    var sayBtn = document.createElement('button');
+    sayBtn.type = 'button'; sayBtn.className = 'j-say'; sayBtn.textContent = '🔊';
+    sayBtn.setAttribute('aria-label', f.word + ' を 聞く');
+    card.appendChild(sayBtn);
+
+    var box = document.createElement('div');
+    box.className = 'j-iimg';
+    box.appendChild(cardImg(f.img, f.emoji));
+    card.appendChild(box);
+
+    var w = document.createElement('div');
+    w.className = 'j-iword'; w.textContent = f.word;
+    card.appendChild(w);
+
+    frag.appendChild(card);
+  });
+  this.palEl.innerHTML = '';
+  this.palEl.appendChild(frag);
+};
+Stage.prototype.bindPaletteEvents = function(){
+  var self = this;
+  this.palEl.addEventListener('click', function(e){
+    var sb = e.target.closest ? e.target.closest('.j-say') : null;
+    var card = e.target.closest ? e.target.closest('[data-fid]') : null;
+    if(!card) return;
+    var f = self.byId[card.getAttribute('data-fid')];
+    if(!f) return;
+    if(sb){ sfx('tap'); say(f.word); return; }   /* 🔊 = おしたときだけ 読み上げ */
+    self.add(f);
+  });
+  this.palEl.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    var card = e.target.closest ? e.target.closest('[data-fid]') : null;
+    if(!card || (e.target.classList && e.target.classList.contains('j-say'))) return;
+    e.preventDefault();
+    var f = self.byId[card.getAttribute('data-fid')];
+    if(f) self.add(f);
+  });
+};
+Stage.prototype.setPool = function(pool){
+  while(this.items.length){
+    var it = this.items.pop();
+    if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+  }
+  this.pool = pool; this.byId = {};
+  this.pool.forEach(function(f){ this.byId[f.id] = f; }, this);
+  if(this.palEl) this.renderPalette();
+  this.msg('');
+  this.update();
+};
+Stage.prototype.msg = function(t, warn){
+  if(!this.msgEl) return;
+  this.msgEl.textContent = t || '';
+  this.msgEl.classList.toggle('warn', !!warn);
+};
+Stage.prototype.add = function(f){
+  if(this.items.length >= MAX_ITEMS){
+    sfx('wrong');
+    this.msg('うつわが いっぱいだよ。ひとつ もどしてね。', true);
+    return null;
+  }
+  this.uid++;
+  var el = document.createElement('span');
+  el.className = 'j-ing';
+  el.setAttribute('data-uid', String(this.uid));
+  var rot = (Math.random()*16 - 8);
+  el.style.setProperty('--art-rot', rot.toFixed(1) + 'deg');
+  var art = cardArt(f.img, f.emoji);
+  art.classList.add('square','tight','cutout');       /* ← 絵だけ(文字なし)で のせる */
+  el.appendChild(art);
+
+  var it = {
+    uid:this.uid, f:f, el:el, rot:rot,
+    jit:(Math.random()*0.5 - 0.25),
+    jx:(Math.random()*0.03 - 0.015),
+    jy:(Math.random()*0.03 - 0.015)
+  };
+  this.items.push(it);
+
+  /* うつわの上から ぽとん、と おとす(top のトランジションだけで表現。
+     transform を使うと 乗算合成が こわれるため) */
+  var geo = this.geom(this.items.length - 1);
+  el.style.width = (geo.size*100).toFixed(2) + '%';
+  el.style.left = (geo.left*100).toFixed(2) + '%';
+  el.style.top = '-34%';
+  this.layer.appendChild(el);
+  void el.offsetWidth;                       /* 反映させてから 目的地へ */
+  this.layout();
+  sfx('pop');
+
+  var self = this;
+  setTimeout(function(){
+    try{
+      var r = el.getBoundingClientRect();
+      if(r.width) starsAt(r.left + r.width/2, r.top + r.height/2, { count:6 });
+    }catch(e){}
+  }, 430);
+
+  this.msg(''); this.update();
+  return it;
+};
+Stage.prototype.geom = function(i){
+  var n = this.items.length;
+  var size = (n <= 1) ? 0.40 : Math.max(0.215, 0.40 - (n-1)*0.0135);
+  var R = 0.305;
+  var a = i*2.39996 + (this.items[i] ? this.items[i].jit : 0);
+  var r = (n === 1) ? 0 : R*Math.sqrt(i/(n-1));
+  var cx = 0.5 + r*Math.cos(a) + (this.items[i] ? this.items[i].jx : 0);
+  var cy = 0.5 + r*Math.sin(a) + (this.items[i] ? this.items[i].jy : 0);
+  return { size:size, left:cx - size/2, top:cy - size/2 };
+};
+Stage.prototype.layout = function(){
+  for(var i=0;i<this.items.length;i++){
+    var g = this.geom(i), el = this.items[i].el;
+    el.style.width = (g.size*100).toFixed(2) + '%';
+    el.style.left = (g.left*100).toFixed(2) + '%';
+    el.style.top = (g.top*100).toFixed(2) + '%';
+  }
+};
+Stage.prototype.removeAt = function(i){
+  if(i < 0 || i >= this.items.length) return;
+  var it = this.items[i];
+  try{
+    var r = it.el.getBoundingClientRect();
+    if(r.width) starsAt(r.left + r.width/2, r.top + r.height/2, { count:5 });
+  }catch(e){}
+  if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+  this.items.splice(i,1);
+  this.layout(); this.update(); this.msg('');
+  sfx('tap');
+};
+Stage.prototype.removeUid = function(uid){
+  for(var i=0;i<this.items.length;i++){ if(this.items[i].uid === uid){ this.removeAt(i); return; } }
+};
+Stage.prototype.removeOneOf = function(fid){
+  for(var i=this.items.length-1;i>=0;i--){ if(this.items[i].f.id === fid){ this.removeAt(i); return; } }
+};
+Stage.prototype.undo = function(){
+  if(!this.items.length){ sfx('tap'); return; }
+  this.removeAt(this.items.length-1);
+};
+Stage.prototype.clear = function(){
+  while(this.items.length){
+    var it = this.items.pop();
+    if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+  }
+  this.update(); this.msg(''); sfx('tap');
+};
+Stage.prototype.counts = function(){
+  var m = {};
+  this.items.forEach(function(it){ m[it.f.id] = (m[it.f.id]||0) + 1; });
+  var out = [];
+  this.pool.forEach(function(f){ if(m[f.id]) out.push({ f:f, n:m[f.id] }); });
+  return out;
+};
+Stage.prototype.list = function(){
+  return this.items.map(function(it){ return it.f.id; });
+};
+Stage.prototype.update = function(){
+  var cs = this.counts();
+  if(this.emptyEl) this.emptyEl.style.display = this.items.length ? 'none' : '';
+  if(this.countEl) this.countEl.textContent = String(this.items.length);
+
+  if(this.palEl){
+    var m = {};
+    cs.forEach(function(c){ m[c.f.id] = c.n; });
+    var cards = this.palEl.querySelectorAll('[data-fid]');
+    for(var i=0;i<cards.length;i++){
+      var id = cards[i].getAttribute('data-fid');
+      var n = m[id] || 0;
+      cards[i].classList.toggle('has', n > 0);
+      var b = cards[i].querySelector('.j-ibadge');
+      if(b) b.textContent = String(n);
+    }
+  }
+  if(this.chipsEl){
+    this.chipsEl.innerHTML = '';
+    if(!cs.length){
+      var e = document.createElement('span');
+      e.className = 'j-empty-chip';
+      e.textContent = 'まだ なにも 入っていないよ';
+      this.chipsEl.appendChild(e);
+    }else{
+      var self = this;
+      cs.forEach(function(c){
+        var chip = document.createElement('span');
+        chip.className = 'j-chip';
+        var im = document.createElement('span');
+        im.className = 'j-chip-img';
+        var a = cardArt(c.f.img, c.f.emoji); a.classList.add('square');
+        im.appendChild(a);
+        chip.appendChild(im);
+        var tx = document.createElement('span');
+        tx.textContent = phrase(c.f, c.n);
+        chip.appendChild(tx);
+        var x = document.createElement('button');
+        x.type = 'button'; x.className = 'j-chip-x'; x.textContent = '✕';
+        x.setAttribute('aria-label', c.f.word + ' を ひとつ もどす');
+        x.addEventListener('click', function(){ self.removeOneOf(c.f.id); });
+        chip.appendChild(x);
+        self.chipsEl.appendChild(chip);
+      });
+    }
+  }
+  this.onChange(this);
+};
+
+/* うつわの中の 材料を タップしたら もどす */
+function bindVesselTap(stage){
+  stage.layer.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('.j-ing') : null;
+    if(!el) return;
+    stage.removeUid(parseInt(el.getAttribute('data-uid'),10));
+  });
+}
+
+/* うつわの中身だけを 描く(できあがり画面・きろく用。操作はできない) */
+function paintVesselStatic(vesselEl, type, ids){
+  var refs = renderVesselSkeleton(vesselEl);
+  setVesselType(refs, type);
+  refs.empty.style.display = 'none';
+  var byId = byIdFor(type);
+  var n = ids.length;
+  for(var i=0;i<n;i++){
+    var f = byId[ids[i]];
+    if(!f) continue;
+    var size = (n <= 1) ? 0.40 : Math.max(0.215, 0.40 - (n-1)*0.0135);
+    var a = i*2.39996, r = (n === 1) ? 0 : 0.305*Math.sqrt(i/(n-1));
+    var cx = 0.5 + r*Math.cos(a), cy = 0.5 + r*Math.sin(a);
+    var el = document.createElement('span');
+    el.className = 'j-ing';
+    el.style.cursor = 'default';
+    el.style.setProperty('--art-rot', (((i*37) % 15) - 7) + 'deg');
+    el.style.width = (size*100).toFixed(2) + '%';
+    el.style.left = ((cx - size/2)*100).toFixed(2) + '%';
+    el.style.top = ((cy - size/2)*100).toFixed(2) + '%';
+    var art = cardArt(f.img, f.emoji);
+    art.classList.add('square','tight','cutout');
+    el.appendChild(art);
+    refs.layer.appendChild(el);
+  }
+  if(type === 'pizza'){
+    refs.vessel.classList.add('baked');
+  }else{
+    var colors = [];
+    ids.forEach(function(id){ var f = byId[id]; if(f) colors.push(f.color || '#eef6fb'); });
+    refs.liquid.style.background = avgColor(colors);
+  }
+  return refs;
+}
+
+/* ============================================================
+   4. ステージの生成(ジュース/ピザ どちらも 同じしくみ)
+   ============================================================ */
+var curType = 'juice';     /* じぶんで作る画面の いま の種類 */
+var shopType = 'juice';    /* お店やさん画面の いま の種類 */
+
+var makeRefs = renderVesselSkeleton($('make-vessel'));
+var shopRefs = renderVesselSkeleton($('shop-vessel'));
+setVesselType(makeRefs, curType);
+setVesselType(shopRefs, shopType);
+
+var makeStage = new Stage({
+  refs:makeRefs, pool:poolFor(curType),
+  palEl:$('make-pal'), chipsEl:$('make-chips'), countEl:$('make-count'), msgEl:$('make-msg'),
+  onChange:function(stage){ savedThis = false; updateLiquid(makeRefs, stage); }
+});
+var shopStage = new Stage({
+  refs:shopRefs, pool:poolFor(shopType),
+  palEl:$('shop-pal'), chipsEl:$('shop-chips'), countEl:$('shop-count'), msgEl:$('shop-msg'),
+  onChange:function(stage){ updateLiquid(shopRefs, stage); }
+});
+bindVesselTap(makeStage);
+bindVesselTap(shopStage);
+updateLiquid(makeRefs, makeStage);
+updateLiquid(shopRefs, shopStage);
+
+$('btn-undo').addEventListener('click', function(){ makeStage.undo(); });
+$('btn-clear').addEventListener('click', function(){ makeStage.clear(); });
+$('btn-sundo').addEventListener('click', function(){ shopStage.undo(); resetJudge(); });
+$('btn-sclear').addEventListener('click', function(){ shopStage.clear(); resetJudge(); });
+
+/* ============================================================
+   5. 「作る」画面: ジュース/ピザ 切りかえ + かんせい演出
+   ============================================================ */
+function switchMakeType(type){
+  curType = type;
+  makeStage.setPool(poolFor(type));
+  setVesselType(makeRefs, type);
+  updateLiquid(makeRefs, makeStage);
+  $('make-title').textContent = (type === 'pizza') ? '🍕 オリジナルピザを作ろう' : '🧃 ミックスジュースを作ろう';
+  $('make-sub').textContent = (type === 'pizza')
+    ? 'トッピングカードを タップすると ピザに のるよ(すきなだけ どうぞ)'
+    : 'くだものカードを タップすると ミキサーに 入るよ(3〜5こくらいが おすすめ)';
+  $('make-pal-title').innerHTML = (type === 'pizza' ? '🍅 トッピング' : '🍎 くだもの') + ' <span class="app-chip g4">タップで いれる</span>';
+  savedThis = false;
+}
+function setMakeButtonsDisabled(disabled){
+  $('btn-undo').disabled = disabled;
+  $('btn-clear').disabled = disabled;
+  $('btn-finish').disabled = disabled;
+  $('make-pal').style.pointerEvents = disabled ? 'none' : '';
+}
+
+/* ゆげ(蒸気)えんしゅつ。うつわの「祖先」ではない かざり用の要素なので
+   自由に animate してよい(材料の乗算合成には影響しない) */
+function spawnSteam(vesselEl){
+  try{
+    var r = vesselEl.getBoundingClientRect();
+    for(var i=0;i<5;i++){
+      (function(i){
+        var s = document.createElement('span');
+        s.textContent = '·';
+        s.style.position = 'fixed';
+        s.style.left = (r.left + r.width*(0.3 + Math.random()*0.4)) + 'px';
+        s.style.top = (r.top + r.height*0.25) + 'px';
+        s.style.fontSize = '0';
+        s.style.width = '16px'; s.style.height = '16px'; s.style.borderRadius = '50%';
+        s.style.background = 'rgba(255,255,255,.75)';
+        s.style.boxShadow = '0 0 8px 4px rgba(255,255,255,.5)';
+        s.style.pointerEvents = 'none';
+        s.style.zIndex = '9999';
+        document.body.appendChild(s);
+        if(s.animate){
+          var anim = s.animate([
+            { transform:'translateY(0) scale(.6)', opacity:.8 },
+            { transform:'translateY(-' + (50+Math.random()*40) + 'px) scale(1.4)', opacity:0 }
+          ], { duration:900 + Math.random()*400, delay:i*90, easing:'ease-out' });
+          anim.onfinish = function(){ if(s.parentNode) s.parentNode.removeChild(s); };
+        }else{
+          setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 1300);
+        }
+      })(i);
+    }
+  }catch(e){}
+}
+
+/* ミキサーが ぐるぐる まざる えんしゅつ。
+   .j-vessel(祖先) には transform を つけず、材料じしんの left/top と
+   <img> の rotate だけで うごかす(乗算合成をこわさない) */
+function playMixThenDone(){
+  setMakeButtonsDisabled(true);
+  makeRefs.vessel.classList.add('mixing');
+  sfx('tap');
+  try{ AppUI.sfx.drumroll(1100); }catch(e){}
+  makeStage.items.forEach(function(it){ it.el.classList.add('j-nolerp'); });
+  var start = null;
+  function frame(ts){
+    if(start === null) start = ts;
+    var t = ts - start;
+    if(t > 1150){
+      makeStage.items.forEach(function(it){ it.el.classList.remove('j-nolerp'); });
+      makeRefs.vessel.classList.remove('mixing');
+      makeStage.layout();
+      setMakeButtonsDisabled(false);
+      go('done');
+      celebrate({ title:'ジュース かんせい!', sub:'なにが 入っているか つたえてみよう', icon:'🧃' });
+      return;
+    }
+    var ang = t/125;
+    makeStage.items.forEach(function(it,i){
+      var g = makeStage.geom(i);
+      var rr = 0.06;
+      var a = ang + i*1.7;
+      var ox = rr*Math.cos(a), oy = rr*Math.sin(a);
+      it.el.style.left = ((g.left+ox)*100).toFixed(2) + '%';
+      it.el.style.top = ((g.top+oy)*100).toFixed(2) + '%';
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ピザが やける えんしゅつ。生地とチーズの色が じわっと 変わる */
+function playBakeThenDone(){
+  setMakeButtonsDisabled(true);
+  sfx('tap');
+  try{ AppUI.sfx.drumroll(1100); }catch(e){}
+  makeRefs.vessel.classList.add('baking');
+  makeRefs.vessel.classList.add('baked');
+  spawnSteam(makeRefs.vessel);
+  setTimeout(function(){
+    makeRefs.vessel.classList.remove('baking');
+    setMakeButtonsDisabled(false);
+    go('done');
+    celebrate({ title:'ピザ かんせい!', sub:'なにが のっているか つたえてみよう', icon:'🍕' });
+  }, 1300);
+}
+
+$('btn-finish').addEventListener('click', function(){
+  if(!makeStage.items.length){
+    sfx('wrong');
+    makeStage.msg('材料を いれてから おしてね。', true);
+    return;
+  }
+  if(curType === 'pizza') playBakeThenDone(); else playMixThenDone();
+});
+
+/* ============================================================
+   6. できあがり画面 + ほぞん(localStorage)
+   ============================================================ */
+var SAVE_KEY = 'g4u7_juice_pizza_makes';
+var savedThis = false;
+var store = (window.AppUI && AppUI.store) ? AppUI.store(SAVE_KEY) : {
+  get:function(d){ return d; }, set:function(){ return false; }, remove:function(){ return false; }
+};
+function loadSaved(){
+  var a = store.get([]);
+  return (a && a.length !== undefined) ? a : [];
+}
+function saveCreation(type, ids){
+  if(!ids.length) return;
+  var a = loadSaved();
+  a.unshift({ id:Date.now(), at:new Date().toISOString(), type:type, list:ids });
+  if(a.length > 12) a = a.slice(0,12);
+  store.set(a);
+}
+function fmtDate(iso){
+  try{
+    var d = new Date(iso);
+    return (d.getMonth()+1) + 'がつ' + d.getDate() + 'にち ' +
+           ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+  }catch(e){ return ''; }
+}
+function makeText(type, ids){
+  var byId = byIdFor(type);
+  var m = {};
+  ids.forEach(function(id){ m[id] = (m[id]||0) + 1; });
+  var parts = [];
+  poolFor(type).forEach(function(f){ if(m[f.id]) parts.push(phrase(f, m[f.id])); });
+  return parts.join(', ');
+}
+
+function showDone(){
+  var ids = makeStage.list();
+  paintVesselStatic($('done-vessel'), curType, ids);
+  var cs = makeStage.counts();
+  $('done-total').textContent = String(ids.length);
+  $('done-title').textContent = curType === 'pizza' ? '🎉 ピザ できあがり!' : '🎉 ジュース できあがり!';
+  $('done-head-icon').textContent = curType === 'pizza' ? '🍕' : '🧃';
+  $('btn-say-done').textContent = '🔊 This is my original ' + (curType === 'pizza' ? 'pizza' : 'juice') + '!';
+
+  var wrap = $('done-list');
+  wrap.innerHTML = '';
+  if(!cs.length){
+    var p = document.createElement('div');
+    p.className = 'j-empty-chip';
+    p.textContent = '材料が 入っていないよ。「つづきを つくる」から いれてみよう。';
+    wrap.appendChild(p);
+  }
+  cs.forEach(function(c){
+    var row = document.createElement('div');
+    row.className = 'j-ing-row';
+    var im = document.createElement('span');
+    im.className = 'j-ing-img';
+    var a = cardArt(c.f.img, c.f.emoji); a.classList.add('square');
+    im.appendChild(a);
+    row.appendChild(im);
+    var tx = document.createElement('span');
+    tx.className = 'j-ing-txt';
+    tx.textContent = phrase(c.f, c.n);
+    row.appendChild(tx);
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'j-say'; b.textContent = '🔊';
+    b.setAttribute('aria-label', phrase(c.f, c.n) + ' を 聞く');
+    b.addEventListener('click', function(){ sfx('tap'); say(phrase(c.f, c.n)); });
+    row.appendChild(b);
+    wrap.appendChild(row);
+  });
+
+  if(!savedThis && ids.length){
+    saveCreation(curType, ids);
+    savedThis = true;
+    $('save-note').textContent = '💾 つくった さくひんは この タブレットに ほぞんされたよ';
+  }else if(!ids.length){
+    $('save-note').textContent = '材料を いれると ほぞんできるよ';
+  }
+}
+$('btn-say-done').addEventListener('click', function(){
+  sfx('tap'); say('This is my original ' + (curType === 'pizza' ? 'pizza' : 'juice') + '!');
+});
+$('btn-reedit').addEventListener('click', function(){ sfx('tap'); go('make'); });
+$('btn-again').addEventListener('click', function(){ sfx('tap'); makeStage.clear(); savedThis = false; go('make'); });
+$('btn-to-saved').addEventListener('click', function(){ sfx('tap'); go('saved'); });
+$('btn-saved-juice').addEventListener('click', function(){ sfx('tap'); switchMakeType('juice'); go('make'); });
+$('btn-saved-pizza').addEventListener('click', function(){ sfx('tap'); switchMakeType('pizza'); go('make'); });
+
+/* ============================================================
+   7. きろく画面
+   ============================================================ */
+function renderSaved(){
+  var a = loadSaved();
+  var grid = $('saved-grid');
+  grid.innerHTML = '';
+  if(!a.length){
+    var p = document.createElement('p');
+    p.className = 'j-hint';
+    p.textContent = 'まだ きろくが ないよ。「ジュースを作る」「ピザを作る」から つくってみよう。';
+    grid.appendChild(p);
+    return;
+  }
+  a.forEach(function(rec){
+    var type = rec.type === 'pizza' ? 'pizza' : 'juice';
+    var card = document.createElement('div');
+    card.className = 'j-saved';
+
+    var badge = document.createElement('span');
+    badge.className = 'j-stype'; badge.textContent = type === 'pizza' ? '🍕' : '🧃';
+    card.appendChild(badge);
+
+    var del = document.createElement('button');
+    del.type = 'button'; del.className = 'j-sdel'; del.textContent = '✕';
+    del.setAttribute('aria-label','この きろくを けす');
+    del.addEventListener('click', function(){
+      var list = loadSaved().filter(function(x){ return x.id !== rec.id; });
+      store.set(list); sfx('tap'); renderSaved();
+    });
+    card.appendChild(del);
+
+    var vessel = document.createElement('div');
+    vessel.className = 'j-vessel';
+    card.appendChild(vessel);
+    paintVesselStatic(vessel, type, rec.list || []);
+
+    var t = document.createElement('div');
+    t.className = 'j-stxt'; t.textContent = makeText(type, rec.list || []);
+    card.appendChild(t);
+    var d = document.createElement('div');
+    d.className = 'j-sdate'; d.textContent = fmtDate(rec.at);
+    card.appendChild(d);
+
+    grid.appendChild(card);
+  });
+}
+
+/* ============================================================
+   8. お店やさんモード
+   ============================================================ */
+var order = [];          /* [{id,n}] */
+var orderShown = true;
+var score = 0;
+
+function switchShopType(type){
+  shopType = type;
+  shopStage.setPool(poolFor(type));
+  setVesselType(shopRefs, type);
+  updateLiquid(shopRefs, shopStage);
+  $('shop-type-juice').classList.toggle('on', type !== 'pizza');
+  $('shop-type-pizza').classList.toggle('on', type === 'pizza');
+  $('shop-pal-title').innerHTML = (type === 'pizza' ? '🍅 トッピング' : '🍎 くだもの') + ' <span class="app-chip g4">タップで いれる</span>';
+  resetJudge();
+  drawOrder();
+}
+$('shop-type-juice').addEventListener('click', function(){ if(shopType!=='juice'){ sfx('tap'); switchShopType('juice'); } });
+$('shop-type-pizza').addEventListener('click', function(){ if(shopType!=='pizza'){ sfx('tap'); switchShopType('pizza'); } });
+
+function drawOrder(){
+  var pool = shuffle(poolFor(shopType));
+  var kinds = Math.min(pool.length, 2 + Math.floor(Math.random()*2));   /* 2〜3しゅるい */
+  order = [];
+  for(var i=0;i<kinds;i++){
+    order.push({ id:pool[i].id, n:1 + Math.floor(Math.random()*3) });   /* 1〜3こ(uncountable は表示のみ無視) */
+  }
+  orderShown = true;
+  renderOrder();
+}
+function renderOrder(){
+  var grid = $('order-grid');
+  grid.innerHTML = '';
+  if(!orderShown){
+    var h = document.createElement('div');
+    h.className = 'j-hidebox';
+    h.innerHTML = '<span class="j-hideico">🙈</span><span>ちゅうもんカードは かくれています<br>おきゃくさんは 口で つたえよう</span>';
+    grid.appendChild(h);
+    $('btn-eye').textContent = '👀 見る';
+    $('order-eye').textContent = 'かくれています';
+    return;
+  }
+  $('btn-eye').textContent = '🙈 かくす';
+  $('order-eye').textContent = 'おきゃくさんだけ 見よう';
+  var byId = byIdFor(shopType);
+  order.forEach(function(o){
+    var f = byId[o.id];
+    if(!f) return;
+    var c = document.createElement('div');
+    c.className = 'j-ocard';
+    if(f.countable !== false){
+      var n = document.createElement('span');
+      n.className = 'j-on'; n.textContent = '×' + o.n;
+      c.appendChild(n);
+    }
+    c.appendChild(cardImg(f.img, f.emoji));
+    var w = document.createElement('div');
+    w.className = 'j-ow'; w.textContent = f.word;
+    c.appendChild(w);
+    grid.appendChild(c);
+  });
+}
+function resetJudge(){
+  $('judge').classList.add('app-hidden');
+  $('next-row').classList.add('app-hidden');
+  $('btn-ok').disabled = false;
+  $('btn-ng').disabled = false;
+  shopRefs.vessel.classList.remove('ok','ng');
+}
+$('btn-eye').addEventListener('click', function(){
+  orderShown = !orderShown; sfx('tap'); renderOrder();
+});
+$('btn-neworder').addEventListener('click', function(){
+  sfx('tap'); shopStage.clear(); resetJudge(); drawOrder();
+  shopStage.msg('');
+});
+$('btn-serve').addEventListener('click', function(){
+  if(!shopStage.items.length){
+    sfx('wrong');
+    shopStage.msg('まだ なにも 入っていないよ。ちゅうもんを 聞いて いれてみよう。', true);
+    return;
+  }
+  sfx('tap');
+  $('judge').classList.remove('app-hidden');
+  $('next-row').classList.add('app-hidden');
+  $('btn-ok').disabled = false;
+  $('btn-ng').disabled = false;
+  $('judge-sub').textContent = 'てんいんさんは "Here you are." と つたえよう。おきゃくさんが たしかめてね。';
+  shopStage.msg('');
+  try{ $('judge').scrollIntoView({ block:'center', behavior:'smooth' }); }catch(e){}
+});
+$('btn-ok').addEventListener('click', function(){
+  if($('btn-ok').disabled) return;
+  $('btn-ok').disabled = true;
+  $('btn-ng').disabled = true;
+  score++;
+  $('shop-score').textContent = String(score);
+  shopRefs.vessel.classList.remove('ng');
+  shopRefs.vessel.classList.add('ok');
+  orderShown = true; renderOrder();
+  sfx('correct');
+  celebrate({ title:'ちゅうもん どおり!', sub:'"Thank you." と つたえて こうたいしよう', icon:'🎉' });
+  $('next-row').classList.remove('app-hidden');
+  $('judge-sub').textContent = 'ちゅうもんカードを 出したよ。2人で たしかめてみよう。';
+});
+$('btn-ng').addEventListener('click', function(){
+  sfx('wrong');
+  shopRefs.vessel.classList.remove('ok');
+  shopRefs.vessel.classList.add('ng');
+  $('judge').classList.add('app-hidden');
+  shopStage.msg('おきゃくさん、もう いちど つたえてね。てんいんさんは なおそう。', true);
+  /* ゆらすのは メッセージだけ。うつわ本体を transform すると
+     乗算合成が こわれて 白い四角が 出てしまう。 */
+  var m = $('shop-msg');
+  m.classList.remove('app-anim-shake'); void m.offsetWidth; m.classList.add('app-anim-shake');
+  setTimeout(function(){ shopRefs.vessel.classList.remove('ng'); }, 900);
+});
+$('btn-next').addEventListener('click', function(){
+  sfx('tap'); shopStage.clear(); resetJudge(); drawOrder();
+});
+document.querySelectorAll('[data-say]').forEach(function(b){
+  b.addEventListener('click', function(){ sfx('tap'); say(b.getAttribute('data-say')); });
+});
+
+/* ------------------------------------------------------------
+   .j-vessel.ok / .ng の色づけ(お店やさん用。border-color だけなので
+   乗算合成には影響しない)
+   ------------------------------------------------------------ */
+var okNgStyle = document.createElement('style');
+okNgStyle.textContent =
+  '.j-vessel.ng{ border-color:#ffb3ab !important; box-shadow:0 16px 32px rgba(255,118,117,.28), inset 0 8px 22px rgba(255,255,255,.9); }' +
+  '.j-vessel.ok{ border-color:#8ce6c0 !important; }';
+document.head.appendChild(okNgStyle);
+
+/* ============================================================
+   9. つかいかた
+   ============================================================ */
+var HELP =
+  '<p><b>🧃🍕 ほしい材料を つたえあって、オリジナルの ジュースや ピザを つくる アプリだよ。</b></p>' +
+  '<p style="color:#e17055"><b>※ アプリは かってに 英語を しゃべりません。</b>🔊ボタンを おしたときだけ 聞こえます。ことばは じぶんの 口で 言ってみよう。</p>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🧃 ジュースを作る / 🍕 ピザを作る</h4>' +
+  '<ul>' +
+  '<li>材料カードを タップ → うつわに ぽとん と 入るよ</li>' +
+  '<li>うつわの 材料を タップすると もどせる。「↩️ ひとつ もどす」でも OK</li>' +
+  '<li>おなじ 材料を 2回 タップすると 2こに なるよ(two apples)</li>' +
+  '<li>「できた!」を おすと ミキサーが まざったり、ピザが やけたり するよ。そのあと しょうかい画面へ</li>' +
+  '</ul>' +
+  '<h4 style="margin:14px 0 4px;font-weight:800">🏪 お店やさん(2人ぐみ)</h4>' +
+  '<ul>' +
+  '<li>「🧃 ジュースやさん」「🍕 ピザやさん」を えらんでから はじめよう</li>' +
+  '<li>おきゃくさん…ちゅうもんカードを 見て、<b>じぶんの 口で</b> つたえる<br>' +
+  '<span style="color:#7f8c9b">(れい)Two apples, please. / I want cheese.</span></li>' +
+  '<li>見おわったら「🙈 かくす」を おすと てんいんさんに 見えないよ</li>' +
+  '<li>てんいんさん…聞いた 材料を うつわに いれて <b>Here you are.</b></li>' +
+  '<li>おきゃくさんが「⭕ あってた!」か「🔁 ちがうよ」を えらぶ</li>' +
+  '</ul>' +
+  '<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">' +
+  '💡 <b>先生へ:</b> ちゅうもんの 文も、できあがり画面の しょうかい文も、アプリは 読み上げません(言うのは 子どもです)。' +
+  '🔊は たんご・ていねいな 言い方の モデルとしてだけ つかってください。' +
+  'あっているか どうかは アプリではなく <b>おきゃくさん役の 子ども</b> が はんだんします。' +
+  'つたわらなかったときこそ、言いなおしたり ゆびさしたり する 学びの チャンスです。</div>';
+
+$('btn-help').addEventListener('click', function(){
+  sfx('tap');
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:'つかいかた' });
+});
+
+/* ============================================================
+   10. 画面きりかえ
+   ============================================================ */
+var SCREENS = { mode:'scr-mode', make:'scr-make', shop:'scr-shop', done:'scr-done', saved:'scr-saved' };
+var curScreen = 'mode';
+var shopInited = false;
+function go(name){
+  curScreen = name;
+  for(var k in SCREENS){
+    if(!Object.prototype.hasOwnProperty.call(SCREENS,k)) continue;
+    $(SCREENS[k]).classList.toggle('app-hidden', k !== name);
+  }
+  window.scrollTo(0,0);
+  if(name === 'done') showDone();
+  if(name === 'saved') renderSaved();
+  if(name === 'shop'){
+    if(!shopInited){ shopInited = true; drawOrder(); }
+    /* レイアウトが 変わっているので もりつけ位置を 計算しなおす */
+    shopStage.layout();
+  }
+  if(name === 'make') makeStage.layout();
+}
+$('mode-juice').addEventListener('click', function(){ sfx('tap'); switchMakeType('juice'); go('make'); });
+$('mode-pizza').addEventListener('click', function(){ sfx('tap'); switchMakeType('pizza'); go('make'); });
+$('mode-shop').addEventListener('click', function(){ sfx('tap'); go('shop'); });
+$('mode-saved').addEventListener('click', function(){ sfx('tap'); go('saved'); });
+$('btn-home').addEventListener('click', function(){ sfx('tap'); go('mode'); });
+
+/* ============================================================
+   11. 初期化
+   ============================================================ */
+switchMakeType('juice');
+go('mode');
+
+/* テスト・デバッグ用の状態フック(授業では使いません) */
+window.__jpState = function(){
+  return {
+    screen: curScreen,
+    curType: curType,
+    shopType: shopType,
+    make: makeStage.list(),
+    shop: shopStage.list(),
+    order: order.slice(),
+    orderShown: orderShown,
+    score: score,
+    saved: loadSaved().length
+  };
+};
 })();
 </script>
+
 </body>
 </html>
