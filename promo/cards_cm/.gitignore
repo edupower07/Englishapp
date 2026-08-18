@@ -1,0 +1,11 @@
+# すべて README.md の手順で再生成できるもの
+fonts/
+check/
+remotion/node_modules/
+remotion/package-lock.json
+remotion/out/
+remotion/public/fonts/
+remotion/public/shots/
+remotion/public/cards/
+remotion/public/audio/
+remotion/public/manifest.json
