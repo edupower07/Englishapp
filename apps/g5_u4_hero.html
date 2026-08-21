@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>マイヒーロー紹介ジェネレーター | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
@@ -137,45 +138,6 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🦸 マイヒーロー紹介ジェネレーター <span class="u">5年生 できること</span></h1>
@@ -260,11 +222,11 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
   <section id="step-quizshow" class="hidden">
     <div class="quiz-stage">
       <div class="quiz-q">
-        <h2>Who is this?</h2>
+        <h2>Who is this? <button type="button" class="big-btn blue" id="btn-who-say" style="min-height:44px;padding:6px 16px;font-size:.85rem">🔊 きく</button></h2>
         <div class="hints" id="hint-area"></div>
         <div id="reveal-area" class="hidden">
           <div class="reveal-photo" id="reveal-photo"></div>
-          <div class="reveal-line" id="reveal-line"></div>
+          <div class="reveal-line" id="reveal-line" data-say="reveal" title="タップで聞く"></div>
         </div>
       </div>
       <div class="actions">
@@ -279,6 +241,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
@@ -287,54 +250,40 @@ const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
 
 // 紹介する人物。pronoun: "He" / "She" / "I"(自分) / null(選択させる)
 const PEOPLE = [
-  { id:"father",      ja:"お父さん",     en:"my father",      img:"father.jpg",      emoji:"👨", pronoun:"He"  },
-  { id:"mother",      ja:"お母さん",     en:"my mother",      img:"mother.jpg",      emoji:"👩", pronoun:"She" },
-  { id:"brother",     ja:"お兄さん・弟", en:"my brother",     img:"brother.jpg",     emoji:"👦", pronoun:"He"  },
-  { id:"sister",      ja:"お姉さん・妹", en:"my sister",      img:"sister.jpg",      emoji:"👧", pronoun:"She" },
-  { id:"grandfather", ja:"おじいさん",   en:"my grandfather", img:"grandfather.jpg", emoji:"👴", pronoun:"He"  },
-  { id:"grandmother", ja:"おばあさん",   en:"my grandmother", img:"grandmother.jpg", emoji:"👵", pronoun:"She" },
-  { id:"friend",      ja:"友だち",       en:"my friend",      img:"friend.jpg",      emoji:"🧑‍🤝‍🧑", pronoun:null  },
-  { id:"teacher",     ja:"先生",         en:"my teacher",     img:"teacher.jpg",     emoji:"🧑‍🏫", pronoun:null  },
-  { id:"me",          ja:"じぶん",       en:"me",             img:"me.jpg",          emoji:"🙋", pronoun:"I"   },
+  { id:"father",           en:"my father",      img:"father.jpg",      emoji:"👨", pronoun:"He"  },
+  { id:"mother",           en:"my mother",      img:"mother.jpg",      emoji:"👩", pronoun:"She" },
+  { id:"brother",      en:"my brother",     img:"brother.jpg",     emoji:"👦", pronoun:"He"  },
+  { id:"sister",       en:"my sister",      img:"sister.jpg",      emoji:"👧", pronoun:"She" },
+  { id:"grandfather",    en:"my grandfather", img:"grandfather.jpg", emoji:"👴", pronoun:"He"  },
+  { id:"grandmother",    en:"my grandmother", img:"grandmother.jpg", emoji:"👵", pronoun:"She" },
+  { id:"friend",             en:"my friend",      img:"friend.jpg",      emoji:"🧑‍🤝‍🧑", pronoun:null  },
+  { id:"teacher",              en:"my teacher",     img:"teacher.jpg",     emoji:"🧑‍🏫", pronoun:null  },
+  { id:"me",                 en:"me",             img:"me.jpg",          emoji:"🙋", pronoun:"I"   },
 ];
 
 // できること(can + 動詞)
 const ABILITIES = [
-  { id:"swim",     en:"swim",              ja:"およぐ",           img:"swim.jpg",            emoji:"🏊" },
-  { id:"cook",     en:"cook well",         ja:"りょうりする",     img:"cook.jpg",            emoji:"🍳" },
-  { id:"dance",    en:"dance well",        ja:"ダンスする",       img:"dance.jpg",           emoji:"💃" },
-  { id:"sing",     en:"sing well",         ja:"歌う",             img:"sing well.jpg",       emoji:"🎤" },
-  { id:"runfast",  en:"run fast",          ja:"速く走る",         img:"run fast.jpg",        emoji:"🏃" },
-  { id:"piano",    en:"play the piano",    ja:"ピアノをひく",     img:"play the piano.jpg",  emoji:"🎹" },
-  { id:"guitar",   en:"play the guitar",   ja:"ギターをひく",     img:"play the guitar.jpg", emoji:"🎸" },
-  { id:"recorder", en:"play the recorder", ja:"リコーダーをふく", img:"play the recorder.jpg", emoji:"🎵" },
-  { id:"soccer",   en:"play soccer",       ja:"サッカーをする",   img:"play soccer.jpg",     emoji:"⚽" },
-  { id:"unicycle", en:"ride a unicycle",   ja:"一輪車にのる",     img:"ride a unicycle.jpg", emoji:"🚲" },
-  { id:"jumprope", en:"jump rope",         ja:"なわとびをする",   img:"jump rope.jpg",       emoji:"🤸" },
-  { id:"draw",     en:"draw well",         ja:"絵をかく",         img:"draw pictures.jpg",   emoji:"🎨" },
+  { id:"swim",     en:"swim",           img:"swim.jpg",            emoji:"🏊" },
+  { id:"cook",     en:"cook well",     img:"cook.jpg",            emoji:"🍳" },
+  { id:"dance",    en:"dance well",       img:"dance.jpg",           emoji:"💃" },
+  { id:"sing",     en:"sing well",             img:"sing well.jpg",       emoji:"🎤" },
+  { id:"runfast",  en:"run fast",         img:"run fast.jpg",        emoji:"🏃" },
+  { id:"piano",    en:"play the piano",     img:"play the piano.jpg",  emoji:"🎹" },
+  { id:"guitar",   en:"play the guitar",     img:"play the guitar.jpg", emoji:"🎸" },
+  { id:"recorder", en:"play the recorder", img:"play the recorder.jpg", emoji:"🎵" },
+  { id:"soccer",   en:"play soccer",   img:"play soccer.jpg",     emoji:"⚽" },
+  { id:"unicycle", en:"ride a unicycle",     img:"ride a unicycle.jpg", emoji:"🚲" },
+  { id:"jumprope", en:"jump rope",   img:"jump rope.jpg",       emoji:"🤸" },
+  { id:"draw",     en:"draw well",         img:"draw pictures.jpg",   emoji:"🎨" },
 ];
 
 // ============================================================
 // 音声
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
-}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 を押したときだけ。えらんだ・画面が変わった だけでは呼ばない。 */
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function sayAll(lines){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(lines.join(" ")); }catch(e){} }
 
 // ============================================================
 // 状態
@@ -396,7 +345,7 @@ $("ability-grid").addEventListener("click", e => {
     sel.cant.push(id);
     el.classList.remove("can"); el.classList.add("cant");
     el.querySelector(".mark").textContent = "×";
-    speak(a.en);
+    sfx("tap");
   }else if(sel.cant.includes(id)){                // can't → なし
     sel.cant = sel.cant.filter(x => x !== id);
     el.classList.remove("cant");
@@ -405,7 +354,7 @@ $("ability-grid").addEventListener("click", e => {
     sel.can.push(id);
     el.classList.add("can");
     el.querySelector(".mark").textContent = "○";
-    speak(a.en);
+    sfx("tap");
   }
   updateAbilityButtons();
 });
@@ -449,13 +398,13 @@ function showCard(){
   $("card-lines").innerHTML = lines.map((l,i) =>
     `<div class="hc-line ${l.cls}" data-i="${i}"><span class="spk">🔊</span>${l.t}</div>`).join("");
   show(["step-card"]);
-  speakQueue(lines.map(l => l.t));
+  /* できあがっても 読み上げない。まず 子どもが 自分の口で 言う */
 }
 $("card-lines").addEventListener("click", e => {
   const el = e.target.closest(".hc-line"); if(!el) return;
-  speak(buildSentences()[+el.dataset.i].t);
+  sfx("tap"); say(buildSentences()[+el.dataset.i].t);
 });
-$("btn-speak-all").addEventListener("click", () => speakQueue(buildSentences().map(l => l.t)));
+$("btn-speak-all").addEventListener("click", () => { sfx("tap"); sayAll(buildSentences().map(l => l.t)); });
 
 // ============================================================
 // 自分で言ってみよう(材料の提示のみ。紹介文はまだ見せない)
@@ -466,7 +415,6 @@ function showTry(){
   const cantIcons = sel.cant.map(id => `❌${ABILITIES.find(x=>x.id===id).emoji}`).join(" ");
   $("try-icons").innerHTML = `${sel.person.emoji}<br>${canIcons} ${cantIcons}`;
   show(["step-try"]);
-  speak(sel.person.id === "me" ? "This is me." : `This is ${sel.person.en}.`);
 }
 $("btn-make").addEventListener("click", showTry);
 $("btn-check").addEventListener("click", showCard);
@@ -481,7 +429,6 @@ function startQuizShow(){
   $("reveal-area").classList.add("hidden");
   $("btn-hint").disabled = false;
   show(["step-quizshow"]);
-  speak("Who is this?");
 }
 function quizHints(){
   const p = pron();
@@ -494,10 +441,10 @@ $("btn-hint").addEventListener("click", () => {
   if(quizHintIdx >= hints.length){ return; }
   const t = hints[quizHintIdx++];
   const div = document.createElement("div");
-  div.className = "hint-line"; div.textContent = `ヒント${quizHintIdx}: ${t}`;
-  div.addEventListener("click", () => speak(t));
+  div.className = "hint-line"; div.textContent = `🔊 ヒント${quizHintIdx}: ${t}`;
+  div.setAttribute("data-say", "hint");
+  div.addEventListener("click", () => { sfx("tap"); say(t); });
   $("hint-area").appendChild(div);
-  speak(t);
   if(quizHintIdx >= hints.length) $("btn-hint").disabled = true;
 });
 $("btn-reveal").addEventListener("click", () => {
@@ -505,7 +452,13 @@ $("btn-reveal").addEventListener("click", () => {
   const t = sel.person.id === "me" ? "This is me!" : `This is ${sel.person.en}!`;
   $("reveal-line").textContent = t;
   $("reveal-area").classList.remove("hidden");
-  speak(t);
+  sfx("fanfare");
+  try{ if(window.AppUI && AppUI.confetti) AppUI.confetti(); }catch(e){}
+});
+$("btn-who-say").addEventListener("click", function(){ sfx("tap"); say("Who is this?"); });
+$("reveal-line").addEventListener("click", function(){
+  var t = this.textContent.trim();
+  if(t){ sfx("tap"); say(t); }
 });
 $("btn-quiz").addEventListener("click", startQuizShow);
 $("btn-to-quiz").addEventListener("click", startQuizShow);

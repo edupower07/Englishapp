@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>道案内マップアプリ | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
@@ -151,45 +152,6 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🗺️ 道案内マップアプリ <span class="u">5年生 道案内</span></h1>
@@ -241,9 +203,10 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
           <div class="quest-img" id="quest-img">🧭</div>
           <div class="quest-text">
             <div class="en" id="quest-en">Where is the post office?</div>
-            <small id="quest-ja">ゆうびんきょくまで あんないしよう</small>
+            <small id="quest-ja">★から スタートして あんないしよう</small>
           </div>
-          <button class="nav-btn hidden" id="btn-peek" style="background:var(--blue);flex-shrink:0">👀 見る</button>
+          <button type="button" class="nav-btn" id="btn-quest-say" style="background:var(--blue);flex-shrink:0">🔊 きく</button>
+          <button class="nav-btn hidden" id="btn-peek" style="background:var(--teal);flex-shrink:0">👀 見る</button>
         </div>
         <div style="height:10px"></div>
         <div class="town">
@@ -284,6 +247,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
         <div class="program" id="program"></div>
         <div class="run-row" id="run-row">
           <button class="big-btn green" id="btn-run">▶ スタート!</button>
+          <button type="button" class="big-btn" id="btn-route-say" style="background:var(--blue)">🔊 この道案内を きく</button>
           <button class="big-btn gray" id="btn-clear">ぜんぶけす</button>
           <button class="big-btn green hidden" id="btn-arrived">🏁 ついた!</button>
           <button class="big-btn" id="btn-next" style="background:var(--blue)">つぎのお題 🎲</button>
@@ -297,6 +261,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)。マップは端末内に保存されます。</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
@@ -305,18 +270,18 @@ const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
 const W = 6, H = 6; // マップのマス数
 
 const BUILDINGS = [
-  { id:"post",    en:"post office",       ja:"ゆうびんきょく", img:"post office.jpg",       emoji:"🏣" },
-  { id:"hospital",en:"hospital",          ja:"びょういん",     img:"hospital.jpg",          emoji:"🏥" },
-  { id:"station", en:"station",           ja:"えき",           img:"station.jpg",           emoji:"🚉" },
-  { id:"park",    en:"park",              ja:"こうえん",       img:"park.jpg",              emoji:"🌳" },
-  { id:"super",   en:"supermarket",       ja:"スーパー",       img:"supermarket.jpg",       emoji:"🛒" },
-  { id:"library", en:"library",           ja:"としょかん",     img:"library.jpg",           emoji:"📚" },
-  { id:"school",  en:"school",            ja:"がっこう",       img:"school.jpg",            emoji:"🏫" },
-  { id:"police",  en:"police station",    ja:"けいさつしょ",   img:"police station.jpg",    emoji:"🚓" },
-  { id:"conv",    en:"convenience store", ja:"コンビニ",       img:"convenience store.jpg", emoji:"🏪" },
-  { id:"flower",  en:"flower shop",       ja:"はなや",         img:"flower shop.jpg",       emoji:"💐" },
-  { id:"rest",    en:"restaurant",        ja:"レストラン",     img:"restaurant.jpg",        emoji:"🍽️" },
-  { id:"fire",    en:"fire station",      ja:"しょうぼうしょ", img:"fire station.jpg",      emoji:"🚒" },
+  { id:"post",    en:"post office", img:"post office.jpg",       emoji:"🏣" },
+  { id:"hospital",en:"hospital",     img:"hospital.jpg",          emoji:"🏥" },
+  { id:"station", en:"station",           img:"station.jpg",           emoji:"🚉" },
+  { id:"park",    en:"park",       img:"park.jpg",              emoji:"🌳" },
+  { id:"super",   en:"supermarket",       img:"supermarket.jpg",       emoji:"🛒" },
+  { id:"library", en:"library",     img:"library.jpg",           emoji:"📚" },
+  { id:"school",  en:"school",       img:"school.jpg",            emoji:"🏫" },
+  { id:"police",  en:"police station",   img:"police station.jpg",    emoji:"🚓" },
+  { id:"conv",    en:"convenience store",       img:"convenience store.jpg", emoji:"🏪" },
+  { id:"flower",  en:"flower shop",         img:"flower shop.jpg",       emoji:"💐" },
+  { id:"rest",    en:"restaurant",     img:"restaurant.jpg",        emoji:"🍽️" },
+  { id:"fire",    en:"fire station", img:"fire station.jpg",      emoji:"🚒" },
 ];
 
 // はじめから入っているマップ(x,y は 0はじまり、y=0 が上)
@@ -332,24 +297,9 @@ const STORAGE_KEY = "g5_map_town_v1";
 // ============================================================
 // 音声
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
-}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 を押したときだけ呼ぶ。うごいた・ついた だけでは呼ばない。 */
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
 
 // ============================================================
 // 状態
@@ -487,7 +437,7 @@ $("block-btns").addEventListener("click", e => {
   const btn = e.target.closest(".block-btn"); if(!btn || running || mode === "guess") return;
   program.push(btn.dataset.b);
   drawProgram();
-  speak(BLOCK_INFO[btn.dataset.b].en);
+  sfx("tap");   /* 英語は読み上げない。聞きたいときは 🔊 をおす */
 });
 $("program").addEventListener("click", e => {
   const chip = e.target.closest(".p-chip"); if(!chip || running || mode === "guess") return;
@@ -512,7 +462,6 @@ async function run(){
   for(let i=0; i<program.length; i++){
     drawProgram(i);
     const b = program[i];
-    speak(BLOCK_INFO[b].en);
     if(b === "right"){ walker.dir = (walker.dir + 1) % 4; }
     else if(b === "left"){ walker.dir = (walker.dir + 3) % 4; }
     else{
@@ -539,11 +488,12 @@ function finishRun(){
     if(here && goal && here.id === goal.id){
       $("msg").textContent = `🎉 You made it! ${goal.en} にとうちゃく!`;
       $("msg").className = "msg ok";
-      speak(`You made it! This is the ${goal.en}.`);
+      sfx("correct");
+      try{ if(window.AppUI && AppUI.confetti) AppUI.confetti(); }catch(e){}
     }else{
       $("msg").textContent = here ? `ここは ${bOf(here.id).en} だった…もういちど!` : "なにもない場所についたよ…もういちど!";
       $("msg").className = "msg ng";
-      speak("Sorry! Try again!");
+      sfx("wrong");
     }
   }else if(mode === "guess"){
     const okPick = guessPick && here && guessPick === here.id;
@@ -552,7 +502,7 @@ function finishRun(){
         ? `⭕ せいかい!${bOf(here.id).en} にとうちゃく!`
         : `こたえは ${bOf(here.id).en} でした!${guessPick ? "" : "(よそうしてからスタートしてみよう)"}`;
       $("msg").className = okPick ? "msg ok" : "msg ng";
-      speak(`This is the ${bOf(here.id).en}.`);
+      sfx(okPick ? "correct" : "wrong");
     }else{
       $("msg").textContent = "どこにもつかなかった…";
       $("msg").className = "msg ng";
@@ -560,6 +510,18 @@ function finishRun(){
   }
 }
 $("btn-run").addEventListener("click", run);
+/* お題を 英語で 聞きなおす */
+$("btn-quest-say").addEventListener("click", function(){
+  var t = $("quest-en").textContent.trim();
+  if(!t) return;
+  sfx("tap"); say(t);
+});
+/* 組み立てた 道案内を まとめて 聞く(あんない役の お手本) */
+$("btn-route-say").addEventListener("click", function(){
+  if(!program.length) return;
+  sfx("tap");
+  say(program.map(function(b){ return BLOCK_INFO[b].en; }).join(" "));
+});
 
 // ============================================================
 // チャレンジ/あてっこ のお題
@@ -578,7 +540,6 @@ function newChallenge(){
   document.querySelectorAll(".cell").forEach(c => c.classList.remove("goal-flash"));
   const t = town.find(t => t.id === goal.id);
   $("grid").children[t.y * W + t.x].classList.add("goal-flash");
-  speak(`Where is the ${goal.en}?`);
 }
 function randomProgram(){
   // かならずどこかの建物につく道順を、ランダムに生成する
@@ -665,7 +626,8 @@ $("btn-arrived").addEventListener("click", () => {
   if(here && goal && here.id === goal.id){
     $("msg").textContent = `🎉 You made it! ${goal.en} にとうちゃく!`;
     $("msg").className = "msg ok";
-    speak(`You made it! This is the ${goal.en}.`);
+    sfx("correct");
+    try{ if(window.AppUI && AppUI.confetti) AppUI.confetti(); }catch(e){}
     const t = town.find(t => t.id === goal.id);
     $("grid").children[t.y * W + t.x].classList.add("goal-flash");
   }else{
@@ -699,7 +661,7 @@ $("grid").addEventListener("click", e => {
     if(editSel !== "erase"){
       town = town.filter(t => t.id !== editSel); // 同じ建物は1つだけ
       town.push({ id: editSel, x, y });
-      speak(bOf(editSel).en);
+      sfx("tap");
     }
     customTown = town; saveTown(); drawGrid();
   }else if(mode === "guess" && !running){
@@ -708,7 +670,7 @@ $("grid").addEventListener("click", e => {
     guessPick = b.id;
     $("msg").textContent = `よそう: ${bOf(b.id).en} ➡ スタートでたしかめよう!`;
     $("msg").className = "msg";
-    speak(`Is it the ${bOf(b.id).en}?`);
+    sfx("tap");
   }
 });
 

@@ -10,15 +10,36 @@
 
 ```
 index.html          ← ポータルサイト本体(アプリ一覧)
-cards.html          ← 絵カードライブラリ(859枚の検索・閲覧・保存)
-apps/               ← 各アプリ(単一HTMLファイル、全32本+Small Talk)
+cards.html          ← 絵カードライブラリ(862枚の検索・閲覧・保存)
+apps/               ← 各アプリ(単一HTMLファイル、全33本+Small Talk)
   smalltalk.html    ← Small Talk トレーナー(5・6年)
   g3_*.html         ← 3年生向けアプリ(8本)
-  g4_*.html         ← 4年生向けアプリ(8本)
+  g4_*.html         ← 4年生向けアプリ(9本)
   g5_*.html         ← 5年生向けアプリ(8本)
   g6_*.html         ← 6年生向けアプリ(8本)
 shared/             ← 共通デザインキット(app-ui.css / app-ui.js / demo.html)
+tools/              ← アプリ改修の受け入れ検査(check_app.py)
 ```
+
+## アプリ改修の受け入れ検査
+
+3年生から順に、各アプリを次の方針で改修しています。
+
+- **アプリは かってに 読み上げない**(🔊 を押したときだけ発音する)
+- 語彙カードに**日本語の訳を併記しない**
+- `shared/` の共通キットを使う(声の統一・効果音・絵カード)
+- カードを大きくする
+- 一人で完結する操作ではなく、**2人組の やりとり**(情報差のある活動)にする
+
+これを機械的に確かめるスクリプトが `tools/check_app.py` です。
+
+```bash
+python3 -m http.server 8000 &            # リポジトリのルートで
+pip install playwright                   # 初回のみ
+python3 tools/check_app.py apps/g5_u1_spelling.html   # 引数なしなら g5_*.html 全部
+```
+
+「押したときだけ鳴る」操作子には `data-say` 属性を付けてください(🔊 の文字がある要素は自動で除外されます)。この印が無い要素が発話すると不合格になります。
 
 アプリ一覧の表示は `index.html` 冒頭の `APPS` 配列で管理しています。アプリを追加したら `status: "live"` と `file` を設定してください。
 

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>季節と行事すごろく | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
@@ -120,45 +121,6 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🎲 季節と行事すごろく <span class="u">5年生 季節と行事</span></h1>
@@ -231,30 +193,35 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <footer>グループで1台でも、ひとりでも遊べます。お題の英語はタップすると読み上げます。</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
 // ============================================================
-const SEASONS = { spring:{en:"spring",ja:"春",emoji:"🌸"}, summer:{en:"summer",ja:"夏",emoji:"🌻"},
-                  fall:{en:"fall",ja:"秋",emoji:"🍁"}, winter:{en:"winter",ja:"冬",emoji:"⛄"} };
+const SEASONS = {
+  spring:{ en:"spring", img:"spring.jpg", emoji:"🌸" },
+  summer:{ en:"summer", img:"summer.jpg", emoji:"🌻" },
+  fall:  { en:"fall",   img:"fall.jpg",   emoji:"🍁" },
+  winter:{ en:"winter", img:"winter.jpg", emoji:"⛄" },
+};
 const EVENTS = [
-  { en:"the Doll Festival",     ja:"ひな祭り",   season:"spring", emoji:"🎎", act:{ en:"eat hina-arare",        ja:"ひなあられを食べる" } },
-  { en:"the Star Festival",     ja:"七夕",       season:"summer", emoji:"🎋", act:{ en:"make wishes",           ja:"ねがいごとをする" } },
-  { en:"a fireworks festival",  ja:"花火大会",   season:"summer", emoji:"🎆", act:{ en:"enjoy fireworks",       ja:"花火を楽しむ" } },
-  { en:"a summer festival",     ja:"夏祭り",     season:"summer", emoji:"🏮", act:{ en:"wear yukata",           ja:"ゆかたを着る" } },
-  { en:"Halloween",             ja:"ハロウィーン", season:"fall", emoji:"🎃", act:{ en:"enjoy costumes",        ja:"仮装を楽しむ" } },
-  { en:"New Year's Day",        ja:"お正月",     season:"winter", emoji:"🎍", act:{ en:"eat ozoni",             ja:"おぞうにを食べる" } },
-  { en:"Setsubun",              ja:"節分",       season:"winter", emoji:"👹", act:{ en:"throw beans",           ja:"豆まきをする" } },
-  { en:"a snow festival",       ja:"雪まつり",   season:"winter", emoji:"🏔️", act:{ en:"see snow statues",      ja:"雪像を見る" } },
-  { en:"Christmas",             ja:"クリスマス", season:"winter", emoji:"🎄", act:{ en:"eat cake",              ja:"ケーキを食べる" } },
+  { en:"the Doll Festival",    season:"spring", img:"the Doll Festival.jpg",    emoji:"🎎", act:{ en:"eat hina-arare" } },
+  { en:"the Star Festival",    season:"summer", img:"the Star Festival.jpg",    emoji:"🎋", act:{ en:"make wishes" } },
+  { en:"a fireworks festival", season:"summer", img:"a fireworks festival.jpg", emoji:"🎆", act:{ en:"enjoy fireworks" } },
+  { en:"a summer festival",    season:"summer", img:"a summer festival.jpg",    emoji:"🏮", act:{ en:"wear yukata" } },
+  { en:"Halloween",            season:"fall",   img:null,                        emoji:"🎃", act:{ en:"enjoy costumes" } },
+  { en:"New Year's Day",       season:"winter", img:"oshogatsu.jpg",             emoji:"🎍", act:{ en:"eat ozoni" } },
+  { en:"Setsubun",             season:"winter", img:"setsubun.jpg",              emoji:"👹", act:{ en:"throw beans" } },
+  { en:"a snow festival",      season:"winter", img:"a snow festival.jpg",       emoji:"🏔️", act:{ en:"see snow statues" } },
+  { en:"Christmas",            season:"winter", img:null,                        emoji:"🎄", act:{ en:"eat cake" } },
 ];
 const ACTIVITIES = [
-  { en:"eat special food", ja:"とくべつな料理を食べる" },
-  { en:"wear kimono",      ja:"着物を着る" },
-  { en:"enjoy games",      ja:"あそびを楽しむ" },
-  { en:"make wishes",      ja:"ねがいごとをする" },
-  { en:"see fireworks",    ja:"花火を見る" },
-  { en:"visit shrines",    ja:"神社に行く" },
+  { en:"eat special food" },
+  { en:"wear kimono" },
+  { en:"enjoy games" },
+  { en:"make wishes" },
+  { en:"see fireworks" },
+  { en:"visit shrines" },
 ];
 const PIECES = ["🔴","🔵","🟡","🟢"];
 const PNAMES = ["プレイヤー1","プレイヤー2","プレイヤー3","プレイヤー4"];
@@ -268,10 +235,10 @@ function makeBoard(){
     if(i % 5 === 0){ cells.push({ type:"lucky", label:"ラッキー!", emoji:"🍀" }); }
     else if(i % 3 === 0){
       const e = EVENTS[ev % EVENTS.length]; ev++;
-      cells.push({ type:"event", label:e.ja, emoji:e.emoji, event:e });
+      cells.push({ type:"event", label:e.en, emoji:e.emoji, event:e });
     }else{
       const s = seasonsOrder[i % 4];
-      cells.push({ type:"season", label:SEASONS[s].ja, emoji:SEASONS[s].emoji, season:s });
+      cells.push({ type:"season", label:SEASONS[s].en, emoji:SEASONS[s].emoji, season:s });
     }
   }
   cells.push({ type:"goal", label:"ゴール", emoji:"🏆" });
@@ -282,23 +249,12 @@ const BOARD = makeBoard();
 // ============================================================
 // 音声
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 を押したときだけ。マスに止まった・ゴールした だけでは呼ばない。 */
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function art(imgFile, emoji){
+  if(window.AppUI && AppUI.cardArt){ var el = AppUI.cardArt(imgFile, emoji); el.classList.add("art"); return el; }
+  var sp = document.createElement("span"); sp.className = "app-card-emoji"; sp.textContent = emoji || "❓"; return sp;
 }
 
 // ============================================================
@@ -380,7 +336,8 @@ function movePiece(n){
       <div class="task-btns"><button class="t-ok" id="btn-restart-game">もういちど</button></div>`;
     $("btn-dice").disabled = true;
     drawHud();
-    speak("You made it! Congratulations!");
+    sfx("fanfare");
+    try{ if(window.AppUI && AppUI.confetti) AppUI.confetti(); }catch(e){}
     $("btn-restart-game").addEventListener("click", startGame);
     rolling = false;
     return;
@@ -393,7 +350,7 @@ function showTask(cell){
     pts[turn]++;
     html = `<span class="te">🍀</span><span class="tt">ラッキー!+1pt<br>みんなで "Lucky!" と言おう</span>
       <div class="task-btns"><button class="t-ok" id="t-next">つぎの人へ ▶</button></div>`;
-    speak("Lucky!");
+    sfx("correct");
   }else if(cell.type === "season"){
     const s = SEASONS[cell.season];
     html = `<span class="te">${s.emoji}</span>
@@ -402,7 +359,6 @@ function showTask(cell){
         <button class="t-ok" id="t-ok">言えた!+1pt</button>
         <button class="t-pass" id="t-next">パス</button>
       </div>`;
-    speak(`What season do you like?`);
   }else if(cell.type === "event"){
     const e = cell.event;
     const s = SEASONS[e.season];
@@ -412,7 +368,6 @@ function showTask(cell){
         <button class="t-ok" id="t-ok">言えた!+1pt</button>
         <button class="t-pass" id="t-next">パス</button>
       </div>`;
-    speak(`We have ${e.en} in ${s.en}.`);
   }else{
     html = `<span class="te">🚩</span><span class="tt">スタート地点!</span>
       <div class="task-btns"><button class="t-ok" id="t-next">つぎの人へ ▶</button></div>`;
@@ -425,7 +380,7 @@ function showTask(cell){
   if(nextBtn) nextBtn.addEventListener("click", nextTurn);
 }
 $("task-box").addEventListener("click", e => {
-  const en = e.target.closest(".en"); if(en) speak(en.dataset.t);
+  const en = e.target.closest(".en"); if(en){ sfx("tap"); say(en.dataset.t); }
 });
 function nextTurn(){
   turn = (turn + 1) % playerCount;
@@ -441,7 +396,7 @@ let selEvent = null, selAct = null;
 function buildIntro(){
   selEvent = null; selAct = null;
   $("event-row").innerHTML = EVENTS.map((e,i) =>
-    `<button class="sel-chip" data-i="${i}">${e.emoji} ${e.ja}</button>`).join("");
+    `<button class="sel-chip" data-i="${i}">${e.emoji} ${e.en}</button>`).join("");
   $("act-row").innerHTML = "";
   $("intro-card").innerHTML = `<div class="ie">🗾</div><div style="font-weight:800;color:var(--sub)">行事をえらんでね</div>`;
 }
@@ -452,7 +407,7 @@ $("event-row").addEventListener("click", e => {
   document.querySelectorAll("#event-row .sel-chip").forEach(x => x.classList.toggle("on", x === b));
   const acts = [selEvent.act, ...ACTIVITIES];
   $("act-row").innerHTML = acts.map((a,i) =>
-    `<button class="sel-chip act ${i===0 ? "on" : ""}" data-i="${i}">${a.ja}</button>`).join("");
+    `<button class="sel-chip act ${i===0 ? "on" : ""}" data-i="${i}">${a.en}</button>`).join("");
   renderIntroCard();
 });
 $("act-row").addEventListener("click", e => {
@@ -475,11 +430,11 @@ function renderIntroCard(){
   if(!selEvent) return;
   $("intro-card").innerHTML = `<div class="ie">${selEvent.emoji}</div>` +
     introLines().map((t,i) => `<div class="intro-line" data-i="${i}">🔊 ${t}</div>`).join("");
-  speakQueue(introLines());
+  /* できあがっても 読み上げない。まず 子どもが 自分の口で 言う */
 }
 $("intro-card").addEventListener("click", e => {
   const el = e.target.closest(".intro-line"); if(!el || !selEvent) return;
-  speak(introLines()[+el.dataset.i]);
+  sfx("tap"); say(introLines()[+el.dataset.i]);
 });
 
 // ============================================================
