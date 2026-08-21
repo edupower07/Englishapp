@@ -3,349 +3,388 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>名前スペリング&自己紹介カードメーカー | 小学校外国語アプリポータル</title>
+<title>名前スペリング&自己紹介カード | 小学校外国語アプリポータル</title>
+<meta name="description" content="5年生 Unit 1「Hello, everyone.」自分の名前のつづりとすきなもので自己紹介カードをつくり、2人組でつづりを聞き取り合える小学校5年生向けアプリ。アプリは勝手に読み上げません。">
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
-  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
   --primary:#ff4757; --primary-dark:#d63447; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
-  min-height:100vh;touch-action:manipulation;
-}
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+main{max-width:960px;margin:0 auto;padding:16px 16px 72px}
+.step{max-width:760px;margin:0 auto 22px}
+.step-title{font-size:1.2rem;font-weight:800;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.step-title .no{background:var(--primary);color:#fff;border-radius:50px;padding:2px 14px;font-size:.9rem}
+.step-sub{color:#7f8c9b;font-weight:700;font-size:.86rem;margin-bottom:12px;line-height:1.8}
 
-/* 名前入力 */
-.name-box{max-width:520px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:20px;text-align:center}
+/* ---- 名前入力とスペル ---- */
+.name-box{background:#fff;border-radius:22px;box-shadow:0 4px 10px rgba(0,0,0,.08);padding:18px;text-align:center}
 .name-box input{
   width:100%;border:3px solid #e6ecf2;border-radius:16px;padding:14px;font-family:'Fredoka One',cursive;
-  font-size:1.6rem;text-align:center;letter-spacing:2px;color:var(--primary-dark);
+  font-size:1.7rem;text-align:center;letter-spacing:3px;color:var(--primary-dark);
 }
-.name-box .note{font-size:.78rem;color:var(--sub);font-weight:700;margin-top:8px;line-height:1.7}
-.spell-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:14px;min-height:56px}
+.spell-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px;min-height:64px}
 .spell-letter{
-  width:46px;height:52px;background:#fff;border:3px solid var(--yellow);border-radius:12px;
-  font-family:'Fredoka One',cursive;font-size:1.5rem;display:flex;align-items:center;justify-content:center;
-  color:var(--ink);cursor:pointer;transition:.15s;
+  width:56px;height:64px;background:#fff;border:4px solid var(--yellow);border-radius:14px;
+  font-family:'Fredoka One',cursive;font-size:1.9rem;display:flex;align-items:center;justify-content:center;
+  color:#2d3436;cursor:pointer;transition:.15s;
 }
-.spell-letter:hover{transform:translateY(-2px)}
-.spell-letter.lit{background:var(--yellow);transform:scale(1.15)}
-.actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
-}
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.blue{background:var(--blue)} .big-btn.gray{background:#b2bec3;color:#2d3436}
-.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+.spell-letter:hover{transform:translateY(-3px)}
+.spell-letter.lit{background:var(--yellow);transform:scale(1.16)}
 
-/* すきなもの選択 */
-.cat{max-width:720px;margin:0 auto 16px}
-.cat h3{font-size:.95rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.cat h3 .tag{font-size:.7rem;color:#fff;padding:3px 12px;border-radius:50px;background:var(--blue)}
-.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+/* ---- すきなもの ---- */
+.cat{margin-bottom:20px}
+.cat h3{font-size:1rem;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.cat h3 .tag{font-size:.72rem;color:#fff;padding:4px 14px;border-radius:50px;background:var(--blue);font-family:'Fredoka One',cursive}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px}
 .chip{
-  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
-  border:4px solid transparent;transition:.15s;min-height:104px;display:flex;flex-direction:column;justify-content:center;gap:3px;
+  background:#fff;border-radius:20px;padding:12px 10px;text-align:center;cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);border:5px solid transparent;transition:.15s;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
 }
 .chip:hover{transform:translateY(-3px)}
 .chip.on{border-color:var(--green);background:#effdf7}
-.chip .sw{width:40px;height:40px;border-radius:50%;margin:0 auto;border:3px solid #eee}
-.chip .cimg{width:50px;height:44px;margin:0 auto;display:flex;align-items:center;justify-content:center}
-.chip .cimg img{max-width:100%;max-height:100%;object-fit:contain}
-.chip .cemoji{font-size:1.9rem;line-height:1}
-.chip .clabel{font-weight:800;font-size:.7rem;line-height:1.2}
-.chip .clabel small{display:block;color:var(--sub);font-size:.6rem}
+.chip .art{width:100%;max-width:132px}
+.chip .sw{width:76px;height:76px;border-radius:50%;border:4px solid #eee}
+.chip .clabel{font-family:'Fredoka One',cursive;font-size:1.05rem;color:#2d3436;line-height:1.25}
 
-/* 名刺カード */
+/* ---- 名刺 ---- */
 .meishi{
-  max-width:520px;margin:0 auto;background:linear-gradient(135deg,#fff,#fff8f8);border-radius:22px;
-  box-shadow:var(--shadow-hover);border:5px solid var(--primary);overflow:hidden;
+  max-width:560px;margin:0 auto;background:#fff;border-radius:24px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);border:6px solid var(--primary);overflow:hidden;
 }
-.meishi-head{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;text-align:center;padding:10px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1rem}
-.meishi-body{padding:20px;text-align:center}
-.meishi-name{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--primary-dark);cursor:pointer}
-.meishi-spell{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--sub);letter-spacing:4px;margin-top:4px;cursor:pointer}
-.meishi-likes{display:flex;gap:14px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.ml-item{text-align:center;font-weight:800;font-size:.78rem;color:var(--sub)}
-.ml-item .big{font-size:2.4rem;display:block;line-height:1.2}
-.meishi-lines{margin-top:14px;text-align:left}
-.m-line{font-size:1.05rem;font-weight:800;padding:6px 10px;border-radius:10px;cursor:pointer}
-.m-line:hover{background:#fff0f1}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+.meishi-head{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.05rem}
+.meishi-body{padding:22px;text-align:center}
+.meishi-name{font-family:'Fredoka One',cursive;font-size:2.5rem;color:var(--primary-dark);line-height:1.2}
+.meishi-spell{font-family:'Fredoka One',cursive;font-size:1.15rem;color:#7f8c9b;letter-spacing:5px;margin-top:6px}
+.meishi-likes{display:flex;gap:16px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.ml-item{text-align:center;font-family:'Fredoka One',cursive;font-size:.9rem;color:#7f8c9b;width:104px}
+.ml-item .art{width:100%}
+.ml-item .sw{width:64px;height:64px;border-radius:50%;border:4px solid #eee;margin:0 auto}
+.meishi-lines{margin-top:18px;text-align:left;display:flex;flex-direction:column;gap:8px}
+.m-line{
+  display:flex;align-items:center;gap:10px;font-size:1.08rem;font-weight:800;
+  padding:10px 12px;border-radius:14px;background:#fff7f8;
+}
+.m-line .say{
+  flex:none;border:none;background:var(--blue);color:#fff;border-radius:50px;
+  min-width:52px;min-height:44px;font-size:1rem;cursor:pointer;font-family:inherit;
+}
+.m-line .txt{font-family:'Fredoka One',cursive;font-weight:400;letter-spacing:.5px}
+
+/* ---- クイズ ---- */
+.quiz-wrap{max-width:760px;margin:0 auto}
+.role{
+  border-radius:22px;padding:16px;margin-bottom:14px;box-shadow:0 4px 10px rgba(0,0,0,.08);background:#fff;
+  border:5px solid #e6ecf2;
+}
+.role.teller{border-color:var(--yellow);background:#fffdf3}
+.role.writer{border-color:var(--blue);background:#f5f6ff}
+.role h3{font-size:1rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.role .who{font-size:.72rem;color:#fff;background:#636e72;border-radius:50px;padding:3px 12px}
+.role p.hint{font-size:.82rem;font-weight:700;color:#7f8c9b;line-height:1.8;margin-top:6px}
+.target{
+  font-family:'Fredoka One',cursive;font-size:2.6rem;text-align:center;letter-spacing:6px;
+  color:var(--primary-dark);padding:14px;min-height:86px;display:flex;align-items:center;justify-content:center;
+  background:#fff;border-radius:16px;border:4px dashed var(--yellow);word-break:break-all;
+}
+.target.masked{color:transparent;text-shadow:0 0 22px rgba(214,52,71,.55);user-select:none}
+.answer-input{
+  width:100%;border:4px solid #dfe6ec;border-radius:16px;padding:14px;font-family:'Fredoka One',cursive;
+  font-size:1.6rem;text-align:center;letter-spacing:4px;color:#2d3436;
+}
+.judge{text-align:center;font-weight:800;font-size:1.15rem;min-height:34px;margin-top:10px}
+.judge.ok{color:#0f9d58} .judge.ng{color:#d63447}
+.score{
+  display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-weight:800;color:#7f8c9b;font-size:.9rem;
+  margin-bottom:12px;
+}
+.score b{color:var(--primary-dark);font-size:1.2rem}
+.deck-pick{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
 @media print{
-  header,.actions,footer,.step-title,.step-sub{display:none!important}
+  .app-header,.app-btn-row,footer,.step-title,.step-sub,#scr-home,#scr-quiz{display:none!important}
   body{background:#fff}
-  .meishi{box-shadow:none}
+  .meishi{box-shadow:none;border-color:#888}
 }
 </style>
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🪪 名前スペリング&自己紹介カード <span class="u">5年生 自己紹介</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-restart">さいしょから</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🪪 名前スペリング&自己紹介カード <span class="app-unit">5年 Unit 1</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-nav-btn" id="btn-help">❓ 使い方</button>
+    <button type="button" class="app-nav-btn" id="btn-home">モードをかえる</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- STEP1 名前 -->
-  <section id="scr-name">
-    <h2 class="step-title">① 名前をローマ字で入れよう</h2>
-    <p class="step-sub">How do you spell your name? — 1文字ずつ読み上げてくれるよ</p>
-    <div class="name-box">
-      <input type="text" id="name-input" placeholder="SATOSHI" maxlength="15" autocomplete="off">
-      <div class="note">アルファベットで入力してね(れい:SATOSHI / YUI)。文字をタップすると1文字だけ聞けるよ</div>
-      <div class="spell-row" id="spell-row"></div>
-      <div class="actions">
-        <button class="big-btn blue" id="btn-spell" disabled>🔊 スペルアウトを聞く</button>
-        <button class="big-btn" id="btn-to-likes" disabled>つぎへ ▶</button>
-      </div>
+  <!-- ============ ホーム ============ -->
+  <section id="scr-home">
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card pink" id="mode-card">
+        <span class="app-mode-icon">🪪</span>
+        <span class="app-mode-title">じぶんの カードを つくる</span>
+        <span class="app-mode-sub">名前の つづりと すきなもので<br>自己紹介カードを つくろう</span>
+      </button>
+      <button type="button" class="app-mode-card blue" id="mode-quiz">
+        <span class="app-mode-icon">🎧</span>
+        <span class="app-mode-title">スペリングクイズ（2人ぐみ）</span>
+        <span class="app-mode-sub">つづりを 口で つたえて<br>相手が 打ちこむ</span>
+      </button>
     </div>
+    <p class="app-center" style="margin-top:18px;font-weight:700;color:#7f8c9b;font-size:.86rem;line-height:1.9">
+      🔊は じぶんが 聞きたいときだけ おしてね。<br>アプリは かってに しゃべらないよ。
+    </p>
   </section>
 
-  <!-- STEP2 すきなもの -->
-  <section id="scr-likes" class="hidden">
-    <h2 class="step-title">② すきなものをえらぼう</h2>
-    <p class="step-sub">色・スポーツ・食べものから1つずつ</p>
-    <div class="cat"><h3><span class="tag">Color</span>すきな色</h3><div class="chips" id="chips-color"></div></div>
-    <div class="cat"><h3><span class="tag">Sport</span>すきなスポーツ</h3><div class="chips" id="chips-sport"></div></div>
-    <div class="cat"><h3><span class="tag">Food</span>すきな食べもの</h3><div class="chips" id="chips-food"></div></div>
-    <div class="actions">
-      <button class="big-btn" id="btn-make" disabled>名刺カードをつくる ✨</button>
-      <button class="big-btn gray" id="btn-back-name">名前にもどる</button>
-    </div>
-  </section>
+  <!-- ============ カードづくり ============ -->
+  <section id="scr-card" class="app-hidden">
 
-  <!-- STEP3 名刺 -->
-  <section id="scr-card" class="hidden">
-    <h2 class="step-title">③ かんせい!</h2>
-    <p class="step-sub">タップすると読み上げます。発表練習に使ってね</p>
-    <div class="meishi">
-      <div class="meishi-head">NICE TO MEET YOU!</div>
-      <div class="meishi-body">
-        <div class="meishi-name" id="card-name"></div>
-        <div class="meishi-spell" id="card-spell"></div>
-        <div class="meishi-likes" id="card-likes"></div>
-        <div class="meishi-lines" id="card-lines"></div>
+    <div class="step">
+      <h2 class="step-title"><span class="no">1</span>名前を ローマ字で 入れよう</h2>
+      <p class="step-sub">How do you spell your name? — 文字を タップすると その1文字だけ 聞けるよ。</p>
+      <div class="name-box">
+        <input type="text" id="name-input" placeholder="SATOSHI" maxlength="15" autocomplete="off" aria-label="名前をローマ字で入力">
+        <div class="spell-row" id="spell-row"></div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn blue" id="btn-spell" disabled>🔊 スペルを きく</button>
+        </div>
       </div>
     </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-speak-card">🔊 ぜんぶ読み上げ(発表練習)</button>
-      <button class="big-btn blue" id="btn-print">🖨️ 印刷</button>
-      <button class="big-btn gray" id="btn-back-likes">えらびなおす</button>
+
+    <div class="step" id="step-likes">
+      <h2 class="step-title"><span class="no">2</span>すきなものを えらぼう</h2>
+      <p class="step-sub">色・スポーツ・食べものから 1つずつ。えらんでも アプリは しゃべらないよ。まず じぶんの口で <b>I like ~.</b> と 言ってみよう。</p>
+      <div class="cat"><h3><span class="tag">Color</span>すきな色</h3><div class="chips" id="chips-color"></div></div>
+      <div class="cat"><h3><span class="tag">Sport</span>すきなスポーツ</h3><div class="chips" id="chips-sport"></div></div>
+      <div class="cat"><h3><span class="tag">Food</span>すきな食べもの</h3><div class="chips" id="chips-food"></div></div>
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn" id="btn-make" disabled>カードを つくる ✨</button>
+      </div>
+    </div>
+
+    <div class="step app-hidden" id="step-done">
+      <h2 class="step-title"><span class="no">3</span>かんせい！</h2>
+      <p class="step-sub">まず じぶんの口で 言ってみよう → 🔊で たしかめよう。発表の練習に つかってね。</p>
+      <div class="meishi" id="meishi">
+        <div class="meishi-head">NICE TO MEET YOU!</div>
+        <div class="meishi-body">
+          <div class="meishi-name" id="card-name"></div>
+          <div class="meishi-spell" id="card-spell"></div>
+          <div class="meishi-likes" id="card-likes"></div>
+          <div class="meishi-lines" id="card-lines"></div>
+        </div>
+      </div>
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn blue" id="btn-print">🖨️ 印刷</button>
+        <button type="button" class="app-big-btn gray" id="btn-again">えらび直す</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ スペリングクイズ ============ -->
+  <section id="scr-quiz" class="app-hidden">
+    <div class="quiz-wrap">
+      <h2 class="step-title"><span class="no">🎧</span>スペリングクイズ（2人ぐみ）</h2>
+      <p class="step-sub">
+        <b>出す人</b>は お題を見て、アルファベットを 1文字ずつ 口で 言います（<b>“How do you spell it?” “E-M-M-A.”</b>）。<br>
+        <b>打つ人</b>は 画面を 見ないで 聞き、聞こえたとおりに 打ちこみます。
+      </p>
+
+      <div class="score">
+        <span>出した問題 <b id="sc-total">0</b></span>
+        <span>せいかい <b id="sc-ok">0</b></span>
+        <span>れんぞく <b id="sc-combo">0</b></span>
+      </div>
+
+      <div class="deck-pick">
+        <button type="button" class="app-big-btn sm" id="btn-deck-names">英語の名前で やる</button>
+        <button type="button" class="app-big-btn sm blue" id="btn-deck-mine">じぶんの名前で やる</button>
+      </div>
+
+      <div class="role teller">
+        <h3><span class="who">出す人</span>お題（打つ人には 見せない）</h3>
+        <div class="target" id="quiz-target">＿</div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm yellow" id="btn-mask">🙈 かくす</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-next">つぎの お題 ▶</button>
+        </div>
+        <p class="hint">お題は かくれています。<b>👀 見る</b>を おすと 4秒だけ 見えて、すぐ また かくれます。<br>出す人だけが 見て、あとは 口で つたえてね。</p>
+      </div>
+
+      <div class="role writer">
+        <h3><span class="who">打つ人</span>聞こえた とおりに 打とう</h3>
+        <input type="text" id="quiz-answer" class="answer-input" placeholder="＿＿＿＿" maxlength="18" autocomplete="off" aria-label="聞こえたつづりを入力">
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn green" id="btn-check">こたえあわせ ⭕</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-clear">けす</button>
+        </div>
+        <div class="judge" id="quiz-judge"></div>
+        <div class="app-btn-row app-hidden" id="quiz-after">
+          <button type="button" class="app-big-btn sm blue" id="btn-quiz-say">🔊 お手本を きく</button>
+        </div>
+      </div>
     </div>
   </section>
 
 </main>
 
-<footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)</footer>
+<footer class="app-center" style="padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700">
+  Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
+</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
-// ============================================================
-// データ(教師向け:ここを書きかえると選択肢を変更できます)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
-
+/* ============================================================
+   データ(先生向け:ここを書きかえると選択肢を変えられます)
+   ============================================================ */
 const COLORS = [
-  { en:"red",    ja:"赤",       hex:"#e74c3c" },
-  { en:"blue",   ja:"青",       hex:"#3498db" },
-  { en:"yellow", ja:"黄",       hex:"#f1c40f" },
-  { en:"green",  ja:"緑",       hex:"#2ecc71" },
-  { en:"pink",   ja:"ピンク",   hex:"#ff9ff3" },
-  { en:"purple", ja:"むらさき", hex:"#9b59b6" },
-  { en:"black",  ja:"黒",       hex:"#2d3436" },
-  { en:"orange", ja:"オレンジ", hex:"#e67e22" },
+  { en:"red",    hex:"#e74c3c" },
+  { en:"blue",   hex:"#3498db" },
+  { en:"yellow", hex:"#f1c40f" },
+  { en:"green",  hex:"#2ecc71" },
+  { en:"pink",   hex:"#ff9ff3" },
+  { en:"purple", hex:"#9b59b6" },
+  { en:"black",  hex:"#2d3436" },
+  { en:"orange", hex:"#e67e22" },
 ];
 const SPORTS = [
-  { en:"soccer",     ja:"サッカー", img:"soccer.jpg",     emoji:"⚽" },
-  { en:"baseball",   ja:"野球",     img:"baseball.jpg",   emoji:"⚾" },
-  { en:"basketball", ja:"バスケ",   img:"basketball.jpg", emoji:"🏀" },
-  { en:"tennis",     ja:"テニス",   img:"tennis.jpg",     emoji:"🎾" },
-  { en:"swimming",   ja:"水泳",     img:"swimming.jpg",   emoji:"🏊" },
-  { en:"dodgeball",  ja:"ドッジ",   img:"dodgeball.jpg",  emoji:"🤾" },
+  { en:"soccer",     img:"soccer.jpg",     emoji:"⚽" },
+  { en:"baseball",   img:"baseball.jpg",   emoji:"⚾" },
+  { en:"basketball", img:"basketball.jpg", emoji:"🏀" },
+  { en:"tennis",     img:"tennis.jpg",     emoji:"🎾" },
+  { en:"swimming",   img:"swimming.jpg",   emoji:"🏊" },
+  { en:"dodgeball",  img:"dodgeball.jpg",  emoji:"🤾" },
 ];
 const FOODS = [
-  { en:"pizza",          ja:"ピザ",       img:"pizza.jpg",          emoji:"🍕" },
-  { en:"sushi",          ja:"すし",       img:null,                 emoji:"🍣" },
-  { en:"curry and rice", ja:"カレー",     img:"curry and rice.jpg", emoji:"🍛" },
-  { en:"ramen",          ja:"ラーメン",   img:"ramen.jpg",          emoji:"🍜" },
-  { en:"ice cream",      ja:"アイス",     img:"ice cream.jpg",      emoji:"🍦" },
-  { en:"hamburgers",     ja:"ハンバーガー", img:"hamburger.jpg",    emoji:"🍔" },
+  { en:"pizza",          img:"pizza.jpg",          emoji:"🍕" },
+  { en:"sushi",          img:"sushi.jpg",          emoji:"🍣" },
+  { en:"curry and rice", img:"curry and rice.jpg", emoji:"🍛" },
+  { en:"ramen",          img:"ramen.jpg",          emoji:"🍜" },
+  { en:"ice cream",      img:"ice cream.jpg",      emoji:"🍦" },
+  { en:"hamburgers",     img:"hamburger.jpg",      emoji:"🍔" },
+];
+/* クイズのお題。実在のクラスメイトの名前を使わなくても遊べるように用意している */
+const NAME_DECK = [
+  "EMMA","OLIVER","SOPHIA","LUCAS","MIA","NOAH","AVA","LIAM",
+  "CHLOE","ETHAN","HANNAH","JACOB","OLIVIA","BENJAMIN","ZOE","DANIEL",
 ];
 
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
-}
-
-// ============================================================
-// 状態
-// ============================================================
-let name = "";
-let sel = { color:null, sport:null, food:null };
+/* ============================================================
+   共通
+   ============================================================ */
 const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-name","scr-likes","scr-card"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は必ず 🔊 を押したときだけ呼ぶこと。自動では呼ばない。 */
+function say(text, opts){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, opts); }catch(e){} }
+function art(imgFile, emoji){
+  if(window.AppUI && AppUI.cardArt){
+    const el = AppUI.cardArt(imgFile, emoji);
+    el.classList.add("art");
+    return el;
+  }
+  const s = document.createElement("span");
+  s.className = "app-card-emoji"; s.textContent = emoji || "❓";
+  return s;
 }
-function cleanName(){ return name.replace(/[^a-zA-Z]/g, "").toUpperCase(); }
+/* アルファベットを1文字ずつ読ませるための文字列(S, A, T, ...) */
+function spellText(word){ return word.split("").join(", "); }
 
-// ============================================================
-// STEP1 名前・スペルアウト
-// ============================================================
-$("name-input").addEventListener("input", e => {
-  name = e.target.value;
-  const n = cleanName();
+const SCREENS = { home:"scr-home", card:"scr-card", quiz:"scr-quiz" };
+function show(name){
+  Object.keys(SCREENS).forEach(k => $(SCREENS[k]).classList.toggle("app-hidden", k !== name));
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+/* ============================================================
+   カードづくり
+   ============================================================ */
+let sel = { color:null, sport:null, food:null };
+function rawName(){ return ($("name-input").value || "").replace(/[^a-zA-Z]/g, "").toUpperCase(); }
+function displayName(){
+  const n = rawName();
+  return n ? n.charAt(0) + n.slice(1).toLowerCase() : "";
+}
+
+$("name-input").addEventListener("input", () => {
+  const n = rawName();
+  /* data-say は「押したときだけ鳴る操作子」の目印。
+     受け入れ検査はこの印が無い要素が発話したら不合格にする。 */
   $("spell-row").innerHTML = n.split("").map((L,i) =>
-    `<div class="spell-letter" data-i="${i}" data-l="${L}">${L}</div>`).join("");
+    `<button type="button" class="spell-letter" data-say="letter" data-i="${i}" data-l="${L}"
+       aria-label="${L} を聞く">${L}</button>`).join("");
   $("btn-spell").disabled = n.length === 0;
-  $("btn-to-likes").disabled = n.length === 0;
+  refreshMakeBtn();
 });
+/* 1文字だけ聞く(押したときだけ) */
 $("spell-row").addEventListener("click", e => {
   const el = e.target.closest(".spell-letter"); if(!el) return;
   el.classList.add("lit");
-  setTimeout(() => el.classList.remove("lit"), 500);
-  speak(el.dataset.l);
+  setTimeout(() => el.classList.remove("lit"), 480);
+  say(el.dataset.l);
 });
+/* 通しでスペルを聞く(押したときだけ) */
 $("btn-spell").addEventListener("click", () => {
-  const n = cleanName();
-  try{ speechSynthesis.cancel(); }catch(e){}
+  const n = rawName(); if(!n) return;
+  sfx("tap");
+  const letters = [...document.querySelectorAll(".spell-letter")];
   n.split("").forEach((L,i) => {
     setTimeout(() => {
-      document.querySelectorAll(".spell-letter").forEach((el,j) => el.classList.toggle("lit", j === i));
-      try{
-        const u = new SpeechSynthesisUtterance(L);
-        u.lang = "en-US"; u.rate = 0.8;
-        speechSynthesis.speak(u);
-      }catch(e){}
-    }, i * 750);
+      letters.forEach((el,j) => el.classList.toggle("lit", j === i));
+      say(L);
+    }, i * 780);
   });
-  setTimeout(() => document.querySelectorAll(".spell-letter").forEach(el => el.classList.remove("lit")), n.length * 750 + 700);
+  setTimeout(() => letters.forEach(el => el.classList.remove("lit")), n.length * 780 + 600);
 });
-$("btn-to-likes").addEventListener("click", () => { buildChips(); show("scr-likes"); });
 
-// ============================================================
-// STEP2 すきなもの
-// ============================================================
 const CATS = [
   { key:"color", elId:"chips-color", list:COLORS },
   { key:"sport", elId:"chips-sport", list:SPORTS },
   { key:"food",  elId:"chips-food",  list:FOODS },
 ];
-function chipHTML(item){
-  let visual;
-  if(item.hex){
-    visual = `<div class="sw" style="background:${item.hex};${item.en==="black"?"":item.hex==="#ffffff"?"border-color:#ccc":""}"></div>`;
-  }else if(item.img){
-    visual = `<div class="cimg"><img src="${IMG_BASE + encodeURIComponent(item.img)}" alt="${item.en}"
-      onerror="this.outerHTML='<span class=&quot;cemoji&quot;>${item.emoji}</span>'"></div>`;
-  }else{
-    visual = `<span class="cemoji">${item.emoji}</span>`;
-  }
-  return `<div class="chip" data-en="${item.en}">${visual}<div class="clabel">${item.en}</div></div>`;
-}
 function buildChips(){
-  CATS.forEach(c => { $(c.elId).innerHTML = c.list.map(chipHTML).join(""); });
+  CATS.forEach(c => {
+    const box = $(c.elId);
+    box.innerHTML = "";
+    c.list.forEach(item => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.dataset.en = item.en;
+      if(item.hex){
+        const sw = document.createElement("span");
+        sw.className = "sw"; sw.style.background = item.hex;
+        b.appendChild(sw);
+      }else{
+        b.appendChild(art(item.img, item.emoji));
+      }
+      const lb = document.createElement("span");
+      lb.className = "clabel"; lb.textContent = item.en;
+      b.appendChild(lb);
+      box.appendChild(b);
+    });
+  });
+}
+function refreshMakeBtn(){
+  $("btn-make").disabled = !(rawName() && sel.color && sel.sport && sel.food);
 }
 CATS.forEach(c => {
   $(c.elId).addEventListener("click", e => {
     const el = e.target.closest(".chip"); if(!el) return;
-    sel[c.key] = c.list.find(x => x.en === el.dataset.en);
+    sel[c.key] = c.list.find(x => x.en === el.dataset.en) || null;
     $(c.elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === el));
-    speak(`I like ${sel[c.key].en}.`);
-    $("btn-make").disabled = !(sel.color && sel.sport && sel.food);
+    sfx("tap");           /* 効果音だけ。英語は読み上げない */
+    refreshMakeBtn();
   });
 });
-$("btn-back-name").addEventListener("click", () => show("scr-name"));
 
-// ============================================================
-// STEP3 名刺
-// ============================================================
-function displayName(){
-  const n = cleanName();
-  return n.charAt(0) + n.slice(1).toLowerCase();
-}
 function cardLines(){
+  if(!(sel.color && sel.sport && sel.food)) return [];
   return [
-    `Hello! I'm ${displayName()}.`,
-    `${cleanName().split("").join(", ")}. ${displayName()}!`,
+    `Hello. I'm ${displayName()}.`,
+    `${rawName().split("").join("-")}. ${displayName()}.`,
     `I like ${sel.color.en}.`,
     `I like ${sel.sport.en}.`,
     `I like ${sel.food.en}.`,
@@ -353,72 +392,192 @@ function cardLines(){
   ];
 }
 $("btn-make").addEventListener("click", () => {
+  if($("btn-make").disabled) return;
+  sfx("pop");
   $("card-name").textContent = displayName();
-  $("card-spell").textContent = cleanName().split("").join(" - ");
-  $("card-likes").innerHTML = `
-    <div class="ml-item"><span class="big"><span style="display:inline-block;width:36px;height:36px;border-radius:50%;background:${sel.color.hex};border:3px solid #eee"></span></span>${sel.color.en}</div>
-    <div class="ml-item"><span class="big">${sel.sport.emoji}</span>${sel.sport.en}</div>
-    <div class="ml-item"><span class="big">${sel.food.emoji}</span>${sel.food.en}</div>`;
-  $("card-lines").innerHTML = cardLines().map((t,i) =>
-    `<div class="m-line" data-i="${i}">🔊 ${t}</div>`).join("");
-  show("scr-card");
-  speakQueue(cardLines());
+  $("card-spell").textContent = rawName().split("").join(" - ");
+
+  const likes = $("card-likes");
+  likes.innerHTML = "";
+  [
+    { item:sel.color, isColor:true },
+    { item:sel.sport },
+    { item:sel.food },
+  ].forEach(({ item, isColor }) => {
+    const d = document.createElement("div");
+    d.className = "ml-item";
+    if(isColor){
+      const sw = document.createElement("span");
+      sw.className = "sw"; sw.style.background = item.hex;
+      d.appendChild(sw);
+    }else{
+      d.appendChild(art(item.img, item.emoji));
+    }
+    const t = document.createElement("div");
+    t.textContent = item.en;
+    d.appendChild(t);
+    likes.appendChild(d);
+  });
+
+  const lines = $("card-lines");
+  lines.innerHTML = "";
+  cardLines().forEach(text => {
+    const row = document.createElement("div");
+    row.className = "m-line";
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "say"; b.textContent = "🔊";
+    b.setAttribute("aria-label", "この文を聞く");
+    b.addEventListener("click", () => { sfx("tap"); say(text); });
+    const t = document.createElement("span");
+    t.className = "txt"; t.textContent = text;
+    row.appendChild(b); row.appendChild(t);
+    lines.appendChild(row);
+  });
+
+  $("step-done").classList.remove("app-hidden");
+  /* できあがっても読み上げない。まず子どもが自分の口で言う。 */
+  $("step-done").scrollIntoView({ behavior:"smooth", block:"start" });
 });
-$("card-lines").addEventListener("click", e => {
-  const el = e.target.closest(".m-line"); if(!el) return;
-  speak(cardLines()[+el.dataset.i]);
-});
-$("card-name").addEventListener("click", () => speak(`I'm ${displayName()}.`));
-$("card-spell").addEventListener("click", () => speak(cleanName().split("").join(", ")));
-$("btn-speak-card").addEventListener("click", () => speakQueue(cardLines()));
 $("btn-print").addEventListener("click", () => window.print());
-$("btn-back-likes").addEventListener("click", () => show("scr-likes"));
-
-// ============================================================
-// ナビゲーション
-// ============================================================
-$("btn-restart").addEventListener("click", () => {
-  name = ""; sel = { color:null, sport:null, food:null };
-  $("name-input").value = ""; $("spell-row").innerHTML = "";
-  $("btn-spell").disabled = true; $("btn-to-likes").disabled = true; $("btn-make").disabled = true;
-  try{ speechSynthesis.cancel(); }catch(e){}
-  show("scr-name");
+$("btn-again").addEventListener("click", () => {
+  $("step-done").classList.add("app-hidden");
+  $("step-likes").scrollIntoView({ behavior:"smooth", block:"start" });
 });
 
-show("scr-name");
-</script>
+/* ============================================================
+   スペリングクイズ(2人ぐみ)
+   ============================================================ */
+let deck = "names";     /* names | mine */
+let target = "";
+let stat = { total:0, ok:0, combo:0 };
+let answered = false;
 
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>ローマ字でじぶんの名前をつづり、すきなものをそえた自己紹介カードをつくるアプリです。</p><h4>あそびかた</h4><ol><li>じぶんの名前をローマ字で入力しよう</li><li>すきなものを絵カードからえらぼう</li><li>できたカードをつかって、名前のつづりを1文字ずつ言いながら自己紹介してみよう</li></ol><div class="ah-tip">💡 先生向け:名前のスペルを尋ね合う(How do you spell your name?)ペア活動の道具として使えます。</div>
-  </div>
-</div>
-<script>
-(function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
-})();
+function pickTarget(){
+  if(deck === "mine"){
+    const n = rawName();
+    return n || "";
+  }
+  const pool = NAME_DECK.filter(w => w !== target);
+  return pool[Math.floor(Math.random() * pool.length)] || NAME_DECK[0];
+}
+function renderScore(){
+  $("sc-total").textContent = stat.total;
+  $("sc-ok").textContent = stat.ok;
+  $("sc-combo").textContent = stat.combo;
+}
+function nextQuestion(){
+  target = pickTarget();
+  answered = false;
+  const t = $("quiz-target");
+  if(!target){
+    t.textContent = "「じぶんの名前で やる」には 先に カードづくりで 名前を 入れてね";
+    t.style.fontSize = ".95rem"; t.style.letterSpacing = "0";
+    t.classList.remove("masked");
+  }else{
+    t.textContent = target;
+    t.style.fontSize = ""; t.style.letterSpacing = "";
+    /* 1台を2人で のぞきこむので、お題は はじめから かくしておく。
+       出す人が 見たいときだけ 出して、すぐ また かくれる。 */
+    t.classList.add("masked");
+    $("btn-mask").textContent = "👀 見る";
+  }
+  clearTimeout(peekTimer);
+  $("quiz-answer").value = "";
+  $("quiz-judge").textContent = "";
+  $("quiz-judge").className = "judge";
+  $("quiz-after").classList.add("app-hidden");
+}
+$("btn-deck-names").addEventListener("click", () => { deck = "names"; sfx("tap"); nextQuestion(); });
+$("btn-deck-mine").addEventListener("click", () => { deck = "mine"; sfx("tap"); nextQuestion(); });
+$("btn-next").addEventListener("click", () => { sfx("tap"); nextQuestion(); });
+$("btn-clear").addEventListener("click", () => { sfx("tap"); $("quiz-answer").value = ""; $("quiz-answer").focus(); });
+/* 👀を押すと PEEK_MS だけ お題が見える。時間が来たら自動で かくれる。 */
+const PEEK_MS = 4000;
+let peekTimer = null;
+function maskNow(){
+  $("quiz-target").classList.add("masked");
+  $("btn-mask").textContent = "👀 見る";
+  clearTimeout(peekTimer);
+}
+$("btn-mask").addEventListener("click", () => {
+  if(!target) return;
+  sfx("tap");
+  const t = $("quiz-target");
+  if(t.classList.contains("masked")){
+    t.classList.remove("masked");
+    $("btn-mask").textContent = "🙈 かくす";
+    clearTimeout(peekTimer);
+    peekTimer = setTimeout(maskNow, PEEK_MS);
+  }else{
+    maskNow();
+  }
+});
+$("btn-check").addEventListener("click", () => {
+  if(!target || answered) return;
+  const given = ($("quiz-answer").value || "").replace(/[^a-zA-Z]/g, "").toUpperCase();
+  if(!given) return;
+  answered = true;
+  stat.total++;
+  const j = $("quiz-judge");
+  if(given === target){
+    stat.ok++; stat.combo++;
+    j.textContent = `⭕ せいかい！ ${target}`;
+    j.className = "judge ok";
+    sfx("correct");
+    try{ if(window.AppUI && AppUI.confetti) AppUI.confetti(); }catch(e){}
+  }else{
+    stat.combo = 0;
+    j.textContent = `🔁 おしい！ こたえは ${target}`;
+    j.className = "judge ng";
+    sfx("wrong");
+  }
+  /* 答え合わせのあとだけ お手本を聞けるようにする(先に聞けたらクイズにならない) */
+  $("quiz-after").classList.remove("app-hidden");
+  renderScore();
+});
+$("btn-quiz-say").addEventListener("click", () => {
+  if(!target) return;
+  sfx("tap");
+  say(spellText(target));
+});
+$("quiz-answer").addEventListener("keydown", e => {
+  if(e.key === "Enter"){ e.preventDefault(); $("btn-check").click(); }
+});
+
+/* ============================================================
+   ナビゲーション
+   ============================================================ */
+$("mode-card").addEventListener("click", () => { sfx("tap"); buildChips(); show("card"); });
+$("mode-quiz").addEventListener("click", () => { sfx("tap"); nextQuestion(); renderScore(); show("quiz"); });
+$("btn-home").addEventListener("click", () => { sfx("tap"); show("home"); });
+
+const HELP = `
+<p>名前の つづり(スペリング)を つたえ合う アプリです。</p>
+<h4>じぶんの カードを つくる</h4>
+<ol>
+  <li>名前を ローマ字で 入れる（文字を タップすると 1文字だけ 聞けます）</li>
+  <li>すきな 色・スポーツ・食べものを えらぶ</li>
+  <li>できた カードで 自己紹介の 練習をする</li>
+</ol>
+<h4>スペリングクイズ（2人ぐみ）</h4>
+<ol>
+  <li><b>出す人</b>が「👀 見る」で お題を 4秒だけ 見て、アルファベットを 1文字ずつ 口で 言う</li>
+  <li><b>打つ人</b>は 画面を 見ずに 聞いて 打ちこむ</li>
+  <li>「こたえあわせ」を おしてから お手本が 聞けます</li>
+</ol>
+<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">
+  💡 <b>先生へ:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。
+  まず 子どもが 自分の口で 言ってから 確かめる、という順番で つかってください。
+  クイズは 画面を 見せない「情報差」があるので、<b>How do you spell it?</b> を 本当に たずねる 必要が 生まれます。
+</div>`;
+$("btn-help").addEventListener("click", () => {
+  sfx("tap");
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:"つかいかた" });
+});
+
+buildChips();
+renderScore();
+show("home");
 </script>
 </body>
 </html>
