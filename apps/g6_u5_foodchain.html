@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>食物連鎖クイズビルダー | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
@@ -110,45 +111,6 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🦈 食物連鎖クイズビルダー <span class="u">6年生 食物連鎖</span></h1>
@@ -212,6 +174,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
   Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
 </footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
@@ -222,45 +185,35 @@ const QUIZ_COUNT = 8;
 
 const CREATURES = [
   // 海
-  { id:"seaweed",  en:"seaweed",     ja:"かいそう",     img:"seaweed.jpg",     emoji:"🌿", eats:[] },
-  { id:"plankton", en:"plankton",    ja:"プランクトン", img:null,              emoji:"🦠", eats:[] },
-  { id:"shrimp",   en:"shrimp",      ja:"エビ",         img:"shrimp.jpg",      emoji:"🦐", eats:["plankton","seaweed"] },
-  { id:"crab",     en:"crabs",       ja:"カニ",         img:"crab.jpg",        emoji:"🦀", eats:["seaweed","shrimp"] },
-  { id:"fish",     en:"small fish",  ja:"小さな魚",     img:"fish.jpg",        emoji:"🐟", eats:["plankton","shrimp"] },
-  { id:"squid",    en:"squid",       ja:"イカ",         img:"squid.jpg",       emoji:"🦑", eats:["fish","shrimp"] },
-  { id:"octopus",  en:"octopuses",   ja:"タコ",         img:"octopus.jpg",     emoji:"🐙", eats:["crab","shrimp"] },
-  { id:"shark",    en:"sharks",      ja:"サメ",         img:"shark.jpg",       emoji:"🦈", eats:["fish","squid","octopus"] },
-  { id:"whale",    en:"whales",      ja:"クジラ",       img:"whale.jpg",       emoji:"🐋", eats:["plankton","fish","squid"] },
+  { id:"seaweed",  en:"seaweed", img:"seaweed.jpg",     emoji:"🌿", eats:[] },
+  { id:"plankton", en:"plankton", img:null,              emoji:"🦠", eats:[] },
+  { id:"shrimp",   en:"shrimp", img:"shrimp.jpg",      emoji:"🦐", eats:["plankton","seaweed"] },
+  { id:"crab",     en:"crabs", img:"crab.jpg",        emoji:"🦀", eats:["seaweed","shrimp"] },
+  { id:"fish",     en:"small fish", img:"fish.jpg",        emoji:"🐟", eats:["plankton","shrimp"] },
+  { id:"squid",    en:"squid", img:"squid.jpg",       emoji:"🦑", eats:["fish","shrimp"] },
+  { id:"octopus",  en:"octopuses", img:"octopus.jpg",     emoji:"🐙", eats:["crab","shrimp"] },
+  { id:"shark",    en:"sharks", img:"shark.jpg",       emoji:"🦈", eats:["fish","squid","octopus"] },
+  { id:"whale",    en:"whales", img:"whale.jpg",       emoji:"🐋", eats:["plankton","fish","squid"] },
   // 陸
-  { id:"grass",    en:"grass",       ja:"草",           img:null,              emoji:"🌱", eats:[] },
-  { id:"grasshopper", en:"grasshoppers", ja:"バッタ",   img:"grasshopper.jpg", emoji:"🦗", eats:["grass"] },
-  { id:"mouse",    en:"mice",        ja:"ネズミ",       img:"mouse.jpg",       emoji:"🐭", eats:["grass"] },
-  { id:"frog",     en:"frogs",       ja:"カエル",       img:"frog.jpg",        emoji:"🐸", eats:["grasshopper"] },
-  { id:"snake",    en:"snakes",      ja:"ヘビ",         img:"snake.jpg",       emoji:"🐍", eats:["frog","mouse"] },
-  { id:"owl",      en:"owls",        ja:"フクロウ",     img:"owl.jpg",         emoji:"🦉", eats:["mouse","snake"] },
-  { id:"eagle",    en:"eagles",      ja:"ワシ",         img:"eagle.jpg",       emoji:"🦅", eats:["snake","mouse","frog"] },
+  { id:"grass",    en:"grass", img:null,              emoji:"🌱", eats:[] },
+  { id:"grasshopper", en:"grasshoppers", img:"grasshopper.jpg", emoji:"🦗", eats:["grass"] },
+  { id:"mouse",    en:"mice", img:"mouse.jpg",       emoji:"🐭", eats:["grass"] },
+  { id:"frog",     en:"frogs", img:"frog.jpg",        emoji:"🐸", eats:["grasshopper"] },
+  { id:"snake",    en:"snakes", img:"snake.jpg",       emoji:"🐍", eats:["frog","mouse"] },
+  { id:"owl",      en:"owls", img:"owl.jpg",         emoji:"🦉", eats:["mouse","snake"] },
+  { id:"eagle",    en:"eagles", img:"eagle.jpg",       emoji:"🦅", eats:["snake","mouse","frog"] },
 ];
 
 // ============================================================
-// 音声
+// 音声(共通キット経由。🔊 を おしたときだけ 鳴らす)
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function speak(text, rate){
+  try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+function speakQueue(lines, rate){
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
 
 // ============================================================
