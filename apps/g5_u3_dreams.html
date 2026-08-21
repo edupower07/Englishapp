@@ -4,461 +4,552 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>将来の夢マッチング | 小学校外国語アプリポータル</title>
+<meta name="description" content="5年生「What do you want to be?」なりたい職業と学びたい教科を組み合わせて夢の文をつくり、2人組でヒントを出し合って当てっこできる小学校5年生向けアプリ。アプリは勝手に読み上げません。">
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
-:root{
-  --bg:#f4f5f7; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#ff4757; --primary-dark:#d63447; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
-  min-height:100vh;touch-action:manipulation;-webkit-user-select:none;user-select:none;
-}
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:940px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+:root{ --primary:#0984e3; --blue:#546de5; --green:#26de81; --yellow:#fdcb6e; --sub:#7f8c9b; }
+main{max-width:1000px;margin:0 auto;padding:16px 16px 80px}
+.step-title{font-size:1.2rem;font-weight:800;margin:0 0 4px;text-align:center}
+.step-sub{color:var(--sub);font-weight:700;font-size:.86rem;margin-bottom:14px;line-height:1.8;text-align:center}
 
-.mode-select{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
-.mode-card{
-  width:260px;background:#fff;border-radius:24px;padding:24px 18px;text-align:center;cursor:pointer;
-  box-shadow:var(--shadow);border:5px solid transparent;transition:.25s;
-}
-.mode-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.mode-card.m1{border-color:var(--primary)} .mode-card.m2{border-color:var(--blue)}
-.mode-card .mi{font-size:3rem}
-.mode-card h2{font-size:1.15rem;font-weight:800;margin-top:8px}
-.mode-card p{font-size:.8rem;color:var(--sub);font-weight:700;margin-top:6px;line-height:1.6}
-
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .pick{
-  background:#fff;border-radius:16px;padding:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);
-  border:4px solid transparent;transition:.15s;min-height:122px;display:flex;flex-direction:column;justify-content:center;gap:3px;position:relative;
+  position:relative;background:#fff;border-radius:20px;padding:12px 10px;text-align:center;cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);border:5px solid transparent;transition:.15s;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
 }
 .pick:hover{transform:translateY(-3px)}
-.pick.on{border-color:var(--primary);background:#fff5f6}
-.pick.hint{border-color:var(--yellow);background:#fffbea}
-.pick .rec{position:absolute;top:-11px;right:-4px;font-size:1.2rem;display:none}
-.pick.hint .rec{display:block}
-.pick .pimg{width:58px;height:52px;margin:0 auto;display:flex;align-items:center;justify-content:center}
-.pick .pimg img{max-width:100%;max-height:100%;object-fit:contain}
-.pick .pemoji{font-size:2.1rem;line-height:1}
-.pick .plabel{font-weight:800;font-size:.72rem;line-height:1.2}
-.pick .plabel small{display:block;color:var(--sub);font-size:.62rem}
+.pick.on{border-color:var(--green);background:#effdf7}
+.pick.hint{border-color:var(--yellow);background:#fffdf3}
+.pick .art{width:100%;max-width:126px}
+.pick .plabel{font-family:'Fredoka One',cursive;font-size:1rem;line-height:1.25}
+.pick .rec{position:absolute;top:6px;left:8px;font-size:1rem;opacity:0}
+.pick.hint .rec{opacity:1}
 .hint-note{
-  max-width:560px;margin:10px auto 0;text-align:center;font-size:.8rem;color:#b8860b;font-weight:800;
+  background:#fffbe8;border:2px dashed var(--yellow);border-radius:14px;padding:10px 14px;
+  font-weight:700;font-size:.85rem;text-align:center;line-height:1.8;max-width:640px;margin:0 auto;
 }
-.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-weight:800;font-size:1rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
-}
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.gray{background:#b2bec3;color:#2d3436}
-.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
 
-/* 完成 */
+/* 夢カード */
 .dream-card{
-  max-width:520px;margin:0 auto;background:#fff;border-radius:26px;box-shadow:var(--shadow-hover);
-  border:5px solid var(--primary);overflow:hidden;text-align:center;
+  max-width:520px;margin:0 auto;background:#fff;border-radius:24px;overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);border:6px solid var(--primary);
 }
-.dc-head{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.15rem}
-.dc-body{padding:20px}
-.dc-icons{font-size:3rem}
-.dc-line{font-size:1.2rem;font-weight:800;padding:8px 12px;border-radius:12px;cursor:pointer;margin-top:4px}
-.dc-line:hover{background:#fff5f6}
-.dc-line.study{color:var(--blue)} .dc-line.be{color:var(--primary-dark)}
+.dc-head{background:linear-gradient(135deg,#0984e3,#74b9ff);color:#fff;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:3px}
+.dc-body{padding:22px;text-align:center}
+.dc-arts{display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap}
+.dc-arts .art{width:130px}
+.dc-arrow{font-size:1.8rem;color:var(--sub)}
+.dc-line{
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;
+  background:#f5faff;border-radius:14px;padding:12px;
+  font-family:'Fredoka One',cursive;font-size:1.1rem;line-height:1.4;flex-wrap:wrap;
+}
+.dc-line .say{border:none;background:var(--blue);color:#fff;border-radius:50px;min-height:44px;padding:8px 16px;cursor:pointer;font-family:inherit;font-weight:800;font-size:.88rem}
+.frame-note{color:var(--sub);font-weight:800;margin-top:10px;line-height:2;font-size:.95rem}
 
 /* クイズ */
-.quiz-hud{display:flex;justify-content:space-between;max-width:560px;margin:0 auto 10px;font-weight:800;color:var(--sub)}
-.quiz-card{
-  max-width:560px;margin:0 auto;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:20px;text-align:center;
-  border:5px solid var(--blue);
+.quiz-hud{
+  display:flex;gap:14px;justify-content:center;font-weight:800;color:var(--sub);font-size:.9rem;margin-bottom:12px;flex-wrap:wrap;
 }
-.quiz-line{font-size:1.2rem;font-weight:800;color:var(--blue);cursor:pointer}
-.quiz-hint{font-size:.92rem;font-weight:800;color:var(--sub);margin-top:8px}
-.quiz-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;max-width:560px;margin:14px auto 0}
-.msg{text-align:center;font-size:1.15rem;font-weight:800;min-height:34px;margin-top:10px}
-.msg.ok{color:var(--green)} .msg.ng{color:var(--primary)}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+.quiz-hud b{color:var(--primary);font-size:1.15rem}
+.quiz-card{background:#fff;border-radius:22px;box-shadow:0 4px 10px rgba(0,0,0,.08);padding:20px;max-width:640px;margin:0 auto 14px;text-align:center}
+.quiz-line{
+  display:inline-flex;align-items:center;gap:10px;font-family:'Fredoka One',cursive;font-size:1.15rem;
+  background:#f5faff;border-radius:16px;padding:12px 18px;flex-wrap:wrap;justify-content:center;
+}
+.quiz-line .say{border:none;background:var(--blue);color:#fff;border-radius:50px;min-height:44px;padding:8px 16px;cursor:pointer;font-family:inherit;font-weight:800;font-size:.88rem}
+.quiz-hint{margin-top:12px;font-weight:700;color:var(--sub);line-height:1.8;font-size:.92rem}
+.msg{text-align:center;font-weight:800;margin-top:12px;min-height:28px;font-size:1rem;line-height:1.7}
+.msg.ok{color:#0f9d58} .msg.ng{color:#d63447}
+
+/* 2人組 */
+.role{border-radius:22px;padding:16px;margin:0 auto 14px;max-width:700px;box-shadow:0 4px 10px rgba(0,0,0,.08);background:#fff;border:5px solid #e6ecf2}
+.role.teller{border-color:var(--yellow);background:#fffdf3}
+.role.guesser{border-color:var(--blue);background:#f5f6ff}
+.role h3{font-size:1rem;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.role .who{font-size:.72rem;color:#fff;background:#636e72;border-radius:50px;padding:3px 12px}
+.role .hint{font-size:.84rem;font-weight:700;color:var(--sub);line-height:1.9;margin-top:8px}
+.secret{
+  display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff;border-radius:18px;
+  border:4px dashed var(--yellow);padding:16px;min-height:210px;justify-content:center;
+}
+.secret.masked > *{visibility:hidden}
+.secret .art{width:150px}
+.secret .nm{font-family:'Fredoka One',cursive;font-size:1.35rem;color:var(--primary)}
+.secret .sug{font-weight:700;color:var(--sub);font-size:.88rem;line-height:1.8;text-align:center}
+.secret-cover{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:var(--sub);font-size:1rem;pointer-events:none;
+}
+.secret-wrap{position:relative}
 </style>
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>💭 将来の夢マッチング <span class="u">5年生 将来の夢</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>💭 将来の夢マッチング <span class="app-unit">5年 夢・職業</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-nav-btn" id="btn-help">❓ 使い方</button>
+    <button type="button" class="app-nav-btn" id="btn-home">モードをかえる</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- モード選択 -->
-  <section id="scr-mode">
-    <h2 class="step-title">あそびかたを えらんでね</h2>
-    <div class="mode-select">
-      <div class="mode-card m1" data-mode="match">
-        <div class="mi">💭</div>
-        <h2>夢マッチング</h2>
-        <p>なりたい職業と学びたい教科を<br>組み合わせて夢の文をつくろう</p>
-      </div>
-      <div class="mode-card m2" data-mode="quiz">
-        <div class="mi">❓</div>
-        <h2>職業あてクイズ</h2>
-        <p>教科のヒントから<br>どんな職業か予想しよう(5問)</p>
-      </div>
+  <!-- ============ ホーム ============ -->
+  <section id="scr-home">
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card blue" id="mode-match">
+        <span class="app-mode-icon">💭</span>
+        <span class="app-mode-title">じぶんの 夢を つくる</span>
+        <span class="app-mode-sub">なりたい職業と 学びたい教科を<br>組み合わせて 夢の文を つくろう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-pair">
+        <span class="app-mode-icon">🎤</span>
+        <span class="app-mode-title">ヒントクイズ（2人ぐみ）</span>
+        <span class="app-mode-sub">出す人が 英語で ヒントを 言って<br>相手が 職業を あてる</span>
+      </button>
+      <button type="button" class="app-mode-card green" id="mode-quiz">
+        <span class="app-mode-icon">❓</span>
+        <span class="app-mode-title">職業あてクイズ（ひとり）</span>
+        <span class="app-mode-sub">教科の ヒントから<br>どんな職業か 予想しよう（5問）</span>
+      </button>
     </div>
+    <p class="app-center" style="margin-top:18px;font-weight:700;color:var(--sub);font-size:.86rem;line-height:1.9">
+      🔊は じぶんが 聞きたいときだけ おしてね。<br>アプリは かってに しゃべらないよ。
+    </p>
   </section>
 
-  <!-- STEP1 職業 -->
-  <section id="scr-job" class="hidden">
-    <h2 class="step-title">① なりたい職業をえらぼう</h2>
-    <p class="step-sub">What do you want to be?</p>
+  <!-- ============ ① 職業 ============ -->
+  <section id="scr-job" class="app-hidden">
+    <h2 class="step-title">① なりたい職業を えらぼう</h2>
+    <p class="step-sub">
+      What do you want to be?
+      <button type="button" class="app-big-btn sm blue" id="btn-ask-be" style="margin-left:8px">🔊 きく</button>
+    </p>
     <div class="grid" id="job-grid"></div>
   </section>
 
-  <!-- STEP2 教科 -->
-  <section id="scr-subject" class="hidden">
-    <h2 class="step-title">② 学びたい教科をえらぼう</h2>
-    <p class="step-sub">What do you want to study?</p>
+  <!-- ============ ② 教科 ============ -->
+  <section id="scr-subject" class="app-hidden">
+    <h2 class="step-title">② 学びたい教科を えらぼう</h2>
+    <p class="step-sub">
+      What do you want to study?
+      <button type="button" class="app-big-btn sm blue" id="btn-ask-study" style="margin-left:8px">🔊 きく</button>
+    </p>
     <div class="hint-note" id="subject-hint"></div>
-    <div style="height:8px"></div>
+    <div style="height:10px"></div>
     <div class="grid" id="subject-grid"></div>
-    <div class="actions">
-      <button class="big-btn gray" id="btn-back-job">職業をえらびなおす</button>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn gray" id="btn-back-job">職業を えらび直す</button>
     </div>
   </section>
 
-  <!-- STEP2.5 自分で言ってみよう -->
-  <section id="scr-try" class="hidden">
-    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
-    <p class="step-sub">えらんだ教科と職業を見て、自分の夢を英語で言ってみよう(声に出してね)</p>
-    <div class="dream-card" style="max-width:480px;margin:0 auto">
-      <div class="dc-head">MY DREAM</div>
-      <div class="dc-body">
-        <div class="dc-icons" id="try-icons" style="font-size:2.4rem"></div>
-        <div style="color:var(--sub);font-weight:800;margin-top:8px;line-height:1.9">I want to study 〜.<br>I want to be 〜.</div>
-      </div>
-    </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-check" style="background:var(--yellow);color:#7a5b1e">言えたら たしかめる ✅</button>
-      <button class="big-btn gray" id="btn-back-subject">えらびなおす</button>
-    </div>
-  </section>
-
-  <!-- STEP3 完成 -->
-  <section id="scr-done" class="hidden">
+  <!-- ============ ③ まず自分で言う ============ -->
+  <section id="scr-try" class="app-hidden">
+    <h2 class="step-title">🗣️ まず じぶんで 言ってみよう</h2>
+    <p class="step-sub">えらんだ 教科と 職業を 見て、じぶんの 夢を 英語で 言ってみよう（声に出してね）</p>
     <div class="dream-card">
       <div class="dc-head">MY DREAM</div>
       <div class="dc-body">
-        <div class="dc-icons" id="dc-icons"></div>
-        <div class="dc-line study" id="dc-study"></div>
-        <div class="dc-line be" id="dc-be"></div>
+        <div class="dc-arts" id="try-arts"></div>
+        <div class="frame-note">I want to study 〜.<br>I want to be 〜.</div>
       </div>
     </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-speak">🔊 読み上げ(発表練習)</button>
-      <button class="big-btn gray" id="btn-redo">えらびなおす</button>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn yellow" id="btn-check">言えたら たしかめる ✅</button>
+      <button type="button" class="app-big-btn gray" id="btn-back-subject">えらび直す</button>
     </div>
   </section>
 
-  <!-- クイズ -->
-  <section id="scr-quiz" class="hidden">
+  <!-- ============ ④ 完成 ============ -->
+  <section id="scr-done" class="app-hidden">
+    <div class="dream-card">
+      <div class="dc-head">MY DREAM</div>
+      <div class="dc-body">
+        <div class="dc-arts" id="dc-arts"></div>
+        <div class="dc-line">
+          <span id="dc-study"></span>
+          <button type="button" class="say" id="btn-say-study">🔊</button>
+        </div>
+        <div class="dc-line">
+          <span id="dc-be"></span>
+          <button type="button" class="say" id="btn-say-be">🔊</button>
+        </div>
+      </div>
+    </div>
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn gray" id="btn-redo">えらび直す</button>
+    </div>
+  </section>
+
+  <!-- ============ 2人組 ヒントクイズ ============ -->
+  <section id="scr-pair" class="app-hidden">
+    <h2 class="step-title">🎤 ヒントクイズ（2人ぐみ）</h2>
+    <p class="step-sub">
+      <b>出す人</b>は お題の 職業を 見て、<b>英語で ヒント</b>を 言います。<br>
+      <b>あてる人</b>は 下の カードから えらびます。
+    </p>
     <div class="quiz-hud">
-      <span id="q-progress">だい1問 / 5問</span>
-      <span id="q-score">せいかい 0</span>
+      <span>出した問題 <b id="p-total">0</b></span>
+      <span>せいかい <b id="p-ok">0</b></span>
+    </div>
+
+    <div class="role teller">
+      <h3><span class="who">出す人</span>お題（あてる人には 見せない）</h3>
+      <div class="secret-wrap">
+        <div class="secret masked" id="p-secret"></div>
+        <div class="secret-cover" id="p-cover">👀 を おすと 4秒だけ 見えます</div>
+      </div>
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn sm yellow" id="btn-peek">👀 見る</button>
+        <button type="button" class="app-big-btn sm gray" id="btn-p-next">つぎの お題 ▶</button>
+      </div>
+      <p class="hint">
+        ヒントの れい：<b>I want to study science.</b> / <b>I help sick people.</b><br>
+        職業の 名前は 言わないでね。
+      </p>
+    </div>
+
+    <div class="role guesser">
+      <h3><span class="who">あてる人</span>どの職業かな？</h3>
+      <div class="grid" id="p-opts"></div>
+      <div class="msg" id="p-msg"></div>
+    </div>
+  </section>
+
+  <!-- ============ ひとりクイズ ============ -->
+  <section id="scr-quiz" class="app-hidden">
+    <div class="quiz-hud">
+      <span>だい <b id="q-progress">1</b> 問</span>
+      <span>せいかい <b id="q-score">0</b></span>
     </div>
     <div class="quiz-card">
-      <div class="quiz-line" id="q-line">🔊 I want to study science.</div>
+      <div class="quiz-line">
+        <span id="q-line"></span>
+        <button type="button" class="say" id="btn-q-say">🔊 きく</button>
+      </div>
       <div class="quiz-hint" id="q-hint"></div>
     </div>
-    <div class="quiz-opts" id="q-opts"></div>
+    <div class="grid" id="q-opts"></div>
     <div class="msg" id="q-msg"></div>
   </section>
 
 </main>
 
-<footer>職業と教科の組み合わせは自由!ヒント(⭐)はあくまで「おすすめ」だよ。Picture Dictionary の絵カードを使用しています。</footer>
+<footer class="app-center" style="padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700;line-height:1.9">
+  職業と教科の組み合わせは自由！⭐はあくまで「おすすめ」だよ。<br>
+  Picture Dictionary の絵カードを使用しています（画像が出ないときは絵文字で表示されます）
+</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
-// ============================================================
-// データ(教師向け:ここを書きかえると内容を変更できます)
-// related はおすすめ教科のヒント(正解を1つに固定しません)
-// ============================================================
-const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
+/* ============================================================
+   データ(先生向け:ここを書きかえると内容を変えられます)
+   ============================================================ */
 const QUIZ_COUNT = 5;
 
 const SUBJECTS = [
-  { en:"Japanese",        ja:"国語",     img:"Japanese.jpg",        emoji:"📖" },
-  { en:"math",            ja:"算数",     img:"math.jpg",            emoji:"➗" },
-  { en:"science",         ja:"理科",     img:"science.jpg",         emoji:"🧪" },
-  { en:"social studies",  ja:"社会",     img:"social studies.jpg",  emoji:"🗾" },
-  { en:"music",           ja:"音楽",     img:"music.jpg",           emoji:"🎵" },
-  { en:"arts and crafts", ja:"図工",     img:"arts and crafts.jpg", emoji:"🎨" },
-  { en:"P.E.",            ja:"体育",     img:null,                  emoji:"🤸" },
-  { en:"English",         ja:"英語",     img:"English.jpg",         emoji:"🔤" },
-  { en:"home economics",  ja:"家庭科",   img:"home economics.jpg",  emoji:"🍳" },
-  { en:"calligraphy",     ja:"書写",     img:"calligraphy.jpg",     emoji:"🖌️" },
+  { en:"Japanese",        img:"Japanese.jpg",        emoji:"📖" },
+  { en:"math",            img:"math.jpg",            emoji:"➗" },
+  { en:"science",         img:"science.jpg",         emoji:"🧪" },
+  { en:"social studies",  img:"social studies.jpg",  emoji:"🗾" },
+  { en:"music",           img:"music.jpg",           emoji:"🎵" },
+  { en:"arts and crafts", img:"arts and crafts.jpg", emoji:"🎨" },
+  { en:"P.E.",            img:null,                  emoji:"🤸" },
+  { en:"English",         img:"English.jpg",         emoji:"🔤" },
+  { en:"home economics",  img:"home economics.jpg",  emoji:"🍳" },
+  { en:"calligraphy",     img:"calligraphy.jpg",     emoji:"🖌️" },
 ];
+/* hint は 日本語の なぞなぞ。英単語の訳ではないので 併記には あたらない。 */
 const JOBS = [
-  { en:"teacher",         ja:"先生",           img:"teacher.jpg",        emoji:"🧑‍🏫", article:"a",  related:["Japanese","math"],          hint:"学校でみんなに教えるよ" },
-  { en:"doctor",          ja:"医者",           img:"doctor.jpg",         emoji:"🧑‍⚕️", article:"a",  related:["science"],                   hint:"病気の人を助けるよ" },
-  { en:"vet",             ja:"じゅう医",       img:"vet.jpg",            emoji:"🐾",   article:"a",  related:["science"],                   hint:"動物のお医者さんだよ" },
-  { en:"cook",            ja:"コック",         img:"cook.jpg",           emoji:"👨‍🍳", article:"a",  related:["home economics"],            hint:"おいしい料理をつくるよ" },
-  { en:"soccer player",   ja:"サッカー選手",   img:"soccer player.jpg",  emoji:"⚽",   article:"a",  related:["P.E."],                      hint:"ボールをけってゴールをねらうよ" },
-  { en:"baseball player", ja:"野球選手",       img:"baseball player.jpg",emoji:"⚾",   article:"a",  related:["P.E."],                      hint:"バットでボールを打つよ" },
-  { en:"singer",          ja:"歌手",           img:"singer.jpg",         emoji:"🎤",   article:"a",  related:["music"],                     hint:"すてきな歌をとどけるよ" },
-  { en:"florist",         ja:"花屋さん",       img:"florist.jpg",        emoji:"💐",   article:"a",  related:["science","arts and crafts"], hint:"きれいな花をならべるよ" },
-  { en:"game creator",    ja:"ゲームクリエイター", img:"game creator.jpg", emoji:"🎮", article:"a", related:["math","arts and crafts"],    hint:"楽しいゲームをつくるよ" },
-  { en:"astronaut",       ja:"宇宙飛行士",     img:"astronaut.jpg",      emoji:"🚀",   article:"an", related:["science","math"],            hint:"ロケットで宇宙へ行くよ" },
-  { en:"firefighter",     ja:"消防士",         img:"firefighter.jpg",    emoji:"🚒",   article:"a",  related:["P.E."],                      hint:"火事からまちをまもるよ" },
-  { en:"baker",           ja:"パン屋さん",     img:"baker.jpg",          emoji:"🍞",   article:"a",  related:["home economics"],            hint:"朝はやくからパンをやくよ" },
+  { en:"teacher",         img:"teacher.jpg",         emoji:"🧑‍🏫", article:"a",  related:["Japanese","math"],          hint:"学校で みんなに 教えるよ" },
+  { en:"doctor",          img:"doctor.jpg",          emoji:"🧑‍⚕️", article:"a",  related:["science"],                  hint:"病気の 人を 助けるよ" },
+  { en:"vet",             img:"vet.jpg",             emoji:"🐾",   article:"a",  related:["science"],                  hint:"動物の お医者さんだよ" },
+  { en:"cook",            img:"cook.jpg",            emoji:"👨‍🍳", article:"a",  related:["home economics"],           hint:"おいしい 料理を つくるよ" },
+  { en:"soccer player",   img:"soccer player.jpg",   emoji:"⚽",   article:"a",  related:["P.E."],                     hint:"ボールを けって ゴールを ねらうよ" },
+  { en:"baseball player", img:"baseball player.jpg", emoji:"⚾",   article:"a",  related:["P.E."],                     hint:"バットで ボールを 打つよ" },
+  { en:"singer",          img:"singer.jpg",          emoji:"🎤",   article:"a",  related:["music"],                    hint:"すてきな 歌を とどけるよ" },
+  { en:"florist",         img:"florist.jpg",         emoji:"💐",   article:"a",  related:["science","arts and crafts"],hint:"きれいな 花を ならべるよ" },
+  { en:"game creator",    img:"game creator.jpg",    emoji:"🎮",   article:"a",  related:["math","arts and crafts"],   hint:"楽しい ゲームを つくるよ" },
+  { en:"astronaut",       img:"astronaut.jpg",       emoji:"🚀",   article:"an", related:["science","math"],           hint:"ロケットで 宇宙へ 行くよ" },
+  { en:"firefighter",     img:"firefighter.jpg",     emoji:"🚒",   article:"a",  related:["P.E."],                     hint:"火事から まちを まもるよ" },
+  { en:"baker",           img:"baker.jpg",           emoji:"🍞",   article:"a",  related:["home economics"],           hint:"朝はやくから パンを やくよ" },
 ];
 
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
-}
-
-// ============================================================
-// 状態
-// ============================================================
-let selJob = null, selSubject = null;
-let quiz = { qs:[], idx:0, score:0, lock:false };
+/* ============================================================
+   共通
+   ============================================================ */
 const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-mode","scr-job","scr-subject","scr-try","scr-done","scr-quiz"].forEach(s =>
-    $(s).classList.toggle("hidden", s !== id));
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function art(imgFile, emoji){
+  if(window.AppUI && AppUI.cardArt){
+    const el = AppUI.cardArt(imgFile, emoji);
+    el.classList.add("art");
+    return el;
+  }
+  const s = document.createElement("span");
+  s.className = "app-card-emoji"; s.textContent = emoji || "❓";
+  return s;
 }
 function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
-function visual(item){
-  return item.img
-    ? `<div class="pimg"><img src="${IMG_BASE + encodeURIComponent(item.img)}" alt="${item.en}"
-        onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${item.emoji}</span>'"></div>`
-    : `<span class="pemoji">${item.emoji}</span>`;
-}
-function pickHTML(item, extra=""){
-  return `<div class="pick ${extra}" data-en="${item.en}">
-    <span class="rec">⭐</span>
-    ${visual(item)}
-    <div class="plabel">${item.en}</div>
-  </div>`;
+function pickCard(item, opts){
+  opts = opts || {};
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "pick" + (opts.hint ? " hint" : "");
+  const rec = document.createElement("span");
+  rec.className = "rec"; rec.textContent = "⭐";
+  b.appendChild(rec);
+  b.appendChild(art(item.img, item.emoji));
+  const l = document.createElement("span");
+  l.className = "plabel"; l.textContent = item.en;
+  b.appendChild(l);
+  if(opts.onPick) b.addEventListener("click", () => opts.onPick(item, b));
+  return b;
 }
 
-// ============================================================
-// マッチング
-// ============================================================
-function buildJobs(){
-  $("job-grid").innerHTML = JOBS.map(j => pickHTML(j)).join("");
+const SCREENS = { home:"scr-home", job:"scr-job", subject:"scr-subject", try:"scr-try",
+                  done:"scr-done", pair:"scr-pair", quiz:"scr-quiz" };
+function show(name){
+  Object.keys(SCREENS).forEach(k => $(SCREENS[k]).classList.toggle("app-hidden", k !== name));
+  window.scrollTo({ top:0, behavior:"smooth" });
 }
-$("job-grid").addEventListener("click", e => {
-  const el = e.target.closest(".pick"); if(!el) return;
-  selJob = JOBS.find(j => j.en === el.dataset.en);
-  speak(`${selJob.article} ${selJob.en}`);
-  buildSubjects();
-  show("scr-subject");
-});
-function buildSubjects(){
-  $("subject-hint").textContent = `⭐は この職業におすすめの教科。でも、すきな教科をえらんでOK!`;
-  $("subject-grid").innerHTML = SUBJECTS.map(s =>
-    pickHTML(s, selJob.related.includes(s.en) ? "hint" : "")).join("");
-}
-$("subject-grid").addEventListener("click", e => {
-  const el = e.target.closest(".pick"); if(!el) return;
-  selSubject = SUBJECTS.find(s => s.en === el.dataset.en);
-  speak(selSubject.en);
-  showTry();
-});
+
+/* ============================================================
+   じぶんの夢をつくる
+   ============================================================ */
+let selJob = null, selSubject = null;
 function dreamLines(){
   return [
     `I want to study ${selSubject.en}.`,
     `I want to be ${selJob.article} ${selJob.en}.`,
   ];
 }
-function showTry(){
-  $("try-icons").textContent = `${selSubject.emoji} ➡ ${selJob.emoji}`;
-  show("scr-try");
-  speak("What do you want to be?");
+function buildJobs(){
+  const g = $("job-grid"); g.innerHTML = "";
+  JOBS.forEach(j => g.appendChild(pickCard(j, { onPick: item => {
+    selJob = item; sfx("tap");        /* 英語は読み上げない */
+    buildSubjects(); show("subject");
+  }})));
 }
-function showDone(){
-  $("dc-icons").textContent = `${selSubject.emoji} ✕ ${selJob.emoji}`;
-  $("dc-study").textContent = `🔊 I want to study ${selSubject.en}.`;
-  $("dc-be").textContent = `🔊 I want to be ${selJob.article} ${selJob.en}.`;
-  show("scr-done");
-  speakQueue(dreamLines());
+function buildSubjects(){
+  $("subject-hint").textContent = "⭐は この職業に おすすめの 教科。でも、すきな 教科を えらんで OK！";
+  const g = $("subject-grid"); g.innerHTML = "";
+  SUBJECTS.forEach(s => g.appendChild(pickCard(s, {
+    hint: selJob && selJob.related.includes(s.en),
+    onPick: item => {
+      selSubject = item; sfx("tap");
+      const a = $("try-arts"); a.innerHTML = "";
+      a.appendChild(art(selSubject.img, selSubject.emoji));
+      const ar = document.createElement("span");
+      ar.className = "dc-arrow"; ar.textContent = "➡";
+      a.appendChild(ar);
+      a.appendChild(art(selJob.img, selJob.emoji));
+      show("try");
+    }
+  })));
 }
-$("dc-study").addEventListener("click", () => speak(dreamLines()[0]));
-$("dc-be").addEventListener("click", () => speak(dreamLines()[1]));
-$("btn-speak").addEventListener("click", () => speakQueue(dreamLines()));
-$("btn-check").addEventListener("click", showDone);
-$("btn-back-subject").addEventListener("click", () => show("scr-subject"));
-$("btn-redo").addEventListener("click", () => { buildJobs(); show("scr-job"); });
-$("btn-back-job").addEventListener("click", () => show("scr-job"));
+$("btn-ask-be").addEventListener("click", () => { sfx("tap"); say("What do you want to be?"); });
+$("btn-ask-study").addEventListener("click", () => { sfx("tap"); say("What do you want to study?"); });
+$("btn-check").addEventListener("click", () => {
+  sfx("pop");
+  const a = $("dc-arts"); a.innerHTML = "";
+  a.appendChild(art(selSubject.img, selSubject.emoji));
+  const x = document.createElement("span");
+  x.className = "dc-arrow"; x.textContent = "✕";
+  a.appendChild(x);
+  a.appendChild(art(selJob.img, selJob.emoji));
+  const [study, be] = dreamLines();
+  $("dc-study").textContent = study;
+  $("dc-be").textContent = be;
+  show("done");    /* できあがっても 読み上げない */
+});
+$("btn-say-study").addEventListener("click", () => { sfx("tap"); say(dreamLines()[0]); });
+$("btn-say-be").addEventListener("click", () => { sfx("tap"); say(dreamLines()[1]); });
+$("btn-back-subject").addEventListener("click", () => { sfx("tap"); show("subject"); });
+$("btn-back-job").addEventListener("click", () => { sfx("tap"); show("job"); });
+$("btn-redo").addEventListener("click", () => { sfx("tap"); buildJobs(); show("job"); });
 
-// ============================================================
-// 職業あてクイズ
-// ============================================================
+/* ============================================================
+   ヒントクイズ(2人ぐみ)
+   お題は 既定で かくれていて、👀 を おすと PEEK_MS だけ見える。
+   1台を2人で のぞきこむ ことが 多いので、見っぱなしに ならないようにする。
+   ============================================================ */
+const PEEK_MS = 4000;
+let peekTimer = null;
+let pTarget = null, pLock = false;
+let pStat = { total:0, ok:0 };
+
+function maskSecret(){
+  $("p-secret").classList.add("masked");
+  $("p-cover").style.display = "";
+  $("btn-peek").textContent = "👀 見る";
+  clearTimeout(peekTimer);
+}
+function renderPairScore(){
+  $("p-total").textContent = pStat.total;
+  $("p-ok").textContent = pStat.ok;
+}
+function newPairRound(){
+  pLock = false;
+  pTarget = JOBS[Math.floor(Math.random() * JOBS.length)];
+  const s = $("p-secret");
+  s.innerHTML = "";
+  s.appendChild(art(pTarget.img, pTarget.emoji));
+  const nm = document.createElement("div");
+  nm.className = "nm"; nm.textContent = `${pTarget.article} ${pTarget.en}`;
+  s.appendChild(nm);
+  const sug = document.createElement("div");
+  sug.className = "sug";
+  sug.textContent = `ヒントの れい: I want to study ${pTarget.related[0]}.`;
+  s.appendChild(sug);
+  maskSecret();
+
+  const opts = shuffle([pTarget, ...shuffle(JOBS.filter(j => j.en !== pTarget.en)).slice(0, 5)]);
+  const g = $("p-opts"); g.innerHTML = "";
+  opts.forEach(j => g.appendChild(pickCard(j, { onPick: (item, el) => {
+    if(pLock) return;
+    pLock = true;
+    pStat.total++;
+    if(item.en === pTarget.en){
+      pStat.ok++;
+      el.classList.add("on");
+      $("p-msg").textContent = `⭕ I want to be ${pTarget.article} ${pTarget.en}.`;
+      $("p-msg").className = "msg ok";
+      sfx("correct");
+      try{ if(window.AppUI && AppUI.confetti) AppUI.confetti(); }catch(e){}
+    }else{
+      $("p-msg").textContent = `🔁 こたえは ${pTarget.article} ${pTarget.en} でした`;
+      $("p-msg").className = "msg ng";
+      sfx("wrong");
+    }
+    /* こたえが 出たので お題を 見せてよい */
+    $("p-secret").classList.remove("masked");
+    $("p-cover").style.display = "none";
+    clearTimeout(peekTimer);
+    renderPairScore();
+  }})));
+  $("p-msg").textContent = ""; $("p-msg").className = "msg";
+}
+$("btn-peek").addEventListener("click", () => {
+  if(!pTarget || pLock) return;
+  sfx("tap");
+  const s = $("p-secret");
+  if(s.classList.contains("masked")){
+    s.classList.remove("masked");
+    $("p-cover").style.display = "none";
+    $("btn-peek").textContent = "🙈 かくす";
+    clearTimeout(peekTimer);
+    peekTimer = setTimeout(maskSecret, PEEK_MS);
+  }else{
+    maskSecret();
+  }
+});
+$("btn-p-next").addEventListener("click", () => { sfx("tap"); newPairRound(); });
+
+/* ============================================================
+   職業あてクイズ(ひとり)
+   ============================================================ */
+let quiz = { qs:[], idx:0, score:0, lock:false };
 function startQuiz(){
   quiz = { qs: shuffle(JOBS).slice(0, QUIZ_COUNT), idx:0, score:0, lock:false };
-  show("scr-quiz");
   drawQuizQ();
+  show("quiz");
 }
 function drawQuizQ(){
   const j = quiz.qs[quiz.idx];
   quiz.lock = false;
-  $("q-progress").textContent = `だい${quiz.idx+1}問 / ${quiz.qs.length}問`;
-  $("q-score").textContent = `せいかい ${quiz.score}`;
+  $("q-progress").textContent = quiz.idx + 1;
+  $("q-score").textContent = quiz.score;
   const subj = j.related[0];
-  $("q-line").textContent = `🔊 I want to study ${subj}.`;
-  $("q-line").dataset.t = `I want to study ${subj}.`;
-  $("q-hint").textContent = `ヒント:${j.hint}。この人がなりたいのは…?`;
-  // 選択肢: 同じ教科をおすすめにしない職業から3つ
-  const wrongs = shuffle(JOBS.filter(x => x.en !== j.en && !x.related.includes(subj))).slice(0,3);
-  $("q-opts").innerHTML = shuffle([j, ...wrongs]).map(o => pickHTML(o)).join("");
+  const line = `I want to study ${subj}.`;
+  $("q-line").textContent = line;
+  $("q-line").dataset.t = line;
+  $("q-hint").textContent = `ヒント: ${j.hint}。この人が なりたいのは…？`;
+  const wrongs = shuffle(JOBS.filter(x => x.en !== j.en && !x.related.includes(subj))).slice(0, 3);
+  const g = $("q-opts"); g.innerHTML = "";
+  shuffle([j, ...wrongs]).forEach(o => g.appendChild(pickCard(o, { onPick: (item, el) => {
+    if(quiz.lock) return;
+    if(item.en === j.en){
+      quiz.lock = true; quiz.score++;
+      el.classList.add("on");
+      $("q-msg").textContent = `⭕ I want to be ${j.article} ${j.en}.`;
+      $("q-msg").className = "msg ok";
+      $("q-score").textContent = quiz.score;
+      sfx("correct");
+      setTimeout(() => {
+        quiz.idx++;
+        if(quiz.idx >= quiz.qs.length){
+          $("q-line").textContent = quiz.score === quiz.qs.length ? "🏆 パーフェクト！" : "🎉 おつかれさま！";
+          $("q-line").dataset.t = "";
+          $("q-hint").textContent = `${quiz.qs.length}問中 ${quiz.score}問 せいかい`;
+          $("q-opts").innerHTML = ""; $("q-msg").textContent = "";
+          if(quiz.score === quiz.qs.length){
+            sfx("fanfare");
+            try{ if(window.AppUI && AppUI.confetti) AppUI.confetti(); }catch(e){}
+          }
+        }else drawQuizQ();
+      }, 1400);
+    }else{
+      $("q-msg").textContent = "🔁 ちがうみたい…ヒントを よく読んでみよう";
+      $("q-msg").className = "msg ng";
+      sfx("wrong");
+    }
+  }})));
   $("q-msg").textContent = ""; $("q-msg").className = "msg";
-  speak(`I want to study ${subj}.`);
+  /* ここでは しゃべらない。聞きたければ 🔊 を おす */
 }
-$("q-line").addEventListener("click", e => speak(e.target.dataset.t || ""));
-$("q-opts").addEventListener("click", e => {
-  const el = e.target.closest(".pick"); if(!el || quiz.lock) return;
-  const j = quiz.qs[quiz.idx];
-  if(el.dataset.en === j.en){
-    quiz.lock = true; quiz.score++;
-    el.classList.add("on");
-    $("q-msg").textContent = `⭕ I want to be ${j.article} ${j.en}!(${j.ja})`;
-    $("q-msg").className = "msg ok";
-    speak(`Yes! I want to be ${j.article} ${j.en}!`);
-    $("q-score").textContent = `せいかい ${quiz.score}`;
-    setTimeout(() => {
-      quiz.idx++;
-      if(quiz.idx >= quiz.qs.length){
-        $("q-line").textContent = quiz.score === quiz.qs.length ? "🏆 パーフェクト!" : "🎉 おつかれさま!";
-        $("q-hint").textContent = `${quiz.qs.length}問中 ${quiz.score}問 せいかい`;
-        $("q-opts").innerHTML = ""; $("q-msg").textContent = "";
-        speak(quiz.score === quiz.qs.length ? "Perfect!" : "Good job!");
-      }else drawQuizQ();
-    }, 1600);
-  }else{
-    $("q-msg").textContent = "❌ ちがうみたい…ヒントをよく読んでみよう";
-    $("q-msg").className = "msg ng";
-  }
+$("btn-q-say").addEventListener("click", () => {
+  const t = $("q-line").dataset.t;
+  if(!t) return;
+  sfx("tap"); say(t);
 });
 
-// ============================================================
-// ナビゲーション
-// ============================================================
-document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
-  if(c.dataset.mode === "match"){ buildJobs(); show("scr-job"); }
-  else startQuiz();
-}));
-$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
+/* ============================================================
+   ナビゲーション
+   ============================================================ */
+$("mode-match").addEventListener("click", () => { sfx("tap"); buildJobs(); show("job"); });
+$("mode-pair").addEventListener("click", () => { sfx("tap"); renderPairScore(); newPairRound(); show("pair"); });
+$("mode-quiz").addEventListener("click", () => { sfx("tap"); startQuiz(); });
+$("btn-home").addEventListener("click", () => { sfx("tap"); clearTimeout(peekTimer); show("home"); });
 
-show("scr-mode");
-</script>
+const HELP = `
+<p><b>💭 なりたい職業と 学びたい教科を つなげて、夢を 英語で 言う アプリだよ。</b></p>
+<p style="color:#e17055"><b>※ アプリは かってに 英語を しゃべりません。</b>🔊 を おしたときだけ 聞こえます。</p>
+<h4 style="margin:14px 0 4px;font-weight:800">💭 じぶんの 夢を つくる</h4>
+<ul>
+  <li>職業 → 教科の 順に えらぶ（⭐は おすすめ。ちがう教科でも OK）</li>
+  <li><b>できあがる前に</b>「まず じぶんで 言ってみよう」の 画面が 出ます。
+      声に出して 言ってから「たしかめる」を おそう</li>
+</ul>
+<h4 style="margin:14px 0 4px;font-weight:800">🎤 ヒントクイズ（2人ぐみ）</h4>
+<ul>
+  <li>出す人が「👀 見る」で お題を 4秒だけ 見る（そのあと 自動で かくれます）</li>
+  <li>出す人は <b>英語で ヒント</b>を 言う（<b>I want to study science.</b> など）。職業名は 言わない</li>
+  <li>あてる人が カードから えらぶ</li>
+</ul>
+<h4 style="margin:14px 0 4px;font-weight:800">❓ 職業あてクイズ（ひとり）</h4>
+<ul><li>教科と ヒントから 職業を あてる 5問</li></ul>
+<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">
+  💡 <b>先生へ:</b> 以前は えらぶたびに アプリが 英語を 読み上げていましたが、やめました。
+  言うのは 子どもです。🔊 は 言い方の モデルとしてだけ つかってください。
+  2人組は 出す人だけが お題を 見られる <b>情報差</b> があるので、
+  英語で 説明する 必然性が 生まれます。
+</div>`;
+$("btn-help").addEventListener("click", () => {
+  sfx("tap");
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:"つかいかた" });
+});
 
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>将来の夢(職業)について、なりたい理由や合う教科を考えながら伝え合うアプリです。</p><h4>あそびかた</h4><ol><li>なりたい職業をえらぼう(⭐は その職業に合う教科のヒント)</li><li>えらんだら、まず<b>じぶんの口で</b>英語で言ってみよう</li><li>お手本でたしかめたら、「職業あてクイズ」で友だちと出し合おう</li></ol><div class="ah-tip">💡 先生向け:職業と教科のつながりを考えるところが思考の場面です。What do you want to be? のやりとりへ広げてください。</div>
-  </div>
-</div>
-<script>
-(function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
-})();
+buildJobs();
+renderPairScore();
+show("home");
 </script>
 </body>
 </html>

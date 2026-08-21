@@ -219,8 +219,14 @@ def check(page, path: Path) -> Result:
     # 汎用検査では再現しきれない(文が空なら鳴らないのが正しい)。
     # ここでは(1)🔊の操作子があること (2)キットの発話経路が生きていること
     # の2点だけ見る。実際の鳴りは各アプリの手動確認で担保する。
-    n_speaker = page.evaluate("""() => [...document.querySelectorAll('button, .m-line, [data-say], .app-big-btn')]
-        .filter(e => ((e.textContent || '') + (e.getAttribute('aria-label') || '')).includes('🔊')).length""")
+    # 🔊 は button とはかぎらない(span をタップさせているアプリもある)。
+    # 要素の種類でしぼらず、🔊 を持つ最も内側の要素を数える。
+    n_speaker = page.evaluate("""() => [...document.querySelectorAll('*')]
+        .filter(e => {
+            const own = [...e.childNodes]
+                .filter(n => n.nodeType === 3).map(n => n.textContent).join('');
+            return own.includes('🔊') || (e.getAttribute('aria-label') || '').includes('🔊');
+        }).length""")
     r.add(n_speaker > 0, "🔊 の操作子がある", f"{n_speaker}個" if n_speaker else "見つからない")
 
     page.evaluate("() => { window.__speakLog.length = 0; }")
