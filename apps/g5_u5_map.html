@@ -566,10 +566,9 @@ function newGuess(){
   program = randomProgram();
   drawProgram();
   $("quest-img").innerHTML = `<span class="qe">👂</span>`;
-  $("quest-en").textContent = "Go straight... どこにつくかな?";
-  $("quest-ja").textContent = "道案内を聞いて、つくとおもう建物をタップ→スタートでたしかめよう";
+  $("quest-en").textContent = "Listen and guess!";
+  $("quest-ja").textContent = "🔊 この道案内を きく をおして、つくとおもう建物をタップ→スタートでたしかめよう";
   document.querySelectorAll(".cell").forEach(c => c.classList.remove("goal-flash"));
-  speakQueue(program.map(b => BLOCK_INFO[b].en));
 }
 $("btn-next").addEventListener("click", () => {
   if(mode === "challenge") newChallenge();

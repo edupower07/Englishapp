@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>スクールライフ比較アプリ | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
@@ -93,53 +94,48 @@ main{max-width:920px;margin:0 auto;padding:16px 16px 60px}
 .model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+
+/* ---- 絵カードのチップ(大きく) ---- */
+.chips.art-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.chips.art-chips .chip{
+  display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:18px;padding:10px 6px;
+  border:5px solid transparent;background:#fff;box-shadow:var(--shadow);
+}
+.chips.art-chips .chip .art{width:100%;max-width:118px}
+.chips.art-chips .chip .clabel{font-family:'Fredoka One',cursive;font-size:.98rem;color:#2d3436;line-height:1.2}
+.chips.art-chips .chip.on{background:#effdf7;border-color:var(--green);color:#2d3436}
+.chips.art-chips .chip.freq.on{background:#fffaec;border-color:var(--yellow);color:#2d3436}
+
+/* ---- ペアで インタビュー ---- */
+.iv-name{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.iv-name input{
+  border:4px solid #e6ecf2;border-radius:14px;padding:10px 14px;font-family:'Fredoka One',cursive;
+  font-size:1.2rem;text-align:center;width:170px;color:var(--primary-dark);
+}
+.iv-name .hs{border:4px solid #e6ecf2;background:#fff;border-radius:50px;padding:10px 18px;font-family:inherit;font-weight:800;cursor:pointer;min-height:52px;color:#2d3436}
+.iv-name .hs.on{border-color:var(--primary);background:#eef6ff;color:var(--primary-dark)}
+.iv-q{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.iv-q .qhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.iv-q .qhead .qtxt{flex:1;font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--primary-dark);min-width:0;word-break:break-word}
+.iv-q .qhead .say{flex:none;border:none;background:#546de5;color:#fff;border-radius:50px;min-width:56px;min-height:48px;font-size:1.05rem;cursor:pointer;font-family:inherit}
+.iv-card{
+  max-width:560px;margin:0 auto;background:#fff;border-radius:22px;border:6px solid var(--primary);
+  box-shadow:var(--shadow-hover);overflow:hidden;
+}
+.iv-card .ic-head{background:linear-gradient(135deg,#2e86de,#54a0ff);color:#fff;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px}
+.iv-card .ic-body{padding:18px}
+.iv-line{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#eef6ff;margin-bottom:8px}
+.iv-line .say{flex:none;border:none;background:#546de5;color:#fff;border-radius:50px;min-width:56px;min-height:48px;font-size:1.05rem;cursor:pointer;font-family:inherit}
+.iv-line .txt{flex:1;font-family:'Fredoka One',cursive;font-size:1.08rem;line-height:1.4;word-break:break-word}
 </style>
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🚌 スクールライフ比較アプリ <span class="u">6年生 学校生活</span></h1>
   <div style="display:flex;gap:8px">
+    <button class="nav-btn hidden" id="btn-home">モードをかえる</button>
     <button class="nav-btn" id="btn-restart">入力しなおす</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
   </div>
@@ -147,8 +143,27 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <main>
 
+  <!-- モードえらび -->
+  <section id="scr-home">
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card blue" id="mode-mine">
+        <span class="app-mode-icon">🚌</span>
+        <span class="app-mode-title">じぶんの 学校生活</span>
+        <span class="app-mode-sub">材料をえらんで 話してみて<br>海外の子と くらべよう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-iv">
+        <span class="app-mode-icon">🎤</span>
+        <span class="app-mode-title">ペアで インタビュー</span>
+        <span class="app-mode-sub">相手に 英語で きいて<br>相手の しょうかい文を つくろう</span>
+      </button>
+    </div>
+    <p style="margin-top:18px;font-weight:700;color:#7f8c9b;font-size:.86rem;line-height:1.9;text-align:center">
+      🔊は 聞きたいときだけ おしてね。<br>アプリは かってに しゃべらないよ。
+    </p>
+  </section>
+
   <!-- 入力 -->
-  <section id="scr-form">
+  <section id="scr-form" class="hidden">
     <h2 class="step-title">🚌 自分の学校生活を入力しよう</h2>
     <p class="step-sub">あとで海外の子の生活とくらべてみるよ</p>
     <div class="form-box">
@@ -214,39 +229,73 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     </div>
   </section>
 
+  <!-- ペアで インタビュー -->
+  <section id="scr-interview" class="hidden">
+    <h2 class="step-title">🎤 ペアで インタビュー</h2>
+    <p class="step-sub">
+      相手に 英語で きいて、こたえを 絵で 記録しよう。<br>
+      きき方が わからなければ 🔊。<b>こたえは 相手の口から</b> 聞き出してね。
+    </p>
+    <div class="iv-name">
+      <input type="text" id="iv-who" placeholder="Kenta" maxlength="12" autocomplete="off" aria-label="相手の名前をローマ字で入力">
+      <button type="button" class="hs on" data-h="He">He</button>
+      <button type="button" class="hs" data-h="She">She</button>
+    </div>
+    <div class="form-box" id="iv-qs"></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-iv-make" disabled>しょうかい文を つくる ▶</button>
+    </div>
+    <div id="iv-result" class="hidden" style="margin-top:20px">
+      <div class="iv-card">
+        <div class="ic-head" id="iv-head">MY FRIEND</div>
+        <div class="ic-body" id="iv-lines"></div>
+      </div>
+      <div class="actions">
+        <button class="big-btn" id="btn-iv-say">🔊 ぜんぶ きく</button>
+        <button class="big-btn gray" id="btn-iv-clear">もう1人 インタビューする</button>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer>海外の子どもの生活は教科書を参考にした例です(コード冒頭の OVERSEAS を書きかえると先生が編集できます)</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
 // OVERSEAS は教科書の登場人物などに合わせて自由に編集してください
 // ============================================================
 const TRANSPORTS = [
-  { en:"by bus",   ja:"バス",       emoji:"🚌" },
-  { en:"by train", ja:"電車",       emoji:"🚃" },
-  { en:"by bike",  ja:"自転車",     emoji:"🚲" },
-  { en:"on foot",  ja:"歩いて",     emoji:"🚶" },
-  { en:"by car",   ja:"車",         emoji:"🚗" },
+  { en:"by bus",   img:null, emoji:"🚌" },
+  { en:"by train", img:null, emoji:"🚃" },
+  { en:"by bike",  img:null, emoji:"🚲" },
+  { en:"on foot",  img:null, emoji:"🚶" },
+  { en:"by car",   img:null, emoji:"🚗" }
 ];
 const FREQS = [
-  { en:"always",    ja:"いつも",     emoji:"🌟" },
-  { en:"usually",   ja:"たいてい",   emoji:"🙂" },
-  { en:"sometimes", ja:"ときどき",   emoji:"🌤️" },
+  { en:"always",    img:"always.jpg",    emoji:"🌟" },
+  { en:"usually",   img:"usually.jpg",   emoji:"🙂" },
+  { en:"sometimes", img:"sometimes.jpg", emoji:"🌤️" }
 ];
 const ACTIVITIES = [
-  { en:"play soccer",       ja:"サッカー",   emoji:"⚽" },
-  { en:"practice the piano", ja:"ピアノ",    emoji:"🎹" },
-  { en:"study at home",     ja:"家で勉強",   emoji:"✏️" },
-  { en:"play video games",  ja:"ゲーム",     emoji:"🎮" },
-  { en:"read books",        ja:"読書",       emoji:"📚" },
-  { en:"go to swimming school", ja:"スイミング", emoji:"🏊" },
-  { en:"walk my dog",       ja:"犬の散歩",   emoji:"🐶" },
+  { en:"play soccer",           img:"soccer.jpg",              emoji:"⚽", third:"plays soccer" },
+  { en:"practice the piano",    img:"play the piano.jpg",      emoji:"🎹", third:"practices the piano" },
+  { en:"study at home",         img:"study.jpg",               emoji:"✏️", third:"studies at home" },
+  { en:"play video games",      img:"playing video games.jpg", emoji:"🎮", third:"plays video games" },
+  { en:"read books",            img:"read.jpg",                emoji:"📚", third:"reads books" },
+  { en:"go to swimming school", img:"swimming.jpg",            emoji:"🏊", third:"goes to swimming school" },
+  { en:"walk my dog",           img:"walk the dog.jpg",        emoji:"🐶", third:"walks the dog" }
 ];
 const DAYS = [
-  { en:"Mondays", ja:"月曜" }, { en:"Tuesdays", ja:"火曜" }, { en:"Wednesdays", ja:"水曜" },
-  { en:"Thursdays", ja:"木曜" }, { en:"Fridays", ja:"金曜" }, { en:"Saturdays", ja:"土曜" }, { en:"Sundays", ja:"日曜" },
+  { en:"Mondays",    img:"Monday.jpg",    emoji:"1️⃣" },
+  { en:"Tuesdays",   img:"Tuesday.jpg",   emoji:"2️⃣" },
+  { en:"Wednesdays", img:"Wednesday.jpg", emoji:"3️⃣" },
+  { en:"Thursdays",  img:"Thursday.jpg",  emoji:"4️⃣" },
+  { en:"Fridays",    img:"Friday.jpg",    emoji:"5️⃣" },
+  { en:"Saturdays",  img:"Saturday.jpg",  emoji:"6️⃣" },
+  { en:"Sundays",    img:"Sunday.jpg",    emoji:"7️⃣" }
 ];
 const OVERSEAS = [
   { name:"Lucas", country:"ブラジル", flag:"🇧🇷",
@@ -258,25 +307,25 @@ const OVERSEAS = [
 ];
 
 // ============================================================
-// 音声
+// 音声(共通キット経由。🔊 を おしたときだけ 鳴らす)
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function speak(text, rate){
+  try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+function speakQueue(lines, rate){
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
+}
+function art(imgFile, emoji){
+  if(window.AppUI && AppUI.cardArt){
+    const el = AppUI.cardArt(imgFile, emoji);
+    el.classList.add("art");
+    return el;
+  }
+  const s = document.createElement("span");
+  s.className = "app-card-emoji"; s.textContent = emoji || "❓";
+  return s;
 }
 
 // ============================================================
@@ -286,22 +335,40 @@ let sel = { transport:null, freq:null, activity:null, day:null };
 let friendIdx = 0;
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-form","scr-try","scr-compare"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  ["scr-home","scr-form","scr-try","scr-compare","scr-interview"]
+    .forEach(s => $(s).classList.toggle("hidden", s !== id));
+  $("btn-home").classList.toggle("hidden", id === "scr-home");
+  $("btn-restart").classList.toggle("hidden", id === "scr-home" || id === "scr-interview");
+  window.scrollTo(0, 0);
 }
+$("btn-home").addEventListener("click", () => { sfx("tap"); show("scr-home"); });
+$("mode-mine").addEventListener("click", () => { sfx("pop"); show("scr-form"); });
+$("mode-iv").addEventListener("click", () => { sfx("pop"); show("scr-interview"); });
 
 // ============================================================
 // フォーム(絵文字+英語のみ表示。選択時は単語の音声のみ)
 // ============================================================
-function buildChips(elId, list, key, cls=""){
-  $(elId).innerHTML = list.map(item =>
-    `<button class="chip ${cls}" data-en="${item.en}">${item.emoji ? item.emoji + " " : ""}${item.en}</button>`).join("");
-  $(elId).addEventListener("click", e => {
-    const b = e.target.closest(".chip"); if(!b) return;
-    sel[key] = list.find(x => x.en === b.dataset.en);
-    $(elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b));
-    update();
-    speak(sel[key].en);
+/* 絵カードのチップを つくる。えらんでも 読み上げない(まず じぶんの口で 言う)。 */
+function buildArtChips(box, list, cls, onPick){
+  box.classList.add("art-chips");
+  box.innerHTML = "";
+  list.forEach(item => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip" + (cls ? " " + cls : ""); b.dataset.en = item.en;
+    b.appendChild(art(item.img, item.emoji));
+    const lb = document.createElement("span");
+    lb.className = "clabel"; lb.textContent = item.en;
+    b.appendChild(lb);
+    b.addEventListener("click", () => {
+      sfx("tap");
+      box.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b));
+      onPick(item);
+    });
+    box.appendChild(b);
   });
+}
+function buildChips(elId, list, key, cls=""){
+  buildArtChips($(elId), list, cls, item => { sel[key] = item; update(); });
 }
 buildChips("f-transport", TRANSPORTS, "transport");
 buildChips("f-freq", FREQS, "freq", "freq");
@@ -333,7 +400,7 @@ function renderCompare(){
   // 似ているところを見つけるヒント
   const sameTransport = f.lines[0].includes(sel.transport.en);
   $("same-note").textContent = sameTransport
-    ? `✨ ${f.name} も「${sel.transport.ja}」で通学しているみたい!同じところ・ちがうところをさがして話し合ってみよう`
+    ? `✨ ${f.name} も ${sel.transport.en} で通学しているみたい!同じところ・ちがうところをさがして話し合ってみよう`
     : `🔍 ${f.name} との「同じところ」「ちがうところ」をさがして、となりの人と話し合ってみよう`;
 }
 // ============================================================
@@ -342,8 +409,8 @@ function renderCompare(){
 $("btn-make").addEventListener("click", () => {
   $("try-icons").textContent =
     `${sel.transport.emoji}  ${sel.freq.emoji} ${sel.activity.emoji}  📅`;
+  sfx("pop");
   show("scr-try");
-  speak("How is your school life?");
 });
 $("try-prompt").addEventListener("click", () => speak("How is your school life?"));
 $("btn-back-try").addEventListener("click", () => show("scr-form"));
@@ -351,8 +418,8 @@ $("btn-back-try").addEventListener("click", () => show("scr-form"));
 $("btn-check").addEventListener("click", () => {
   friendIdx = 0;
   renderCompare();
+  sfx("pop");
   show("scr-compare");
-  speakQueue(myLines());
 });
 $("friend-tabs").addEventListener("click", e => {
   const b = e.target.closest(".friend-tab"); if(!b) return;
@@ -369,10 +436,98 @@ $("btn-restart").addEventListener("click", () => {
   document.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
   update();
   try{ speechSynthesis.cancel(); }catch(e){}
+  sfx("tap");
   show("scr-form");
 });
 
-show("scr-form");
+show("scr-home");
+
+// ============================================================
+// ペアで インタビュー
+// ------------------------------------------------------------
+// 相手にしか こたえられない質問を するので、本当の 情報差が うまれる。
+// アプリは こたえを 持っていない。
+// ============================================================
+const IV_QS = [
+  { q:"How do you go to school?",     list:TRANSPORTS, key:"transport", cls:"" },
+  { q:"What do you do after school?", list:ACTIVITIES, key:"activity",  cls:"" },
+  { q:"How often do you do it?",      list:FREQS,      key:"freq",      cls:"freq" },
+  { q:"When do you do it?",           list:DAYS,       key:"day",       cls:"" }
+];
+let iv = { transport:null, activity:null, freq:null, day:null, hs:"He" };
+function buildInterview(){
+  const box = $("iv-qs");
+  box.innerHTML = "";
+  IV_QS.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "iv-q";
+    const head = document.createElement("div");
+    head.className = "qhead";
+    const tx = document.createElement("span");
+    tx.className = "qtxt"; tx.textContent = item.q;
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "しつもんを きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); speak(item.q); });
+    head.appendChild(tx); head.appendChild(btn);
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    buildArtChips(chips, item.list, item.cls, picked => { iv[item.key] = picked; ivUpdate(); });
+    row.appendChild(head); row.appendChild(chips);
+    box.appendChild(row);
+  });
+}
+function ivName(){
+  const n = $("iv-who").value.replace(/[^a-zA-Z]/g, "");
+  return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : "";
+}
+function ivUpdate(){
+  $("btn-iv-make").disabled = !(ivName() && iv.transport && iv.activity && iv.freq && iv.day);
+}
+$("iv-who").addEventListener("input", ivUpdate);
+document.querySelectorAll(".iv-name .hs").forEach(b => b.addEventListener("click", () => {
+  sfx("tap");
+  iv.hs = b.dataset.h;
+  document.querySelectorAll(".iv-name .hs").forEach(x => x.classList.toggle("on", x === b));
+}));
+function ivLines(){
+  return [
+    `This is ${ivName()}.`,
+    `${iv.hs} usually goes to school ${iv.transport.en}.`,
+    `${iv.hs} ${iv.freq.en} ${iv.activity.third} on ${iv.day.en}.`
+  ];
+}
+$("btn-iv-make").addEventListener("click", () => {
+  sfx("pop");
+  $("iv-head").textContent = ivName().toUpperCase();
+  const box = $("iv-lines");
+  box.innerHTML = "";
+  ivLines().forEach(t => {
+    const line = document.createElement("div");
+    line.className = "iv-line";
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "この文を きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); speak(t); });
+    const tx = document.createElement("span");
+    tx.className = "txt"; tx.textContent = t;
+    line.appendChild(btn); line.appendChild(tx);
+    box.appendChild(line);
+  });
+  $("iv-result").classList.remove("hidden");
+});
+$("btn-iv-say").addEventListener("click", () => { sfx("tap"); speakQueue(ivLines()); });
+$("btn-iv-clear").addEventListener("click", () => {
+  sfx("tap");
+  iv = { transport:null, activity:null, freq:null, day:null, hs:iv.hs };
+  $("iv-who").value = "";
+  $("iv-qs").querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+  $("iv-result").classList.add("hidden");
+  ivUpdate();
+  window.scrollTo(0, 0);
+});
+buildInterview();
+ivUpdate();
 
 // ============================================================
 // 塗り重ね: 相手をかえて・条件をかえて もういちど言ってみる
@@ -409,8 +564,7 @@ document.getElementById("btn-again-try").addEventListener("click", () => {
 <div id="app-help-overlay" class="ah-hidden">
   <div class="ah-box">
     <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>じぶんの学校生活を英語で紹介し、海外の子どもたちの生活とくらべるアプリです。</p><h4>あそびかた</h4><ol><li>じぶんの学校生活(通学・時間わりなど)を入力しよう</li><li>まず<b>じぶんの口で</b>紹介してみよう</li><li>海外の子の学校生活とくらべて、おなじところ・ちがうところを見つけよう</li></ol><div class="ah-tip">💡 先生向け:「ちがい」だけでなく「意外と同じ」に気づかせると、異文化理解が深まります。</div>
+    <h3>❓ このアプリの使い方</h3><p>じぶんの学校生活を英語で紹介し、海外の子どもたちの生活とくらべたり、友だちに インタビューして しょうかい文を つくったり する アプリです。</p><h4>🚌 じぶんの 学校生活</h4><ol><li>通学・放課後のことを 絵カードで えらぶ(えらんでも 読み上げません)</li><li>まず <b>じぶんの口で</b> 紹介してみる</li><li>海外の子と くらべて、おなじところ・ちがうところを 見つける</li></ol><h4>🎤 ペアで インタビュー</h4><ol><li>相手の名前と He / She を えらぶ</li><li>4つの しつもんを 英語で たずね、こたえを 絵カードで 記録する</li><li>できた しょうかい文(He usually goes to school by bus. など)を 🔊 でたしかめる</li></ol><div class="ah-tip">💡 <b>先生向け:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。まず 子どもが 自分の口で 言ってから たしかめる、という順番で つかってください。アプリは こたえを 持っていないので、<b>相手にたずねないと 埋まりません</b>。「ちがい」だけでなく「意外と同じ」に気づかせると、異文化理解が深まります。</div>
   </div>
 </div>
 <script>

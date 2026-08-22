@@ -96,42 +96,47 @@ main{ max-width:1300px; margin:0 auto; padding:14px 14px 70px; overflow-x:hidden
   overflow:visible;
 }
 .w-char{ position:absolute; inset:0; }
-.w-char-head{ position:absolute; top:3%; left:33%; width:34%; height:25%; border-radius:50%; background:#ffdfb0; box-shadow:inset 0 -6px 10px rgba(0,0,0,.06); }
-.w-char-head::before, .w-char-head::after{ content:''; position:absolute; top:46%; width:8%; height:8%; border-radius:50%; background:#3b3b3b; }
-.w-char-head::before{ left:28%; }
-.w-char-head::after{ left:64%; }
-.w-char-body{ position:absolute; top:28%; left:24%; width:52%; height:36%; border-radius:26px; background:#fdfdfd; border:3px solid #eef2f6; }
-.w-char-arm{ position:absolute; top:32%; width:12%; height:26%; border-radius:20px; background:#ffdfb0; }
-.w-char-arm-l{ left:12%; }
-.w-char-arm-r{ left:76%; }
-.w-char-leg{ position:absolute; top:62%; width:16%; height:26%; border-radius:16px; background:#8aa0b3; }
-.w-char-leg-l{ left:29%; }
-.w-char-leg-r{ left:55%; }
+/* キャラクターの絵は 3:4 の 透過PNG。ステージも 3:4 なので ぴったり かさなる。
+   ここに transform / filter / opacity を つけないこと(服の cutout合成が こわれる)。 */
+.w-char img{ width:100%; height:100%; display:block; object-fit:contain; }
 
 .w-slot{ position:absolute; pointer-events:none; }
 .w-slot .app-card-art{ width:100%; height:100%; }
+/* 絵カードは 白い紙に かかれているので、そのまま かさねると 白い四角が 出る。
+   共通キットの cutout(乗算合成)は 白を すかせるが、下が こい色だと
+   服の色まで かけ算されて どす黒くなる(かみの上の ぼうしが まさにそれ)。
+   ここでは かわりに「白いところだけ すきとおらせる」フィルタを つかう。
+   明るさ(luminance)から アルファを つくるので、白は 消えて、色のところは
+   そのままの色で のこる。下の色に 引きずられない。 */
+.w-slot .app-card-art > img{ filter:url(#w-white-out); }
 /* 画像が無い服(boots/coat/gloves/scarf/sunglasses/swimsuit)は 絵文字フォールバックになるが、
    既定だと 本文サイズのまま とても小さく表示されてしまう。スロットの実寸に合わせて拡大する。
    (font-size の変更は cutout合成やスタッキングに影響しないので安全) */
 .w-slot .app-card-emoji{ font-size:3.6rem; line-height:1; }
 .w-slot[data-slot="head"] .app-card-emoji{ font-size:3.4rem; }
 .w-slot[data-slot="face"] .app-card-emoji{ font-size:2.6rem; }
-.w-slot[data-slot="neck"] .app-card-emoji{ font-size:2rem; }
-.w-slot[data-slot="body"] .app-card-emoji{ font-size:4.6rem; }
-.w-slot[data-slot="hand"] .app-card-emoji{ font-size:2.2rem; }
+.w-slot[data-slot="neck"] .app-card-emoji{ font-size:3rem; }
+.w-slot[data-slot="body"] .app-card-emoji{ font-size:6.2rem; }
+.w-slot[data-slot="hand"] .app-card-emoji{ font-size:2.8rem; }
 .w-slot[data-slot="held"] .app-card-emoji{ font-size:3.6rem; }
-.w-slot[data-slot="feet"] .app-card-emoji{ font-size:4.2rem; }
+.w-slot[data-slot="feet"] .app-card-emoji{ font-size:4.6rem; }
 /* ★ z-index は使わない。position が static 以外の要素に z-index を付けると
    スタッキングコンテキストができ、cutout(mix-blend-mode)の合成が切れて
    服の後ろに白い四角が出てしまう(共通CSSの注意書きを参照)。
    重ね順は DOM の追加順(SLOTS の並び)で決めている。 */
-.w-slot[data-slot="head"]{ top:1%;  left:33%; width:34%; height:25.5%; }
-.w-slot[data-slot="face"]{ top:11%; left:37%; width:27%; height:20.3%; }
-.w-slot[data-slot="neck"]{ top:23%; left:40%; width:20%; height:15%;  }
-.w-slot[data-slot="body"]{ top:27%; left:27%; width:46%; height:34.5%; }
-.w-slot[data-slot="hand"]{ top:34%; left:2%;  width:22%; height:16.5%; }
-.w-slot[data-slot="held"]{ top:2%;  left:63%; width:35%; height:26.3%; }
-.w-slot[data-slot="feet"]{ top:63%; left:29%; width:42%; height:31.5%; }
+/* 位置は キャラクターの絵(shared/img/weather-kid.png)に あわせてある。
+   絵を さしかえたら、ここも あわせて 直すこと。
+   ・大きさは「はば」で きまる。square+tight は カードの まん中 480px ぶんを
+     スロットの はばに あわせて うつすので、絵は だいたい はばの 8割になる。
+   ・キャラクターは 右手を 上げているので、かさ(held)は 左がわ、
+     手ぶくろ(hand)は 右がわ。 */
+.w-slot[data-slot="head"]{ top:-4.0%;  left:28.4%; width:51.0%; height:38.2%; }  /* あたま(ぼうし) */
+.w-slot[data-slot="face"]{ top:19.3%; left:38.7%; width:25.5%; height:11.0%; }  /* かお(サングラス) */
+.w-slot[data-slot="neck"]{ top:35.1%; left:40.2%; width:22.5%; height:11.0%; }  /* えりもと(マフラー) */
+.w-slot[data-slot="body"]{ top:36.3%; left:30.6%; width:41.2%; height:30.9%; }  /* むね(服) */
+.w-slot[data-slot="hand"]{ top:60.4%; left:60.9%; width:19.6%; height:11.8%; }  /* 下げた左手(手ぶくろ) */
+.w-slot[data-slot="held"]{ top:-1.5%; left:2.2%;  width:33.3%; height:25.0%; }  /* 上げた右手(かさ) */
+.w-slot[data-slot="feet"]{ top:84.0%; left:36.5%; width:29.4%; height:16.2%; }  /* あし(くつ) */
 .w-slot.filled{ cursor:pointer; pointer-events:auto; }
 .w-charstage.w-dragover{ box-shadow:0 14px 30px rgba(0,0,0,.16), inset 0 6px 16px rgba(255,255,255,.9), 0 0 0 6px rgba(46,213,115,.5); }
 .w-char-empty-hint{
@@ -604,13 +609,17 @@ function wornIds(){ return SLOTS.filter(function(s){ return worn[s]; }).map(func
 /* ============================================================
    3. キャラクター土台(きせかえ用 / プレビュー用で共通利用)
    ============================================================ */
+/* キャラクターの絵。<img> は スロット(服)の 祖先では なく きょうだいなので、
+   服の cutout合成(乗算)は そのまま はたらく。
+   絵は 3:4 の 透過PNG。ステージも 3:4 なので ぴったり かさなる。 */
 function buildCharDoll(){
   var doll = document.createElement('div');
   doll.className = 'w-char';
-  doll.innerHTML =
-    '<div class="w-char-head"></div><div class="w-char-body"></div>' +
-    '<div class="w-char-arm w-char-arm-l"></div><div class="w-char-arm w-char-arm-r"></div>' +
-    '<div class="w-char-leg w-char-leg-l"></div><div class="w-char-leg w-char-leg-r"></div>';
+  var img = document.createElement('img');
+  img.src = '../shared/img/weather-kid.png';
+  img.alt = '';
+  img.decoding = 'async';
+  doll.appendChild(img);
   return doll;
 }
 function buildCharStage(readonly){
@@ -637,7 +646,9 @@ function fillStage(slots, wornMap){
     el.classList.add('filled');
     var item = CLOTHESBY[id];
     var art = cardArt(item.img, item.emoji);
-    art.classList.add('square','tight','cutout');
+    /* cutout(乗算)ではなく、白ぬきフィルタ(#w-white-out)で 白を すかせる。
+       CSS の .w-slot .app-card-art > img で かけている。 */
+    art.classList.add('square','tight');
     art.style.setProperty('--art-rot', (((s.length * 37 + id.length * 11) % 12) - 6) + 'deg');
     el.appendChild(art);
   });
@@ -1321,5 +1332,14 @@ window.__weatherState = function(){
 })();
 </script>
 
+<!-- 絵カードの 白い紙だけを すきとおらせる フィルタ。
+     アルファ = 1 - 明るさ に してから、きゅうな カーブで 0/1 に よせている。
+     白(明るさ1) → 消える / 色のところ → そのままの色で のこる。 -->
+<svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden">
+  <filter id="w-white-out" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
+    <feComponentTransfer><feFuncA type="linear" slope="7" intercept="-0.28"/></feComponentTransfer>
+  </filter>
+</svg>
 </body>
 </html>

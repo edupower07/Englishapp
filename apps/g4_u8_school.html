@@ -833,15 +833,8 @@ function initGuessScreen(){
   $('btn-guess-next').addEventListener('click', function(){ sfx('tap'); newGuess(); });
 }
 function speakQueue(lines){
-  try{
-    if(!window.speechSynthesis) return;
-    speechSynthesis.cancel();
-    lines.forEach(function(t){
-      var u = new SpeechSynthesisUtterance(t);
-      u.lang = 'en-US'; u.rate = 0.85;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+  /* まとめ読みは キットの speakQueue に まかせる(speak だと 前の行を 止めてしまう) */
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines); }catch(e){}
 }
 function drawGuessProgramHidden(){
   $('guess-program').innerHTML = '<span class="sch-p-empty">🔊で 道あんないを 聞いてみよう(まだ ひみつだよ)</span>';

@@ -92,6 +92,26 @@
     merged.rate = (typeof opts.rate === 'number') ? opts.rate : 0.6;
     speak(text, merged);
   }
+  /* 何行かを つづけて 読ませる。speak は 直前の 発話を 止めてしまうので、
+     お手本の 対話や 道あんないを まとめて 聞かせるときは この関数を つかう。
+     端末の 読み上げキューに 順に 積むだけなので、onend に たよらず 確実に 最後まで 鳴る。 */
+  function speakQueue(lines, opts) {
+    opts = opts || {};
+    try {
+      if (!('speechSynthesis' in global) || !lines || !lines.length) return;
+      var synth = global.speechSynthesis;
+      synth.cancel();
+      for (var i = 0; i < lines.length; i++) {
+        var t = String(lines[i] == null ? '' : lines[i]).trim();
+        if (!t) continue;
+        var u = new SpeechSynthesisUtterance(t);
+        u.lang = opts.lang || 'en-US';
+        u.rate = (typeof opts.rate === 'number') ? opts.rate : 0.85;
+        if (typeof opts.pitch === 'number') u.pitch = opts.pitch;
+        synth.speak(u);
+      }
+    } catch (e) {}
+  }
 
   /* ============================================================
      1. 効果音(WebAudio 合成 / 音声ファイル不要)
@@ -530,6 +550,7 @@
     stars: stars,
     speak: speak,
     speakSlow: speakSlow,
+    speakQueue: speakQueue,
     cardImg: cardImg,
     cardArt: cardArt,
     ART_W: ART_W,

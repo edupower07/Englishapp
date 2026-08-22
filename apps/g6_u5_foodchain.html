@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>食物連鎖クイズビルダー | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
@@ -106,54 +107,28 @@ main{max-width:980px;margin:0 auto;padding:16px 16px 60px}
 .quiz-hud{display:flex;justify-content:space-between;max-width:560px;margin:0 auto 10px;font-weight:800;color:var(--sub)}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
+
+/* ---- ペアで チェーンあて ---- */
+.pr-role{border-radius:22px;padding:16px;margin:0 auto 14px;max-width:760px;box-shadow:var(--shadow);background:#fff;border:5px solid #e6ecf2}
+.pr-role.teller{border-color:var(--yellow,#fdcb6e);background:#fffdf3}
+.pr-role.asker{border-color:var(--primary);background:#f2fbf6}
+.pr-role h3{font-size:1rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pr-role .who{font-size:.74rem;color:#fff;background:#636e72;border-radius:50px;padding:4px 12px;flex:none}
+.pr-role .hint{font-size:.84rem;font-weight:700;color:var(--sub);line-height:1.8;margin-top:8px}
+.pr-secret{background:#fff;border-radius:18px;border:4px dashed var(--yellow,#fdcb6e);padding:14px;min-height:120px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px}
+.pr-secret .s-mask{font-weight:800;color:#b2bec3;font-size:1rem;text-align:center;line-height:1.9}
+.pr-score{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-weight:800;color:var(--sub);font-size:.9rem;margin-bottom:12px}
+.pr-score b{color:var(--primary-dark);font-size:1.25rem}
+.say-btn{border:none;background:#546de5;color:#fff;border-radius:50px;min-width:56px;min-height:48px;font-size:1.05rem;cursor:pointer;font-family:inherit;font-weight:800;padding:0 16px}
 </style>
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🦈 食物連鎖クイズビルダー <span class="u">6年生 食物連鎖</span></h1>
   <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-home">モードせんたく</button>
+    <button class="nav-btn hidden" id="btn-home">モードせんたく</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
   </div>
 </header>
@@ -174,6 +149,11 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
         <h2>食物連鎖クイズ</h2>
         <p>What do sharks eat?<br>かくれた生き物をあてよう(8問)</p>
       </div>
+      <div class="mode-card m1" data-mode="pair">
+        <div class="mi">🤝</div>
+        <h2>ペアで チェーンあて</h2>
+        <p>Eagles eat snakes. と 英語で つたえて<br>相手に 同じチェーンを つくってもらおう</p>
+      </div>
     </div>
   </section>
 
@@ -188,6 +168,46 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
       <button class="big-btn gray" id="btn-clear">さいしょから</button>
     </div>
     <div class="sent-box hidden" id="sent-box"></div>
+  </section>
+
+  <!-- ペアで チェーンあて -->
+  <section id="scr-pair" class="hidden">
+    <h2 class="step-title">🤝 ペアで チェーンあて</h2>
+    <p class="step-sub">
+      <b>出す人</b>は ひみつのチェーンを 見て、英語で つたえます。<br>
+      <b>あてる人</b>は 聞いたとおりに 同じチェーンを つくります。
+    </p>
+    <div class="pr-score">
+      <span>出した問題 <b id="pr-total">0</b></span>
+      <span>せいかい <b id="pr-ok">0</b></span>
+    </div>
+
+    <div class="pr-role teller">
+      <h3><span class="who">出す人</span>ひみつのチェーン</h3>
+      <div class="pr-secret" id="pr-secret"></div>
+      <div class="actions" style="margin-top:10px">
+        <button class="big-btn" id="pr-peek" style="background:var(--yellow,#fdcb6e);color:#7a5b1e">👀 見る</button>
+        <button class="big-btn gray" id="pr-next">つぎの チェーン 🎲</button>
+      </div>
+      <p class="hint">
+        チェーンは かくれています。<b>👀 見る</b>を おすと 4秒だけ 見えて、すぐ また かくれます。<br>
+        <b>Eagles eat snakes. / Snakes eat frogs.</b> の形で つたえよう。
+      </p>
+    </div>
+
+    <div class="pr-role asker">
+      <h3><span class="who">あてる人</span>聞いたとおりに つくろう</h3>
+      <div class="chain-zone" id="pr-chain"></div>
+      <div class="pool" id="pr-pool"></div>
+      <div class="actions">
+        <button class="big-btn green" id="pr-check" disabled>こたえあわせ ⭕</button>
+        <button class="big-btn gray" id="pr-clear">けす</button>
+      </div>
+      <div class="msg" id="pr-msg"></div>
+      <div class="actions hidden" id="pr-after">
+        <button class="say-btn" id="pr-say">🔊 お手本を きく</button>
+      </div>
+    </div>
   </section>
 
   <!-- クイズ -->
@@ -212,6 +232,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
   Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
 </footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
@@ -222,45 +243,35 @@ const QUIZ_COUNT = 8;
 
 const CREATURES = [
   // 海
-  { id:"seaweed",  en:"seaweed",     ja:"かいそう",     img:"seaweed.jpg",     emoji:"🌿", eats:[] },
-  { id:"plankton", en:"plankton",    ja:"プランクトン", img:null,              emoji:"🦠", eats:[] },
-  { id:"shrimp",   en:"shrimp",      ja:"エビ",         img:"shrimp.jpg",      emoji:"🦐", eats:["plankton","seaweed"] },
-  { id:"crab",     en:"crabs",       ja:"カニ",         img:"crab.jpg",        emoji:"🦀", eats:["seaweed","shrimp"] },
-  { id:"fish",     en:"small fish",  ja:"小さな魚",     img:"fish.jpg",        emoji:"🐟", eats:["plankton","shrimp"] },
-  { id:"squid",    en:"squid",       ja:"イカ",         img:"squid.jpg",       emoji:"🦑", eats:["fish","shrimp"] },
-  { id:"octopus",  en:"octopuses",   ja:"タコ",         img:"octopus.jpg",     emoji:"🐙", eats:["crab","shrimp"] },
-  { id:"shark",    en:"sharks",      ja:"サメ",         img:"shark.jpg",       emoji:"🦈", eats:["fish","squid","octopus"] },
-  { id:"whale",    en:"whales",      ja:"クジラ",       img:"whale.jpg",       emoji:"🐋", eats:["plankton","fish","squid"] },
+  { id:"seaweed",  en:"seaweed", img:"seaweed.jpg",     emoji:"🌿", eats:[] },
+  { id:"plankton", en:"plankton", img:null,              emoji:"🦠", eats:[] },
+  { id:"shrimp",   en:"shrimp", img:"shrimp.jpg",      emoji:"🦐", eats:["plankton","seaweed"] },
+  { id:"crab",     en:"crabs", img:"crab.jpg",        emoji:"🦀", eats:["seaweed","shrimp"] },
+  { id:"fish",     en:"small fish", img:"fish.jpg",        emoji:"🐟", eats:["plankton","shrimp"] },
+  { id:"squid",    en:"squid", img:"squid.jpg",       emoji:"🦑", eats:["fish","shrimp"] },
+  { id:"octopus",  en:"octopuses", img:"octopus.jpg",     emoji:"🐙", eats:["crab","shrimp"] },
+  { id:"shark",    en:"sharks", img:"shark.jpg",       emoji:"🦈", eats:["fish","squid","octopus"] },
+  { id:"whale",    en:"whales", img:"whale.jpg",       emoji:"🐋", eats:["plankton","fish","squid"] },
   // 陸
-  { id:"grass",    en:"grass",       ja:"草",           img:null,              emoji:"🌱", eats:[] },
-  { id:"grasshopper", en:"grasshoppers", ja:"バッタ",   img:"grasshopper.jpg", emoji:"🦗", eats:["grass"] },
-  { id:"mouse",    en:"mice",        ja:"ネズミ",       img:"mouse.jpg",       emoji:"🐭", eats:["grass"] },
-  { id:"frog",     en:"frogs",       ja:"カエル",       img:"frog.jpg",        emoji:"🐸", eats:["grasshopper"] },
-  { id:"snake",    en:"snakes",      ja:"ヘビ",         img:"snake.jpg",       emoji:"🐍", eats:["frog","mouse"] },
-  { id:"owl",      en:"owls",        ja:"フクロウ",     img:"owl.jpg",         emoji:"🦉", eats:["mouse","snake"] },
-  { id:"eagle",    en:"eagles",      ja:"ワシ",         img:"eagle.jpg",       emoji:"🦅", eats:["snake","mouse","frog"] },
+  { id:"grass",    en:"grass", img:null,              emoji:"🌱", eats:[] },
+  { id:"grasshopper", en:"grasshoppers", img:"grasshopper.jpg", emoji:"🦗", eats:["grass"] },
+  { id:"mouse",    en:"mice", img:"mouse.jpg",       emoji:"🐭", eats:["grass"] },
+  { id:"frog",     en:"frogs", img:"frog.jpg",        emoji:"🐸", eats:["grasshopper"] },
+  { id:"snake",    en:"snakes", img:"snake.jpg",       emoji:"🐍", eats:["frog","mouse"] },
+  { id:"owl",      en:"owls", img:"owl.jpg",         emoji:"🦉", eats:["mouse","snake"] },
+  { id:"eagle",    en:"eagles", img:"eagle.jpg",       emoji:"🦅", eats:["snake","mouse","frog"] },
 ];
 
 // ============================================================
-// 音声
+// 音声(共通キット経由。🔊 を おしたときだけ 鳴らす)
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function speak(text, rate){
+  try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+function speakQueue(lines, rate){
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
 
 // ============================================================
@@ -271,7 +282,9 @@ let quiz = { qs:[], idx:0, score:0, lock:false };
 const $ = id => document.getElementById(id);
 const cOf = id => CREATURES.find(c => c.id === id);
 function show(id){
-  ["scr-mode","scr-build","scr-quiz"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  ["scr-mode","scr-build","scr-quiz","scr-pair"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  $("btn-home").classList.toggle("hidden", id === "scr-mode");
+  window.scrollTo(0, 0);
 }
 function shuffle(a){ return [...a].sort(() => Math.random() - .5); }
 function creatureVisual(c){
@@ -317,7 +330,7 @@ $("pool").addEventListener("click", e => {
   const el = e.target.closest(".creature"); if(!el || el.classList.contains("dim")) return;
   const c = cOf(el.dataset.id);
   chain.push(c.id);
-  speak(c.en);
+  sfx("tap");
   $("sent-box").classList.add("hidden");
   drawChain(); drawPool();
 });
@@ -337,11 +350,17 @@ function chainSentences(){
   return lines;
 }
 $("btn-say").addEventListener("click", () => {
+  /* まず じぶんの口で 言ってみる。読み上げは 行の 🔊 か「ぜんぶ きく」で。 */
   const lines = chainSentences();
   $("sent-box").innerHTML = lines.map((t,i) =>
-    `<div class="sent-line ${i === lines.length-1 ? "eco" : ""}" data-t="${t}">🔊 ${t}</div>`).join("");
+    `<div class="sent-line ${i === lines.length-1 ? "eco" : ""}" data-t="${t}">🔊 ${t}</div>`).join("")
+    + `<div style="text-align:center;margin-top:10px"><button type="button" class="say-btn" id="btn-say-all">🔊 ぜんぶ きく</button></div>`;
   $("sent-box").classList.remove("hidden");
-  speakQueue(lines);
+  sfx("pop");
+  $("btn-say-all").addEventListener("click", ev => {
+    ev.stopPropagation();
+    sfx("tap"); speakQueue(chainSentences());
+  });
 });
 $("sent-box").addEventListener("click", e => {
   const el = e.target.closest(".sent-line"); if(!el) return;
@@ -388,7 +407,15 @@ function drawQuizQ(){
       <div class="plabel">${c.en}</div>
     </div>`).join("");
   $("q-msg").textContent = ""; $("q-msg").className = "msg";
-  speak(`What do ${eater.en} eat?`);
+  /* 問題は かってに 読み上げない。聞きたいときは 🔊 をおす。 */
+  $("q-text").innerHTML = "";
+  $("q-text").appendChild(document.createTextNode(`What do ${eater.en} eat?`));
+  const sayQ = document.createElement("button");
+  sayQ.type = "button"; sayQ.className = "say-btn"; sayQ.textContent = "🔊";
+  sayQ.setAttribute("aria-label", "しつもんを きく 🔊");
+  sayQ.style.marginLeft = "10px";
+  sayQ.addEventListener("click", () => { sfx("tap"); speak(`What do ${eater.en} eat?`); });
+  $("q-text").appendChild(sayQ);
 }
 $("q-opts").addEventListener("click", e => {
   const el = e.target.closest(".creature"); if(!el || quiz.lock) return;
@@ -398,7 +425,7 @@ $("q-opts").addEventListener("click", e => {
     quiz.lock = true; quiz.score++;
     $("q-msg").textContent = `⭕ ${cap(eater.en)} eat ${cOf(q.prey).en}!`;
     $("q-msg").className = "msg ok";
-    speak(`Yes! ${cap(eater.en)} eat ${cOf(q.prey).en}.`);
+    sfx("correct");
     $("q-score").textContent = `せいかい ${quiz.score}`;
     setTimeout(() => {
       quiz.idx++;
@@ -407,10 +434,19 @@ $("q-opts").addEventListener("click", e => {
         $("q-sub").textContent = "おつかれさま!「モードせんたく」からもういちどあそべるよ";
         $("q-chain").innerHTML = `<span style="font-size:3.4rem">${quiz.score === quiz.qs.length ? "🏆" : "🎉"}</span>`;
         $("q-opts").innerHTML = ""; $("q-msg").textContent = "";
-        speak(quiz.score === quiz.qs.length ? "Perfect! We all live on the Earth!" : "Good job!");
+        try{
+          if(window.AppUI && AppUI.celebrate){
+            AppUI.celebrate({
+              icon: quiz.score === quiz.qs.length ? "🏆" : "🎉",
+              title: `${quiz.qs.length}問中 ${quiz.score}問 せいかい!`,
+              sub: "We all live on the Earth!"
+            });
+          }
+        }catch(e){}
       }else drawQuizQ();
     }, 1600);
   }else{
+    sfx("wrong");
     $("q-msg").textContent = "❌ もういちど考えてみよう";
     $("q-msg").className = "msg ng";
   }
@@ -419,11 +455,170 @@ $("q-opts").addEventListener("click", e => {
 // ============================================================
 // ナビゲーション
 // ============================================================
+// ============================================================
+// ペアで チェーンあて
+// ------------------------------------------------------------
+// 1台を 2人で のぞきこむ前提。ひみつのチェーンは ふだん かくしておき、
+// 👀 を おしたときだけ 4秒 見えて、また かくれる。
+// あてる人は 聞いたことばだけを たよりに 同じチェーンを 組み立てる。
+// ============================================================
+const PR_PEEK_MS = 4000;
+let prSecret = [], prChain = [], prTimer = null, prSolved = false;
+let prTotal = 0, prOk = 0;
+
+/* 長さ3の 正しいチェーンを ランダムに つくる */
+function randomChain(){
+  for(let t = 0; t < 200; t++){
+    const bottom = CREATURES.filter(c => c.eats.length === 0);
+    const a = bottom[Math.floor(Math.random() * bottom.length)];
+    const mids = CREATURES.filter(c => c.eats.includes(a.id));
+    if(!mids.length) continue;
+    const b = mids[Math.floor(Math.random() * mids.length)];
+    const tops = CREATURES.filter(c => c.eats.includes(b.id));
+    if(!tops.length) continue;
+    const c = tops[Math.floor(Math.random() * tops.length)];
+    return [a.id, b.id, c.id];
+  }
+  return ["grass", "grasshopper", "frog"];
+}
+function prLines(ids){
+  const lines = [];
+  for(let i = ids.length - 1; i >= 1; i--){
+    lines.push(`${cap(cOf(ids[i]).en)} eat ${cOf(ids[i-1]).en}.`);
+  }
+  return lines;
+}
+function prDrawSecret(revealed){
+  const box = $("pr-secret");
+  if(!prSecret.length || !revealed){
+    box.innerHTML = `<span class="s-mask">${prSecret.length
+      ? "🙈 かくれています。👀 見る を おすと 4秒だけ 見えます"
+      : "🎲 を おして ひみつのチェーンを だそう"}</span>`;
+    return;
+  }
+  box.innerHTML = prSecret.map((id, i) => {
+    const c = cOf(id);
+    return `${i > 0 ? '<span class="chain-arrow">→</span>' : ""}
+      <div class="chain-card">${creatureVisual(c)}<small>${c.en}</small></div>`;
+  }).join("");
+}
+function prMask(){
+  clearTimeout(prTimer);
+  $("pr-peek").textContent = "👀 見る";
+  prDrawSecret(prSolved);
+}
+function prDrawChain(){
+  $("pr-chain").innerHTML = prChain.length === 0
+    ? `<span class="chain-empty">聞いたとおりに、下からえらんで つないでみよう</span>`
+    : prChain.map((id, i) => {
+        const c = cOf(id);
+        return `${i > 0 ? '<span class="chain-arrow">→</span>' : ""}
+          <div class="chain-card" data-i="${i}" title="タップでここから後ろをけす">
+            ${creatureVisual(c)}<small>${c.en}</small>
+          </div>`;
+      }).join("");
+  $("pr-check").disabled = prChain.length !== prSecret.length || prSolved;
+}
+function prDrawPool(){
+  $("pr-pool").innerHTML = CREATURES.map(c => {
+    const used = prChain.includes(c.id);
+    return `<div class="creature ${used ? "dim" : "ok"}" data-id="${c.id}">
+      <div class="pimg">${c.img
+        ? `<img src="${IMG_BASE + encodeURIComponent(c.img)}" alt="${c.en}" onerror="this.outerHTML='<span class=&quot;pemoji&quot;>${c.emoji}</span>'">`
+        : `<span class="pemoji">${c.emoji}</span>`}</div>
+      <div class="plabel">${c.en}</div>
+    </div>`;
+  }).join("");
+}
+function prDrawScore(){
+  $("pr-total").textContent = String(prTotal);
+  $("pr-ok").textContent = String(prOk);
+}
+function prNext(){
+  clearTimeout(prTimer);
+  prSecret = randomChain();
+  prChain = [];
+  prSolved = false;
+  prTotal++;
+  prDrawScore();
+  $("pr-msg").textContent = ""; $("pr-msg").className = "msg";
+  $("pr-after").classList.add("hidden");
+  $("pr-peek").textContent = "👀 見る";
+  prDrawSecret(false); prDrawChain(); prDrawPool();
+}
+$("pr-pool").addEventListener("click", e => {
+  const el = e.target.closest(".creature");
+  if(!el || el.classList.contains("dim") || prSolved) return;
+  if(prChain.length >= prSecret.length) return;
+  sfx("tap");
+  prChain.push(el.dataset.id);
+  prDrawChain(); prDrawPool();
+});
+$("pr-chain").addEventListener("click", e => {
+  const el = e.target.closest(".chain-card"); if(!el || prSolved) return;
+  sfx("tick");
+  prChain = prChain.slice(0, +el.dataset.i);
+  prDrawChain(); prDrawPool();
+});
+$("pr-clear").addEventListener("click", () => {
+  if(prSolved) return;
+  sfx("tick");
+  prChain = [];
+  $("pr-msg").textContent = ""; $("pr-msg").className = "msg";
+  prDrawChain(); prDrawPool();
+});
+$("pr-check").addEventListener("click", () => {
+  if(!prSecret.length || prSolved) return;
+  const same = prChain.length === prSecret.length &&
+    prChain.every((id, i) => id === prSecret[i]);
+  if(same){
+    prSolved = true; prOk++;
+    prDrawScore();
+    sfx("correct");
+    clearTimeout(prTimer);
+    prDrawSecret(true);
+    $("pr-msg").textContent = "⭕ ぴったり同じ! よく聞けたね";
+    $("pr-msg").className = "msg ok";
+    $("pr-after").classList.remove("hidden");
+    $("pr-check").disabled = true;
+    try{
+      if(window.AppUI && AppUI.celebrate) AppUI.celebrate({ icon:"🔗", title:"あたり!", sub:"This is a food chain!" });
+    }catch(e){}
+  }else{
+    sfx("wrong");
+    $("pr-msg").textContent = "❌ ちがうところが あるよ。もういちど 聞いてみよう";
+    $("pr-msg").className = "msg ng";
+  }
+});
+$("pr-peek").addEventListener("click", () => {
+  if(!prSecret.length) return;
+  sfx("tap");
+  clearTimeout(prTimer);
+  prDrawSecret(true);
+  $("pr-peek").textContent = "👀 見ています…";
+  prTimer = setTimeout(prMask, PR_PEEK_MS);
+});
+$("pr-next").addEventListener("click", () => { sfx("pop"); prNext(); });
+$("pr-say").addEventListener("click", () => {
+  if(!prSecret.length) return;
+  sfx("tap");
+  speakQueue(prLines(prSecret).concat(["This is a food chain!"]));
+});
+prDrawSecret(false); prDrawChain(); prDrawPool(); prDrawScore();
+
+// ============================================================
+// ナビゲーション
+// ============================================================
 document.querySelectorAll(".mode-card").forEach(c => c.addEventListener("click", () => {
+  sfx("pop");
   if(c.dataset.mode === "build"){ chain = []; drawChain(); drawPool(); $("sent-box").classList.add("hidden"); show("scr-build"); }
+  else if(c.dataset.mode === "pair"){ show("scr-pair"); if(!prSecret.length) prNext(); }
   else startQuiz();
 }));
-$("btn-home").addEventListener("click", () => { speechSynthesis.cancel(); show("scr-mode"); });
+$("btn-home").addEventListener("click", () => {
+  try{ speechSynthesis.cancel(); }catch(e){}
+  sfx("tap"); prMask(); show("scr-mode");
+});
 
 show("scr-mode");
 </script>
@@ -443,8 +638,7 @@ show("scr-mode");
 <div id="app-help-overlay" class="ah-hidden">
   <div class="ah-box">
     <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>生きもののつながり(食物連鎖)を英語でつくって出題するアプリです。</p><h4>あそびかた</h4><ol><li>「フードチェーンをつくる」:生きものをならべて、つながりをつくろう</li><li>つくったチェーンを、<b>じぶんの声で</b>友だちに出題してみよう(Eagles eat snakes. のように)</li><li>「食物連鎖クイズ」で、いろいろなつながりをたしかめよう</li></ol><div class="ah-tip">💡 先生向け:理科の学びとつながる教科横断の活動です。児童が出題者になる時間を多めに。</div>
+    <h3>❓ このアプリの使い方</h3><p>生きもののつながり(食物連鎖)を 英語で つくって 出題する アプリです。</p><h4>🔗 フードチェーンをつくる</h4><ol><li>生きものを ならべて つながりを つくる(えらんでも 読み上げません)</li><li>まず <b>じぶんの声で</b> 友だちに 出題してみる(Eagles eat snakes. のように)</li><li>行の 🔊 や「ぜんぶ きく」で たしかめる</li></ol><h4>❓ 食物連鎖クイズ</h4><p>8問。問題は 🔊 を おしたときだけ 読み上げます。</p><h4>🤝 ペアで チェーンあて</h4><ol><li><b>出す人</b>が「👀 見る」で ひみつのチェーンを 4秒だけ 見る</li><li><b>Eagles eat snakes.</b> のように 英語で つたえる</li><li><b>あてる人</b>が 聞いたとおりに 同じチェーンを 組み立てる</li></ol><div class="ah-tip">💡 <b>先生向け:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。まず 子どもが 自分の口で 言ってから たしかめる、という順番で つかってください。理科の学びと つながる 教科横断の活動です。児童が 出題者になる時間を 多めに。</div>
   </div>
 </div>
 <script>

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>将来の夢プレゼンカードメーカー | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
@@ -94,6 +95,20 @@ main{max-width:940px;margin:0 auto;padding:16px 16px 60px}
 .model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
+
+/* ---- ペアで インタビュー ---- */
+.say-btn{border:none;background:#546de5;color:#fff;border-radius:50px;min-width:56px;min-height:48px;font-size:1.05rem;cursor:pointer;font-family:inherit;font-weight:800;padding:0 16px}
+.iv-name{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.iv-name input{
+  border:4px solid #e6ecf2;border-radius:14px;padding:10px 14px;font-family:'Fredoka One',cursive;
+  font-size:1.2rem;text-align:center;width:170px;color:var(--primary-dark);
+}
+.iv-name .hs{border:4px solid #e6ecf2;background:#fff;border-radius:50px;padding:10px 18px;font-family:inherit;font-weight:800;cursor:pointer;min-height:52px;color:#2d3436}
+.iv-name .hs.on{border-color:var(--primary);background:#eef6ff;color:var(--primary-dark)}
+.iv-qh{max-width:820px;margin:16px auto 8px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.iv-qh .qtxt{font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--primary-dark)}
+.iv-line{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#eef6ff;margin-bottom:8px}
+.iv-line .txt{flex:1;font-family:'Fredoka One',cursive;font-size:1.06rem;line-height:1.4;word-break:break-word}
 @media print{
   header,.actions,footer,.step-title,.step-sub{display:none!important}
   body{background:#fff}
@@ -103,50 +118,12 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🌟 将来の夢プレゼンカード <span class="u">6年生 将来の夢</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-new">はじめから</button>
+    <button class="nav-btn" id="btn-iv">ペアで インタビュー</button>
     <button class="nav-btn" id="btn-book">みんなの夢文集</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
   </div>
@@ -206,6 +183,54 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
     </div>
   </section>
 
+  <!-- ペアで インタビュー -->
+  <section id="scr-iv" class="hidden">
+    <h2 class="step-title">🎤 ペアで インタビュー</h2>
+    <p class="step-sub">
+      相手に 英語で きいて、こたえを 絵で 記録しよう。<br>
+      きき方が わからなければ 🔊。<b>こたえは 相手の口から</b> 聞き出してね。
+    </p>
+    <div class="iv-name">
+      <input type="text" id="iv-who" placeholder="Kenta" maxlength="12" autocomplete="off" aria-label="相手の名前をローマ字で入力">
+      <button type="button" class="hs on" data-h="He">He</button>
+      <button type="button" class="hs" data-h="She">She</button>
+    </div>
+
+    <div class="iv-qh">
+      <span class="qtxt">What club do you want to join?</span>
+      <button type="button" class="say-btn" data-q="What club do you want to join?" aria-label="しつもんを きく 🔊">🔊</button>
+    </div>
+    <div class="grid" id="iv-club"></div>
+
+    <div class="iv-qh">
+      <span class="qtxt">What are you good at?</span>
+      <button type="button" class="say-btn" data-q="What are you good at?" aria-label="しつもんを きく 🔊">🔊</button>
+    </div>
+    <div class="grid" id="iv-skill"></div>
+
+    <div class="iv-qh">
+      <span class="qtxt">What do you want to be?</span>
+      <button type="button" class="say-btn" data-q="What do you want to be?" aria-label="しつもんを きく 🔊">🔊</button>
+    </div>
+    <div class="grid" id="iv-job"></div>
+
+    <div class="actions">
+      <button class="big-btn" id="btn-iv-make" disabled>相手の しょうかいを つくる ▶</button>
+      <button class="big-btn gray" id="btn-iv-clear">えらびなおす</button>
+    </div>
+
+    <div id="iv-result" class="hidden" style="margin-top:20px">
+      <div class="speech-card">
+        <div class="sp-head" id="iv-head">MY FRIEND'S DREAM</div>
+        <div class="sp-body"><div id="iv-lines"></div></div>
+      </div>
+      <div class="actions">
+        <button class="big-btn" id="btn-iv-say">🔊 ぜんぶ きく</button>
+        <button class="big-btn green" id="btn-iv-save">📖 夢文集にのこす</button>
+      </div>
+    </div>
+  </section>
+
   <!-- 文集 -->
   <section id="scr-book" class="hidden">
     <h2 class="step-title">📖 みんなの夢文集</h2>
@@ -223,6 +248,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
   Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
 </footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
@@ -230,65 +256,55 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
 
 const CLUBS = [
-  { en:"the brass band",        ja:"吹奏楽部",     img:"brass band.jpg",        emoji:"🎺" },
-  { en:"the soccer team",       ja:"サッカー部",   img:"soccer team.jpg",       emoji:"⚽" },
-  { en:"the baseball team",     ja:"野球部",       img:"baseball team.jpg",     emoji:"⚾" },
-  { en:"the basketball team",   ja:"バスケ部",     img:"basketball team.jpg",   emoji:"🏀" },
-  { en:"the tennis team",       ja:"テニス部",     img:"tennis team.jpg",       emoji:"🎾" },
-  { en:"the volleyball team",   ja:"バレー部",     img:"volleyball team.jpg",   emoji:"🏐" },
-  { en:"the table tennis team", ja:"卓球部",       img:"table tennis team.jpg", emoji:"🏓" },
-  { en:"the track team",        ja:"陸上部",       img:"track team.jpg",        emoji:"🏃" },
-  { en:"the science club",      ja:"科学部",       img:"science club.jpg",      emoji:"🧪" },
-  { en:"the drama club",        ja:"演劇部",       img:"drama club.jpg",        emoji:"🎭" },
-  { en:"the dance club",        ja:"ダンス部",     img:"dance club.jpg",        emoji:"💃" },
+  { en:"the brass band", img:"brass band.jpg",        emoji:"🎺" },
+  { en:"the soccer team", img:"soccer team.jpg",       emoji:"⚽" },
+  { en:"the baseball team", img:"baseball team.jpg",     emoji:"⚾" },
+  { en:"the basketball team", img:"basketball team.jpg",   emoji:"🏀" },
+  { en:"the tennis team", img:"tennis team.jpg",       emoji:"🎾" },
+  { en:"the volleyball team", img:"volleyball team.jpg",   emoji:"🏐" },
+  { en:"the table tennis team", img:"table tennis team.jpg", emoji:"🏓" },
+  { en:"the track team", img:"track team.jpg",        emoji:"🏃" },
+  { en:"the science club", img:"science club.jpg",      emoji:"🧪" },
+  { en:"the drama club", img:"drama club.jpg",        emoji:"🎭" },
+  { en:"the dance club", img:"dance club.jpg",        emoji:"💃" },
 ];
 const SKILLS = [
-  { en:"singing",           ja:"歌うこと",     img:"singing.jpg",           emoji:"🎤" },
-  { en:"running",           ja:"走ること",     img:"running.jpg",           emoji:"🏃" },
-  { en:"swimming",          ja:"泳ぐこと",     img:"swimming.jpg",          emoji:"🏊" },
-  { en:"cooking",           ja:"料理",         img:"cooking.jpg",           emoji:"🍳" },
-  { en:"drawing pictures",  ja:"絵をかくこと", img:"drawing pictures.jpg",  emoji:"🎨" },
-  { en:"playing the piano", ja:"ピアノ",       img:"playing the piano.jpg", emoji:"🎹" },
-  { en:"playing soccer",    ja:"サッカー",     img:"play soccer.jpg",       emoji:"⚽" },
-  { en:"speaking English",  ja:"英語",         img:"English.jpg",           emoji:"🔤" },
-  { en:"math",              ja:"算数・数学",   img:"math.jpg",              emoji:"➗" },
+  { en:"singing", img:"singing.jpg",           emoji:"🎤" },
+  { en:"running", img:"running.jpg",           emoji:"🏃" },
+  { en:"swimming", img:"swimming.jpg",          emoji:"🏊" },
+  { en:"cooking", img:"cooking.jpg",           emoji:"🍳" },
+  { en:"drawing pictures", img:"drawing pictures.jpg",  emoji:"🎨" },
+  { en:"playing the piano", img:"playing the piano.jpg", emoji:"🎹" },
+  { en:"playing soccer", img:"play soccer.jpg",       emoji:"⚽" },
+  { en:"speaking English", img:"English.jpg",           emoji:"🔤" },
+  { en:"math", img:"math.jpg",              emoji:"➗" },
 ];
 const JOBS = [
-  { en:"a teacher",       ja:"先生",           img:"teacher.jpg",         emoji:"🧑‍🏫" },
-  { en:"a doctor",        ja:"医者",           img:"doctor.jpg",          emoji:"🧑‍⚕️" },
-  { en:"a vet",           ja:"じゅう医",       img:"vet.jpg",             emoji:"🐾" },
-  { en:"a cook",          ja:"コック",         img:"cook.jpg",            emoji:"👨‍🍳" },
-  { en:"a soccer player", ja:"サッカー選手",   img:"soccer player.jpg",   emoji:"⚽" },
-  { en:"a baseball player", ja:"野球選手",     img:"baseball player.jpg", emoji:"⚾" },
-  { en:"a singer",        ja:"歌手",           img:"singer.jpg",          emoji:"🎤" },
-  { en:"a game creator",  ja:"ゲームクリエイター", img:"game creator.jpg", emoji:"🎮" },
-  { en:"an astronaut",    ja:"宇宙飛行士",     img:"astronaut.jpg",       emoji:"🚀" },
-  { en:"a nurse",         ja:"看護師",         img:"nurse.jpg",           emoji:"🩺" },
-  { en:"a firefighter",   ja:"消防士",         img:"firefighter.jpg",     emoji:"🚒" },
-  { en:"a comedian",      ja:"お笑い芸人",     img:"comedian.jpg",        emoji:"😆" },
+  { en:"a teacher", img:"teacher.jpg",         emoji:"🧑‍🏫" },
+  { en:"a doctor", img:"doctor.jpg",          emoji:"🧑‍⚕️" },
+  { en:"a vet", img:"vet.jpg",             emoji:"🐾" },
+  { en:"a cook", img:"cook.jpg",            emoji:"👨‍🍳" },
+  { en:"a soccer player", img:"soccer player.jpg",   emoji:"⚽" },
+  { en:"a baseball player", img:"baseball player.jpg", emoji:"⚾" },
+  { en:"a singer", img:"singer.jpg",          emoji:"🎤" },
+  { en:"a game creator", img:"game creator.jpg", emoji:"🎮" },
+  { en:"an astronaut", img:"astronaut.jpg",       emoji:"🚀" },
+  { en:"a nurse", img:"nurse.jpg",           emoji:"🩺" },
+  { en:"a firefighter", img:"firefighter.jpg",     emoji:"🚒" },
+  { en:"a comedian", img:"comedian.jpg",        emoji:"😆" },
 ];
 const STORAGE_KEY = "g6_dream_book_v1";
 
 // ============================================================
-// 音声
+// 音声(共通キット経由。🔊 を おしたときだけ 鳴らす)
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function speak(text, rate){
+  try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+function speakQueue(lines, rate){
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
 
 // ============================================================
@@ -300,7 +316,8 @@ try{ book = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ book
 
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-form","scr-try","scr-speech","scr-book"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  ["scr-form","scr-try","scr-speech","scr-book","scr-iv"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  window.scrollTo(0, 0);
 }
 function saveBook(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(book)); }catch(e){} }
 function pickHTML(item){
@@ -317,7 +334,7 @@ function buildGrid(elId, list, key){
     const p = e.target.closest(".pick"); if(!p) return;
     sel[key] = list.find(x => x.en === p.dataset.en);
     el.querySelectorAll(".pick").forEach(x => x.classList.toggle("on", x === p));
-    speak(sel[key].en);
+    sfx("tap");
     $("btn-make").disabled = !(sel.club && sel.skill && sel.job);
   });
 }
@@ -355,8 +372,8 @@ $("try-list").addEventListener("click", e => {
 });
 $("btn-make").addEventListener("click", () => {
   buildTry();
+  sfx("pop");
   show("scr-try");
-  speak("What club do you want to join?");
 });
 $("btn-back-try").addEventListener("click", () => show("scr-form"));
 
@@ -367,8 +384,8 @@ $("btn-check").addEventListener("click", () => {
   $("sp-icons").textContent = `${sel.club.emoji} ${sel.skill.emoji} ${sel.job.emoji}`;
   $("sp-lines").innerHTML = speechLines().map((l,i) =>
     `<div class="sp-line ${l.cls}" data-i="${i}">🔊 ${l.t}</div>`).join("");
+  sfx("pop");
   show("scr-speech");
-  speakQueue(speechLines().map(l => l.t));
 });
 $("sp-lines").addEventListener("click", e => {
   const el = e.target.closest(".sp-line"); if(!el) return;
@@ -393,17 +410,31 @@ function renderBook(){
         const club = CLUBS.find(c => c.en === b.club) || { emoji:"🏫" };
         const job = JOBS.find(j => j.en === b.job) || { emoji:"🌟" };
         return `<div class="book-item" data-i="${i}">
-          ${club.emoji}➡${job.emoji} <small>ゆめ その${i+1}:</small><br>
-          I want to join ${b.club}. I'm good at ${b.skill}. I want to be ${b.job}.
+          ${club.emoji}➡${job.emoji} <small>ゆめ その${i+1}${b.name ? "(" + b.name + ")" : ""}:</small><br>
+          🔊 ${bookLines(b).join(" ")}
         </div>`;
       }).join("");
 }
+/* 文集のページ。インタビューでのこしたものは 名前つき(3人称)、
+   じぶんでのこしたものは これまでどおり 1人称。 */
+function bookLines(b){
+  if(b.name){
+    const hs = b.hs || "He";
+    return [
+      `This is ${b.name}.`,
+      `${hs} wants to join ${b.club}.`,
+      `${hs} is good at ${b.skill}.`,
+      `${hs} wants to be ${b.job}.`
+    ];
+  }
+  return [`I want to join ${b.club}.`, `I'm good at ${b.skill}.`, `I want to be ${b.job}.`];
+}
 $("book-list").addEventListener("click", e => {
   const el = e.target.closest(".book-item"); if(!el) return;
-  const b = book[+el.dataset.i];
-  speakQueue([`I want to join ${b.club}.`, `I'm good at ${b.skill}.`, `I want to be ${b.job}.`]);
+  sfx("tap");
+  speakQueue(bookLines(book[+el.dataset.i]));
 });
-$("btn-book").addEventListener("click", () => { renderBook(); show("scr-book"); });
+$("btn-book").addEventListener("click", () => { sfx("tap"); renderBook(); show("scr-book"); });
 $("btn-clear-book").addEventListener("click", () => {
   if(confirm("夢文集をぜんぶ消します。いいですか?")){
     book = []; saveBook(); renderBook();
@@ -422,6 +453,82 @@ $("btn-new").addEventListener("click", () => {
 });
 
 show("scr-form");
+
+// ============================================================
+// ペアで インタビュー
+// ------------------------------------------------------------
+// 相手にしか こたえられない質問を するので、本当の 情報差が うまれる。
+// アプリは こたえを 持っていない。聞き出した内容は 3人称で 文集にのこせる。
+// ============================================================
+let iv = { club:null, skill:null, job:null, hs:"He" };
+function ivBuildGrid(elId, list, key){
+  const el = $(elId);
+  el.innerHTML = list.map(pickHTML).join("");
+  el.addEventListener("click", e => {
+    const pk = e.target.closest(".pick"); if(!pk) return;
+    sfx("tap");
+    iv[key] = list.filter(x => x.en === pk.dataset.en)[0];
+    el.querySelectorAll(".pick").forEach(x => x.classList.toggle("on", x === pk));
+    ivUpdate();
+  });
+}
+function ivName(){
+  const n = $("iv-who").value.replace(/[^a-zA-Z]/g, "");
+  return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : "";
+}
+function ivUpdate(){
+  $("btn-iv-make").disabled = !(ivName() && iv.club && iv.skill && iv.job);
+}
+function ivLines(){
+  return bookLines({ name:ivName(), hs:iv.hs, club:iv.club.en, skill:iv.skill.en, job:iv.job.en });
+}
+ivBuildGrid("iv-club", CLUBS, "club");
+ivBuildGrid("iv-skill", SKILLS, "skill");
+ivBuildGrid("iv-job", JOBS, "job");
+$("iv-who").addEventListener("input", ivUpdate);
+document.querySelectorAll(".iv-name .hs").forEach(b => b.addEventListener("click", () => {
+  sfx("tap");
+  iv.hs = b.dataset.h;
+  document.querySelectorAll(".iv-name .hs").forEach(x => x.classList.toggle("on", x === b));
+}));
+document.querySelectorAll("#scr-iv .say-btn[data-q]").forEach(b => b.addEventListener("click", () => {
+  sfx("tap"); speak(b.dataset.q);
+}));
+$("btn-iv-make").addEventListener("click", () => {
+  sfx("pop");
+  $("iv-head").textContent = ivName().toUpperCase() + "'S DREAM";
+  const box = $("iv-lines");
+  box.innerHTML = "";
+  ivLines().forEach(t => {
+    const line = document.createElement("div");
+    line.className = "iv-line";
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say-btn"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "この文を きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); speak(t); });
+    const tx = document.createElement("span");
+    tx.className = "txt"; tx.textContent = t;
+    line.appendChild(btn); line.appendChild(tx);
+    box.appendChild(line);
+  });
+  $("iv-result").classList.remove("hidden");
+});
+$("btn-iv-say").addEventListener("click", () => { sfx("tap"); speakQueue(ivLines()); });
+$("btn-iv-save").addEventListener("click", () => {
+  book.push({ name:ivName(), hs:iv.hs, club:iv.club.en, skill:iv.skill.en, job:iv.job.en });
+  saveBook();
+  sfx("fanfare");
+  alert(`夢文集に ${ivName()} さんをのこしました!(いま ${book.length}人分)`);
+});
+$("btn-iv-clear").addEventListener("click", () => {
+  sfx("tick");
+  iv = { club:null, skill:null, job:null, hs:iv.hs };
+  document.querySelectorAll("#scr-iv .pick").forEach(x => x.classList.remove("on"));
+  $("iv-result").classList.add("hidden");
+  ivUpdate();
+});
+$("btn-iv").addEventListener("click", () => { sfx("pop"); show("scr-iv"); });
+ivUpdate();
 
 // ============================================================
 // 塗り重ね: 相手をかえて・条件をかえて もういちど言ってみる
@@ -458,8 +565,7 @@ document.getElementById("btn-again-try").addEventListener("click", () => {
 <div id="app-help-overlay" class="ah-hidden">
   <div class="ah-box">
     <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>中学校でがんばりたいことと将来の夢をつたえる、卒業スピーチづくりのアプリです。</p><h4>あそびかた</h4><ol><li>スピーチの材料(入りたい部活・得意なこと・つきたい職業)をえらぶ</li><li>「だれにつたえる?」をえらんで、まず<b>じぶんの口で</b>スピーチしてみよう</li><li>お手本でたしかめたら「🔁もういちど言ってみよう」で、見ないで言うことにも挑戦</li><li>「みんなの夢文集」に、クラスのスピーチがたまっていくよ</li></ol><div class="ah-tip">💡 先生向け:文集は名前を含めず端末内に保存されます。卒業式前の発表会の練習にどうぞ。</div>
+    <h3>❓ このアプリの使い方</h3><p>中学校でがんばりたいことと 将来の夢を つたえる、卒業スピーチづくりの アプリです。</p><h4>🌟 じぶんの スピーチ</h4><ol><li>入りたい部活・得意なこと・つきたい職業を えらぶ(えらんでも 読み上げません)</li><li>まず <b>じぶんの口で</b> スピーチしてみる</li><li>お手本で たしかめたら「🔁 もういちど」で 見ないで 言うことにも 挑戦</li></ol><h4>🎤 ペアで インタビュー</h4><ol><li>相手の名前と He / She を えらぶ</li><li>3つの しつもんを 英語で たずね、こたえを 絵カードで 記録する</li><li>できた しょうかい(She wants to be a doctor. など)を 夢文集に のこす</li></ol><div class="ah-tip">💡 <b>先生向け:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。まず 子どもが 自分の口で 言ってから たしかめる、という順番で つかってください。夢文集は この端末の中だけに 保存されます。インタビューで のこしたページは <b>名前つき・3人称</b>で、じぶんで のこしたページは これまでどおり 1人称で 出ます。</div>
   </div>
 </div>
 <script>

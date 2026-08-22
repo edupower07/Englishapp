@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>世界の国紹介ポスタービルダー | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
@@ -97,6 +98,25 @@ svg#wmap{width:100%;height:auto;border-radius:12px}
 .model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
 .hidden{display:none!important}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700;line-height:1.8}
+
+/* ---- どの国かな？(2人ぐみ) ---- */
+.qz-wrap{max-width:820px;margin:0 auto}
+.qz-score{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-weight:800;color:var(--sub);font-size:.9rem;margin-bottom:12px}
+.qz-score b{color:var(--primary-dark);font-size:1.25rem;font-family:'Fredoka One',cursive}
+.qz-role{border-radius:22px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);background:#fff;border:5px solid #e6ecf2}
+.qz-role.teller{border-color:var(--yellow);background:#fffdf3}
+.qz-role.asker{border-color:var(--primary);background:#f2f8ff}
+.qz-role h3{font-size:1rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.qz-role .who{font-size:.74rem;color:#fff;background:#636e72;border-radius:50px;padding:4px 12px;flex:none}
+.qz-role .hint{font-size:.84rem;font-weight:700;color:var(--sub);line-height:1.8;margin-top:8px}
+.qz-secret{background:#fff;border-radius:18px;border:4px dashed var(--yellow);padding:16px;min-height:130px;display:flex;align-items:center;justify-content:center;text-align:center}
+.qz-secret .s-mask{font-weight:800;color:#b2bec3;font-size:1rem;line-height:1.9}
+.qz-secret .s-lines{display:flex;flex-direction:column;gap:8px;width:100%}
+.qz-secret .s-line{font-family:'Fredoka One',cursive;font-size:1.15rem;color:#2d3436;line-height:1.4;word-break:break-word}
+.qz-judge{text-align:center;font-weight:800;font-size:1.1rem;min-height:32px;margin-top:10px}
+.qz-judge.ok{color:#0f9d58} .qz-judge.ng{color:#d63447}
+.flag-card.ok{border-color:var(--green);background:#effdf7}
+.flag-card.ng{border-color:var(--pink);opacity:.55}
 @media print{
   header,.actions,footer,.step-title,.step-sub,.map-box{display:none!important}
   body{background:#fff}
@@ -106,49 +126,11 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🌍 世界の国紹介ポスタービルダー <span class="u">6年生 世界の国</span></h1>
   <div style="display:flex;gap:8px">
+    <button class="nav-btn hidden" id="btn-home">モードをかえる</button>
     <button class="nav-btn" id="btn-restart">国をえらびなおす</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
   </div>
@@ -156,8 +138,27 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <main>
 
+  <!-- モードえらび -->
+  <section id="scr-home">
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card blue" id="mode-poster">
+        <span class="app-mode-icon">🌍</span>
+        <span class="app-mode-title">国紹介ポスターを つくる</span>
+        <span class="app-mode-sub">しらべた国の 見どころを えらんで<br>しょうかいしてみよう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-quiz">
+        <span class="app-mode-icon">🕵️</span>
+        <span class="app-mode-title">どの国かな？（2人ぐみ）</span>
+        <span class="app-mode-sub">You can see 〜. を 英語で つたえて<br>相手に 国を あててもらおう</span>
+      </button>
+    </div>
+    <p style="margin-top:18px;font-weight:700;color:#7f8c9b;font-size:.86rem;line-height:1.9;text-align:center">
+      🔊は 聞きたいときだけ おしてね。<br>アプリは かってに しゃべらないよ。
+    </p>
+  </section>
+
   <!-- 国選択 -->
-  <section id="scr-country">
+  <section id="scr-country" class="hidden">
     <h2 class="step-title">🌍 紹介したい国をえらぼう</h2>
     <p class="step-sub">調べ学習でしらべた国をえらんでね</p>
     <div class="flag-grid" id="flag-grid"></div>
@@ -232,6 +233,45 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     </div>
   </section>
 
+  <!-- どの国かな？(2人ぐみ) -->
+  <section id="scr-quiz" class="hidden">
+    <div class="qz-wrap">
+      <h2 class="step-title">🕵️ どの国かな？（2人ぐみ）</h2>
+      <p class="step-sub">
+        <b>出す人</b>は ひみつの国の 見どころを 見て、英語で つたえます。<br>
+        <b>あてる人</b>は 国旗の中から あてます。国の名前は 言わないでね！
+      </p>
+
+      <div class="qz-score">
+        <span>出した問題 <b id="qz-total">0</b></span>
+        <span>せいかい <b id="qz-ok">0</b></span>
+        <span>れんぞく <b id="qz-combo">0</b></span>
+      </div>
+
+      <div class="qz-role teller">
+        <h3><span class="who">出す人</span>ひみつの国の 見どころ</h3>
+        <div class="qz-secret" id="qz-secret"></div>
+        <div class="actions" style="margin-top:10px">
+          <button class="big-btn" id="qz-peek" style="background:var(--yellow);color:#7a5b1e">👀 見る</button>
+          <button class="big-btn gray" id="qz-next">つぎの国 🎲</button>
+        </div>
+        <p class="hint">
+          見どころは かくれています。<b>👀 見る</b>を おすと 4秒だけ 見えて、すぐ また かくれます。<br>
+          <b>You can see 〜. / You can eat 〜.</b> の形で つたえよう。
+        </p>
+      </div>
+
+      <div class="qz-role asker">
+        <h3><span class="who">あてる人</span>どの国だと思う?</h3>
+        <div class="flag-grid" id="qz-flags"></div>
+        <div class="qz-judge" id="qz-judge"></div>
+        <div class="actions hidden" id="qz-after">
+          <button class="big-btn" id="qz-say" style="background:var(--blue,#546de5)">🔊 お手本を きく</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
@@ -239,56 +279,47 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
   「文をコピー」で書き出したテキストは、Canva などでのポスター制作にそのまま使えます。
 </footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると国とヒントを変更できます)
 // x,y は地図上のピン位置
 // ============================================================
 const COUNTRIES = [
-  { en:"Italy",     ja:"イタリア",     flag:"🇮🇹", x:255, y:75,
+  { en:"Italy", flag:"🇮🇹", x:255, y:75,
     sees:["the Colosseum","beautiful old towns","famous paintings"], eats:["pizza","spaghetti","gelato"] },
-  { en:"America",   ja:"アメリカ",     flag:"🇺🇸", x:95,  y:95,
+  { en:"America", flag:"🇺🇸", x:95,  y:95,
     sees:["the Statue of Liberty","the Grand Canyon","big cities"], eats:["hamburgers","hot dogs","apple pie"] },
-  { en:"Australia", ja:"オーストラリア", flag:"🇦🇺", x:405, y:210,
+  { en:"Australia", flag:"🇦🇺", x:405, y:210,
     sees:["koalas","kangaroos","the Great Barrier Reef"], eats:["meat pies","barbecue","Vegemite toast"] },
-  { en:"France",    ja:"フランス",     flag:"🇫🇷", x:238, y:68,
+  { en:"France", flag:"🇫🇷", x:238, y:68,
     sees:["the Eiffel Tower","the Louvre","beautiful streets"], eats:["croissants","cheese","macarons"] },
-  { en:"China",     ja:"中国",         flag:"🇨🇳", x:355, y:95,
+  { en:"China", flag:"🇨🇳", x:355, y:95,
     sees:["the Great Wall","pandas","old temples"], eats:["dumplings","Peking duck","noodles"] },
-  { en:"Korea",     ja:"かんこく",     flag:"🇰🇷", x:395, y:95,
+  { en:"Korea", flag:"🇰🇷", x:395, y:95,
     sees:["old palaces","K-pop concerts","beautiful markets"], eats:["kimchi","bulgogi","bibimbap"] },
-  { en:"Egypt",     ja:"エジプト",     flag:"🇪🇬", x:270, y:120,
+  { en:"Egypt", flag:"🇪🇬", x:270, y:120,
     sees:["the pyramids","the Sphinx","the Nile River"], eats:["koshari","flat bread","dates"] },
-  { en:"Brazil",    ja:"ブラジル",     flag:"🇧🇷", x:158, y:185,
+  { en:"Brazil", flag:"🇧🇷", x:158, y:185,
     sees:["the Amazon River","carnivals","beautiful beaches"], eats:["feijoada","churrasco","tropical fruits"] },
-  { en:"India",     ja:"インド",       flag:"🇮🇳", x:330, y:125,
+  { en:"India", flag:"🇮🇳", x:330, y:125,
     sees:["the Taj Mahal","elephants","colorful festivals"], eats:["curry","naan","chai"] },
 ];
 const ADJECTIVES = [
-  { en:"beautiful", ja:"美しい" }, { en:"famous", ja:"有名" }, { en:"exciting", ja:"わくわくする" },
-  { en:"delicious", ja:"食べ物がおいしい" }, { en:"big", ja:"大きい" }, { en:"wonderful", ja:"すばらしい" },
+  { en:"beautiful" }, { en:"famous" }, { en:"exciting" },
+  { en:"delicious" }, { en:"big" }, { en:"wonderful" },
 ];
 
 // ============================================================
-// 音声
+// 音声(共通キット経由。🔊 を おしたときだけ 鳴らす)
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function speak(text, rate){
+  try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+function speakQueue(lines, rate){
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
 
 // ============================================================
@@ -298,7 +329,11 @@ let country = null;
 let sel = { see:null, eat:null, adj:null };
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-country","scr-form","scr-try","scr-poster"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  ["scr-home","scr-country","scr-form","scr-try","scr-poster","scr-quiz"]
+    .forEach(s => $(s).classList.toggle("hidden", s !== id));
+  $("btn-home").classList.toggle("hidden", id === "scr-home");
+  $("btn-restart").classList.toggle("hidden", id === "scr-home" || id === "scr-quiz");
+  window.scrollTo(0, 0);
 }
 
 // ============================================================
@@ -319,8 +354,8 @@ $("flag-grid").addEventListener("click", e => {
   $("adj-chips").innerHTML = ADJECTIVES.map(a => `<button class="chip" data-v="${a.en}">${a.en}</button>`).join("");
   $("see-input").value = ""; $("eat-input").value = "";
   update();
+  sfx("pop");
   show("scr-form");
-  speak(`Let's go to ${country.en}!`);
 });
 function bindChips(elId, inputId, key){
   $(elId).addEventListener("click", e => {
@@ -329,7 +364,7 @@ function bindChips(elId, inputId, key){
     if(inputId) $(inputId).value = "";
     $(elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b));
     update();
-    speak(sel[key]);
+    sfx("tap");
   });
   if(inputId){
     $(inputId).addEventListener("input", e => {
@@ -349,7 +384,7 @@ bindChips("adj-chips", null, "adj");
 function update(){
   $("btn-make").disabled = !(sel.see && sel.eat && sel.adj);
 }
-$("btn-back-country").addEventListener("click", () => show("scr-country"));
+$("btn-back-country").addEventListener("click", () => { sfx("tap"); show("scr-country"); });
 
 // ============================================================
 // ポスター
@@ -395,8 +430,8 @@ $("try-list").addEventListener("click", e => {
 });
 $("btn-make").addEventListener("click", () => {
   buildTry();
+  sfx("pop");
   show("scr-try");
-  speak("Where can we go?");
 });
 $("btn-back-try").addEventListener("click", () => show("scr-form"));
 
@@ -415,8 +450,8 @@ $("btn-check").addEventListener("click", () => {
       <text x="${country.x}" y="${country.y-12}" text-anchor="middle" font-size="15">${country.flag}</text>
     </g>`;
   $("map-note").textContent = `${country.en} はここ!`;
+  sfx("pop");
   show("scr-poster");
-  speakQueue(posterLines());
 });
 $("po-lines").addEventListener("click", e => {
   const el = e.target.closest(".po-line"); if(!el) return;
@@ -434,9 +469,133 @@ $("btn-copy").addEventListener("click", async () => {
   }
 });
 $("btn-back-form").addEventListener("click", () => show("scr-try"));
-$("btn-restart").addEventListener("click", () => { try{ speechSynthesis.cancel(); }catch(e){} show("scr-country"); });
+$("btn-restart").addEventListener("click", () => { try{ speechSynthesis.cancel(); }catch(e){} sfx("tap"); show("scr-country"); });
 
-show("scr-country");
+// ============================================================
+// どの国かな？(2人ぐみ)
+// ------------------------------------------------------------
+// 1台を 2人で のぞきこむ前提。見どころは ふだん かくしておき、
+// 👀 を おしたときだけ 4秒 見えて、また かくれる。
+// 国旗と 国の名前は 出す人にも 見せない(言ってしまわないように)。
+// ============================================================
+const QZ_PEEK_MS = 4000;
+let qzSecret = null, qzTimer = null, qzSolved = false;
+let qzTotal = 0, qzOk = 0, qzCombo = 0;
+function qzLines(c){
+  return [
+    `You can see ${c.sees[0]}.`,
+    `You can eat ${c.eats[0]}.`,
+    `It's wonderful!`
+  ];
+}
+function qzDrawSecret(revealed){
+  const box = $("qz-secret");
+  box.innerHTML = "";
+  if(!qzSecret || !revealed){
+    const m = document.createElement("div");
+    m.className = "s-mask";
+    m.textContent = qzSecret
+      ? "🙈 かくれています。👀 見る を おすと 4秒だけ 見えます"
+      : "🎲 を おして ひみつの国を だそう";
+    box.appendChild(m);
+    return;
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "s-lines";
+  qzLines(qzSecret).forEach(t => {
+    const d = document.createElement("div");
+    d.className = "s-line"; d.textContent = t;
+    wrap.appendChild(d);
+  });
+  box.appendChild(wrap);
+}
+function qzMask(){
+  clearTimeout(qzTimer);
+  $("qz-peek").textContent = "👀 見る";
+  qzDrawSecret(qzSolved);
+}
+function qzDrawScore(){
+  $("qz-total").textContent = String(qzTotal);
+  $("qz-ok").textContent = String(qzOk);
+  $("qz-combo").textContent = String(qzCombo);
+}
+function qzNext(){
+  clearTimeout(qzTimer);
+  const pool = COUNTRIES.filter(c => c !== qzSecret);
+  qzSecret = pool[Math.floor(Math.random() * pool.length)];
+  qzSolved = false;
+  qzTotal++;
+  qzDrawScore();
+  $("qz-judge").textContent = ""; $("qz-judge").className = "qz-judge";
+  $("qz-after").classList.add("hidden");
+  $("qz-flags").querySelectorAll(".flag-card").forEach(x => x.classList.remove("ok", "ng"));
+  $("qz-peek").textContent = "👀 見る";
+  qzDrawSecret(false);
+}
+function qzBuildFlags(){
+  const box = $("qz-flags");
+  box.innerHTML = "";
+  COUNTRIES.forEach((c, i) => {
+    const el = document.createElement("div");
+    el.className = "flag-card"; el.dataset.i = String(i);
+    const fl = document.createElement("div"); fl.className = "fl"; fl.textContent = c.flag;
+    const fn = document.createElement("div"); fn.className = "fn"; fn.textContent = c.en;
+    el.appendChild(fl); el.appendChild(fn);
+    el.addEventListener("click", () => qzAnswer(c, el));
+    box.appendChild(el);
+  });
+}
+function qzAnswer(c, el){
+  if(!qzSecret || qzSolved) return;
+  if(c === qzSecret){
+    qzSolved = true; qzOk++; qzCombo++;
+    qzDrawScore();
+    el.classList.add("ok");
+    sfx("correct");
+    clearTimeout(qzTimer);
+    qzDrawSecret(true);
+    $("qz-judge").textContent = `せいかい! It's ${c.en}!`;
+    $("qz-judge").className = "qz-judge ok";
+    $("qz-after").classList.remove("hidden");
+    try{
+      if(window.AppUI && AppUI.celebrate) AppUI.celebrate({ icon:"🌍", title:"あたり!", sub:`It's ${c.en}!` });
+    }catch(e){}
+  }else{
+    qzCombo = 0;
+    qzDrawScore();
+    el.classList.add("ng");
+    sfx("wrong");
+    $("qz-judge").textContent = "ちがうよ。もう1つ ヒントを つたえてもらおう。";
+    $("qz-judge").className = "qz-judge ng";
+  }
+}
+$("qz-peek").addEventListener("click", () => {
+  if(!qzSecret) return;
+  sfx("tap");
+  clearTimeout(qzTimer);
+  qzDrawSecret(true);
+  $("qz-peek").textContent = "👀 見ています…";
+  qzTimer = setTimeout(qzMask, QZ_PEEK_MS);
+});
+$("qz-next").addEventListener("click", () => { sfx("pop"); qzNext(); });
+$("qz-say").addEventListener("click", () => {
+  if(!qzSecret) return;
+  sfx("tap");
+  speakQueue([`Let's go to ${qzSecret.en}!`].concat(qzLines(qzSecret)));
+});
+qzBuildFlags();
+qzDrawSecret(false);
+qzDrawScore();
+
+$("btn-home").addEventListener("click", () => { sfx("tap"); qzMask(); show("scr-home"); });
+$("mode-poster").addEventListener("click", () => { sfx("pop"); show("scr-country"); });
+$("mode-quiz").addEventListener("click", () => {
+  sfx("pop");
+  show("scr-quiz");
+  if(!qzSecret) qzNext();
+});
+
+show("scr-home");
 
 // ============================================================
 // 塗り重ね: 相手をかえて・条件をかえて もういちど言ってみる
@@ -473,8 +632,7 @@ document.getElementById("btn-again-try").addEventListener("click", () => {
 <div id="app-help-overlay" class="ah-hidden">
   <div class="ah-box">
     <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>行ってみたい国の見どころを紹介するポスターをつくるアプリです。</p><h4>あそびかた</h4><ol><li>紹介したい国をえらぶ</li><li>見どころ(見られるもの・食べられるもの など)をえらんで入力</li><li>まず<b>じぶんの口で</b>紹介してから、お手本でたしかめよう</li><li>できたポスターで「この国に行きたくなる」紹介をしよう</li></ol><div class="ah-tip">💡 先生向け:You can see 〜. / You can eat 〜. のような表現の型は、子どもが必要になってから示すのが効果的です。</div>
+    <h3>❓ このアプリの使い方</h3><p>しらべた国の 見どころを 英語で しょうかいする ポスターを つくり、2人組で 「どの国か」を あてっこする アプリです。</p><h4>🌍 国紹介ポスターを つくる</h4><ol><li>国と 見どころ・食べもの・ようすを えらぶ(えらんでも 読み上げません)</li><li>まず <b>じぶんの口で</b> しょうかいしてみる</li><li>お手本と くらべる。「文をコピー」で Canva などにも つかえます</li></ol><h4>🕵️ どの国かな？（2人ぐみ）</h4><ol><li><b>出す人</b>が「👀 見る」で ひみつの国の 見どころを 4秒だけ 見る</li><li>国の名前は 言わずに <b>You can see 〜. / You can eat 〜.</b> で つたえる</li><li><b>あてる人</b>が 国旗から えらぶ</li></ol><div class="ah-tip">💡 <b>先生向け:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。まず 子どもが 自分の口で 言ってから たしかめる、という順番で つかってください。あてっこでは 出す人にも <b>国旗と国名を 見せません</b>。見どころだけが 手がかりなので、英語で 言うほかに つたえる方法が ありません。</div>
   </div>
 </div>
 <script>

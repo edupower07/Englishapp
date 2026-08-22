@@ -3,170 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Small Talk トレーナー | 全力ツールズ</title>
+<title>Small Talk トレーナー | 小学校外国語アプリポータル</title>
+<meta name="description" content="5・6年の帯活動 Small Talk を支えるトレーナー。話題ガチャでお題を決め、お手本の対話を聞き、つなぎことばを使って2人組で話し、ふりかえるところまで。アプリは勝手に読み上げません。">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
-  --main:#1baf7a; --main-dark:#0e8a5e; --accent:#eda100;
-  --bg:#f2faf6; --card:#fff; --ink:#1d2f27; --sub:#57705f; --line:#d8e8df;
+  --primary:#1baf7a; --primary-dark:#0e8a5e; --blue:#546de5; --yellow:#fdcb6e; --pink:#ff6b81;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:linear-gradient(135deg,var(--main),var(--main-dark));color:#fff;padding:10px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-header .brand{font-size:12px;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:99px}
-header h1{font-size:20px;flex:1}
-.gradeswitch{display:flex;background:rgba(255,255,255,.2);border-radius:99px;padding:3px}
-.gradeswitch button{border:none;background:transparent;color:#fff;padding:6px 16px;border-radius:99px;cursor:pointer;font-weight:700;font-size:14px}
-.gradeswitch button.on{background:#fff;color:var(--main-dark)}
-main{max-width:900px;margin:0 auto;padding:20px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 2px 8px rgba(0,60,30,.05);margin-bottom:16px}
-#topicBox{text-align:center;padding:30px 16px}
-#topicJp{font-size:16px;color:var(--sub);font-weight:700}
-#topicEn{font-size:clamp(28px,6vw,52px);font-weight:800;margin:8px 0;color:var(--main-dark);min-height:1.3em}
-#topicEn.spin{color:var(--sub)}
-.btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
-.btn{border:none;border-radius:12px;padding:13px 24px;font-size:17px;font-weight:700;cursor:pointer;background:#e3f2ea;color:var(--ink)}
-.btn:active{transform:scale(.97)}
-.btn.primary{background:var(--main);color:#fff}
-.btn.orange{background:var(--accent);color:#fff}
-.btn.small{padding:8px 14px;font-size:14px}
-h2{font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-h2 .tag{background:var(--main);color:#fff;font-size:12px;padding:2px 10px;border-radius:99px}
-.dialog-line{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:12px;margin-bottom:8px}
-.dialog-line.a{background:#eaf6f0}
-.dialog-line.b{background:#fdf6e7}
-.dialog-line .who{flex-shrink:0;width:34px;height:34px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
-.dialog-line.a .who{background:var(--main)}
-.dialog-line.b .who{background:var(--accent)}
-.dialog-line .txt{flex:1;font-size:19px;font-weight:600;line-height:1.5;padding-top:4px}
-.dialog-line .jp{display:block;font-size:13px;color:var(--sub);font-weight:400;margin-top:2px}
-.dialog-line button{border:none;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px}
-.hidden{display:none!important}
-.phrase-chips{display:flex;flex-wrap:wrap;gap:8px}
-.phrase-chips button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:8px 16px;font-size:16px;font-weight:600;cursor:pointer}
-.phrase-chips button:hover{border-color:var(--main);color:var(--main-dark)}
-#talkTimer{font-size:clamp(48px,10vw,90px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;color:var(--main-dark)}
-#talkTimer.over{color:#d03b3b;animation:blink 1s steps(2) infinite}
-@keyframes blink{50%{opacity:.3}}
-.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.checks label{display:flex;align-items:center;gap:8px;background:#f4faf7;border:2px solid var(--line);border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer}
-.checks label:has(input:checked){border-color:var(--main);background:#e3f2ea}
-.checks input{width:20px;height:20px;accent-color:var(--main)}
-.speedrow{display:flex;gap:8px;align-items:center;justify-content:center;color:var(--sub);font-size:14px;font-weight:700;margin-top:6px}
-footer{text-align:center;color:var(--sub);font-size:12px;padding:20px}
+main{max-width:900px;margin:0 auto;padding:16px 16px 72px}
+.step{max-width:760px;margin:0 auto 22px}
+.step-title{font-size:1.2rem;font-weight:800;margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.step-title .no{background:var(--primary);color:#fff;border-radius:50px;padding:2px 14px;font-size:.9rem;flex:none}
+.step-sub{color:#7f8c9b;font-weight:700;font-size:.86rem;margin-bottom:12px;line-height:1.8}
+
+/* ---- 学年えらび ---- */
+.grade-pick{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.grade-pick .gp-label{font-weight:800;color:#7f8c9b;font-size:.86rem}
+.gp-btn{
+  border:4px solid #e6ecf2;background:#fff;border-radius:50px;padding:10px 26px;
+  font-family:inherit;font-size:1rem;font-weight:800;color:#7f8c9b;cursor:pointer;min-height:52px;
+}
+.gp-btn.on{border-color:var(--primary);background:#e7f8f1;color:var(--primary-dark)}
+
+/* ---- お題 ---- */
+.topic-box{background:#fff;border-radius:24px;box-shadow:0 4px 10px rgba(0,0,0,.08);padding:24px 16px;text-align:center}
+.topic-jp{font-size:.92rem;color:#7f8c9b;font-weight:800}
+.topic-en{
+  font-family:'Fredoka One',cursive;font-size:clamp(1.5rem,5.5vw,2.6rem);color:var(--primary-dark);
+  line-height:1.25;margin:10px 0 16px;min-height:1.3em;word-break:break-word;
+}
+.topic-en.spin{color:#b2bec3}
+
+/* ---- お手本の やりとり ---- */
+.d-line{
+  display:flex;gap:10px;align-items:flex-start;padding:14px;border-radius:18px;margin-bottom:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+}
+.d-line.a{background:#e7f8f1}
+.d-line.b{background:#fff6e3}
+.d-line .who{
+  flex:none;width:42px;height:42px;border-radius:50%;color:#fff;display:flex;align-items:center;
+  justify-content:center;font-family:'Fredoka One',cursive;font-size:1.15rem;
+}
+.d-line.a .who{background:var(--primary)}
+.d-line.b .who{background:#e0a300}
+.d-line .txt{flex:1;min-width:0}
+.d-line .en{display:block;font-size:1.22rem;font-weight:800;line-height:1.5;word-break:break-word}
+.d-line .jp{display:block;font-size:.86rem;color:#7f8c9b;font-weight:700;margin-top:4px;line-height:1.6}
+.d-line .say{
+  flex:none;border:none;background:var(--blue);color:#fff;border-radius:50px;
+  min-width:56px;min-height:52px;font-size:1.2rem;cursor:pointer;font-family:inherit;
+}
+.d-line .say:active{transform:scale(.95)}
+
+/* ---- つなぐ ひとこと ---- */
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chips button{
+  border:4px solid #e6ecf2;background:#fff;border-radius:50px;padding:12px 20px;
+  font-family:'Fredoka One',cursive;font-size:1.08rem;color:#2d3436;cursor:pointer;min-height:56px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);transition:.15s;
+}
+.chips button:hover{transform:translateY(-3px);border-color:var(--primary)}
+.chips button.on{border-color:var(--primary);background:#e7f8f1;color:var(--primary-dark)}
+.chips button.on::after{content:" ✓";color:var(--primary-dark)}
+
+/* ---- トークタイム ---- */
+.talk-topic{
+  max-width:760px;margin:0 auto 16px;background:#fff;border-radius:20px;padding:14px 16px;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.talk-topic .tt-txt{flex:1;min-width:0}
+.talk-topic .tt-en{display:block;font-family:'Fredoka One',cursive;font-size:1.25rem;color:var(--primary-dark);line-height:1.3;word-break:break-word}
+.talk-topic .tt-jp{display:block;font-size:.8rem;color:#7f8c9b;font-weight:800}
+.timer-box{max-width:760px;margin:0 auto 22px;background:#fff;border-radius:24px;padding:18px 16px;box-shadow:0 4px 10px rgba(0,0,0,.08);text-align:center}
+.timer{
+  font-family:'Fredoka One',cursive;font-size:clamp(3rem,14vw,5.5rem);line-height:1.1;
+  color:var(--primary-dark);font-variant-numeric:tabular-nums;margin-bottom:12px;
+}
+.timer.over{color:#d63447}
+.tsel.on{outline:4px solid var(--primary);outline-offset:2px}
+.used-count{text-align:center;font-weight:800;color:#7f8c9b;font-size:.92rem;margin-top:14px}
+.used-count b{color:var(--primary-dark);font-size:1.5rem;font-family:'Fredoka One',cursive}
+
+/* ---- しつもんカード ---- */
+.q-card{background:#fff;border-radius:22px;padding:18px 16px;box-shadow:0 4px 10px rgba(0,0,0,.08);text-align:center;border:5px dashed var(--yellow)}
+.q-card .q-en{
+  font-family:'Fredoka One',cursive;font-size:clamp(1.25rem,4.6vw,1.9rem);color:#2d3436;
+  line-height:1.35;min-height:2.4em;display:flex;align-items:center;justify-content:center;
+  padding:8px;word-break:break-word;
+}
+
+/* ---- ふりかえり ---- */
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.checks label{
+  display:flex;align-items:center;gap:10px;background:#fff;border:4px solid #e6ecf2;border-radius:16px;
+  padding:14px;font-size:.98rem;font-weight:800;cursor:pointer;min-height:64px;
+}
+.checks label:has(input:checked){border-color:var(--primary);background:#e7f8f1}
+.checks input{width:24px;height:24px;accent-color:var(--primary);flex:none}
+.used-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.used-list .u{background:#e7f8f1;border:3px solid var(--primary);color:var(--primary-dark);border-radius:50px;padding:8px 16px;font-family:'Fredoka One',cursive;font-size:1rem}
+.used-list .none{color:#b2bec3;font-weight:800;font-size:.88rem}
 </style>
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-<header>
-  <span class="brand">全力ツールズ 02</span>
-  <h1>💬 Small Talk トレーナー</h1>
-  <div class="gradeswitch">
-    <button id="g5" class="on">5年</button>
-    <button id="g6">6年</button>
+<header class="app-header">
+  <h1>💬 Small Talk トレーナー <span class="app-unit-badge">5・6年 帯活動</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-nav-btn" id="btn-help">❓ 使い方</button>
+    <button type="button" class="app-nav-btn app-hidden" id="btn-home">モードをかえる</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
-  <div class="card" id="topicBox">
-    <div id="topicJp">きょうの話題(トピック)</div>
-    <div id="topicEn">Let's talk! 🎤</div>
-    <div class="btnrow">
-      <button class="btn primary" id="gacha">🎰 話題ガチャ</button>
-      <button class="btn small" id="speakTopic">🔊 話題を聞く</button>
-    </div>
-  </div>
 
-  <div class="card">
-    <h2>🗣️ モデル対話 <span class="tag" id="dlgTopicTag">-</span>
-      <span style="flex:1"></span>
-      <button class="btn small" id="toggleJp">日本語訳 表示/非表示</button>
-      <button class="btn small primary" id="speakAll">🔊 全部聞く</button>
-    </h2>
-    <div id="dialogArea"><p style="color:var(--sub)">「話題ガチャ」を回すと、モデル対話が表示されます。</p></div>
-    <div class="speedrow">
-      読み上げ速度:
-      <label><input type="radio" name="rate" value="0.7" checked> ゆっくり</label>
-      <label><input type="radio" name="rate" value="0.9"> ふつう</label>
+  <!-- ============ ホーム ============ -->
+  <section id="scr-home">
+    <div class="grade-pick" id="grade-pick">
+      <span class="gp-label">学年</span>
+      <button type="button" class="gp-btn on" data-g="g5">5年</button>
+      <button type="button" class="gp-btn" data-g="g6">6年</button>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>✨ 会話をつなぐ ひとこと(リアクション)</h2>
-    <p style="font-size:13px;color:var(--sub);margin-bottom:10px">押すと発音が聞けます。会話の中でどんどん使ってみよう!</p>
-    <div class="phrase-chips" id="reactions"></div>
-  </div>
-
-  <div class="card">
-    <h2>⏱ トークタイム</h2>
-    <div id="talkTimer">1:00</div>
-    <div class="btnrow">
-      <button class="btn small" data-t="30">30秒</button>
-      <button class="btn small" data-t="60">1分</button>
-      <button class="btn small" data-t="120">2分</button>
-      <button class="btn primary" id="talkStart">▶ スタート</button>
-      <button class="btn" id="talkReset">↺ リセット</button>
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card blue" id="mode-model">
+        <span class="app-mode-icon">🎧</span>
+        <span class="app-mode-title">お手本を きく</span>
+        <span class="app-mode-sub">話題ガチャで お題を きめて<br>やりとりの 型を つかもう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-talk">
+        <span class="app-mode-icon">🗣️</span>
+        <span class="app-mode-title">トークタイム（2人ぐみ）</span>
+        <span class="app-mode-sub">タイマーを 見ながら 本番。<br>つかえた ひとことを 記録しよう</span>
+      </button>
+      <button type="button" class="app-mode-card green" id="mode-look">
+        <span class="app-mode-icon">📝</span>
+        <span class="app-mode-title">ふりかえり</span>
+        <span class="app-mode-sub">つかえた ひとことを たしかめて<br>つぎの めあてを きめよう</span>
+      </button>
     </div>
-  </div>
+    <p class="app-center" style="margin-top:18px;font-weight:700;color:#7f8c9b;font-size:.86rem;line-height:1.9;text-align:center">
+      🔊は 聞きたいときだけ おしてね。<br>アプリは かってに しゃべらないよ。
+    </p>
+  </section>
 
-  <div class="card">
-    <h2>📝 ふりかえり</h2>
-    <div class="checks">
-      <label><input type="checkbox"> 相手の目を見て話せた</label>
-      <label><input type="checkbox"> リアクションができた</label>
-      <label><input type="checkbox"> しつもんを返せた</label>
-      <label><input type="checkbox"> 知っている言葉でなんとか伝えた</label>
-      <label><input type="checkbox"> 笑顔で話せた</label>
-      <label><input type="checkbox"> 会話を1分つづけられた</label>
+  <!-- ============ お手本 ============ -->
+  <section id="scr-model" class="app-hidden">
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">1</span>きょうの お題を きめよう</h2>
+      <p class="step-sub">ガチャを まわすと、きょう 話す お題が きまります。</p>
+      <div class="topic-box">
+        <div class="topic-jp" id="topic-jp">まだ きまっていないよ</div>
+        <div class="topic-en" id="topic-en">Let's talk! 🎤</div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn primary" id="btn-gacha">🎰 話題ガチャ</button>
+          <button type="button" class="app-big-btn sm blue" id="btn-topic-say" disabled>🔊 お題を きく</button>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <div class="step app-hidden" id="step-dialog">
+      <h2 class="step-title"><span class="no">2</span>お手本の やりとり</h2>
+      <p class="step-sub">
+        まず 英語だけで 読んでみよう。分からないときだけ <b>👀 日本語</b> を おしてね。<br>
+        行の 🔊 で 1行ずつ、上の 🔊 で まとめて 聞けます。
+      </p>
+      <div class="app-btn-row" style="margin-bottom:12px">
+        <button type="button" class="app-big-btn sm blue" id="btn-say-all">🔊 まとめて きく</button>
+        <button type="button" class="app-big-btn sm gray" id="btn-jp">👀 日本語</button>
+      </div>
+      <div id="dialog-area"></div>
+    </div>
+
+    <div class="step app-hidden" id="step-react">
+      <h2 class="step-title"><span class="no">3</span>会話を つなぐ ひとこと</h2>
+      <p class="step-sub">おすと 発音が きけます。「そうなんだ」「わたしも」を 英語で 返せると 会話が つづくよ。</p>
+      <div class="chips" id="react-chips"></div>
+      <div class="app-btn-row" style="margin-top:20px">
+        <button type="button" class="app-big-btn pink" id="btn-go-talk">🗣️ トークタイムへ ▶</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ トークタイム ============ -->
+  <section id="scr-talk" class="app-hidden">
+
+    <div class="talk-topic">
+      <div class="tt-txt">
+        <span class="tt-jp" id="talk-jp">お題は まだ きまっていません</span>
+        <span class="tt-en" id="talk-en">Let's talk!</span>
+      </div>
+      <button type="button" class="app-big-btn sm blue" id="btn-talk-say">🔊 きく</button>
+      <button type="button" class="app-big-btn sm gray" id="btn-talk-gacha">🎰 お題</button>
+    </div>
+
+    <div class="timer-box">
+      <div class="timer" id="talk-timer">1:00</div>
+      <div class="app-btn-row">
+        <button type="button" class="app-big-btn sm gray tsel" data-t="30">30秒</button>
+        <button type="button" class="app-big-btn sm gray tsel on" data-t="60">1分</button>
+        <button type="button" class="app-big-btn sm gray tsel" data-t="120">2分</button>
+      </div>
+      <div class="app-btn-row" style="margin-top:10px">
+        <button type="button" class="app-big-btn green" id="btn-talk-start">▶ スタート</button>
+        <button type="button" class="app-big-btn sm gray" id="btn-talk-reset">↺ リセット</button>
+      </div>
+    </div>
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">✨</span>つかえた ひとこと を おそう</h2>
+      <p class="step-sub">
+        話しながら、つかえた ひとことを タップ。<br>
+        ここでは <b>音は 鳴りません</b>（会話の じゃまに ならないように）。発音を 聞きたいときは「お手本を きく」で。
+      </p>
+      <div class="chips" id="talk-chips"></div>
+      <div class="used-count">つかえた ひとこと <b id="used-n">0</b> こ</div>
+    </div>
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">🆘</span>こまったら しつもんカード</h2>
+      <p class="step-sub">会話が とまったら、ここから 1つ えらんで たずねよう。<b>聞く役</b>だけが 画面を 見て、あとは 口で つたえます。</p>
+      <div class="q-card">
+        <div class="q-en" id="q-en">🎲 を おして しつもんを だそう</div>
+        <div class="app-btn-row">
+          <button type="button" class="app-big-btn sm yellow" id="btn-q-next">🎲 しつもんを だす</button>
+          <button type="button" class="app-big-btn sm blue" id="btn-q-say" disabled>🔊 きく</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-btn-row" style="margin-top:20px">
+      <button type="button" class="app-big-btn" id="btn-go-look">📝 ふりかえりへ ▶</button>
+    </div>
+
+  </section>
+
+  <!-- ============ ふりかえり ============ -->
+  <section id="scr-look" class="app-hidden">
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">📝</span>きょうの ふりかえり</h2>
+      <p class="step-sub">できたと 思うものに チェックを つけよう。</p>
+      <div class="checks">
+        <label><input type="checkbox"> 相手の目を見て 話せた</label>
+        <label><input type="checkbox"> リアクションが できた</label>
+        <label><input type="checkbox"> しつもんを 返せた</label>
+        <label><input type="checkbox"> 知っていることばで なんとか つたえた</label>
+        <label><input type="checkbox"> 笑顔で 話せた</label>
+        <label><input type="checkbox"> 会話を 1分 つづけられた</label>
+      </div>
+    </div>
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">✨</span>つかえた ひとこと</h2>
+      <p class="step-sub">トークタイムで タップしたものが 出ます。つぎは あと1つ ふやしてみよう。</p>
+      <div class="used-list" id="used-list"></div>
+    </div>
+
+    <div class="app-btn-row">
+      <button type="button" class="app-big-btn pink" id="btn-again">🗣️ もういちど 話す</button>
+      <button type="button" class="app-big-btn sm gray" id="btn-clear-used">記録を けす</button>
+    </div>
+
+  </section>
+
 </main>
-<footer>全力ツールズ — 単一HTML・オフライン動作(音声読み上げは端末内蔵の音声を使用)</footer>
 
+<footer class="app-center" style="padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700;text-align:center">
+  単一HTML・オフラインでも動きます（読み上げは 端末の音声を つかいます）
+</footer>
+
+<script src="../shared/app-ui.js"></script>
 <script>
 "use strict";
-const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const $ = id => document.getElementById(id);
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function sayLines(lines){ try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines); }catch(e){} }
 
-/* トピックバンク: 学習指導要領・主要教科書の単元に対応 */
-const TOPICS={
+/* ============================================================
+   お題(学習指導要領・主要教科書の単元に対応)
+   ============================================================ */
+const TOPICS = {
   g5:[
     {jp:"すきなもの・こと", en:"What do you like?", d:[
       ["A","Hello! What sport do you like?","こんにちは! 何のスポーツが好き?"],
@@ -207,7 +330,7 @@ const TOPICS={
       ["A","Welcome! What would you like?","いらっしゃいませ! 何になさいますか?"],
       ["B","I'd like a hamburger and salad, please.","ハンバーガーとサラダをお願いします。"],
       ["A","OK. Anything else?","はい。ほかには?"],
-      ["B","Orange juice, please. How much is it?","オレンジジュースを。いくらですか?"]]},
+      ["B","Orange juice, please. How much is it?","オレンジジュースを。いくらですか?"]]}
   ],
   g6:[
     {jp:"自分のこと・宝物", en:"What is your treasure?", d:[
@@ -249,143 +372,343 @@ const TOPICS={
       ["A","How was your weekend?","週末はどうだった?"],
       ["B","It was good. I watched a movie.","よかったよ。映画を見たんだ。"],
       ["A","Sounds fun! How was it?","楽しそう! どうだった?"],
-      ["B","It was a little scary, but exciting!","ちょっとこわかったけど、ワクワクした!"]]},
+      ["B","It was a little scary, but exciting!","ちょっとこわかったけど、ワクワクした!"]]}
   ]
 };
-const REACTIONS=[
+const REACTIONS = [
   "Nice!","Me too!","Really?","Wow!","Sounds good!","That's great!",
   "How about you?","I see.","Good idea!","Oh no!","Lucky you!","Why?"
 ];
 
-let grade="g5", current=null;
+let grade = "g5";
+let current = null;      /* いま えらばれている お題 */
+let jpVisible = false;   /* 日本語訳は はじめ かくしておく(英語を 先に 読ませる) */
+let used = [];           /* トークタイムで つかえた ひとこと */
 
-/* ---- speech ---- */
-function speak(text){
-  if(!("speechSynthesis" in window)){alert("この端末では音声読み上げが使えません");return;}
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang="en-US";
-  u.rate=+document.querySelector('input[name=rate]:checked').value;
-  const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith("en"));
-  if(v)u.voice=v;
-  speechSynthesis.speak(u);
+/* ============================================================
+   画面きりかえ
+   ============================================================ */
+function show(name){
+  ["home","model","talk","look"].forEach(k => {
+    $("scr-" + k).classList.toggle("app-hidden", k !== name);
+  });
+  $("btn-home").classList.toggle("app-hidden", name === "home");
+  window.scrollTo(0, 0);
 }
-if("speechSynthesis" in window) speechSynthesis.getVoices(); // 事前ロード
+$("btn-home").addEventListener("click", () => { sfx("tap"); stopTimer(); show("home"); });
+$("mode-model").addEventListener("click", () => { sfx("pop"); show("model"); });
+$("mode-talk").addEventListener("click", () => { sfx("pop"); enterTalk(); });
+$("mode-look").addEventListener("click", () => { sfx("pop"); enterLook(); });
 
-/* ---- grade switch ---- */
-$("#g5").onclick=()=>{grade="g5";$("#g5").classList.add("on");$("#g6").classList.remove("on");};
-$("#g6").onclick=()=>{grade="g6";$("#g6").classList.add("on");$("#g5").classList.remove("on");};
+/* ============================================================
+   学年
+   ============================================================ */
+$("grade-pick").addEventListener("click", e => {
+  const btn = e.target.closest(".gp-btn"); if(!btn) return;
+  grade = btn.dataset.g;
+  document.querySelectorAll(".gp-btn").forEach(b => b.classList.toggle("on", b === btn));
+  /* 学年を かえたら お題は えらび直し */
+  current = null;
+  $("topic-jp").textContent = "まだ きまっていないよ";
+  $("topic-en").textContent = "Let's talk! 🎤";
+  $("btn-topic-say").disabled = true;
+  $("step-dialog").classList.add("app-hidden");
+  $("step-react").classList.add("app-hidden");
+  drawTalkTopic();
+  drawQuestion(null);
+  sfx("tap");
+});
 
-/* ---- gacha ---- */
-$("#gacha").onclick=()=>{
-  const list=TOPICS[grade];
-  const el=$("#topicEn");
+/* ============================================================
+   1. 話題ガチャ
+   ============================================================ */
+let spinning = false;
+function gacha(after){
+  if(spinning) return;
+  const list = TOPICS[grade];
+  const el = $("topic-en");
+  spinning = true;
   el.classList.add("spin");
-  let i=0;
-  const spin=()=>{
-    el.textContent=list[Math.floor(Math.random()*list.length)].en;
-    if(++i<12){setTimeout(spin,60+i*15);}
+  let i = 0;
+  const spin = () => {
+    el.textContent = list[Math.floor(Math.random() * list.length)].en;
+    sfx("tick");
+    if(++i < 12){ setTimeout(spin, 60 + i * 15); }
     else{
-      current=list[Math.floor(Math.random()*list.length)];
-      el.textContent=current.en;
+      current = list[Math.floor(Math.random() * list.length)];
+      el.textContent = current.en;
       el.classList.remove("spin");
-      $("#topicJp").textContent="きょうの話題: "+current.jp;
+      $("topic-jp").textContent = "きょうの お題: " + current.jp;
+      $("btn-topic-say").disabled = false;
+      spinning = false;
+      sfx("pop");
       renderDialog();
+      $("step-dialog").classList.remove("app-hidden");
+      $("step-react").classList.remove("app-hidden");
+      drawTalkTopic();
+      if(typeof after === "function") after();
     }
   };
   spin();
-};
-$("#speakTopic").onclick=()=>{if(current)speak(current.en);};
-
-/* ---- dialog ---- */
-let jpVisible=true;
-function renderDialog(){
-  if(!current)return;
-  $("#dlgTopicTag").textContent=current.en;
-  $("#dialogArea").innerHTML=current.d.map(([who,en,jp])=>
-    `<div class="dialog-line ${who.toLowerCase()}">
-       <div class="who">${who}</div>
-       <div class="txt">${en}<span class="jp ${jpVisible?"":"hidden"}">${jp}</span></div>
-       <button title="読み上げ" onclick="speak('${en.replace(/'/g,"\\'")}')">🔊</button>
-     </div>`).join("");
 }
-window.speak=speak;
-$("#toggleJp").onclick=()=>{jpVisible=!jpVisible;$$(".dialog-line .jp").forEach(e=>e.classList.toggle("hidden",!jpVisible));};
-$("#speakAll").onclick=()=>{
-  if(!current)return;
-  speechSynthesis.cancel();
-  const rate=+document.querySelector('input[name=rate]:checked').value;
-  current.d.forEach(([,en])=>{
-    const u=new SpeechSynthesisUtterance(en);
-    u.lang="en-US";u.rate=rate;
-    const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith("en"));
-    if(v)u.voice=v;
-    speechSynthesis.speak(u);
+$("btn-gacha").addEventListener("click", () => gacha());
+$("btn-topic-say").addEventListener("click", () => {
+  if(!current) return;
+  sfx("tap"); say(current.en);
+});
+
+/* ============================================================
+   2. お手本の やりとり
+   ============================================================ */
+function renderDialog(){
+  const area = $("dialog-area");
+  area.innerHTML = "";
+  if(!current) return;
+  current.d.forEach(line => {
+    const who = line[0], en = line[1], jp = line[2];
+    const row = document.createElement("div");
+    row.className = "d-line " + who.toLowerCase();
+
+    const av = document.createElement("div");
+    av.className = "who"; av.textContent = who;
+
+    const txt = document.createElement("div");
+    txt.className = "txt";
+    const enEl = document.createElement("span");
+    enEl.className = "en"; enEl.textContent = en;
+    const jpEl = document.createElement("span");
+    jpEl.className = "jp" + (jpVisible ? "" : " app-hidden");
+    jpEl.textContent = jp;
+    txt.appendChild(enEl); txt.appendChild(jpEl);
+
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "この行を きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); say(en); });
+
+    row.appendChild(av); row.appendChild(txt); row.appendChild(btn);
+    area.appendChild(row);
   });
-};
+}
+$("btn-jp").addEventListener("click", () => {
+  jpVisible = !jpVisible;
+  $("btn-jp").textContent = jpVisible ? "🙈 日本語を かくす" : "👀 日本語";
+  document.querySelectorAll("#dialog-area .jp").forEach(el => el.classList.toggle("app-hidden", !jpVisible));
+  sfx("tap");
+});
+$("btn-say-all").addEventListener("click", () => {
+  if(!current) return;
+  sfx("tap");
+  sayLines(current.d.map(line => line[1]));
+});
 
-/* ---- reactions ---- */
-$("#reactions").innerHTML=REACTIONS.map(r=>`<button onclick="speak('${r}')">${r}</button>`).join("");
+/* ============================================================
+   3. 会話を つなぐ ひとこと
+   ============================================================ */
+function buildReactChips(){
+  const box = $("react-chips");
+  box.innerHTML = "";
+  REACTIONS.forEach(r => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = r;
+    /* data-say = 「おしたときだけ 鳴る」しるし。かってに 鳴る音では ない。 */
+    b.setAttribute("data-say", r);
+    b.addEventListener("click", () => { sfx("tap"); say(r); });
+    box.appendChild(b);
+  });
+}
 
-/* ---- talk timer ---- */
-let tTotal=60,tRemain=60,tH=null,ac=null;
-function beep(n){
+/* ============================================================
+   トークタイム
+   ============================================================ */
+function drawTalkTopic(){
+  $("talk-en").textContent = current ? current.en : "Let's talk!";
+  $("talk-jp").textContent = current ? ("きょうの お題: " + current.jp) : "お題は まだ きまっていません";
+  $("btn-talk-say").disabled = !current;
+}
+function enterTalk(){
+  drawTalkTopic();
+  drawUsed();
+  show("talk");
+}
+$("btn-go-talk").addEventListener("click", () => { sfx("pop"); enterTalk(); });
+$("btn-talk-say").addEventListener("click", () => {
+  if(!current) return;
+  sfx("tap"); say(current.en);
+});
+$("btn-talk-gacha").addEventListener("click", () => {
+  sfx("tap");
+  /* お題は「お手本」の画面で 回るので、そちらへ 案内する */
+  show("model");
+  gacha();
+});
+
+/* ---- つかえた ひとこと(ここでは 音を 鳴らさない) ---- */
+function buildTalkChips(){
+  const box = $("talk-chips");
+  box.innerHTML = "";
+  REACTIONS.forEach(r => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = r;
+    b.dataset.r = r;
+    b.addEventListener("click", () => {
+      const i = used.indexOf(r);
+      if(i < 0){ used.push(r); sfx("pop"); }
+      else{ used.splice(i, 1); sfx("tick"); }
+      drawUsed();
+    });
+    box.appendChild(b);
+  });
+}
+function drawUsed(){
+  document.querySelectorAll("#talk-chips button").forEach(b => {
+    b.classList.toggle("on", used.indexOf(b.dataset.r) >= 0);
+  });
+  $("used-n").textContent = String(used.length);
+}
+
+/* ---- タイマー ---- */
+let tTotal = 60, timer = null;
+function fmt(n){ return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0"); }
+function stopTimer(){
+  if(timer){ try{ timer.stop(); }catch(e){} timer = null; }
+  $("talk-timer").classList.remove("over");
+}
+function resetTimer(){
+  stopTimer();
+  $("talk-timer").textContent = fmt(tTotal);
+}
+document.querySelectorAll(".tsel").forEach(b => {
+  b.addEventListener("click", () => {
+    tTotal = +b.dataset.t;
+    document.querySelectorAll(".tsel").forEach(x => x.classList.toggle("on", x === b));
+    resetTimer();
+    sfx("tap");
+  });
+});
+$("btn-talk-start").addEventListener("click", () => {
+  if(timer) return;
+  sfx("pop");
+  $("talk-timer").classList.remove("over");
+  if(window.AppUI && AppUI.countdown){
+    timer = AppUI.countdown($("talk-timer"), tTotal, onTimeUp, { sound:false, format:fmt });
+  }
+});
+$("btn-talk-reset").addEventListener("click", () => { sfx("tap"); resetTimer(); });
+function onTimeUp(){
+  timer = null;
+  $("talk-timer").classList.add("over");
   try{
-    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
-    for(let i=0;i<n;i++){
-      const o=ac.createOscillator(),g=ac.createGain();
-      o.connect(g);g.connect(ac.destination);o.frequency.value=880;
-      const t=ac.currentTime+i*.4;
-      g.gain.setValueAtTime(.4,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);
-      o.start(t);o.stop(t+.35);
+    if(window.AppUI && AppUI.celebrate){
+      AppUI.celebrate({ icon:"⏱", title:"タイム!", sub:"おつかれさま。ふりかえりを しよう" });
     }
   }catch(e){}
 }
-function drawT(){
-  const m=Math.floor(Math.max(tRemain,0)/60),s=String(Math.max(tRemain,0)%60).padStart(2,"0");
-  $("#talkTimer").textContent=m+":"+s;
-  $("#talkTimer").classList.toggle("over",tRemain<=0);
-}
-$$("[data-t]").forEach(b=>b.onclick=()=>{clearInterval(tH);tH=null;tTotal=+b.dataset.t;tRemain=tTotal;drawT();});
-$("#talkStart").onclick=()=>{
-  if(tH)return;
-  tH=setInterval(()=>{tRemain--;drawT();if(tRemain<=0){clearInterval(tH);tH=null;beep(3);}},1000);
-};
-$("#talkReset").onclick=()=>{clearInterval(tH);tH=null;tRemain=tTotal;drawT();};
-drawT();
-</script>
 
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>帯活動の Small Talk(先生や友だちとの即興のやりとり)を支えるトレーナーです。</p><h4>つかいかた</h4><ol><li>「モデル対話」でお題ごとのやりとりの例を聞く</li><li>「会話をつなぐひとこと」(Nice! / Me too! / How about you? など)を練習する</li><li>「トークタイム」のタイマーをつかって、ペアで実際に話す</li><li>「ふりかえり」で、つなぎことばを使えたかチェック</li></ol><div class="ah-tip">💡 先生向け:モデル対話は「型の暗記」ではなく、つなぎ方のイメージづくりに。本番のトークタイムが主役です。</div>
-  </div>
-</div>
-<script>
-(function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
-})();
+/* ---- こまったら しつもんカード ---- */
+function questionPool(){
+  const out = [];
+  TOPICS[grade].forEach(t => {
+    if(/\?$/.test(t.en) && out.indexOf(t.en) < 0) out.push(t.en);
+    t.d.forEach(line => {
+      const en = line[1];
+      if(/\?$/.test(en) && out.indexOf(en) < 0) out.push(en);
+    });
+  });
+  return out;
+}
+let currentQ = null;
+function drawQuestion(q){
+  currentQ = q;
+  $("q-en").textContent = q || "🎲 を おして しつもんを だそう";
+  $("btn-q-say").disabled = !q;
+}
+$("btn-q-next").addEventListener("click", () => {
+  const pool = questionPool();
+  if(!pool.length) return;
+  let q = pool[Math.floor(Math.random() * pool.length)];
+  if(pool.length > 1){
+    let guard = 0;
+    while(q === currentQ && guard++ < 8) q = pool[Math.floor(Math.random() * pool.length)];
+  }
+  sfx("pop");
+  drawQuestion(q);
+});
+$("btn-q-say").addEventListener("click", () => {
+  if(!currentQ) return;
+  sfx("tap"); say(currentQ);
+});
+
+/* ============================================================
+   ふりかえり
+   ============================================================ */
+function enterLook(){
+  const box = $("used-list");
+  box.innerHTML = "";
+  if(!used.length){
+    const p = document.createElement("span");
+    p.className = "none";
+    p.textContent = "まだ 記録が ないよ。トークタイムで つかえた ひとことを タップしてね。";
+    box.appendChild(p);
+  }else{
+    used.forEach(r => {
+      const s = document.createElement("span");
+      s.className = "u"; s.textContent = r;
+      box.appendChild(s);
+    });
+  }
+  show("look");
+}
+$("btn-go-look").addEventListener("click", () => { sfx("pop"); stopTimer(); enterLook(); });
+$("btn-again").addEventListener("click", () => { sfx("pop"); resetTimer(); enterTalk(); });
+$("btn-clear-used").addEventListener("click", () => {
+  used = [];
+  drawUsed();
+  sfx("tick");
+  enterLook();
+});
+
+/* ============================================================
+   使い方
+   ============================================================ */
+const HELP = `
+<p>帯活動の Small Talk(先生や 友だちとの 即興の やりとり)を ささえる トレーナーです。</p>
+<h4>🎧 お手本を きく</h4>
+<ol>
+  <li>「話題ガチャ」で きょうの お題を きめる</li>
+  <li>お手本の やりとりを 読む（日本語訳は はじめ かくれています。行の 🔊 で 1行ずつ 聞けます）</li>
+  <li>会話を つなぐ ひとことを おして、発音を たしかめる</li>
+</ol>
+<h4>🗣️ トークタイム（2人ぐみ）</h4>
+<ol>
+  <li>時間を えらんで スタート。2人で 話す</li>
+  <li>つかえた ひとことを タップして 記録する（ここでは 音は 鳴りません）</li>
+  <li>ことばに つまったら「しつもんカード」から 1つ たずねる</li>
+</ol>
+<h4>📝 ふりかえり</h4>
+<p>チェックと、その日 つかえた ひとことの 一覧が 出ます。</p>
+<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">
+  💡 <b>先生へ:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。<br>
+  お手本は「型の 暗記」ではなく、つなぎ方の イメージづくりに。<b>本番の トークタイムが 主役</b>です。<br>
+  日本語訳を はじめ かくしているのは、まず 英語のまま 読む・聞く 時間を つくるためです。
+</div>`;
+$("btn-help").addEventListener("click", () => {
+  sfx("tap");
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:"つかいかた" });
+});
+
+/* ============================================================
+   起動(音も 発話も しない)
+   ============================================================ */
+buildReactChips();
+buildTalkChips();
+drawUsed();
+resetTimer();
+drawQuestion(null);
+drawTalkTopic();
+show("home");
 </script>
 </body>
 </html>

@@ -851,14 +851,8 @@ $('btn-speak-all').addEventListener('click', function(){
   sfx('tap');
   var lines = presentLines();
   if(!lines.length) return;
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(function(l){
-      var u = new SpeechSynthesisUtterance(l.text);
-      u.lang = 'en-US'; u.rate = 0.85;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+  /* まとめ読みは キットの speakQueue に まかせる(speak だと 前の行を 止めてしまう) */
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines.map(function(l){ return l.text; })); }catch(e){}
 });
 $('btn-back-build').addEventListener('click', function(){ sfx('tap'); go('build'); });
 

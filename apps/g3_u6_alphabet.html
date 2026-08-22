@@ -126,6 +126,10 @@ footer{ text-align:center; padding:14px; color:#b2bec3; font-size:.72rem; font-w
 
 @media (max-width:560px){
   .k-tile-letter{ font-size:clamp(1.3rem,7vmin,3.4rem); font-size:min(44cqw,54cqh); }
+  /* せまい画面では 札の 最小はば(72px)を 守ると 26まいの ばんが 画面から はみ出す。
+     はみ出して 横に スクロールするより、札を 少し 小さくして 全部 見えるほうが
+     かるたとして 成立するので、ここだけ ゆるめる(高さは 指で 押せる 大きさを 残す)。 */
+  .k-tile{ min-width:0; min-height:56px; }
 }
 </style>
 </head>
@@ -147,17 +151,19 @@ footer{ text-align:center; padding:14px; color:#b2bec3; font-size:.72rem; font-w
     <h2 class="k-title">あそびかたを えらんでね</h2>
     <p class="k-sub">🔊は もんだいの よみあげだけ。あとは じぶんが 聞きたいときに おそう</p>
     <div class="app-mode-select">
-      <button type="button" class="app-mode-card primary" id="mode-personal">
+      <!-- data-say = 「おしたら 読み上げが はじまる」しるし。かるたは 聞いて とる ゲームなので、
+           はじめの 1まいめを 読み上げるのは この アプリの 中心の しくみ。 -->
+      <button type="button" class="app-mode-card primary" id="mode-personal" data-say="かるたの よみあげ">
         <span class="app-mode-icon">🎧</span>
         <span class="app-mode-title">ひとりで れんしゅう</span>
         <span class="app-mode-sub">音を聞いて カードをタップ!<br>タイムと コンボに ちょうせん</span>
       </button>
-      <button type="button" class="app-mode-card pink" id="mode-board">
+      <button type="button" class="app-mode-card pink" id="mode-board" data-say="かるたの よみあげ">
         <span class="app-mode-icon">📺</span>
         <span class="app-mode-title">でんしこくばんで みんなで</span>
         <span class="app-mode-sub">🔴あかチーム vs ⚪しろチーム<br>こうごに とって たいけつ!</span>
       </button>
-      <button type="button" class="app-mode-card purple" id="mode-search">
+      <button type="button" class="app-mode-card purple" id="mode-search" data-say="もじさがしの よみあげ">
         <span class="app-mode-icon">🔍</span>
         <span class="app-mode-title">もじさがし</span>
         <span class="app-mode-sub">「Apple は なにで はじまる?」<br>あたまの文字を さがそう</span>
@@ -419,7 +425,8 @@ document.querySelectorAll('.k-range-btn').forEach(function(b){
    6. かるた盤面の組み立て(ひとり/でんしこくばん)
    ============================================================ */
 function tileHtml(L){
-  return '<button type="button" class="k-tile" data-l="' + L + '" aria-label="' + L + '">' +
+  /* data-say = 「おしたら 読み上げが おきる」しるし(かるたの よみあげは ゲームの中心)。 */
+  return '<button type="button" class="k-tile" data-say="' + L + '" data-l="' + L + '" aria-label="' + L + '">' +
          '<span class="k-tile-letter">' + L + '</span></button>';
 }
 function buildBoard(){

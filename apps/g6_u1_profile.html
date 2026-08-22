@@ -3,468 +3,779 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>自己紹介プロフィールカードメーカー | 小学校外国語アプリポータル</title>
+<title>自己紹介プロフィールカード | 小学校外国語アプリポータル</title>
+<meta name="description" content="6年生 Unit 1「This is me!」出身・誕生日・すきなものを絵カードでえらんで自己紹介カードをつくり、2人組で「だれのカード？」をあてっこできる小学校6年生向けアプリ。アプリは勝手に読み上げません。">
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
-  --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
-  --primary:#2e86de; --primary-dark:#1e6fc0; --green:#26de81; --pink:#ff6b81; --yellow:#fdcb6e;
-  --shadow:0 4px 10px rgba(0,0,0,.08); --shadow-hover:0 10px 25px rgba(0,0,0,.15);
+  --primary:#2e86de; --primary-dark:#1e6fc0; --blue:#546de5; --green:#26de81; --pink:#ff6b81; --yellow:#fdcb6e;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--ink);
-  min-height:100vh;touch-action:manipulation;
-}
-header{
-  background:rgba(255,255,255,.95);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;
-}
-header h1{font-size:1.02rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1 .u{font-size:.7rem;color:#fff;background:var(--primary);padding:2px 10px;border-radius:50px}
-.nav-btn{
-  background:#636e72;color:#fff;border:none;padding:8px 16px;border-radius:50px;font-weight:700;cursor:pointer;
-  font-family:inherit;font-size:.8rem;box-shadow:var(--shadow);transition:.2s;min-height:44px;
-}
-.nav-btn:hover{background:var(--primary);transform:translateY(-2px)}
-main{max-width:880px;margin:0 auto;padding:16px 16px 60px}
-.step-title{text-align:center;margin:14px 0 4px;font-size:1.25rem;font-weight:800}
-.step-sub{text-align:center;color:var(--sub);font-weight:700;font-size:.85rem;margin-bottom:12px}
+main{max-width:960px;margin:0 auto;padding:16px 16px 72px}
+.step{max-width:780px;margin:0 auto 22px}
+.step-title{font-size:1.2rem;font-weight:800;margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.step-title .no{background:var(--primary);color:#fff;border-radius:50px;padding:2px 14px;font-size:.9rem;flex:none}
+.step-sub{color:#7f8c9b;font-weight:700;font-size:.86rem;margin-bottom:12px;line-height:1.8}
 
-/* 入力フォーム */
-.form-box{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
-.f-row{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 18px}
-.f-row h3{font-size:.92rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.f-row h3 .tag{font-size:.68rem;color:#fff;padding:3px 12px;border-radius:50px;background:var(--primary)}
-.f-row input[type=text]{
-  width:100%;border:3px solid #e6ecf2;border-radius:12px;padding:11px;font-family:inherit;font-weight:800;font-size:1.05rem;
+/* ---- 名前 ---- */
+.name-box{background:#fff;border-radius:22px;box-shadow:0 4px 10px rgba(0,0,0,.08);padding:18px;text-align:center}
+.name-box input{
+  width:100%;border:4px solid #e6ecf2;border-radius:16px;padding:14px;font-family:'Fredoka One',cursive;
+  font-size:1.7rem;text-align:center;letter-spacing:3px;color:var(--primary-dark);
 }
-.f-row select{
-  border:3px solid #e6ecf2;border-radius:12px;padding:10px;font-family:inherit;font-weight:800;font-size:.95rem;margin-right:6px;
+/* ---- 誕生日 ---- */
+.bday-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.bday-row select{
+  border:4px solid #e6ecf2;border-radius:16px;padding:12px 14px;font-family:'Fredoka One',cursive;
+  font-size:1.15rem;color:#2d3436;background:#fff;min-height:60px;
 }
-.chips{display:flex;gap:8px;flex-wrap:wrap}
+/* ---- 絵カードのチップ ---- */
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
 .chip{
-  border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;
-  font-weight:800;font-size:.85rem;cursor:pointer;min-height:44px;transition:.15s;color:var(--ink);
+  background:#fff;border-radius:20px;padding:12px 8px;text-align:center;cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);border:5px solid transparent;transition:.15s;
+  display:flex;flex-direction:column;align-items:center;gap:8px;font-family:inherit;
 }
-.chip.on{background:var(--green);border-color:var(--green);color:#fff}
-.actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.big-btn{
-  border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-weight:800;font-size:1rem;
-  cursor:pointer;box-shadow:var(--shadow);min-height:50px;transition:.2s;color:#fff;background:var(--primary);
-}
-.big-btn:hover{transform:translateY(-2px)}
-.big-btn.gray{background:#b2bec3;color:#2d3436}
-.big-btn:disabled{background:#dfe6ec;color:#98a6b5;cursor:default;transform:none}
+.chip:hover{transform:translateY(-3px)}
+.chip.on{border-color:var(--green);background:#effdf7}
+.chip .art{width:100%;max-width:130px}
+.chip .clabel{font-family:'Fredoka One',cursive;font-size:1.02rem;color:#2d3436;line-height:1.25}
 
-/* カード */
-.profile-card{
-  max-width:520px;margin:0 auto;background:linear-gradient(135deg,#fff,#f4f9ff);border-radius:24px;
-  box-shadow:var(--shadow-hover);border:5px solid var(--primary);overflow:hidden;
+/* ---- プロフィールカード ---- */
+.pcard{
+  max-width:560px;margin:0 auto;background:linear-gradient(135deg,#fff,#f4f9ff);border-radius:24px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);border:6px solid var(--primary);overflow:hidden;
 }
 .pc-head{background:linear-gradient(135deg,#2e86de,#54a0ff);color:#fff;text-align:center;padding:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;font-size:1.1rem}
-.pc-body{padding:20px;text-align:center}
-.pc-name{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--primary-dark)}
-.pc-meta{font-size:2rem;margin-top:6px}
-.pc-lines{margin-top:12px;text-align:left}
-.pc-line{font-size:1.05rem;font-weight:800;padding:6px 10px;border-radius:10px;cursor:pointer}
-.pc-line:hover{background:#eef6ff}
+.pc-body{padding:20px}
+.pc-name{font-family:'Fredoka One',cursive;font-size:2.3rem;color:var(--primary-dark);text-align:center;line-height:1.2}
+.pc-arts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.pc-arts .pa{width:112px;text-align:center}
+.pc-arts .pa .art{width:100%}
+.pc-arts .pa .cap{font-family:'Fredoka One',cursive;font-size:.82rem;color:#7f8c9b;margin-top:2px}
+.pc-lines{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+.pc-line{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#eef6ff;
+}
+.pc-line .say{
+  flex:none;border:none;background:var(--blue);color:#fff;border-radius:50px;
+  min-width:56px;min-height:48px;font-size:1.1rem;cursor:pointer;font-family:inherit;
+}
+.pc-line .txt{flex:1;font-family:'Fredoka One',cursive;font-size:1.1rem;line-height:1.4;word-break:break-word}
 
-/* 自分で言ってみようステージ */
+/* ---- まず自分で言ってみよう ---- */
 .try-card{
-  max-width:560px;margin:0 auto;background:#fffdf5;border-radius:24px;box-shadow:var(--shadow-hover);
-  border:5px solid var(--yellow);padding:22px;text-align:center;
+  max-width:620px;margin:0 auto;background:#fffdf5;border-radius:24px;
+  box-shadow:0 10px 25px rgba(0,0,0,.12);border:6px solid var(--yellow);padding:20px 16px;
 }
-.try-card .try-hint{font-size:.85rem;color:#8a6d1e;font-weight:800;margin-bottom:14px;line-height:1.8}
-.prompt-list{display:flex;flex-direction:column;gap:10px;text-align:left}
+.try-hint{font-size:.88rem;color:#8a6d1e;font-weight:800;margin-bottom:14px;line-height:1.8;text-align:center}
 .prompt-line{
-  background:#fff;border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);
-  cursor:pointer;
+  background:#fff;border-radius:16px;padding:12px;display:flex;align-items:center;gap:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);margin-bottom:10px;
 }
-.prompt-line .q{font-weight:800;color:var(--primary-dark);flex:1}
-.prompt-line .a-icons{font-size:1.3rem;white-space:nowrap}
-/* 塗り重ね(相手えらび・もういちどミッション) */
-.aud-row{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0 2px}
-.aud-label{font-weight:800;font-size:.85rem;color:var(--sub)}
-.aud-chip{border:3px solid #e6ecf2;background:#fff;border-radius:50px;padding:8px 14px;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;min-height:44px;transition:.15s}
-.aud-chip.on{border-color:var(--primary);background:#fff5f6}
-.retry-mission{text-align:center;font-weight:800;color:#e17055;font-size:.98rem;min-height:26px;margin:4px 0}
-.model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
-.hidden{display:none!important}
-footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
+.prompt-line .q{flex:1;font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--primary-dark);min-width:0;word-break:break-word}
+.prompt-line .a{flex:none;width:96px}
+.prompt-line .a .art{width:100%}
+.prompt-line .a .txt{font-family:'Fredoka One',cursive;font-size:1rem;text-align:center;color:#2d3436;line-height:1.2}
+.prompt-line .say{
+  flex:none;border:none;background:var(--blue);color:#fff;border-radius:50px;
+  min-width:56px;min-height:48px;font-size:1.1rem;cursor:pointer;font-family:inherit;
+}
+.mission{text-align:center;font-weight:800;color:#e17055;font-size:1rem;min-height:28px;margin-bottom:8px}
+.aud-row{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.aud-row .lb{font-weight:800;font-size:.86rem;color:#7f8c9b}
+.aud-chip{
+  border:4px solid #e6ecf2;background:#fff;border-radius:50px;padding:10px 16px;font-family:inherit;
+  font-weight:800;font-size:.88rem;cursor:pointer;min-height:52px;color:#2d3436;
+}
+.aud-chip.on{border-color:var(--primary);background:#eef6ff;color:var(--primary-dark)}
+
+/* ---- だれのカード？(2人ぐみ) ---- */
+.guess-wrap{max-width:820px;margin:0 auto}
+.score{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-weight:800;color:#7f8c9b;font-size:.9rem;margin-bottom:12px}
+.score b{color:var(--primary-dark);font-size:1.25rem;font-family:'Fredoka One',cursive}
+.role{border-radius:22px;padding:16px;margin-bottom:14px;box-shadow:0 4px 10px rgba(0,0,0,.08);background:#fff;border:5px solid #e6ecf2}
+.role.teller{border-color:var(--yellow);background:#fffdf3}
+.role.asker{border-color:var(--blue);background:#f5f6ff}
+.role h3{font-size:1rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.role .who{font-size:.74rem;color:#fff;background:#636e72;border-radius:50px;padding:4px 12px;flex:none}
+.role .hint{font-size:.84rem;font-weight:700;color:#7f8c9b;line-height:1.8;margin-top:8px}
+.secret{background:#fff;border-radius:18px;border:4px dashed var(--yellow);padding:14px;min-height:150px;display:flex;align-items:center;justify-content:center}
+.secret .s-arts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.secret .sa{width:104px;text-align:center}
+.secret .sa .art{width:100%}
+.secret .sa .cap{font-family:'Fredoka One',cursive;font-size:.8rem;color:#7f8c9b;margin-top:2px}
+.secret .s-mask{font-weight:800;color:#b2bec3;font-size:1rem;text-align:center;line-height:1.9}
+.qbank{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.qbank .qline{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 4px 10px rgba(0,0,0,.06)}
+.qbank .qline .txt{flex:1;font-family:'Fredoka One',cursive;font-size:1.02rem;color:var(--primary-dark);min-width:0;word-break:break-word}
+.qbank .qline .say{flex:none;border:none;background:var(--blue);color:#fff;border-radius:50px;min-width:56px;min-height:48px;font-size:1.05rem;cursor:pointer;font-family:inherit}
+.friends{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.friend{
+  background:#fff;border-radius:20px;padding:12px 8px;cursor:pointer;border:5px solid transparent;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);text-align:center;font-family:inherit;transition:.15s;
+}
+.friend:hover{transform:translateY(-3px)}
+.friend.ok{border-color:var(--green);background:#effdf7}
+.friend.ng{border-color:var(--pink);opacity:.55}
+.friend .fname{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--primary-dark)}
+.friend .fbday{font-family:'Fredoka One',cursive;font-size:.8rem;color:#7f8c9b;margin-bottom:6px}
+.friend .farts{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.friend .farts .fa{width:44px}
+.friend .farts .fa .art{width:100%}
+.judge{text-align:center;font-weight:800;font-size:1.1rem;min-height:32px;margin-top:10px}
+.judge.ok{color:#0f9d58} .judge.ng{color:#d63447}
+
 @media print{
-  header,.actions,footer,.step-title,.step-sub{display:none!important}
+  .app-header,.app-btn-row,footer,.step-title,.step-sub,#scr-home,#scr-make,#scr-try,#scr-guess{display:none!important}
   body{background:#fff}
-  .profile-card{box-shadow:none}
+  .pcard{box-shadow:none;border-color:#888}
+  .pc-line .say{display:none}
 }
 </style>
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
-
-<header>
-  <h1>🙋 自己紹介プロフィールカード <span class="u">6年生 自己紹介</span></h1>
-  <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-restart">さいしょから</button>
-    <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
+<header class="app-header">
+  <h1>🙋 自己紹介プロフィールカード <span class="app-unit-badge">6年 Unit 1</span></h1>
+  <div class="app-header-actions">
+    <button type="button" class="app-nav-btn" id="btn-help">❓ 使い方</button>
+    <button type="button" class="app-nav-btn app-hidden" id="btn-home">モードをかえる</button>
+    <a class="app-nav-btn" href="../index.html">ポータルへ</a>
   </div>
 </header>
 
 <main>
 
-  <!-- 入力 -->
-  <section id="scr-form">
-    <h2 class="step-title">🙋 プロフィールを入力しよう</h2>
-    <p class="step-sub">5年生の自己紹介より レベルアップした This is me! をつくろう</p>
-    <div class="form-box">
-      <div class="f-row">
-        <h3><span class="tag">Name</span>名前(ローマ字)</h3>
-        <input type="text" id="f-name" placeholder="SAKURA" maxlength="15" autocomplete="off">
-      </div>
-      <div class="f-row">
-        <h3><span class="tag">From</span>出身の国・行ってみたい国</h3>
-        <div class="chips" id="f-country"></div>
-      </div>
-      <div class="f-row">
-        <h3><span class="tag">Birthday</span>誕生日</h3>
-        <select id="f-month"></select>
-        <select id="f-day"></select>
-      </div>
-      <div class="f-row">
-        <h3><span class="tag">Animal</span>好きな動物</h3>
-        <div class="chips" id="f-animal"></div>
-      </div>
-      <div class="f-row">
-        <h3><span class="tag">Like</span>好きなもの・こと(2つまで)</h3>
-        <div class="chips" id="f-likes"></div>
+  <!-- ============ ホーム ============ -->
+  <section id="scr-home">
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card blue" id="mode-make">
+        <span class="app-mode-icon">🪪</span>
+        <span class="app-mode-title">じぶんの カードを つくる</span>
+        <span class="app-mode-sub">This is me! の 材料を えらんで<br>自己紹介カードを つくろう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-guess">
+        <span class="app-mode-icon">🕵️</span>
+        <span class="app-mode-title">だれの カード？（2人ぐみ）</span>
+        <span class="app-mode-sub">しつもんして、8人の中から<br>ひみつの ともだちを あてよう</span>
+      </button>
+    </div>
+    <p class="app-center" style="margin-top:18px;font-weight:700;color:#7f8c9b;font-size:.86rem;line-height:1.9;text-align:center">
+      🔊は 聞きたいときだけ おしてね。<br>アプリは かってに しゃべらないよ。
+    </p>
+  </section>
+
+  <!-- ============ カードづくり(材料えらび) ============ -->
+  <section id="scr-make" class="app-hidden">
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">1</span>名前を ローマ字で 入れよう</h2>
+      <div class="name-box">
+        <input type="text" id="f-name" placeholder="SAKURA" maxlength="15" autocomplete="off" aria-label="名前をローマ字で入力">
       </div>
     </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-make" disabled>自己紹介にちょうせん ▶</button>
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">2</span>出身・行ってみたい国</h2>
+      <p class="step-sub">I'm from ~. / I want to go to ~. えらんでも アプリは しゃべらないよ。</p>
+      <div class="chips" id="f-country"></div>
+    </div>
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">3</span>たん生日</h2>
+      <p class="step-sub">My birthday is ~.</p>
+      <div class="bday-row">
+        <select id="f-month" aria-label="たん生日の月"></select>
+        <select id="f-day" aria-label="たん生日の日"></select>
+      </div>
+    </div>
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">4</span>すきな どうぶつ</h2>
+      <p class="step-sub">I like ~.</p>
+      <div class="chips" id="f-animal"></div>
+    </div>
+
+    <div class="step">
+      <h2 class="step-title"><span class="no">5</span>すきな もの・こと（2つまで）</h2>
+      <p class="step-sub">I like ~ and ~.</p>
+      <div class="chips" id="f-likes"></div>
+      <div class="app-btn-row" style="margin-top:18px">
+        <button type="button" class="app-big-btn" id="btn-make" disabled>まず じぶんで 言ってみる ▶</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ まず自分で言ってみよう ============ -->
+  <section id="scr-try" class="app-hidden">
+    <div class="step">
+      <h2 class="step-title"><span class="no">🗣️</span>まず じぶんで 言ってみよう</h2>
+      <p class="step-sub">絵を 見て、しつもんに 英語で こたえてみよう。まだ 英文は 出しません。</p>
+      <div class="mission" id="mission"></div>
+      <div class="aud-row">
+        <span class="lb">だれに つたえる?</span>
+        <button type="button" class="aud-chip on" data-a="t">👩‍🏫 先生・ALT</button>
+        <button type="button" class="aud-chip" data-a="f">🧑 友だち</button>
+        <button type="button" class="aud-chip" data-a="h">👨‍👩‍👧 家の人</button>
+      </div>
+      <div class="try-card">
+        <p class="try-hint">声に 出して 言ってみよう。<br>しつもんの 🔊 は「聞き方」を たしかめたいときに。</p>
+        <div id="prompt-list"></div>
+      </div>
+      <div class="app-btn-row" style="margin-top:18px">
+        <button type="button" class="app-big-btn yellow" id="btn-check">言えたら お手本を みる ✅</button>
+        <button type="button" class="app-big-btn sm gray" id="btn-back-make">材料を えらび直す</button>
+      </div>
     </div>
   </section>
 
-  <!-- 自分で言ってみよう -->
-  <section id="scr-try" class="hidden">
-    <h2 class="step-title">🗣️ まず自分で言ってみよう</h2>
-    <p class="step-sub">あつめた材料をつかって、This is me! を英語で言ってみよう(声に出してね)</p>
-    <div class="retry-mission" id="retry-mission"></div>
-    <div class="aud-row"><span class="aud-label">だれに つたえる?</span><button class="aud-chip on" data-a="t">👩‍🏫 先生・ALT</button><button class="aud-chip" data-a="f">🧑 友だち</button><button class="aud-chip" data-a="h">👨‍👩‍👧 家の人</button></div>
-    <div class="try-card">
-      <div class="try-hint">それぞれの質問に、えらんだ材料をつかってこたえてみよう</div>
-      <div class="prompt-list" id="prompt-list"></div>
-    </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-check" style="background:var(--yellow);color:#7a5b1e">言えたら たしかめる ✅</button>
-      <button class="big-btn gray" id="btn-back-try">材料をえらびなおす</button>
+  <!-- ============ お手本カード ============ -->
+  <section id="scr-model" class="app-hidden">
+    <div class="step">
+      <h2 class="step-title"><span class="no">🔊</span>お手本と くらべてみよう</h2>
+      <p class="step-sub">これは <b>ひとつの 例</b>です。きみの 言い方でも つたわれば OK！<br>1文ずつ 🔊 で 聞けます。</p>
+      <div class="pcard" id="pcard">
+        <div class="pc-head">THIS IS ME!</div>
+        <div class="pc-body">
+          <div class="pc-name" id="pc-name"></div>
+          <div class="pc-arts" id="pc-arts"></div>
+          <div class="pc-lines" id="pc-lines"></div>
+        </div>
+      </div>
+      <div class="app-btn-row" style="margin-top:18px">
+        <button type="button" class="app-big-btn blue" id="btn-say-all">🔊 ぜんぶ きく</button>
+        <button type="button" class="app-big-btn green" id="btn-again">🔁 もういちど 言ってみる</button>
+        <button type="button" class="app-big-btn sm gray" id="btn-print">🖨️ 印刷</button>
+        <button type="button" class="app-big-btn sm gray" id="btn-back-make2">材料を えらび直す</button>
+      </div>
     </div>
   </section>
 
-  <!-- カード -->
-  <section id="scr-card" class="hidden">
-    <h2 class="step-title">🔊 お手本を聞いてみよう</h2>
-    <p class="model-note">これは 一つの例だよ。きみの言い方でも つたわれば OK!</p>
-    <p class="step-sub">じぶんが言ったことと くらべてみよう。1文ずつタップでも聞けるよ</p>
-    <div class="profile-card">
-      <div class="pc-head">THIS IS ME!</div>
-      <div class="pc-body">
-        <div class="pc-name" id="pc-name"></div>
-        <div class="pc-meta" id="pc-meta"></div>
-        <div class="pc-lines" id="pc-lines"></div>
+  <!-- ============ だれの カード？(2人ぐみ) ============ -->
+  <section id="scr-guess" class="app-hidden">
+    <div class="guess-wrap">
+      <h2 class="step-title"><span class="no">🕵️</span>だれの カード？（2人ぐみ）</h2>
+      <p class="step-sub">
+        <b>出す人</b>は ひみつの ともだちの 絵を 見て、しつもんに 英語で こたえます。<br>
+        <b>あてる人</b>は 8人の 中から だれかを あてます。
+      </p>
+
+      <div class="score">
+        <span>出した問題 <b id="sc-total">0</b></span>
+        <span>せいかい <b id="sc-ok">0</b></span>
+        <span>れんぞく <b id="sc-combo">0</b></span>
       </div>
-    </div>
-    <div class="actions">
-      <button class="big-btn" id="btn-speak-all">🔊 ぜんぶ読み上げ</button>
-      <button class="big-btn" id="btn-again-try" style="background:var(--green)">🔁 もういちど言ってみよう</button>
-      <button class="big-btn" id="btn-print" style="background:var(--green)">🖨️ 印刷</button>
-      <button class="big-btn gray" id="btn-back">入力にもどる</button>
+
+      <div class="role teller">
+        <h3><span class="who">出す人</span>ひみつの ともだち</h3>
+        <div class="secret" id="secret"></div>
+        <div class="app-btn-row" style="margin-top:10px">
+          <button type="button" class="app-big-btn sm yellow" id="btn-peek">👀 見る</button>
+          <button type="button" class="app-big-btn sm gray" id="btn-next">つぎの ともだち 🎲</button>
+        </div>
+        <p class="hint">
+          絵は かくれています。<b>👀 見る</b>を おすと 4秒だけ 見えて、すぐ また かくれます。<br>
+          見た 絵を 英語に して こたえよう。<b>I'm from ~. / My birthday is ~. / I like ~.</b>
+        </p>
+      </div>
+
+      <div class="role asker">
+        <h3><span class="who">あてる人</span>しつもんして あてよう</h3>
+        <div class="qbank" id="qbank"></div>
+        <div class="friends" id="friends"></div>
+        <div class="judge" id="guess-judge"></div>
+        <div class="app-btn-row app-hidden" id="guess-after">
+          <button type="button" class="app-big-btn sm blue" id="btn-guess-say">🔊 この子の 言い方を きく</button>
+        </div>
+      </div>
     </div>
   </section>
 
 </main>
 
-<footer>誕生日などの個人情報はどこにも送信されません(画面の中だけで使われます)</footer>
+<footer class="app-center" style="padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700;text-align:center">
+  Picture Dictionary の絵カードを使用しています（画像が出ないときは絵文字で表示されます）。<br>
+  入力した名前やたん生日は どこにも 送信されません（画面の中だけで つかわれます）。
+</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
-// ============================================================
-// データ(教師向け:ここを書きかえると選択肢を変更できます)
-// ============================================================
+"use strict";
+const $ = id => document.getElementById(id);
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function say(text){ try{ if(window.AppUI && AppUI.speak) AppUI.speak(text); }catch(e){} }
+function sayLines(lines){ try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines); }catch(e){} }
+function art(imgFile, emoji){
+  if(window.AppUI && AppUI.cardArt){
+    const el = AppUI.cardArt(imgFile, emoji);
+    el.classList.add("art");
+    return el;
+  }
+  const s = document.createElement("span");
+  s.className = "app-card-emoji"; s.textContent = emoji || "❓";
+  return s;
+}
+
+/* ============================================================
+   データ(先生へ: ここを書きかえると 選択肢を 変えられます)
+   ============================================================ */
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const COUNTRIES = [
-  { en:"Japan",         ja:"日本",         flag:"🇯🇵" },
-  { en:"America",       ja:"アメリカ",     flag:"🇺🇸" },
-  { en:"Australia",     ja:"オーストラリア", flag:"🇦🇺" },
-  { en:"China",         ja:"中国",         flag:"🇨🇳" },
-  { en:"Korea",         ja:"かんこく",     flag:"🇰🇷" },
-  { en:"France",        ja:"フランス",     flag:"🇫🇷" },
-  { en:"Italy",         ja:"イタリア",     flag:"🇮🇹" },
-  { en:"Brazil",        ja:"ブラジル",     flag:"🇧🇷" },
-  { en:"India",         ja:"インド",       flag:"🇮🇳" },
+  { en:"Japan",     img:"Japan.jpg",     emoji:"🇯🇵" },
+  { en:"America",   img:"America.jpg",   emoji:"🇺🇸" },
+  { en:"Australia", img:"Australia.jpg", emoji:"🇦🇺" },
+  { en:"China",     img:"China.jpg",     emoji:"🇨🇳" },
+  { en:"Korea",     img:"Korea.jpg",     emoji:"🇰🇷" },
+  { en:"France",    img:"France.jpg",    emoji:"🇫🇷" },
+  { en:"Italy",     img:"Italy.jpg",     emoji:"🇮🇹" },
+  { en:"Brazil",    img:"Brazil.jpg",    emoji:"🇧🇷" },
+  { en:"India",     img:"India.jpg",     emoji:"🇮🇳" },
+  { en:"Canada",    img:"Canada.jpg",    emoji:"🇨🇦" },
+  { en:"Egypt",     img:"Egypt.jpg",     emoji:"🇪🇬" },
+  { en:"Kenya",     img:"Kenya.jpg",     emoji:"🇰🇪" }
 ];
 const ANIMALS = [
-  { en:"dogs",     ja:"犬",       emoji:"🐶" },
-  { en:"cats",     ja:"ねこ",     emoji:"🐱" },
-  { en:"rabbits",  ja:"うさぎ",   emoji:"🐰" },
-  { en:"pandas",   ja:"パンダ",   emoji:"🐼" },
-  { en:"lions",    ja:"ライオン", emoji:"🦁" },
-  { en:"dolphins", ja:"イルカ",   emoji:"🐬" },
-  { en:"penguins", ja:"ペンギン", emoji:"🐧" },
-  { en:"koalas",   ja:"コアラ",   emoji:"🐨" },
+  { en:"dogs",     img:"dog.jpg",     emoji:"🐶" },
+  { en:"cats",     img:"cat.jpg",     emoji:"🐱" },
+  { en:"rabbits",  img:"rabbit.jpg",  emoji:"🐰" },
+  { en:"pandas",   img:"panda.jpg",   emoji:"🐼" },
+  { en:"lions",    img:"lion.jpg",    emoji:"🦁" },
+  { en:"dolphins", img:"dolphin.jpg", emoji:"🐬" },
+  { en:"penguins", img:"penguin.jpg", emoji:"🐧" },
+  { en:"koalas",   img:"koala.jpg",   emoji:"🐨" }
 ];
 const LIKES = [
-  { en:"soccer",     ja:"サッカー", emoji:"⚽" },
-  { en:"baseball",   ja:"野球",     emoji:"⚾" },
-  { en:"swimming",   ja:"水泳",     emoji:"🏊" },
-  { en:"music",      ja:"音楽",     emoji:"🎵" },
-  { en:"reading",    ja:"読書",     emoji:"📚" },
-  { en:"video games", ja:"ゲーム",  emoji:"🎮" },
-  { en:"pizza",      ja:"ピザ",     emoji:"🍕" },
-  { en:"sushi",      ja:"すし",     emoji:"🍣" },
-  { en:"ice cream",  ja:"アイス",   emoji:"🍦" },
-  { en:"drawing",    ja:"絵をかくこと", emoji:"🎨" },
+  { en:"soccer",       img:"soccer.jpg",              emoji:"⚽" },
+  { en:"baseball",     img:"baseball.jpg",            emoji:"⚾" },
+  { en:"basketball",   img:"basketball.jpg",          emoji:"🏀" },
+  { en:"tennis",       img:"tennis.jpg",              emoji:"🎾" },
+  { en:"swimming",     img:"swimming.jpg",            emoji:"🏊" },
+  { en:"dancing",      img:"dance.jpg",               emoji:"💃" },
+  { en:"music",        img:"music.jpg",               emoji:"🎵" },
+  { en:"reading",      img:"read.jpg",                emoji:"📚" },
+  { en:"video games",  img:"playing video games.jpg", emoji:"🎮" },
+  { en:"drawing",      img:"drawing pictures.jpg",    emoji:"🎨" },
+  { en:"cooking",      img:"cooking.jpg",             emoji:"🍳" },
+  { en:"pizza",        img:"pizza.jpg",               emoji:"🍕" },
+  { en:"sushi",        img:"sushi.jpg",               emoji:"🍣" },
+  { en:"ice cream",    img:"ice cream.jpg",           emoji:"🍦" }
+];
+const byEn = (list, en) => list.filter(x => x.en === en)[0] || null;
+
+/* だれの カード？ に出てくる 8人。
+   どの しつもんも 1回では しぼりきれないように、
+   国・たん生日・どうぶつ・すきなもの が それぞれ 2人ずつ 重なるように 組んである。 */
+const FRIENDS = [
+  { name:"Emma",  country:"Australia", bday:"March 3rd",     animal:"koalas",  likes:["soccer","music"] },
+  { name:"Sofia", country:"Australia", bday:"July 7th",      animal:"koalas",  likes:["tennis","dancing"] },
+  { name:"Liam",  country:"America",   bday:"July 7th",      animal:"dogs",    likes:["soccer","baseball"] },
+  { name:"Noah",  country:"America",   bday:"November 11th", animal:"dogs",    likes:["basketball","pizza"] },
+  { name:"Kenta", country:"Japan",     bday:"November 11th", animal:"cats",    likes:["baseball","basketball"] },
+  { name:"Aya",   country:"Japan",     bday:"May 5th",       animal:"cats",    likes:["dancing","sushi"] },
+  { name:"Mei",   country:"China",     bday:"March 3rd",     animal:"pandas",  likes:["music","pizza"] },
+  { name:"Leo",   country:"China",     bday:"May 5th",       animal:"pandas",  likes:["tennis","sushi"] }
+];
+const QUESTIONS = [
+  "Where are you from?",
+  "When is your birthday?",
+  "What animal do you like?",
+  "What do you like?"
 ];
 
-// ============================================================
-// 音声
-// ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+/* ============================================================
+   画面きりかえ
+   ============================================================ */
+function show(name){
+  ["home","make","try","model","guess"].forEach(k => {
+    $("scr-" + k).classList.toggle("app-hidden", k !== name);
+  });
+  $("btn-home").classList.toggle("app-hidden", name === "home");
+  window.scrollTo(0, 0);
 }
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
-}
+$("btn-home").addEventListener("click", () => { sfx("tap"); maskNow(); show("home"); });
+$("mode-make").addEventListener("click", () => { sfx("pop"); show("make"); });
+$("mode-guess").addEventListener("click", () => { sfx("pop"); enterGuess(); });
+
+/* ============================================================
+   カードづくり
+   ============================================================ */
+let sel = { country:null, animal:null, likes:[] };
+
 function ordinal(d){
   if(d % 100 >= 11 && d % 100 <= 13) return d + "th";
   return d + ({1:"st",2:"nd",3:"rd"}[d % 10] || "th");
 }
+function buildChips(boxId, list, onPick){
+  const box = $(boxId);
+  box.innerHTML = "";
+  list.forEach(item => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.dataset.en = item.en;
+    b.appendChild(art(item.img, item.emoji));
+    const lb = document.createElement("span");
+    lb.className = "clabel"; lb.textContent = item.en;
+    b.appendChild(lb);
+    /* えらんでも 読み上げない。まず じぶんの口で 言ってみる。 */
+    b.addEventListener("click", () => { sfx("tap"); onPick(item, b); });
+    box.appendChild(b);
+  });
+}
+function markOne(boxId, btn){
+  document.querySelectorAll("#" + boxId + " .chip").forEach(x => x.classList.toggle("on", x === btn));
+}
+buildChips("f-country", COUNTRIES, (item, b) => { sel.country = item; markOne("f-country", b); update(); });
+buildChips("f-animal",  ANIMALS,   (item, b) => { sel.animal = item;  markOne("f-animal", b);  update(); });
+buildChips("f-likes",   LIKES,     item => {
+  const i = sel.likes.indexOf(item.en);
+  if(i >= 0) sel.likes.splice(i, 1);
+  else if(sel.likes.length < 2) sel.likes.push(item.en);
+  document.querySelectorAll("#f-likes .chip").forEach(x =>
+    x.classList.toggle("on", sel.likes.indexOf(x.dataset.en) >= 0));
+  update();
+});
 
-// ============================================================
-// 状態
-// ============================================================
-let sel = { country:null, animal:null, likes:[] };
-const $ = id => document.getElementById(id);
-function show(id){
-  ["scr-form","scr-try","scr-card"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+MONTHS.forEach((m, i) => {
+  const o = document.createElement("option"); o.value = String(i); o.textContent = m;
+  $("f-month").appendChild(o);
+});
+for(let d = 1; d <= 31; d++){
+  const o = document.createElement("option"); o.value = String(d); o.textContent = ordinal(d);
+  $("f-day").appendChild(o);
 }
 
-// ============================================================
-// フォーム(絵カード・英語のみ表示。日本語ラベルは出さない)
-// ============================================================
-$("f-country").innerHTML = COUNTRIES.map(c =>
-  `<button class="chip" data-en="${c.en}">${c.flag} ${c.en}</button>`).join("");
-$("f-animal").innerHTML = ANIMALS.map(a =>
-  `<button class="chip" data-en="${a.en}">${a.emoji} ${a.en}</button>`).join("");
-$("f-likes").innerHTML = LIKES.map(l =>
-  `<button class="chip" data-en="${l.en}">${l.emoji} ${l.en}</button>`).join("");
-$("f-month").innerHTML = MONTHS.map((m,i) => `<option value="${i}">${m}</option>`).join("");
-$("f-day").innerHTML = Array.from({length:31},(_,i) => `<option value="${i+1}">${ordinal(i+1)}</option>`).join("");
-
-// 選択時は単語の音声のみ(文まるごとは聞かせない。文づくりは自分で考える)
-$("f-country").addEventListener("click", e => {
-  const b = e.target.closest(".chip"); if(!b) return;
-  sel.country = COUNTRIES.find(c => c.en === b.dataset.en);
-  document.querySelectorAll("#f-country .chip").forEach(x => x.classList.toggle("on", x === b));
-  speak(sel.country.en);
-  update();
-});
-$("f-animal").addEventListener("click", e => {
-  const b = e.target.closest(".chip"); if(!b) return;
-  sel.animal = ANIMALS.find(a => a.en === b.dataset.en);
-  document.querySelectorAll("#f-animal .chip").forEach(x => x.classList.toggle("on", x === b));
-  speak(sel.animal.en);
-  update();
-});
-$("f-likes").addEventListener("click", e => {
-  const b = e.target.closest(".chip"); if(!b) return;
-  const en = b.dataset.en;
-  if(sel.likes.includes(en)){ sel.likes = sel.likes.filter(x => x !== en); }
-  else if(sel.likes.length < 2){ sel.likes.push(en); speak(en); }
-  document.querySelectorAll("#f-likes .chip").forEach(x =>
-    x.classList.toggle("on", sel.likes.includes(x.dataset.en)));
-  update();
-});
 $("f-name").addEventListener("input", update);
 function cleanName(){
   const n = $("f-name").value.replace(/[^a-zA-Z]/g, "");
   return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : "";
 }
+function bdayText(){
+  return MONTHS[+$("f-month").value] + " " + ordinal(+$("f-day").value);
+}
 function update(){
   $("btn-make").disabled = !(cleanName() && sel.country && sel.animal && sel.likes.length > 0);
 }
-
-// ============================================================
-// カード
-// ============================================================
+function likeText(){
+  return sel.likes.length === 1 ? sel.likes[0] : sel.likes.join(" and ");
+}
 function cardLines(){
-  const bday = `${MONTHS[+$("f-month").value]} ${ordinal(+$("f-day").value)}`;
-  const likeList = sel.likes.length === 1 ? sel.likes[0] : sel.likes.join(" and ");
   return [
-    `Hello, everyone! I'm ${cleanName()}.`,
-    `I'm from ${sel.country.en}.`,
-    `My birthday is ${bday}.`,
-    `I like ${sel.animal.en}.`,
-    `I like ${likeList}, too.`,
-    `This is me! Thank you!`,
+    "Hello, everyone! I'm " + cleanName() + ".",
+    "I'm from " + sel.country.en + ".",
+    "My birthday is " + bdayText() + ".",
+    "I like " + sel.animal.en + ".",
+    "I like " + likeText() + ", too.",
+    "This is me! Thank you!"
   ];
 }
-// ============================================================
-// 自分で言ってみよう(材料の提示のみ。英文はまだ見せない)
-// ============================================================
+
+/* ---- まず じぶんで 言ってみよう(英文は まだ 出さない) ---- */
 function buildTry(){
-  const likeEmojis = sel.likes.map(en => LIKES.find(l => l.en === en).emoji).join(" ");
-  const prompts = [
-    { q:"Hello, everyone.", a:"👋 " + cleanName() },
-    { q:"Where are you from?", a:sel.country.flag },
-    { q:"When is your birthday?", a:"🎂 " + MONTHS[+$("f-month").value] + " " + ordinal(+$("f-day").value) },
-    { q:"What animal do you like?", a:sel.animal.emoji },
-    { q:"What else do you like?", a:likeEmojis },
+  const box = $("prompt-list");
+  box.innerHTML = "";
+  const rows = [
+    { q:"Hello. What's your name?", txt:cleanName() },
+    { q:"Where are you from?",      item:sel.country },
+    { q:"When is your birthday?",   txt:bdayText() },
+    { q:"What animal do you like?", item:sel.animal },
+    { q:"What else do you like?",   items:sel.likes.map(en => byEn(LIKES, en)) }
   ];
-  $("prompt-list").innerHTML = prompts.map((p,i) =>
-    `<div class="prompt-line" data-t="${p.q}"><span class="q">🔊 ${p.q}</span><span class="a-icons">${p.a}</span></div>`).join("");
+  rows.forEach(r => {
+    const line = document.createElement("div");
+    line.className = "prompt-line";
+
+    const q = document.createElement("span");
+    q.className = "q"; q.textContent = r.q;
+
+    const a = document.createElement("span");
+    a.className = "a";
+    if(r.items){
+      a.style.width = (r.items.length * 96) + "px";
+      a.style.display = "flex";
+      a.style.gap = "6px";
+      r.items.forEach(it => {
+        const w = document.createElement("span");
+        w.style.flex = "1";
+        w.appendChild(art(it.img, it.emoji));
+        a.appendChild(w);
+      });
+    }else if(r.item){
+      a.appendChild(art(r.item.img, r.item.emoji));
+    }else{
+      const t = document.createElement("span");
+      t.className = "txt"; t.textContent = r.txt;
+      a.appendChild(t);
+    }
+
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "しつもんを きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); say(r.q); });
+
+    line.appendChild(q); line.appendChild(a); line.appendChild(btn);
+    box.appendChild(line);
+  });
 }
-$("prompt-list").addEventListener("click", e => {
-  const el = e.target.closest(".prompt-line"); if(!el) return;
-  speak(el.dataset.t);
-});
 $("btn-make").addEventListener("click", () => {
+  sfx("pop");
+  $("mission").textContent = "";
   buildTry();
-  show("scr-try");
-  speak("Where are you from?");
+  show("try");
 });
-$("btn-back-try").addEventListener("click", () => show("scr-form"));
-
-// ============================================================
-// お手本で確認
-// ============================================================
-$("btn-check").addEventListener("click", () => {
-  $("pc-name").textContent = cleanName();
-  const likeEmojis = sel.likes.map(en => LIKES.find(l => l.en === en).emoji).join(" ");
-  $("pc-meta").textContent = `${sel.country.flag} 🎂 ${sel.animal.emoji} ${likeEmojis}`;
-  $("pc-lines").innerHTML = cardLines().map((t,i) =>
-    `<div class="pc-line" data-i="${i}">🔊 ${t}</div>`).join("");
-  show("scr-card");
-  speakQueue(cardLines());
-});
-$("pc-lines").addEventListener("click", e => {
-  const el = e.target.closest(".pc-line"); if(!el) return;
-  speak(cardLines()[+el.dataset.i]);
-});
-$("btn-speak-all").addEventListener("click", () => speakQueue(cardLines()));
-$("btn-print").addEventListener("click", () => window.print());
-$("btn-back").addEventListener("click", () => show("scr-try"));
-$("btn-restart").addEventListener("click", () => {
-  sel = { country:null, animal:null, likes:[] };
-  $("f-name").value = "";
-  document.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
-  update();
-  try{ speechSynthesis.cancel(); }catch(e){}
-  show("scr-form");
-});
-
-show("scr-form");
-
-// ============================================================
-// 塗り重ね: 相手をかえて・条件をかえて もういちど言ってみる
-// ============================================================
+$("btn-back-make").addEventListener("click", () => { sfx("tap"); show("make"); });
 document.querySelectorAll(".aud-chip").forEach(b => b.addEventListener("click", () => {
+  sfx("tap");
   document.querySelectorAll(".aud-chip").forEach(x => x.classList.toggle("on", x === b));
 }));
-const RETRY_MISSIONS = [
-  "こんどは お手本を見ないで 言ってみよう",
-  "こんどは 1文 つけたして 言ってみよう",
-  "こんどは べつの相手を えらんで 言ってみよう",
-  "こんどは ジェスチャーを つけて 言ってみよう",
-  "こんどは 相手の目を見て ゆっくり はっきり 言ってみよう",
-];
-document.getElementById("btn-again-try").addEventListener("click", () => {
-  document.getElementById("retry-mission").textContent =
-    "🎯 " + RETRY_MISSIONS[Math.floor(Math.random() * RETRY_MISSIONS.length)];
-  show("scr-try");
-});
-</script>
 
-<style>
-#app-help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-#app-help-overlay.ah-hidden{display:none}
-.ah-box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;padding:22px 24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.4);color:#2d3436;text-align:left;touch-action:pan-y}
-.ah-box h3{font-size:1.08rem;font-weight:800;margin:0 0 8px;color:#e17055}
-.ah-box h4{font-size:.9rem;font-weight:800;margin:12px 0 4px}
-.ah-box p,.ah-box li{font-size:.85rem;font-weight:600;line-height:1.9;margin:0}
-.ah-box ol,.ah-box ul{padding-left:1.4em;margin:4px 0}
-.ah-close{position:absolute;top:10px;right:10px;background:#dfe6e9;border:none;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:1rem;cursor:pointer;color:#636e72;font-family:inherit}
-.ah-tip{background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:8px 12px;font-size:.8rem;font-weight:700;margin-top:10px;line-height:1.8}
-#btn-app-help{background:#546de5;color:#fff;border:none;padding:8px 14px;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem;min-height:44px;box-shadow:0 4px 10px rgba(0,0,0,.08);white-space:nowrap}
-</style>
-<div id="app-help-overlay" class="ah-hidden">
-  <div class="ah-box">
-    <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>自己紹介プロフィールカードをつくり、This is me! のスピーチを練習するアプリです。</p><h4>あそびかた</h4><ol><li>プロフィール(名前・誕生日・すきなもの など)を入力しよう</li><li>「だれにつたえる?」をえらんで、まず<b>じぶんの口で</b>言ってみよう</li><li>お手本はひとつの例。「🔁もういちど言ってみよう」でミッションつきの2回目へ</li><li>カードは印刷して 教室にかざったり 交流に使ったりできるよ</li></ol><div class="ah-tip">💡 先生向け:入力した個人情報はどこにも送信されません(画面の中だけ)。</div>
-  </div>
-</div>
-<script>
-(function(){
-  var ov = document.getElementById("app-help-overlay");
-  document.getElementById("app-help-close").addEventListener("click", function(){ ov.classList.add("ah-hidden"); });
-  ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.add("ah-hidden"); });
-  var btn = document.createElement("button");
-  btn.id = "btn-app-help"; btn.textContent = "❓ 使い方";
-  btn.addEventListener("click", function(){ ov.classList.remove("ah-hidden"); });
-  var portal = document.querySelector('header a[href="../index.html"]');
-  if(portal && portal.parentElement){ portal.parentElement.insertBefore(btn, portal); }
-  else{ var h = document.querySelector("header"); if(h) h.appendChild(btn); }
-})();
+/* ---- お手本 ---- */
+function buildCard(){
+  $("pc-name").textContent = cleanName();
+  const arts = $("pc-arts");
+  arts.innerHTML = "";
+  const items = [sel.country, sel.animal].concat(sel.likes.map(en => byEn(LIKES, en)));
+  items.forEach(it => {
+    const w = document.createElement("div"); w.className = "pa";
+    w.appendChild(art(it.img, it.emoji));
+    const c = document.createElement("div"); c.className = "cap"; c.textContent = it.en;
+    w.appendChild(c);
+    arts.appendChild(w);
+  });
+  const box = $("pc-lines");
+  box.innerHTML = "";
+  cardLines().forEach(t => {
+    const line = document.createElement("div"); line.className = "pc-line";
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "この文を きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); say(t); });
+    const tx = document.createElement("span"); tx.className = "txt"; tx.textContent = t;
+    line.appendChild(btn); line.appendChild(tx);
+    box.appendChild(line);
+  });
+}
+$("btn-check").addEventListener("click", () => { sfx("pop"); buildCard(); show("model"); });
+$("btn-say-all").addEventListener("click", () => { sfx("tap"); sayLines(cardLines()); });
+$("btn-print").addEventListener("click", () => window.print());
+$("btn-back-make2").addEventListener("click", () => { sfx("tap"); show("make"); });
+
+const MISSIONS = [
+  "こんどは お手本を 見ないで 言ってみよう",
+  "こんどは 1文 つけたして 言ってみよう",
+  "こんどは べつの 相手を えらんで 言ってみよう",
+  "こんどは ジェスチャーを つけて 言ってみよう",
+  "こんどは 相手の目を見て ゆっくり はっきり 言ってみよう"
+];
+$("btn-again").addEventListener("click", () => {
+  sfx("pop");
+  const m = (window.AppUI && AppUI.pick) ? AppUI.pick(MISSIONS)
+          : MISSIONS[Math.floor(Math.random() * MISSIONS.length)];
+  $("mission").textContent = "🎯 " + m;
+  show("try");
+});
+
+/* ============================================================
+   だれの カード？(2人ぐみ)
+   ------------------------------------------------------------
+   1台を 2人で のぞきこむ前提。お題は ふだん かくしておき、
+   👀 を おしたときだけ 4秒 見えて、また かくれる。
+   ============================================================ */
+const PEEK_MS = 4000;
+let secret = null, peekTimer = null, solved = false;
+let scTotal = 0, scOk = 0, scCombo = 0;
+
+function friendLines(f){
+  return [
+    "Hello! I'm " + f.name + ".",
+    "I'm from " + f.country + ".",
+    "My birthday is " + f.bday + ".",
+    "I like " + f.animal + ".",
+    "I like " + f.likes.join(" and ") + ", too."
+  ];
+}
+function buildQBank(){
+  const box = $("qbank");
+  box.innerHTML = "";
+  QUESTIONS.forEach(q => {
+    const line = document.createElement("div"); line.className = "qline";
+    const tx = document.createElement("span"); tx.className = "txt"; tx.textContent = q;
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "しつもんを きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); say(q); });
+    line.appendChild(tx); line.appendChild(btn);
+    box.appendChild(line);
+  });
+}
+function buildFriends(){
+  const box = $("friends");
+  box.innerHTML = "";
+  FRIENDS.forEach(f => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "friend"; b.dataset.name = f.name;
+    const n = document.createElement("div"); n.className = "fname"; n.textContent = f.name;
+    const d = document.createElement("div"); d.className = "fbday"; d.textContent = f.bday;
+    const arts = document.createElement("div"); arts.className = "farts";
+    [byEn(COUNTRIES, f.country), byEn(ANIMALS, f.animal)]
+      .concat(f.likes.map(en => byEn(LIKES, en)))
+      .forEach(it => {
+        const w = document.createElement("span"); w.className = "fa";
+        w.appendChild(art(it.img, it.emoji));
+        arts.appendChild(w);
+      });
+    b.appendChild(n); b.appendChild(d); b.appendChild(arts);
+    b.addEventListener("click", () => answer(f, b));
+    box.appendChild(b);
+  });
+}
+function drawSecret(revealed){
+  const box = $("secret");
+  box.innerHTML = "";
+  if(!secret){
+    const m = document.createElement("div"); m.className = "s-mask";
+    m.textContent = "🎲 を おして ひみつの ともだちを だそう";
+    box.appendChild(m);
+    return;
+  }
+  if(!revealed){
+    const m = document.createElement("div"); m.className = "s-mask";
+    m.textContent = "🙈 かくれています。👀 見る を おすと 4秒だけ 見えます";
+    box.appendChild(m);
+    return;
+  }
+  const wrap = document.createElement("div"); wrap.className = "s-arts";
+  const items = [
+    { it:byEn(COUNTRIES, secret.country), cap:secret.country },
+    { it:null, cap:secret.bday },
+    { it:byEn(ANIMALS, secret.animal), cap:secret.animal }
+  ].concat(secret.likes.map(en => ({ it:byEn(LIKES, en), cap:en })));
+  items.forEach(o => {
+    const w = document.createElement("div"); w.className = "sa";
+    if(o.it) w.appendChild(art(o.it.img, o.it.emoji));
+    else{
+      const e = document.createElement("div");
+      e.style.fontSize = "3rem"; e.style.lineHeight = "1.2"; e.textContent = "🎂";
+      w.appendChild(e);
+    }
+    const c = document.createElement("div"); c.className = "cap"; c.textContent = o.cap;
+    w.appendChild(c);
+    wrap.appendChild(w);
+  });
+  box.appendChild(wrap);
+}
+function maskNow(){
+  clearTimeout(peekTimer);
+  $("btn-peek").textContent = "👀 見る";
+  if($("scr-guess")) drawSecret(solved);
+}
+$("btn-peek").addEventListener("click", () => {
+  if(!secret) return;
+  sfx("tap");
+  clearTimeout(peekTimer);
+  drawSecret(true);
+  $("btn-peek").textContent = "👀 見ています…";
+  peekTimer = setTimeout(maskNow, PEEK_MS);
+});
+function nextSecret(){
+  clearTimeout(peekTimer);
+  const pool = FRIENDS.filter(f => f !== secret);
+  secret = (window.AppUI && AppUI.pick) ? AppUI.pick(pool)
+         : pool[Math.floor(Math.random() * pool.length)];
+  solved = false;
+  scTotal++;
+  drawScore();
+  $("guess-judge").textContent = ""; $("guess-judge").className = "judge";
+  $("guess-after").classList.add("app-hidden");
+  document.querySelectorAll("#friends .friend").forEach(x => x.classList.remove("ok", "ng"));
+  $("btn-peek").textContent = "👀 見る";
+  drawSecret(false);
+}
+$("btn-next").addEventListener("click", () => { sfx("pop"); nextSecret(); });
+function answer(f, btn){
+  if(!secret || solved) return;
+  if(f === secret){
+    solved = true;
+    scOk++; scCombo++;
+    drawScore();
+    btn.classList.add("ok");
+    btn.classList.add("app-anim-pop");
+    sfx("correct");
+    clearTimeout(peekTimer);
+    drawSecret(true);
+    $("guess-judge").textContent = "せいかい！ It's " + f.name + "!";
+    $("guess-judge").className = "judge ok";
+    $("guess-after").classList.remove("app-hidden");
+    try{
+      if(window.AppUI && AppUI.celebrate){
+        AppUI.celebrate({ icon:"🕵️", title:"あたり！", sub:"It's " + f.name + "!" });
+      }
+    }catch(e){}
+  }else{
+    scCombo = 0;
+    drawScore();
+    btn.classList.add("ng");
+    btn.classList.add("app-anim-shake");
+    setTimeout(() => btn.classList.remove("app-anim-shake"), 500);
+    sfx("wrong");
+    $("guess-judge").textContent = "ちがうよ。もう1つ しつもんしてみよう。";
+    $("guess-judge").className = "judge ng";
+  }
+}
+$("btn-guess-say").addEventListener("click", () => {
+  if(!secret) return;
+  sfx("tap"); sayLines(friendLines(secret));
+});
+function drawScore(){
+  $("sc-total").textContent = String(scTotal);
+  $("sc-ok").textContent = String(scOk);
+  $("sc-combo").textContent = String(scCombo);
+}
+function enterGuess(){
+  show("guess");
+  if(!secret) nextSecret();
+}
+
+/* ============================================================
+   使い方
+   ============================================================ */
+const HELP = `
+<p>This is me! の 自己紹介を つくって 言えるように なる アプリです。</p>
+<h4>🪪 じぶんの カードを つくる</h4>
+<ol>
+  <li>名前・出身・たん生日・すきな どうぶつ・すきなものを えらぶ</li>
+  <li><b>まず じぶんの口で</b> 言ってみる（このとき 英文は 出ません。絵だけを 見て 言います）</li>
+  <li>言えたら お手本と くらべる（1文ずつ 🔊 で 聞けます）</li>
+  <li>「🔁 もういちど」で ミッションつきの 2回目へ</li>
+</ol>
+<h4>🕵️ だれの カード？（2人ぐみ）</h4>
+<ol>
+  <li><b>出す人</b>が「👀 見る」で ひみつの ともだちを 4秒だけ 見る</li>
+  <li><b>あてる人</b>が英語で しつもんし、出す人が 英語で こたえる</li>
+  <li>あてる人が 8人の 中から タップして こたえる</li>
+</ol>
+<div style="background:#fffbe8;border:2px dashed #fdcb6e;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.85rem;line-height:1.8">
+  💡 <b>先生へ:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。<br>
+  「だれの カード？」の 8人は、<b>どの しつもんも 1回では しぼりきれない</b>ように
+  国・たん生日・どうぶつ・すきなものが 2人ずつ 重なるよう 組んであります。
+  1つ たずねると 2人に しぼれるので、<b>2つ以上 たずねる</b> 必要が 生まれます。<br>
+  入力した 名前や たん生日は どこにも 送信されません。
+</div>`;
+$("btn-help").addEventListener("click", () => {
+  sfx("tap");
+  if(window.AppUI && AppUI.help) AppUI.help(HELP, { title:"つかいかた" });
+});
+
+/* ============================================================
+   起動(音も 発話も しない)
+   ============================================================ */
+buildQBank();
+buildFriends();
+drawSecret(false);
+drawScore();
+update();
+show("home");
 </script>
 </body>
 </html>

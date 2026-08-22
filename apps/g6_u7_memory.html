@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ベストメモリーアルバムメーカー | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
@@ -95,6 +96,31 @@ main{max-width:940px;margin:0 auto;padding:16px 16px 60px}
 .retry-mission{text-align:center;font-weight:800;color:#e17055;font-size:.98rem;min-height:26px;margin:4px 0}
 .model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
 .hidden{display:none!important}
+/* ---- 思い出あてっこ(2人ぐみ) ---- */
+.gs-role{border-radius:22px;padding:16px;margin:0 auto 14px;max-width:780px;box-shadow:var(--shadow);background:#fff;border:5px solid #e6ecf2}
+.gs-role.teller{border-color:var(--yellow);background:#fffdf3}
+.gs-role.asker{border-color:var(--primary);background:#faf6ff}
+.gs-role h3{font-size:1rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gs-role .who{font-size:.74rem;color:#fff;background:#636e72;border-radius:50px;padding:4px 12px;flex:none}
+.gs-role .hint{font-size:.84rem;font-weight:700;color:var(--sub);line-height:1.8;margin-top:8px}
+.gs-secret{background:#fff;border-radius:18px;border:4px dashed var(--yellow);padding:16px;min-height:140px;display:flex;align-items:center;justify-content:center;text-align:center}
+.gs-secret .s-mask{font-weight:800;color:#b2bec3;font-size:1rem;line-height:1.9}
+.gs-secret .s-lines{display:flex;flex-direction:column;gap:6px;width:100%}
+.gs-secret .s-line{font-weight:800;font-size:1.08rem;color:#2d3436;line-height:1.4;word-break:break-word}
+.gs-secret .s-line.hide{color:#b2bec3}
+.gs-score{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-weight:800;color:var(--sub);font-size:.9rem;margin-bottom:12px}
+.gs-score b{color:var(--primary-dark);font-size:1.25rem}
+.gs-judge{text-align:center;font-weight:800;font-size:1.1rem;min-height:32px;margin-top:10px}
+.gs-judge.ok{color:#0f9d58} .gs-judge.ng{color:#d63447}
+.say-btn{border:none;background:#546de5;color:#fff;border-radius:50px;min-width:56px;min-height:48px;font-size:1.05rem;cursor:pointer;font-family:inherit;font-weight:800;padding:0 16px}
+.gcard{background:#fff;border-radius:16px;padding:10px 6px;text-align:center;cursor:pointer;border:4px solid transparent;box-shadow:var(--shadow);transition:.15s}
+.gcard:hover{transform:translateY(-3px)}
+.gcard .pimg{width:74px;height:60px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.gcard .pimg img{max-width:100%;max-height:100%;object-fit:contain}
+.gcard .pemoji{font-size:2.4rem;line-height:1}
+.gcard .plabel{font-weight:800;font-size:.76rem;line-height:1.25;margin-top:4px}
+.gcard.ok{border-color:var(--green);background:#f0fff7}
+.gcard.ng{border-color:var(--pink);opacity:.5}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight:700;line-height:1.8}
 @media print{
   header,.actions,footer,.step-title,.step-sub,.page-nav{display:none!important}
@@ -105,51 +131,13 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>📔 ベストメモリーアルバム <span class="u">6年生 思い出</span></h1>
   <div style="display:flex;gap:8px">
     <button class="nav-btn" id="btn-new">あたらしい思い出</button>
     <button class="nav-btn" id="btn-album">クラスアルバム</button>
+    <button class="nav-btn" id="btn-guess">思い出あてっこ</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
   </div>
 </header>
@@ -216,6 +204,41 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
     </div>
   </section>
 
+  <!-- 思い出あてっこ(2人ぐみ) -->
+  <section id="scr-guess" class="hidden">
+    <h2 class="step-title">🕵️ 思い出あてっこ（2人ぐみ）</h2>
+    <p class="step-sub">
+      <b>出す人</b>は ひみつの思い出を 見て、行事の名前は 言わずに 英語で つたえます。<br>
+      <b>あてる人</b>は どの行事の 思い出か あてます。
+    </p>
+    <div class="gs-score">
+      <span>出した問題 <b id="gs-total">0</b></span>
+      <span>せいかい <b id="gs-ok">0</b></span>
+    </div>
+
+    <div class="gs-role teller">
+      <h3><span class="who">出す人</span>ひみつの思い出</h3>
+      <div class="gs-secret" id="gs-secret"></div>
+      <div class="actions" style="margin-top:10px">
+        <button class="big-btn" id="gs-peek" style="background:var(--yellow);color:#7a5b1e">👀 見る</button>
+        <button class="big-btn gray" id="gs-next">つぎの思い出 🎲</button>
+      </div>
+      <p class="hint">
+        思い出は かくれています。<b>👀 見る</b>を おすと 4秒だけ 見えて、すぐ また かくれます。<br>
+        1行目の 行事の名前は <b>言わないで</b>、2行目からを 英語で つたえよう。
+      </p>
+    </div>
+
+    <div class="gs-role asker">
+      <h3><span class="who">あてる人</span>どの行事の 思い出?</h3>
+      <div class="grid" id="gs-grid"></div>
+      <div class="gs-judge" id="gs-judge"></div>
+      <div class="actions hidden" id="gs-after">
+        <button class="say-btn" id="gs-say">🔊 お手本を きく</button>
+      </div>
+    </div>
+  </section>
+
   <!-- アルバム閲覧 -->
   <section id="scr-album" class="hidden">
     <h2 class="step-title">📔 クラスのベストメモリーアルバム</h2>
@@ -238,6 +261,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.72rem;font-weight
   Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)
 </footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
@@ -286,25 +310,15 @@ const FEELS = [
 const STORAGE_KEY = "g6_memory_album_v1";
 
 // ============================================================
-// 音声
+// 音声(共通キット経由。🔊 を おしたときだけ 鳴らす)
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function speak(text, rate){
+  try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+function speakQueue(lines, rate){
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
 
 // ============================================================
@@ -317,8 +331,9 @@ try{ album = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ alb
 
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-event","scr-detail","scr-try","scr-page","scr-album"].forEach(s =>
+  ["scr-event","scr-detail","scr-try","scr-page","scr-album","scr-guess"].forEach(s =>
     $(s).classList.toggle("hidden", s !== id));
+  window.scrollTo(0, 0);
 }
 function saveAlbum(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(album)); }catch(e){} }
 function eventVisual(ev){
@@ -344,7 +359,7 @@ $("event-grid").addEventListener("click", e => {
   buildChips("feel-chips", FEELS, "feel");
   $("btn-make").disabled = true;
   show("scr-detail");
-  speak(`My best memory is ${sel.event.en}.`);
+  sfx("pop");
 });
 
 // ============================================================
@@ -357,7 +372,7 @@ function buildChips(elId, list, key){
     const b = e.target.closest(".chip"); if(!b) return;
     sel[key] = list[+b.dataset.i];
     el.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b));
-    speak(sel[key].label);
+    sfx("tap");
     $("btn-make").disabled = !(sel.place && sel.did && sel.feel);
   };
 }
@@ -398,8 +413,8 @@ $("try-list").addEventListener("click", e => {
 });
 $("btn-make").addEventListener("click", () => {
   buildTry();
+  sfx("pop");
   show("scr-try");
-  speak("What's your best memory?");
 });
 $("btn-back-try").addEventListener("click", () => show("scr-detail"));
 
@@ -408,8 +423,8 @@ $("btn-back-try").addEventListener("click", () => show("scr-detail"));
 // ============================================================
 $("btn-check").addEventListener("click", () => {
   renderPage(document.querySelector("#scr-page .album-page"), sel);
+  sfx("pop");
   show("scr-page");
-  speakQueue(pageLines(sel));
 });
 document.addEventListener("click", e => {
   const line = e.target.closest(".ap-line"); if(line) speak(line.dataset.t);
@@ -448,7 +463,7 @@ function renderAlbum(){
     </div>`;
   $("album-no").textContent = `${albumIdx+1} / ${album.length}`;
 }
-$("btn-album").addEventListener("click", () => { albumIdx = 0; renderAlbum(); show("scr-album"); });
+$("btn-album").addEventListener("click", () => { sfx("tap"); gsMask(); albumIdx = 0; renderAlbum(); show("scr-album"); });
 $("btn-prev").addEventListener("click", () => { albumIdx--; renderAlbum(); });
 $("btn-next").addEventListener("click", () => { albumIdx++; renderAlbum(); });
 $("btn-clear-album").addEventListener("click", () => {
@@ -456,6 +471,123 @@ $("btn-clear-album").addEventListener("click", () => {
     album = []; saveAlbum(); renderAlbum();
   }
 });
+
+// ============================================================
+// 思い出あてっこ(2人ぐみ)
+// ------------------------------------------------------------
+// 1台を 2人で のぞきこむ前提。思い出は ふだん かくしておき、
+// 👀 を おしたときだけ 4秒 見えて、また かくれる。
+// 出す人は 1行目(行事名)を 言わずに、2行目からを 英語で つたえる。
+// クラスアルバムに ページが あれば そこから、なければ その場で つくった 思い出を出す。
+// ============================================================
+const GS_PEEK_MS = 4000;
+let gsSecret = null, gsTimer = null, gsSolved = false;
+let gsTotal = 0, gsOk = 0;
+function pickOne(list){ return list[Math.floor(Math.random() * list.length)]; }
+function gsMakeMemory(){
+  if(album.length){
+    const e = album[Math.floor(Math.random() * album.length)];
+    return albumEntryToSel(e);
+  }
+  return { event:pickOne(EVENTS), place:pickOne(PLACES), did:pickOne(DIDS), feel:pickOne(FEELS) };
+}
+function gsDrawSecret(revealed){
+  const box = $("gs-secret");
+  box.innerHTML = "";
+  if(!gsSecret || !revealed){
+    const m = document.createElement("div");
+    m.className = "s-mask";
+    m.textContent = gsSecret
+      ? "🙈 かくれています。👀 見る を おすと 4秒だけ 見えます"
+      : "🎲 を おして ひみつの思い出を だそう";
+    box.appendChild(m);
+    return;
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "s-lines";
+  pageLines(gsSecret).forEach((t, i) => {
+    const d = document.createElement("div");
+    d.className = "s-line" + (i === 0 ? " hide" : "");
+    d.textContent = i === 0 ? "(1行目は 言わないでね)" : t;
+    wrap.appendChild(d);
+  });
+  box.appendChild(wrap);
+}
+function gsMask(){
+  clearTimeout(gsTimer);
+  $("gs-peek").textContent = "👀 見る";
+  gsDrawSecret(gsSolved);
+}
+function gsDrawScore(){
+  $("gs-total").textContent = String(gsTotal);
+  $("gs-ok").textContent = String(gsOk);
+}
+function gsBuildGrid(){
+  const box = $("gs-grid");
+  box.innerHTML = "";
+  EVENTS.forEach((ev, i) => {
+    const el = document.createElement("div");
+    el.className = "gcard"; el.dataset.i = String(i);
+    el.innerHTML = `<div class="pimg">${eventVisual(ev)}</div><div class="plabel">${ev.en}</div>`;
+    el.addEventListener("click", () => gsAnswer(ev, el));
+    box.appendChild(el);
+  });
+}
+function gsNext(){
+  clearTimeout(gsTimer);
+  gsSecret = gsMakeMemory();
+  gsSolved = false;
+  gsTotal++;
+  gsDrawScore();
+  $("gs-judge").textContent = ""; $("gs-judge").className = "gs-judge";
+  $("gs-after").classList.add("hidden");
+  $("gs-grid").querySelectorAll(".gcard").forEach(x => x.classList.remove("ok", "ng"));
+  $("gs-peek").textContent = "👀 見る";
+  gsDrawSecret(false);
+}
+function gsAnswer(ev, el){
+  if(!gsSecret || gsSolved) return;
+  if(ev.en === gsSecret.event.en){
+    gsSolved = true; gsOk++;
+    gsDrawScore();
+    el.classList.add("ok");
+    sfx("correct");
+    clearTimeout(gsTimer);
+    gsDrawSecret(true);
+    $("gs-judge").textContent = `せいかい! ${gsSecret.event.en}!`;
+    $("gs-judge").className = "gs-judge ok";
+    $("gs-after").classList.remove("hidden");
+    try{
+      if(window.AppUI && AppUI.celebrate) AppUI.celebrate({ icon:"📔", title:"あたり!", sub:gsSecret.event.en });
+    }catch(e){}
+  }else{
+    sfx("wrong");
+    el.classList.add("ng");
+    $("gs-judge").textContent = "ちがうよ。もう1つ ヒントを つたえてもらおう。";
+    $("gs-judge").className = "gs-judge ng";
+  }
+}
+$("gs-peek").addEventListener("click", () => {
+  if(!gsSecret) return;
+  sfx("tap");
+  clearTimeout(gsTimer);
+  gsDrawSecret(true);
+  $("gs-peek").textContent = "👀 見ています…";
+  gsTimer = setTimeout(gsMask, GS_PEEK_MS);
+});
+$("gs-next").addEventListener("click", () => { sfx("pop"); gsNext(); });
+$("gs-say").addEventListener("click", () => {
+  if(!gsSecret) return;
+  sfx("tap"); speakQueue(pageLines(gsSecret));
+});
+$("btn-guess").addEventListener("click", () => {
+  sfx("pop");
+  show("scr-guess");
+  if(!gsSecret) gsNext();
+});
+gsBuildGrid();
+gsDrawSecret(false);
+gsDrawScore();
 
 // ============================================================
 // ナビゲーション
@@ -503,8 +635,7 @@ document.getElementById("btn-again-try").addEventListener("click", () => {
 <div id="app-help-overlay" class="ah-hidden">
   <div class="ah-box">
     <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>小学校のいちばんの思い出をアルバムにして伝え合うアプリです。</p><h4>あそびかた</h4><ol><li>いちばんの思い出の行事をえらぶ</li><li>「くわしく思い出そう」で、したこと・気持ちをえらぶ</li><li>まず<b>じぶんの口で</b>言ってみてから、お手本でたしかめよう</li><li>アルバムのページにして、クラスの思い出をあつめよう</li></ol><div class="ah-tip">💡 先生向け:卒業前の思い出交流の単元で。My best memory is 〜. から自由に広げさせてください。</div>
+    <h3>❓ このアプリの使い方</h3><p>小学校の いちばんの思い出を 英語の アルバムページに まとめ、2人組で あてっこも できる アプリです。</p><h4>📔 思い出づくり</h4><ol><li>行事・行ったところ・したこと・きもちを えらぶ(えらんでも 読み上げません)</li><li>まず <b>じぶんの口で</b> 話してみる</li><li>お手本と くらべ、クラスアルバムに のこす</li></ol><h4>🕵️ 思い出あてっこ（2人ぐみ）</h4><ol><li><b>出す人</b>が「👀 見る」で ひみつの思い出を 4秒だけ 見る</li><li>1行目の <b>行事の名前は 言わずに</b>、2行目からを 英語で つたえる</li><li><b>あてる人</b>が どの行事か あてる</li></ol><div class="ah-tip">💡 <b>先生向け:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。まず 子どもが 自分の口で 言ってから たしかめる、という順番で つかってください。あてっこには、クラスアルバムに ページが あれば そこから 出題されます。アルバムは この端末の中だけに 保存されます。</div>
   </div>
 </div>
 <script>

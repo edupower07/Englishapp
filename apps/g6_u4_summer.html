@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>サマーバケーション思い出マップ | 小学校外国語アプリポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/app-ui.css">
 <style>
 :root{
   --bg:#f4f6f8; --ink:#2d3436; --sub:#7f8c9b;
@@ -113,55 +114,32 @@ svg#jmap{width:100%;height:auto;touch-action:manipulation;border-radius:16px}
 .retry-mission{text-align:center;font-weight:800;color:#e17055;font-size:.98rem;min-height:26px;margin:4px 0}
 .model-note{text-align:center;font-weight:800;color:#e17055;font-size:.85rem;margin:2px 0 8px}
 .hidden{display:none!important}
+/* ---- ペアで インタビュー ---- */
+.iv-name{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.iv-name input{
+  border:4px solid #e6ecf2;border-radius:14px;padding:10px 14px;font-family:'Fredoka One',cursive;
+  font-size:1.2rem;text-align:center;width:170px;color:var(--primary-dark,#2d3436);
+}
+.iv-name .hs{border:4px solid #e6ecf2;background:#fff;border-radius:50px;padding:10px 18px;font-family:inherit;font-weight:800;cursor:pointer;min-height:52px;color:#2d3436}
+.iv-name .hs.on{border-color:var(--primary);background:#fff5ee;color:#2d3436}
+.iv-q{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.iv-q .qhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.iv-q .qhead .qtxt{flex:1;font-family:'Fredoka One',cursive;font-size:1.05rem;color:#2d3436;min-width:0;word-break:break-word}
+.iv-q .qhead .say{flex:none;border:none;background:#546de5;color:#fff;border-radius:50px;min-width:56px;min-height:48px;font-size:1.05rem;cursor:pointer;font-family:inherit}
+.iv-line{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#fff6ee;margin-bottom:8px}
+.iv-line .say{flex:none;border:none;background:#546de5;color:#fff;border-radius:50px;min-width:56px;min-height:48px;font-size:1.05rem;cursor:pointer;font-family:inherit}
+.iv-line .txt{flex:1;font-family:'Fredoka One',cursive;font-size:1.08rem;line-height:1.4;word-break:break-word}
 footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight:700}
 </style>
 </head>
 <body>
 
-<script>
-/* ============================================================
-   読み上げの声をそろえる(共通)
-   声を指定しないと macOS などで既定のコンパクト音声が使われ、
-   こもった音になるため、聞き取りやすい音声を優先して選ぶ。
-   speechSynthesis.speak をラップしているので、各アプリの
-   speak 関数は書き換え不要。voice 指定済みの発話はそのまま通す。
-   ============================================================ */
-(function(){
-  if(!window.speechSynthesis) return;
-  var voices = [];
-  function load(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-  load();
-  try{ speechSynthesis.addEventListener('voiceschanged', load); }catch(e){}
-  function pick(lang){
-    if(!voices.length) load();
-    var base = String(lang || 'en-US').split('-')[0].toLowerCase();
-    var cand = voices.filter(function(v){
-      return v.lang && v.lang.replace('_','-').toLowerCase().indexOf(base) === 0;
-    });
-    if(!cand.length) return null;
-    function byName(re){ for(var i=0;i<cand.length;i++){ if(re.test(cand[i].name)) return cand[i]; } return null; }
-    if(base === 'en'){
-      return byName(/Google US English/i)
-          || byName(/Google UK English Female/i)
-          || byName(/Samantha/i)
-          || byName(/Ava|Allison|Kate/i)
-          || cand.filter(function(v){ return v.lang.replace('_','-') === 'en-US'; })[0]
-          || cand[0];
-    }
-    return byName(/Google/i) || cand[0];
-  }
-  var orig = speechSynthesis.speak.bind(speechSynthesis);
-  speechSynthesis.speak = function(u){
-    try{ if(u && !u.voice){ var v = pick(u.lang); if(v) u.voice = v; } }catch(e){}
-    return orig(u);
-  };
-})();
-</script>
 
 <header>
   <h1>🏖️ サマーバケーション思い出マップ <span class="u">6年生 夏の思い出</span></h1>
   <div style="display:flex;gap:8px">
-    <button class="nav-btn" id="btn-new">あたらしい思い出</button>
+    <button class="nav-btn hidden" id="btn-home">モードをかえる</button>
+    <button class="nav-btn hidden" id="btn-new">あたらしい思い出</button>
     <button class="nav-btn" id="btn-map">みんなのマップ</button>
     <a class="nav-btn" href="../index.html" style="background:#b2bec3;color:#2d3436;display:inline-flex;align-items:center">ポータルへ</a>
   </div>
@@ -169,8 +147,32 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <main>
 
+  <!-- モードえらび -->
+  <section id="scr-home">
+    <div class="app-mode-select">
+      <button type="button" class="app-mode-card blue" id="mode-mine">
+        <span class="app-mode-icon">🏖️</span>
+        <span class="app-mode-title">じぶんの 夏の思い出</span>
+        <span class="app-mode-sub">材料をえらんで 話してみて<br>お手本の日記と くらべよう</span>
+      </button>
+      <button type="button" class="app-mode-card pink" id="mode-iv">
+        <span class="app-mode-icon">🎤</span>
+        <span class="app-mode-title">ペアで インタビュー</span>
+        <span class="app-mode-sub">相手に 英語で きいて<br>相手の 思い出を マップに のせよう</span>
+      </button>
+      <button type="button" class="app-mode-card green" id="mode-map">
+        <span class="app-mode-icon">📍</span>
+        <span class="app-mode-title">みんなの 思い出マップ</span>
+        <span class="app-mode-sub">立てた ピンを ながめよう</span>
+      </button>
+    </div>
+    <p style="margin-top:18px;font-weight:700;color:#7f8c9b;font-size:.86rem;line-height:1.9;text-align:center">
+      🔊は 聞きたいときだけ おしてね。<br>アプリは かってに しゃべらないよ。
+    </p>
+  </section>
+
   <!-- STEP1: えらぶ -->
-  <section id="scr-select">
+  <section id="scr-select" class="hidden">
     <h2 class="step-title">夏の思い出をえらぼう</h2>
     <p class="step-sub">それぞれ1つずつタップしてえらぶと、英語の日記ができるよ</p>
 
@@ -229,6 +231,35 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
     </div>
   </section>
 
+  <!-- ペアで インタビュー -->
+  <section id="scr-interview" class="hidden">
+    <h2 class="step-title">🎤 ペアで インタビュー</h2>
+    <p class="step-sub">
+      相手に 英語で きいて、こたえを 絵で 記録しよう。<br>
+      きき方が わからなければ 🔊。<b>こたえは 相手の口から</b> 聞き出してね。
+    </p>
+    <div class="iv-name">
+      <input type="text" id="iv-who" placeholder="Kenta" maxlength="12" autocomplete="off" aria-label="相手の名前をローマ字で入力">
+      <button type="button" class="hs on" data-h="He">He</button>
+      <button type="button" class="hs" data-h="She">She</button>
+    </div>
+    <div id="iv-qs"></div>
+    <div class="actions">
+      <button class="big-btn" id="btn-iv-make" disabled>相手の 日記を つくる ▶</button>
+    </div>
+    <div id="iv-result" class="hidden" style="margin-top:20px">
+      <div class="diary">
+        <div class="diary-head" id="iv-head">MY FRIEND'S SUMMER</div>
+        <div class="diary-body" id="iv-lines"></div>
+      </div>
+      <div class="actions">
+        <button class="big-btn" id="btn-iv-say">🔊 ぜんぶ きく</button>
+        <button class="big-btn orange" id="btn-iv-pin">この思い出を マップに のせる 📍</button>
+        <button class="big-btn gray" id="btn-iv-clear">もう1人 インタビューする</button>
+      </div>
+    </div>
+  </section>
+
   <!-- STEP3: マップ -->
   <section id="scr-map" class="hidden">
     <h2 class="step-title">📍 みんなの夏の思い出マップ</h2>
@@ -247,6 +278,7 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 
 <footer>Picture Dictionary の絵カードを使用しています(画像が出ないときは絵文字で表示されます)。ピンはこの端末の中だけに保存されます。</footer>
 
+<script src="../shared/app-ui.js"></script>
 <script>
 // ============================================================
 // データ(教師向け:ここを書きかえると内容を変更できます)
@@ -255,74 +287,70 @@ footer{text-align:center;padding:20px;color:#b2bec3;font-size:.75rem;font-weight
 const IMG_BASE = "https://edupower07.github.io/PictureDictionary/images/";
 
 const PLACES = [
-  { id:"beach",     en:"the beach",               ja:"うみ・ビーチ", img:"beach.jpg",               emoji:"🏖️" },
-  { id:"mountains", en:"the mountains",           ja:"山",           img:"mountain.jpg",            emoji:"⛰️" },
-  { id:"river",     en:"the river",               ja:"川",           img:"river.jpg",               emoji:"🏞️" },
-  { id:"pool",      en:"the pool",                ja:"プール",       img:"swimming pool.jpg",       emoji:"🏊" },
-  { id:"zoo",       en:"the zoo",                 ja:"動物園",       img:"zoo.jpg",                 emoji:"🦁" },
-  { id:"aquarium",  en:"the aquarium",            ja:"水族館",       img:"aquarium.jpg",            emoji:"🐠" },
-  { id:"museum",    en:"the museum",              ja:"博物館",       img:"museum.jpg",              emoji:"🏛️" },
-  { id:"fireworks", en:"a fireworks festival",    ja:"花火大会",     img:"a fireworks festival.jpg",emoji:"🎆" },
-  { id:"hotspring", en:"a hot spring",            ja:"温泉",         img:"hot spring.jpg",          emoji:"♨️" },
-  { id:"grandp",    en:"my grandparents' house",  ja:"祖父母の家",   img:"grandmother.jpg",         emoji:"👵" },
+  { id:"beach",     en:"the beach", img:"beach.jpg",               emoji:"🏖️" },
+  { id:"mountains", en:"the mountains", img:"mountain.jpg",            emoji:"⛰️" },
+  { id:"river",     en:"the river", img:"river.jpg",               emoji:"🏞️" },
+  { id:"pool",      en:"the pool", img:"swimming pool.jpg",       emoji:"🏊" },
+  { id:"zoo",       en:"the zoo", img:"zoo.jpg",                 emoji:"🦁" },
+  { id:"aquarium",  en:"the aquarium", img:"aquarium.jpg",            emoji:"🐠" },
+  { id:"museum",    en:"the museum", img:"museum.jpg",              emoji:"🏛️" },
+  { id:"fireworks", en:"a fireworks festival", img:"a fireworks festival.jpg",emoji:"🎆" },
+  { id:"hotspring", en:"a hot spring", img:"hot spring.jpg",          emoji:"♨️" },
+  { id:"grandp",    en:"my grandparents' house", img:"grandmother.jpg",         emoji:"👵" },
 ];
 const ACTIVITIES = [
-  { id:"swimming", en:"swimming",  ja:"水泳",         img:"swimming.jpg",     emoji:"🏊" },
-  { id:"fishing",  en:"fishing",   ja:"魚つり",       img:"fishing.jpg",      emoji:"🎣" },
-  { id:"camping",  en:"camping",   ja:"キャンプ",     img:"camping trip.jpg", emoji:"⛺" },
-  { id:"hiking",   en:"hiking",    ja:"ハイキング",   img:null,               emoji:"🥾" },
-  { id:"shopping", en:"shopping",  ja:"買い物",       img:null,               emoji:"🛍️" },
-  { id:"reading",  en:"reading",   ja:"読書",         img:null,               emoji:"📚" },
+  { id:"swimming", en:"swimming", img:"swimming.jpg",     emoji:"🏊" },
+  { id:"fishing",  en:"fishing", img:"fishing.jpg",      emoji:"🎣" },
+  { id:"camping",  en:"camping", img:"camping trip.jpg", emoji:"⛺" },
+  { id:"hiking",   en:"hiking", img:null,               emoji:"🥾" },
+  { id:"shopping", en:"shopping", img:null,               emoji:"🛍️" },
+  { id:"reading",  en:"reading", img:null,               emoji:"📚" },
 ];
 const FOODS = [
-  { id:"watermelon", en:"watermelon",     ja:"すいか",       img:"watermelon.jpg",     emoji:"🍉" },
-  { id:"icecream",   en:"ice cream",      ja:"アイス",       img:"ice cream.jpg",      emoji:"🍦" },
-  { id:"shavedice",  en:"shaved ice",     ja:"かき氷",       img:null,                 emoji:"🍧" },
-  { id:"curry",      en:"curry and rice", ja:"カレーライス", img:"curry and rice.jpg", emoji:"🍛" },
-  { id:"noodles",    en:"noodles",        ja:"めん類",       img:"noodles.jpg",        emoji:"🍜" },
+  { id:"watermelon", en:"watermelon", img:"watermelon.jpg",     emoji:"🍉" },
+  { id:"icecream",   en:"ice cream", img:"ice cream.jpg",      emoji:"🍦" },
+  { id:"shavedice",  en:"shaved ice", img:null,                 emoji:"🍧" },
+  { id:"curry",      en:"curry and rice", img:"curry and rice.jpg", emoji:"🍛" },
+  { id:"noodles",    en:"noodles", img:"noodles.jpg",        emoji:"🍜" },
 ];
 const FEELINGS = [
-  { id:"fun",       en:"fun",       ja:"楽しかった",       img:"fun.jpg",       emoji:"😄" },
-  { id:"great",     en:"great",     ja:"最高だった",       img:"great.jpg",     emoji:"👍" },
-  { id:"exciting",  en:"exciting",  ja:"わくわくした",     img:"exciting.jpg",  emoji:"🤩" },
-  { id:"delicious", en:"delicious", ja:"おいしかった",     img:"delicious.jpg", emoji:"😋" },
-  { id:"beautiful", en:"beautiful", ja:"きれいだった",     img:"beautiful.jpg", emoji:"✨" },
-  { id:"nice",      en:"nice",      ja:"すてきだった",     img:"nice.jpg",      emoji:"🙂" },
+  { id:"fun",       en:"fun", img:"fun.jpg",       emoji:"😄" },
+  { id:"great",     en:"great", img:"great.jpg",     emoji:"👍" },
+  { id:"exciting",  en:"exciting", img:"exciting.jpg",  emoji:"🤩" },
+  { id:"delicious", en:"delicious", img:"delicious.jpg", emoji:"😋" },
+  { id:"beautiful", en:"beautiful", img:"beautiful.jpg", emoji:"✨" },
+  { id:"nice",      en:"nice", img:"nice.jpg",      emoji:"🙂" },
 ];
 const STORAGE_KEY = "summer_map_pins_v1"; // ピンの保存先(この端末のみ)
 
 // ============================================================
-// 音声
+// 音声(共通キット経由。🔊 を おしたときだけ 鳴らす)
 // ============================================================
-function speak(text, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US"; u.rate = rate;
-    speechSynthesis.speak(u);
-  }catch(e){}
+function sfx(n){ try{ if(window.AppUI && AppUI.sfx && AppUI.sfx[n]) AppUI.sfx[n](); }catch(e){} }
+/* 発話は 🔊 か data-say の操作子からだけ。画面が変わっただけでは呼ばない。 */
+function speak(text, rate){
+  try{ if(window.AppUI && AppUI.speak) AppUI.speak(text, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
-function speakQueue(lines, rate = 0.85){
-  try{
-    speechSynthesis.cancel();
-    lines.forEach(t => {
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = "en-US"; u.rate = rate;
-      speechSynthesis.speak(u);
-    });
-  }catch(e){}
+function speakQueue(lines, rate){
+  try{ if(window.AppUI && AppUI.speakQueue) AppUI.speakQueue(lines, { rate: (typeof rate === "number" ? rate : 0.85) }); }catch(e){}
 }
 
 // ============================================================
 // 状態
 // ============================================================
 let sel = { place:null, act:null, food:null, feel:null };
+/* インタビューで つくった 相手の思い出を、つぎに立てる 1本ぶんだけ 覚えておく */
+let pendingPin = null;
 let pins = [];
 try{ pins = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ pins = []; }
 
 const $ = id => document.getElementById(id);
 function show(id){
-  ["scr-select","scr-try","scr-diary","scr-map"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  ["scr-home","scr-select","scr-try","scr-diary","scr-map","scr-interview"]
+    .forEach(s => $(s).classList.toggle("hidden", s !== id));
+  $("btn-home").classList.toggle("hidden", id === "scr-home");
+  $("btn-new").classList.toggle("hidden", id === "scr-home" || id === "scr-interview");
+  window.scrollTo(0, 0);
 }
 function chipHTML(item){
   const inner = item.img
@@ -347,7 +375,7 @@ function buildChips(){
       const el = e.target.closest(".chip"); if(!el) return;
       sel[c.key] = c.list.find(x => x.id === el.dataset.id);
       $(c.elId).querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === el));
-      speak(sel[c.key].en);
+      sfx("tap");
       $("btn-diary").disabled = !(sel.place && sel.act && sel.food && sel.feel);
     });
   });
@@ -369,8 +397,8 @@ function showDiary(){
   const emo = [sel.place.emoji, sel.act.emoji, sel.food.emoji, sel.feel.emoji];
   $("diary-lines").innerHTML = lines.map((t,i) =>
     `<div class="d-line" data-i="${i}"><span class="spk">🔊</span>${t}<span style="margin-left:auto">${emo[i]}</span></div>`).join("");
+  sfx("pop");
   show("scr-diary");
-  speakQueue(lines);
 }
 $("diary-lines").addEventListener("click", e => {
   const el = e.target.closest(".d-line"); if(!el) return;
@@ -397,8 +425,8 @@ $("try-list").addEventListener("click", e => {
 });
 $("btn-diary").addEventListener("click", () => {
   buildTry();
+  sfx("pop");
   show("scr-try");
-  speak("Where did you go?");
 });
 $("btn-back-try").addEventListener("click", () => show("scr-select"));
 $("btn-check").addEventListener("click", showDiary);
@@ -433,17 +461,24 @@ function drawMap(){
 }
 function drawPinList(){
   $("pin-list").innerHTML = pins.map((p,i) =>
-    `<div class="pin-item" data-i="${i}"><span class="pe">${p.emoji}</span>${p.line}<small>(タップで読み上げ)</small></div>`).join("");
+    `<div class="pin-item" data-i="${i}"><span class="pe">${p.emoji}</span>🔊 ${p.line}</div>`).join("");
 }
 $("jmap").addEventListener("pointerdown", e => {
-  if(!sel.place){ return; } // 思い出未作成のときは閲覧のみ
+  /* 立てられるのは「じぶんの思い出」か「インタビューで聞いた相手の思い出」 */
+  const src = pendingPin
+    || (sel.place ? { emoji: sel.place.emoji, line: `I went to ${sel.place.en}.` } : null);
+  if(!src) return; // どちらも 無いときは 閲覧のみ
   const rect = $("jmap").getBoundingClientRect();
   const x = Math.round((e.clientX - rect.left) / rect.width * 400);
   const y = Math.round((e.clientY - rect.top) / rect.height * 500);
-  pins.push({ x, y, emoji: sel.place.emoji, line: `I went to ${sel.place.en}.` });
+  pins.push({ x, y, emoji: src.emoji, line: src.line });
   savePins(); drawMap(); drawPinList();
-  speak(`I went to ${sel.place.en}.`);
-  $("map-sub").textContent = "ピンを立てました!つづけてタップすると、もう1本立てられるよ";
+  sfx("pop");
+  const wasFriend = !!pendingPin;
+  pendingPin = null; // 相手のぶんは 1本だけ
+  $("map-sub").textContent = wasFriend
+    ? "ピンを立てました!つぎの人を インタビューしてこよう"
+    : "ピンを立てました!つづけてタップすると、もう1本立てられるよ";
 });
 $("pin-list").addEventListener("click", e => {
   const el = e.target.closest(".pin-item"); if(!el) return;
@@ -458,15 +493,16 @@ function savePins(){
 // ============================================================
 function newMemory(){
   sel = { place:null, act:null, food:null, feel:null };
+  pendingPin = null;
   document.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
   $("btn-diary").disabled = true;
   speechSynthesis.cancel();
   show("scr-select");
 }
 function openMap(){
-  $("map-sub").textContent = sel.place
+  $("map-sub").textContent = (pendingPin || sel.place)
     ? "地図の行ったあたりをタップしてピンを立てよう"
-    : "みんなのピンをながめられます(思い出をつくるとピンを立てられるよ)";
+    : "みんなのピンをながめられます(思い出をつくるか、ペアでインタビューするとピンを立てられるよ)";
   drawMap(); drawPinList(); show("scr-map");
 }
 $("btn-new").addEventListener("click", newMemory);
@@ -481,7 +517,110 @@ $("btn-clear").addEventListener("click", () => {
 });
 
 buildChips();
-show("scr-select");
+
+// ============================================================
+// ペアで インタビュー
+// ------------------------------------------------------------
+// 相手にしか こたえられない質問を するので、本当の 情報差が うまれる。
+// アプリは こたえを 持っていない。
+// ============================================================
+let iv = { place:null, act:null, food:null, feel:null, hs:"He" };
+function buildInterview(){
+  const box = $("iv-qs");
+  box.innerHTML = "";
+  TRY_QUESTIONS.forEach(t => {
+    const cat = CATS.filter(c => c.key === t.key)[0];
+    const row = document.createElement("div");
+    row.className = "iv-q";
+    const head = document.createElement("div");
+    head.className = "qhead";
+    const tx = document.createElement("span");
+    tx.className = "qtxt"; tx.textContent = t.q;
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "しつもんを きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); speak(t.q); });
+    head.appendChild(tx); head.appendChild(btn);
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    chips.innerHTML = cat.list.map(chipHTML).join("");
+    chips.addEventListener("click", e => {
+      const el = e.target.closest(".chip"); if(!el) return;
+      sfx("tap");
+      iv[t.key] = cat.list.filter(x => x.id === el.dataset.id)[0];
+      chips.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === el));
+      ivUpdate();
+    });
+    row.appendChild(head); row.appendChild(chips);
+    box.appendChild(row);
+  });
+}
+function ivName(){
+  const n = $("iv-who").value.replace(/[^a-zA-Z]/g, "");
+  return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : "";
+}
+function ivUpdate(){
+  $("btn-iv-make").disabled = !(ivName() && iv.place && iv.act && iv.food && iv.feel);
+}
+function ivLines(){
+  return [
+    `This is ${ivName()}.`,
+    `${iv.hs} went to ${iv.place.en}.`,
+    `${iv.hs} enjoyed ${iv.act.en}.`,
+    `${iv.hs} ate ${iv.food.en}.`,
+    `It was ${iv.feel.en}.`
+  ];
+}
+$("iv-who").addEventListener("input", ivUpdate);
+document.querySelectorAll(".iv-name .hs").forEach(b => b.addEventListener("click", () => {
+  sfx("tap");
+  iv.hs = b.dataset.h;
+  document.querySelectorAll(".iv-name .hs").forEach(x => x.classList.toggle("on", x === b));
+}));
+$("btn-iv-make").addEventListener("click", () => {
+  sfx("pop");
+  $("iv-head").textContent = ivName().toUpperCase() + "'S SUMMER";
+  const box = $("iv-lines");
+  box.innerHTML = "";
+  ivLines().forEach(t => {
+    const line = document.createElement("div");
+    line.className = "iv-line";
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "say"; btn.textContent = "🔊";
+    btn.setAttribute("aria-label", "この文を きく 🔊");
+    btn.addEventListener("click", () => { sfx("tap"); speak(t); });
+    const tx = document.createElement("span");
+    tx.className = "txt"; tx.textContent = t;
+    line.appendChild(btn); line.appendChild(tx);
+    box.appendChild(line);
+  });
+  $("iv-result").classList.remove("hidden");
+});
+$("btn-iv-say").addEventListener("click", () => { sfx("tap"); speakQueue(ivLines()); });
+$("btn-iv-pin").addEventListener("click", () => {
+  sfx("pop");
+  pendingPin = { emoji: iv.place.emoji, line: `${ivName()} went to ${iv.place.en}.` };
+  $("map-sub").textContent = ivName() + " の 思い出です。地図の 行ったあたりを タップして ピンを 立てよう";
+  drawMap(); drawPinList(); show("scr-map");
+});
+$("btn-iv-clear").addEventListener("click", () => {
+  sfx("tap");
+  iv = { place:null, act:null, food:null, feel:null, hs:iv.hs };
+  $("iv-who").value = "";
+  $("iv-qs").querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+  $("iv-result").classList.add("hidden");
+  ivUpdate();
+  window.scrollTo(0, 0);
+});
+buildInterview();
+ivUpdate();
+
+$("btn-home").addEventListener("click", () => { sfx("tap"); pendingPin = null; show("scr-home"); });
+$("mode-mine").addEventListener("click", () => { sfx("pop"); pendingPin = null; show("scr-select"); });
+$("mode-iv").addEventListener("click", () => { sfx("pop"); pendingPin = null; show("scr-interview"); });
+$("mode-map").addEventListener("click", () => { sfx("pop"); pendingPin = null; openMap(); });
+
+show("scr-home");
 
 // ============================================================
 // 塗り重ね: 相手をかえて・条件をかえて もういちど言ってみる
@@ -518,8 +657,7 @@ document.getElementById("btn-again-try").addEventListener("click", () => {
 <div id="app-help-overlay" class="ah-hidden">
   <div class="ah-box">
     <button class="ah-close" id="app-help-close">✕</button>
-    <h3>❓ このアプリの使い方</h3>
-    <p>夏の思い出を過去の表現で伝え合うアプリです。</p><h4>あそびかた</h4><ol><li>夏の思い出(行った場所・したこと・食べたもの・気持ち)をえらぶ</li><li>まず<b>じぶんの口で</b>言ってみてから、お手本の日記でたしかめよう</li><li>「みんなの夏の思い出マップ」で、クラスの思い出をながめてみよう</li></ol><div class="ah-tip">💡 先生向け:went / ate / saw などの過去形は、まちがえても伝わればOKの姿勢で。</div>
+    <h3>❓ このアプリの使い方</h3><p>夏の思い出を 過去形の日記にして、地図に ピンを立てる アプリです。友だちに インタビューして、<b>相手の思い出</b>を 地図に のせることも できます。</p><h4>🏖️ じぶんの 夏の思い出</h4><ol><li>行ったところ・したこと・食べたもの・きもちを 絵カードで えらぶ</li><li>まず <b>じぶんの口で</b> 話してみる</li><li>お手本の日記と くらべ、地図に ピンを立てる</li></ol><h4>🎤 ペアで インタビュー</h4><ol><li>相手の名前と He / She を えらぶ</li><li>4つの しつもんを 英語で たずね、こたえを 絵カードで 記録する</li><li>できた日記(She went to the sea. など)を 🔊 で たしかめ、地図に のせる</li></ol><div class="ah-tip">💡 <b>先生向け:</b> アプリは <b>かってに 読み上げません</b>。🔊 を おしたときだけ 発音します。まず 子どもが 自分の口で 言ってから たしかめる、という順番で つかってください。ピンは この端末の中だけに たまります。インタビューで ためると、地図が <b>クラス全員の 思い出マップ</b>に なります。</div>
   </div>
 </div>
 <script>

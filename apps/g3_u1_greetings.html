@@ -320,14 +320,14 @@ function centerOf(el){ var r = el.getBoundingClientRect(); return { x:r.left + r
    lang: Web Speech API の言語コード(ブラウザ非対応の言語は ちかい音になります)
    ============================================================ */
 var COUNTRIES = [
-  { ja:"にほん",       en:"Japan",   flag:"🇯🇵", img:"Japan.jpg",   greet:"こんにちは",       roma:"Konnichiwa", speakText:"こんにちは",       lang:"ja-JP", greetImg:"Konnichiwa.jpg", note:"にほんの あいさつだよ" },
-  { ja:"アメリカ",     en:"America", flag:"🇺🇸", img:"America.jpg", greet:"Hello!",           roma:"Hello",       speakText:"Hello!",           lang:"en-US", greetImg:"Hello.jpg",      note:"えいごの あいさつ。せかいじゅうで つかわれているよ" },
-  { ja:"ちゅうごく",   en:"China",   flag:"🇨🇳", img:"China.jpg",   greet:"你好",             roma:"Ni hao",      speakText:"你好",             lang:"zh-CN", greetImg:"Nihao.jpg",      note:"ちゅうごくごの あいさつだよ" },
-  { ja:"かんこく",     en:"Korea",   flag:"🇰🇷", img:"Korea.jpg",   greet:"안녕하세요",       roma:"Annyeonghaseyo", speakText:"안녕하세요",     lang:"ko-KR", greetImg:null,             note:"かんこくごの あいさつだよ" },
-  { ja:"インド",       en:"India",   flag:"🇮🇳", img:"India.jpg",   greet:"नमस्ते",            roma:"Namaste",     speakText:"Namaste",         lang:"hi-IN", greetImg:"Namaste.jpg",    note:"ヒンディーごの あいさつ。てを あわせて 言うよ" },
-  { ja:"ケニア",       en:"Kenya",   flag:"🇰🇪", img:"Kenya.jpg",   greet:"Jambo!",           roma:"Jambo",       speakText:"Jambo!",           lang:"en-US", greetImg:null,             note:"スワヒリごの あいさつだよ" },
-  { ja:"フィンランド", en:"Finland", flag:"🇫🇮", img:"Finland.jpg", greet:"Hei!",             roma:"Hei",         speakText:"Hei!",             lang:"fi-FI", greetImg:null,             note:"フィンランドごの あいさつだよ" },
-  { ja:"フランス",     en:"France",  flag:"🇫🇷", img:"France.jpg",  greet:"Bonjour!",         roma:"Bonjour",     speakText:"Bonjour!",         lang:"fr-FR", greetImg:"Bonjour.jpg",    note:"フランスごの あいさつだよ" }
+  { jpName:"にほん",       en:"Japan",   flag:"🇯🇵", img:"Japan.jpg",   greet:"こんにちは",       roma:"Konnichiwa", speakText:"こんにちは",       lang:"ja-JP", greetImg:"Konnichiwa.jpg", note:"にほんの あいさつだよ" },
+  { jpName:"アメリカ",     en:"America", flag:"🇺🇸", img:"America.jpg", greet:"Hello!",           roma:"Hello",       speakText:"Hello!",           lang:"en-US", greetImg:"Hello.jpg",      note:"えいごの あいさつ。せかいじゅうで つかわれているよ" },
+  { jpName:"ちゅうごく",   en:"China",   flag:"🇨🇳", img:"China.jpg",   greet:"你好",             roma:"Ni hao",      speakText:"你好",             lang:"zh-CN", greetImg:"Nihao.jpg",      note:"ちゅうごくごの あいさつだよ" },
+  { jpName:"かんこく",     en:"Korea",   flag:"🇰🇷", img:"Korea.jpg",   greet:"안녕하세요",       roma:"Annyeonghaseyo", speakText:"안녕하세요",     lang:"ko-KR", greetImg:null,             note:"かんこくごの あいさつだよ" },
+  { jpName:"インド",       en:"India",   flag:"🇮🇳", img:"India.jpg",   greet:"नमस्ते",            roma:"Namaste",     speakText:"Namaste",         lang:"hi-IN", greetImg:"Namaste.jpg",    note:"ヒンディーごの あいさつ。てを あわせて 言うよ" },
+  { jpName:"ケニア",       en:"Kenya",   flag:"🇰🇪", img:"Kenya.jpg",   greet:"Jambo!",           roma:"Jambo",       speakText:"Jambo!",           lang:"en-US", greetImg:null,             note:"スワヒリごの あいさつだよ" },
+  { jpName:"フィンランド", en:"Finland", flag:"🇫🇮", img:"Finland.jpg", greet:"Hei!",             roma:"Hei",         speakText:"Hei!",             lang:"fi-FI", greetImg:null,             note:"フィンランドごの あいさつだよ" },
+  { jpName:"フランス",     en:"France",  flag:"🇫🇷", img:"France.jpg",  greet:"Bonjour!",         roma:"Bonjour",     speakText:"Bonjour!",         lang:"fr-FR", greetImg:"Bonjour.jpg",    note:"フランスごの あいさつだよ" }
 ];
 var byEn = {};
 COUNTRIES.forEach(function(c){ byEn[c.en] = c; });
@@ -361,7 +361,7 @@ function awardStamp(en){
 function renderStampBar(){
   var rail = $('stamp-rail');
   rail.innerHTML = COUNTRIES.map(function(c){
-    return '<span class="g-stamp-chip' + (stamps[c.en] ? ' got' : '') + '" title="' + esc(c.ja) + '" aria-hidden="true">' + c.flag + '</span>';
+    return '<span class="g-stamp-chip' + (stamps[c.en] ? ' got' : '') + '" title="' + esc(c.jpName) + '" aria-hidden="true">' + c.flag + '</span>';
   }).join('');
   $('stamp-count').textContent = stampCount() + ' / ' + COUNTRIES.length;
   $('stamp-bar-fill').style.width = Math.round(stampCount() / COUNTRIES.length * 100) + '%';
@@ -414,7 +414,7 @@ function renderFlags(){
     var tile = document.createElement('button');
     tile.type = 'button';
     tile.className = 'g-flag-tile' + (stamps[c.en] ? ' got' : '');
-    tile.setAttribute('aria-label', c.ja + ' の あいさつを きく');
+    tile.setAttribute('aria-label', c.jpName + ' の あいさつを きく');
 
     var imgWrap = document.createElement('span');
     imgWrap.className = 'g-flag-imgwrap';
@@ -424,7 +424,7 @@ function renderFlags(){
     var label = document.createElement('span');
     label.className = 'g-flag-label';
     label.innerHTML = '<span class="g-flag-emoji">' + c.flag + '</span>' +
-      '<span class="g-flag-name">' + esc(c.ja) + '</span>' +
+      '<span class="g-flag-name">' + esc(c.jpName) + '</span>' +
       '<span class="g-flag-en">' + esc(c.en) + '</span>';
     tile.appendChild(label);
 
@@ -443,7 +443,7 @@ function renderFlags(){
 var current = null;
 function openDetail(c){
   current = c;
-  $('d-head').textContent = c.flag + ' ' + c.ja + '(' + c.en + ')';
+  $('d-head').textContent = c.flag + ' ' + c.jpName + '(' + c.en + ')';
   var chip = $('d-stampchip');
   var wasGot = !!stamps[c.en];
   chip.textContent = wasGot ? '🎫 スタンプずみ' : '🔲 まだ スタンプなし';
@@ -467,7 +467,7 @@ function openDetail(c){
   if(result.isNew){
     sfx('pop');
     setTimeout(function(){ stars(centerOf(chip).x, centerOf(chip).y); }, 120);
-    toast('🎫 ' + c.ja + 'の スタンプを ゲットしたよ!');
+    toast('🎫 ' + c.jpName + 'の スタンプを ゲットしたよ!');
   }
   celebrateIfComplete(result);
 }
@@ -483,7 +483,7 @@ function drawMission(){
   if(missionCountry && COUNTRIES.length > 1){ pool = COUNTRIES.filter(function(c){ return c.en !== missionCountry.en; }); }
   missionCountry = pick(pool);
   $('m-flag').textContent = missionCountry.flag;
-  $('m-country').textContent = missionCountry.ja;
+  $('m-country').textContent = missionCountry.jpName;
   $('m-greet').textContent = missionCountry.greet;
   var mrd = romaFor(missionCountry);
   $('m-roma').textContent = mrd ? ('(' + mrd + ')') : '';
@@ -498,7 +498,7 @@ $('btn-m-done').addEventListener('click', function(e){
   if(result.isNew){
     sfx('correct');
     stars(pos.x, pos.y);
-    toast('🎫 ' + missionCountry.ja + 'の スタンプを ゲットしたよ!よく できました!');
+    toast('🎫 ' + missionCountry.jpName + 'の スタンプを ゲットしたよ!よく できました!');
   }else{
     sfx('pop');
     stars(pos.x, pos.y);
@@ -545,7 +545,7 @@ function drawQuizQ(){
     tile.appendChild(imgWrap);
     var label = document.createElement('span');
     label.className = 'g-flag-label';
-    label.innerHTML = '<span class="g-flag-emoji">' + c.flag + '</span><span class="g-flag-name">' + esc(c.ja) + '</span>';
+    label.innerHTML = '<span class="g-flag-emoji">' + c.flag + '</span><span class="g-flag-name">' + esc(c.jpName) + '</span>';
     tile.appendChild(label);
     tile.addEventListener('click', function(){ answerQuiz(tile, c, q); });
     wrap.appendChild(tile);
