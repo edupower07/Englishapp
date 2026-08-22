@@ -337,18 +337,18 @@ function cardImgBox(w, sizeClass){
    hints: この単語をつくるときに えらべるヒントの候補(3〜4個)
    ============================================================ */
 var WORD_BANK = [
-  { word:"cat",      ja:"ねこ",       img:"cat.jpg",      emoji:"🐱", hints:["It's an animal.(どうぶつだよ)","It's small.(ちいさいよ)","It says 'meow.'(ニャーとなくよ)","It starts with C.(Cではじまるよ)"] },
-  { word:"dog",      ja:"いぬ",       img:"dog.jpg",      emoji:"🐶", hints:["It's an animal.(どうぶつだよ)","It says 'woof.'(ワンとなくよ)","It's your friend.(ともだちだよ)","It starts with D.(Dではじまるよ)"] },
-  { word:"rabbit",   ja:"うさぎ",     img:"rabbit.jpg",   emoji:"🐰", hints:["It's an animal.(どうぶつだよ)","It's white.(しろいよ)","It has long ears.(みみがながいよ)","It starts with R.(Rではじまるよ)"] },
-  { word:"elephant", ja:"ぞう",       img:"elephant.jpg", emoji:"🐘", hints:["It's an animal.(どうぶつだよ)","It's big.(おおきいよ)","It has a long nose.(はなが ながいよ)","It starts with E.(Eではじまるよ)"] },
-  { word:"lion",     ja:"ライオン",   img:"lion.jpg",     emoji:"🦁", hints:["It's an animal.(どうぶつだよ)","It's strong.(つよいよ)","It's the king.(おうさまだよ)","It starts with L.(Lではじまるよ)"] },
-  { word:"apple",    ja:"りんご",     img:"apple.jpg",    emoji:"🍎", hints:["It's a fruit.(くだものだよ)","It's red.(あかいよ)","It's round.(まるいよ)","It starts with A.(Aではじまるよ)"] },
-  { word:"banana",   ja:"バナナ",     img:"banana.jpg",   emoji:"🍌", hints:["It's a fruit.(くだものだよ)","It's yellow.(きいろだよ)","It's long.(ながいよ)","Monkeys like it.(さるがすきだよ)"] },
-  { word:"melon",    ja:"メロン",     img:"melon.jpg",    emoji:"🍈", hints:["It's a fruit.(くだものだよ)","It's green.(みどりだよ)","It's round.(まるいよ)","It's sweet.(あまいよ)"] },
-  { word:"pizza",    ja:"ピザ",       img:"pizza.jpg",    emoji:"🍕", hints:["It's food.(たべものだよ)","It's round.(まるいよ)","It's hot.(あついよ)","It starts with P.(Pではじまるよ)"] },
-  { word:"star",     ja:"ほし",       img:"star.jpg",     emoji:"⭐", hints:["Look at the sky.(そらを見てね)","It's yellow.(きいろだよ)","You see it at night.(よるに見えるよ)","It starts with S.(Sではじまるよ)"] },
-  { word:"umbrella", ja:"かさ",       img:"umbrella.jpg", emoji:"☔", hints:["Use it on rainy days.(あめの日につかうよ)","It starts with U.(Uではじまるよ)","You hold it.(手にもつよ)"] },
-  { word:"soccer ball", ja:"サッカーボール", img:"soccer.jpg", emoji:"⚽", hints:["It's round.(まるいよ)","You kick it.(けるよ)","It's black and white.(しろとくろだよ)"] },
+  { word:"cat", img:"cat.jpg",      emoji:"🐱", hints:["It's an animal.(どうぶつだよ)","It's small.(ちいさいよ)","It says 'meow.'(ニャーとなくよ)","It starts with C.(Cではじまるよ)"] },
+  { word:"dog", img:"dog.jpg",      emoji:"🐶", hints:["It's an animal.(どうぶつだよ)","It says 'woof.'(ワンとなくよ)","It's your friend.(ともだちだよ)","It starts with D.(Dではじまるよ)"] },
+  { word:"rabbit", img:"rabbit.jpg",   emoji:"🐰", hints:["It's an animal.(どうぶつだよ)","It's white.(しろいよ)","It has long ears.(みみがながいよ)","It starts with R.(Rではじまるよ)"] },
+  { word:"elephant", img:"elephant.jpg", emoji:"🐘", hints:["It's an animal.(どうぶつだよ)","It's big.(おおきいよ)","It has a long nose.(はなが ながいよ)","It starts with E.(Eではじまるよ)"] },
+  { word:"lion", img:"lion.jpg",     emoji:"🦁", hints:["It's an animal.(どうぶつだよ)","It's strong.(つよいよ)","It's the king.(おうさまだよ)","It starts with L.(Lではじまるよ)"] },
+  { word:"apple", img:"apple.jpg",    emoji:"🍎", hints:["It's a fruit.(くだものだよ)","It's red.(あかいよ)","It's round.(まるいよ)","It starts with A.(Aではじまるよ)"] },
+  { word:"banana", img:"banana.jpg",   emoji:"🍌", hints:["It's a fruit.(くだものだよ)","It's yellow.(きいろだよ)","It's long.(ながいよ)","Monkeys like it.(さるがすきだよ)"] },
+  { word:"melon", img:"melon.jpg",    emoji:"🍈", hints:["It's a fruit.(くだものだよ)","It's green.(みどりだよ)","It's round.(まるいよ)","It's sweet.(あまいよ)"] },
+  { word:"pizza", img:"pizza.jpg",    emoji:"🍕", hints:["It's food.(たべものだよ)","It's round.(まるいよ)","It's hot.(あついよ)","It starts with P.(Pではじまるよ)"] },
+  { word:"star", img:"star.jpg",     emoji:"⭐", hints:["Look at the sky.(そらを見てね)","It's yellow.(きいろだよ)","You see it at night.(よるに見えるよ)","It starts with S.(Sではじまるよ)"] },
+  { word:"umbrella", img:"umbrella.jpg", emoji:"☔", hints:["Use it on rainy days.(あめの日につかうよ)","It starts with U.(Uではじまるよ)","You hold it.(手にもつよ)"] },
+  { word:"soccer ball", img:"soccer.jpg", emoji:"⚽", hints:["It's round.(まるいよ)","You kick it.(けるよ)","It's black and white.(しろとくろだよ)"] },
 ];
 var SAMPLE_QUIZZES = [
   { id:"sample1", word:"elephant", hints:[0,1,2], sample:true },
