@@ -96,17 +96,10 @@ main{ max-width:1300px; margin:0 auto; padding:14px 14px 70px; overflow-x:hidden
   overflow:visible;
 }
 .w-char{ position:absolute; inset:0; }
-.w-char-head{ position:absolute; top:3%; left:33%; width:34%; height:25%; border-radius:50%; background:#ffdfb0; box-shadow:inset 0 -6px 10px rgba(0,0,0,.06); }
-.w-char-head::before, .w-char-head::after{ content:''; position:absolute; top:46%; width:8%; height:8%; border-radius:50%; background:#3b3b3b; }
-.w-char-head::before{ left:28%; }
-.w-char-head::after{ left:64%; }
-.w-char-body{ position:absolute; top:28%; left:24%; width:52%; height:36%; border-radius:26px; background:#fdfdfd; border:3px solid #eef2f6; }
-.w-char-arm{ position:absolute; top:32%; width:12%; height:26%; border-radius:20px; background:#ffdfb0; }
-.w-char-arm-l{ left:12%; }
-.w-char-arm-r{ left:76%; }
-.w-char-leg{ position:absolute; top:62%; width:16%; height:26%; border-radius:16px; background:#8aa0b3; }
-.w-char-leg-l{ left:29%; }
-.w-char-leg-r{ left:55%; }
+.w-char svg{ width:100%; height:100%; display:block; }
+/* ぼうしを かぶったら かみは かくす。かみが 濃い色のままだと、
+   ぼうしの絵(乗算合成)が かみの色と かけ算されて どす黒くなるため。 */
+.w-charstage.has-hat .w-char-hair{ display:none; }
 
 .w-slot{ position:absolute; pointer-events:none; }
 .w-slot .app-card-art{ width:100%; height:100%; }
@@ -116,7 +109,7 @@ main{ max-width:1300px; margin:0 auto; padding:14px 14px 70px; overflow-x:hidden
 .w-slot .app-card-emoji{ font-size:3.6rem; line-height:1; }
 .w-slot[data-slot="head"] .app-card-emoji{ font-size:3.4rem; }
 .w-slot[data-slot="face"] .app-card-emoji{ font-size:2.6rem; }
-.w-slot[data-slot="neck"] .app-card-emoji{ font-size:2rem; }
+.w-slot[data-slot="neck"] .app-card-emoji{ font-size:2.6rem; }
 .w-slot[data-slot="body"] .app-card-emoji{ font-size:4.6rem; }
 .w-slot[data-slot="hand"] .app-card-emoji{ font-size:2.2rem; }
 .w-slot[data-slot="held"] .app-card-emoji{ font-size:3.6rem; }
@@ -125,13 +118,15 @@ main{ max-width:1300px; margin:0 auto; padding:14px 14px 70px; overflow-x:hidden
    スタッキングコンテキストができ、cutout(mix-blend-mode)の合成が切れて
    服の後ろに白い四角が出てしまう(共通CSSの注意書きを参照)。
    重ね順は DOM の追加順(SLOTS の並び)で決めている。 */
-.w-slot[data-slot="head"]{ top:1%;  left:33%; width:34%; height:25.5%; }
-.w-slot[data-slot="face"]{ top:11%; left:37%; width:27%; height:20.3%; }
-.w-slot[data-slot="neck"]{ top:23%; left:40%; width:20%; height:15%;  }
-.w-slot[data-slot="body"]{ top:27%; left:27%; width:46%; height:34.5%; }
-.w-slot[data-slot="hand"]{ top:34%; left:2%;  width:22%; height:16.5%; }
-.w-slot[data-slot="held"]{ top:2%;  left:63%; width:35%; height:26.3%; }
-.w-slot[data-slot="feet"]{ top:63%; left:29%; width:42%; height:31.5%; }
+/* 位置は キャラクターの絵(viewBox 300x400)に あわせてある。
+   絵を かきかえたら ここも あわせて 直すこと。 */
+.w-slot[data-slot="head"]{ top:-3%; left:33%; width:34%; height:23%;   }  /* あたま(ぼうし) */
+.w-slot[data-slot="face"]{ top:9%;  left:37%; width:27%; height:15%;   }  /* かお(サングラス) */
+.w-slot[data-slot="neck"]{ top:26%; left:38%; width:24%; height:13%;   }  /* えりもと(マフラー) */
+.w-slot[data-slot="body"]{ top:28%; left:29%; width:42%; height:29%;   }  /* むね(服) */
+.w-slot[data-slot="hand"]{ top:46%; left:11%; width:24%; height:18%;   }  /* 左手(手ぶくろ) */
+.w-slot[data-slot="held"]{ top:0%;  left:63%; width:35%; height:26%;   }  /* 上げた右手(かさ) */
+.w-slot[data-slot="feet"]{ top:66%; left:29%; width:42%; height:30%;   }  /* あし(くつ) */
 .w-slot.filled{ cursor:pointer; pointer-events:auto; }
 .w-charstage.w-dragover{ box-shadow:0 14px 30px rgba(0,0,0,.16), inset 0 6px 16px rgba(255,255,255,.9), 0 0 0 6px rgba(46,213,115,.5); }
 .w-char-empty-hint{
@@ -604,13 +599,83 @@ function wornIds(){ return SLOTS.filter(function(s){ return worn[s]; }).map(func
 /* ============================================================
    3. キャラクター土台(きせかえ用 / プレビュー用で共通利用)
    ============================================================ */
+/* キャラクターの絵。SVG は スロット(服)の 祖先では なく きょうだいなので、
+   中で transform や opacity を つかっても 服の cutout合成は こわれない。
+   服が 重なるところ(むね・あし)は 白〜うすい色に してある。乗算合成で
+   服の 色が にごらないようにするため。 */
+var CHAR_SVG = '<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+  '  <!-- ゆかの かげ -->' +
+  '  <ellipse cx="150" cy="366" rx="70" ry="10" fill="#c3d3e3"/>' +
+  '' +
+  '  <!-- あし と くつした(ふとい線=ふちどり、細い線=ぬり) -->' +
+  '  <g stroke-linecap="round" fill="none">' +
+  '    <path d="M118 240 L115 330" stroke="#f0c48d" stroke-width="48"/>' +
+  '    <path d="M182 240 L185 330" stroke="#f0c48d" stroke-width="48"/>' +
+  '    <path d="M118 240 L115 330" stroke="#ffdcae" stroke-width="42"/>' +
+  '    <path d="M182 240 L185 330" stroke="#ffdcae" stroke-width="42"/>' +
+  '    <path d="M115 320 L114 340" stroke="#dbe4ee" stroke-width="48"/>' +
+  '    <path d="M185 320 L186 340" stroke="#dbe4ee" stroke-width="48"/>' +
+  '    <path d="M115 320 L114 340" stroke="#ffffff" stroke-width="42"/>' +
+  '    <path d="M185 320 L186 340" stroke="#ffffff" stroke-width="42"/>' +
+  '  </g>' +
+  '' +
+  '  <!-- ズボン -->' +
+  '  <path d="M110 202 H190 Q200 202 200 214 V246 Q200 260 186 260 H168 Q157 260 157 250 V228 H143 V250 Q143 260 132 260 H114 Q100 260 100 246 V214 Q100 202 110 202 Z"' +
+  '        fill="#8fb8dd" stroke="#6d9cc6" stroke-width="4" stroke-linejoin="round"/>' +
+  '' +
+  '  <!-- うで(はだ) -->' +
+  '  <g stroke-linecap="round" fill="none">' +
+  '    <path d="M104 160 L86 226" stroke="#f0c48d" stroke-width="36"/>' +
+  '    <path d="M196 152 L232 104" stroke="#f0c48d" stroke-width="36"/>' +
+  '    <path d="M104 160 L86 226" stroke="#ffdcae" stroke-width="30"/>' +
+  '    <path d="M196 152 L232 104" stroke="#ffdcae" stroke-width="30"/>' +
+  '  </g>' +
+  '  <circle cx="86" cy="230" r="19" fill="#ffdcae" stroke="#f0c48d" stroke-width="4"/>' +
+  '  <circle cx="234" cy="100" r="19" fill="#ffdcae" stroke="#f0c48d" stroke-width="4"/>' +
+  '' +
+  '  <!-- 白いTシャツ。ふちどりを ぜんぶ かいてから ぬりを かさねるので、' +
+  '       からだと そでの あいだに つぎ目が 出ない。 -->' +
+  '  <rect x="95" y="121" width="110" height="112" rx="31" fill="#e0e8f2"/>' +
+  '  <g stroke="#e0e8f2" stroke-width="52" stroke-linecap="round" fill="none">' +
+  '    <path d="M112 148 L98 176"/>' +
+  '    <path d="M188 144 L204 120"/>' +
+  '  </g>' +
+  '  <g stroke="#ffffff" stroke-width="44" stroke-linecap="round" fill="none">' +
+  '    <path d="M112 148 L98 176"/>' +
+  '    <path d="M188 144 L204 120"/>' +
+  '  </g>' +
+  '  <rect x="100" y="126" width="100" height="102" rx="26" fill="#ffffff"/>' +
+  '  <!-- えりもと -->' +
+  '  <path d="M134 127 Q150 142 166 127" fill="none" stroke="#e0e8f2" stroke-width="5" stroke-linecap="round"/>' +
+  '' +
+  '  <!-- くび -->' +
+  '  <rect x="137" y="96" width="26" height="32" rx="12" fill="#ffdcae" stroke="#f0c48d" stroke-width="4"/>' +
+  '  <rect x="139" y="98" width="22" height="24" fill="#ffdcae"/>' +
+  '' +
+  '  <!-- みみ -->' +
+  '  <circle cx="102" cy="66" r="11" fill="#ffdcae" stroke="#f0c48d" stroke-width="4"/>' +
+  '  <circle cx="198" cy="66" r="11" fill="#ffdcae" stroke="#f0c48d" stroke-width="4"/>' +
+  '  <!-- かお -->' +
+  '  <rect x="104" y="20" width="92" height="88" rx="42" fill="#ffdcae" stroke="#f0c48d" stroke-width="4"/>' +
+  '  <!-- かみ(ぼうしを かぶったら かくれる) -->' +
+  '  <g class="w-char-hair">' +
+  '    <path d="M105 58 Q102 18 150 16 Q198 18 195 58 Q188 40 172 35 Q156 45 136 42 Q120 40 113 37 Q108 44 105 58 Z" fill="#7a5a41"/>' +
+  '  </g>' +
+  '  <!-- め -->' +
+  '  <circle cx="131" cy="68" r="8" fill="#3b3b3b"/>' +
+  '  <circle cx="169" cy="68" r="8" fill="#3b3b3b"/>' +
+  '  <circle cx="133.6" cy="65.2" r="2.8" fill="#ffffff"/>' +
+  '  <circle cx="171.6" cy="65.2" r="2.8" fill="#ffffff"/>' +
+  '  <!-- ほお -->' +
+  '  <ellipse cx="115" cy="83" rx="8.5" ry="5.5" fill="#ffb0a3"/>' +
+  '  <ellipse cx="185" cy="83" rx="8.5" ry="5.5" fill="#ffb0a3"/>' +
+  '  <!-- くち -->' +
+  '  <path d="M141 87 Q150 96 159 87" fill="none" stroke="#c8705f" stroke-width="4.5" stroke-linecap="round"/>' +
+  '</svg>';
 function buildCharDoll(){
   var doll = document.createElement('div');
   doll.className = 'w-char';
-  doll.innerHTML =
-    '<div class="w-char-head"></div><div class="w-char-body"></div>' +
-    '<div class="w-char-arm w-char-arm-l"></div><div class="w-char-arm w-char-arm-r"></div>' +
-    '<div class="w-char-leg w-char-leg-l"></div><div class="w-char-leg w-char-leg-r"></div>';
+  doll.innerHTML = CHAR_SVG;
   return doll;
 }
 function buildCharStage(readonly){
@@ -628,6 +693,9 @@ function buildCharStage(readonly){
   return { stage:stage, slots:slots, readonly:!!readonly };
 }
 function fillStage(slots, wornMap){
+  /* ぼうしを かぶっているかどうかを ステージに しるしておく(かみを かくすため) */
+  var stage = slots.head && slots.head.parentNode;
+  if(stage) stage.classList.toggle('has-hat', !!wornMap.head);
   SLOTS.forEach(function(s){
     var el = slots[s];
     el.innerHTML = '';
