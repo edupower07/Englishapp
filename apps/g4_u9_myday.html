@@ -680,12 +680,13 @@ function onDrag(e){
   d.row.style.transform = 'translateY(' + dy + 'px)';
   /* うごかしている 行の まん中が、どの 行を こえたかで いき先を きめる */
   var cy = d.rects[d.from].top + d.rects[d.from].height / 2 + dy;
+  var half = d.step / 2;   /* 半分こえたら 入れかわる(まるごと1行 うごかさなくてよい) */
   var to = d.from;
   for(var k = 0; k < d.rects.length; k++){
     if(k === d.from) continue;
     var mid = d.rects[k].top + d.rects[k].height / 2;
-    if(k < d.from && cy < mid) to = Math.min(to, k);
-    if(k > d.from && cy > mid) to = Math.max(to, k);
+    if(k < d.from && cy < mid + half) to = Math.min(to, k);
+    if(k > d.from && cy > mid - half) to = Math.max(to, k);
   }
   if(to !== d.to){
     d.to = to;
