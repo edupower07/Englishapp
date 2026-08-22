@@ -18,6 +18,7 @@ apps/               ← 各アプリ(単一HTMLファイル、全33本+Small Tal
   g5_*.html         ← 5年生向けアプリ(8本)
   g6_*.html         ← 6年生向けアプリ(8本)
 shared/             ← 共通デザインキット(app-ui.css / app-ui.js / demo.html)
+  img/              ← アプリで使う画像(天気アプリのキャラクターなど)
 tools/              ← アプリ改修の受け入れ検査(check_app.py)
 ```
 
